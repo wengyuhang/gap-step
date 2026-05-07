@@ -1,0 +1,21 @@
+name: gap-step
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1
+  - numpy
+  - gymnasium
+  - matplotlib
+  - pygame
+  - pyyaml
+  - tqdm
+  - pandas
+  - tensorboard
+  - pytest
+  - pillow

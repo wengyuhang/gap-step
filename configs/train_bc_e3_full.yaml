@@ -1,0 +1,14 @@
+env_config: configs/env_e3.yaml
+dataset_path: data/e3/demos.npz
+seed: 2
+num_demo_episodes: 2000
+max_episode_steps: 500
+train_split: 0.9
+batch_size: 256
+epochs: 35
+lr: 0.0003
+lambda_g: 0.5
+lambda_w: 0.2
+lambda_s: 0.2
+checkpoints_dir: checkpoints/e3
+runs_dir: runs/e3
