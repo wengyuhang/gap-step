@@ -7,7 +7,7 @@ import yaml
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
+# print(f"Project root: {PROJECT_ROOT}")
 
 def load_yaml(path: str | Path) -> dict[str, Any]:
     path = Path(path)
@@ -24,7 +24,6 @@ def ensure_dir(path: str | Path) -> Path:
         path = PROJECT_ROOT / path
     path.mkdir(parents=True, exist_ok=True)
     return path
-
 
 def resolve_path(path: str | Path) -> Path:
     path = Path(path)
