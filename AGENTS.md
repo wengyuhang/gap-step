@@ -1,50 +1,56 @@
 # AGENTS.md
 
-This file gives coding agents the project-specific context needed to work on GAP-Step without rediscovering the same constraints.
+This file gives coding agents the project-specific context needed to work on GAP-Step.
 
 ## Project Goal
 
-GAP-Step is a minimal 2D / 2.5D research project for dynamic gate crossing. It tests whether a visual student policy can learn gate selection and timing from:
+GAP-Step is a continuous 2D rotating time-varying window maze project with mixed horizontal and vertical wall segments. The current stage trains only a PPO privileged teacher policy with low-dimensional observations:
 
-- privileged heuristic teacher demonstrations
-- visual behavior cloning
-- auxiliary current gate-width and safety prediction
-- compact PPO fine-tuning
+- normalized robot position and velocity
+- normalized relative goal features
+- 32 ray distances against the current traversable geometry
 
-The project intentionally excludes full 3D quadrotor dynamics, full SITT proxy-student machinery, world models, future video prediction, and active camera control.
+The project intentionally excludes visual students, behavior cloning, heuristic demonstrations, full SITT, world models, future video prediction, active perception, 3D simulators, and quadrotor dynamics.
 
 ## Repository Layout
 
-- `gap_step/envs/`: 2D environment, gate dynamics, renderer
-- `gap_step/teachers/`: heuristic privileged teacher
-- `gap_step/models/`: CNN encoder and student policy
-- `trainers/`: demo generation, BC training, PPO fine-tuning, evaluation
-- `scripts/`: rollout visualization scripts
-- `configs/`: environment and training YAML configs
-- `tests/`: focused environment, dynamics, and teacher tests
-- `docs/`: project context, architecture, roadmap, decisions, and task log
+All runnable project code lives directly under `gap_step/`:
+
+- `gap_step/env.py`: environment, collision, raycast observation, rendering
+- `gap_step/curriculum.py`: C1-C5 procedural maze generation
+- `gap_step/model.py`: PPO teacher actor-critic
+- `gap_step/ppo.py`: rollout and PPO update logic
+- `gap_step/train.py`: training entrypoint
+- `gap_step/evaluate.py`: evaluation entrypoint
+- `gap_step/visualize.py`: GIF visualization entrypoint
+- `gap_step/utils.py`: shared utilities
+- `gap_step/configs/`: teacher training YAML configs
+- `gap_step/tests/`: focused curriculum, environment, and model tests
+- `docs/`: persistent project context
+
+Do not reintroduce `trainers/`, `scripts/`, `gap_step/envs/`, `gap_step/models/`, or `gap_step/teachers/` as active code paths.
 
 ## Working Rules
 
-- Prefer small, runnable changes over broad rewrites.
+- Prefer small, runnable changes over broad rewrites unless the user explicitly asks for a full refactor.
+- At the start of non-trivial tasks, inspect `docs/` and read the relevant project notes.
 - Keep configuration in YAML when possible.
+- Preserve the v4.6 observation contract: `N_ray = 32`, `ray_max_dist = 0.35 * S`, `obs_dim = 39`.
 - Do not add 3D simulator dependencies unless explicitly requested.
-- Do not implement full SITT, world models, future video prediction, or active camera control in this MVP.
-- Preserve generated-output ignores for `data/`, `checkpoints/`, `logs/`, and `runs/`.
-- Avoid committing large artifacts such as `.pt`, `.npz`, TensorBoard logs, or GIF/video rollouts unless the user explicitly asks.
-- Use the existing conda workflow from `README.md` and `environment.yml`.
-- Run `pytest` after behavior changes when feasible.
+- Do not implement students, BC, SITT, future video prediction, world models, or active camera control in this stage.
+- Preserve generated-output ignores for `data/`, `checkpoints/`, `logs/`, `runs/`, and `results/`.
+- Avoid committing large artifacts such as `.pt`, `.npz`, logs, or GIF/video rollouts unless the user explicitly asks.
+- Use the `wyh` conda environment when running tests locally.
+- Run `pytest -q` after behavior changes when feasible.
 
 ## Common Commands
 
 ```bash
-conda activate isaac
-pytest
-python scripts/render_random_policy.py
-python trainers/generate_demos.py
-python trainers/train_bc.py
-python trainers/train_ppo.py
-python trainers/evaluate.py
+conda activate wyh
+pytest -q
+python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
+python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 5
+python -m gap_step.visualize --checkpoint checkpoints/teacher_final.pt
 ```
 
 ## Git Notes
@@ -54,6 +60,3 @@ The current remote is expected to use the SSH alias:
 ```bash
 git@github-wengyuhang:wengyuhang/gap-step.git
 ```
-
-The project has generated experiment outputs locally, but those paths are ignored by Git.
-

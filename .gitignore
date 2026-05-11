@@ -18,6 +18,7 @@ data/
 checkpoints/
 logs/
 runs/
+results/
 
 # Local/editor files
 .DS_Store

@@ -2,49 +2,59 @@
 
 ## Summary
 
-GAP-Step is a minimal research prototype for studying dynamic multi-window crossing with visual policies. The environment is a 2D workspace with a wall at the center. One or two windows open and close over time, and a circular robot must cross through a currently safe window to reach a target on the right side.
-
-The core research question is whether a student that sees only rendered grayscale image stacks plus proprioception can learn the teacher's gate choice and crossing timing.
+GAP-Step is a continuous 2D rotating time-varying window maze project. The current implementation trains a PPO privileged teacher in procedurally generated ordinary mazes. Each episode first samples a randomized grid-maze topology, then converts it into continuous horizontal/vertical walls with time-varying windows that open, close, and rotate.
 
 ## Scope
 
 Included:
 
+- continuous square mazes generated from randomized grid topology
 - 2D double-integrator robot dynamics
-- time-varying gate widths
-- privileged heuristic teacher
-- visual student policy with CNN image encoder
-- behavior cloning with optional auxiliary heads
-- compact continuous-action PPO fine-tuning
-- evaluation metrics and rollout visualization
+- time-varying window width and rotation safety checks
+- low-dimensional privileged observation with 32 ray distances
+- PPO actor-critic teacher training
+- ID, OOD-size, and OOD-dynamics evaluation
+- rollout GIF visualization
 
-Excluded from this MVP:
+Excluded:
 
-- full 3D quadrotor physics
-- full SITT proxy-student mechanism
-- world model or future video prediction
+- visual student policies
+- behavior cloning and demonstration datasets
+- heuristic teacher demonstrations
+- SITT proxy-student machinery
+- world models or future video prediction
 - active camera control
-- photorealistic rendering
+- full 3D quadrotor physics
 
-## Main Hypothesis
+## Observation Contract
 
-Auxiliary prediction of current gate width and safety can make visual behavior cloning more stable and interpretable, and PPO initialized from BC+Aux can preserve or improve task performance.
+The teacher observation is:
+
+```text
+[self_features, goal_features, ray_features]
+```
+
+Dimensions:
+
+```text
+4 + 3 + 32 = 39
+```
+
+`N_ray = 32` is fixed. The ray maximum distance is not a fixed constant:
+
+```text
+ray_max_dist = 0.35 * S
+```
+
+where `S` is the current episode's sampled maze side length.
 
 ## Expected Outputs
 
-The scripts produce:
+- `checkpoints/teacher_final.pt`
+- `results/train_metrics.csv`
+- `results/eval_metrics.csv`
+- `results/typical_success.gif`
+- `results/typical_wait.gif`
+- `results/typical_collision.gif`
 
-- demonstration datasets under `data/`
-- checkpoints under `checkpoints/`
-- TensorBoard logs under `runs/`
-- evaluation tables under `logs/`
-- rollout GIFs under `runs/`
-
-These outputs are reproducible and intentionally ignored by Git.
-
-## Baseline Tasks
-
-- E1: single window, fixed open
-- E2: single window, periodic width
-- E3: two windows, asynchronous periodic widths
-
+Generated outputs are ignored by Git.

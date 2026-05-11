@@ -1,19 +1,17 @@
 # Task Log
 
-## 2026-05-10
+## 2026-05-11
 
-Created project coordination documents:
+Refactored GAP-Step to v4.6 PPO teacher only:
 
-- `AGENTS.md`
-- `docs/PROJECT_CONTEXT.md`
-- `docs/ROADMAP.md`
-- `docs/ARCHITECTURE.md`
-- `docs/DECISIONS.md`
-- `docs/TASK_LOG.md`
+- moved active code into flat `gap_step/` modules
+- removed old visual student, BC, heuristic teacher, `trainers/`, and `scripts/` paths
+- added randomized grid-maze curriculum C1-C5 with continuous walls and time-varying windows
+- added 39D privileged ray observation with `ray_max_dist = 0.35 * S`
+- added PPO teacher training, evaluation, and visualization entrypoints
+- updated tests for curriculum, environment, and actor-critic model
 
-Notes:
+Validation:
 
-- The project is already uploaded to GitHub at `wengyuhang/gap-step`.
-- Generated experiment outputs remain ignored by Git.
-- Existing deleted working-tree files were not restored or modified by this documentation task.
-
+- `pytest -q`
+- `python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml`

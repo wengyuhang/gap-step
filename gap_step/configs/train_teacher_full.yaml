@@ -1,0 +1,27 @@
+seed: 0
+device: auto
+steps_per_stage: 1000000
+total_steps: 5000000
+rollout_steps: 2048
+minibatch_size: 256
+update_epochs: 10
+learning_rate: 0.0003
+gamma: 0.99
+gae_lambda: 0.95
+clip_ratio: 0.2
+value_coef: 0.5
+entropy_coef: 0.01
+max_grad_norm: 0.5
+checkpoint_path: checkpoints/teacher_final.pt
+train_metrics_path: results/train_metrics.csv
+env:
+  stage_name: C1
+  split: train
+  dt: 0.1
+  robot_radius: 0.25
+  safe_margin: 0.1
+  v_max: 2.0
+  a_max: 3.0
+  max_steps: 500
+  num_rays: 32
+  ray_max_dist_ratio: 0.35

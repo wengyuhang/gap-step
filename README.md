@@ -1,53 +1,74 @@
 # GAP-Step
 
-GAP-Step is a minimal 2D research project for dynamic multi-gate crossing. It tests whether privileged heuristic demonstrations plus visual behavior cloning, gate-state auxiliary prediction, and PPO fine-tuning can learn gate choice and crossing timing.
+GAP-Step is now a compact continuous 2D maze project for training a PPO privileged teacher. The agent is a circular robot with double-integrator dynamics. Each episode samples a randomized grid-maze topology, converts it into continuous horizontal/vertical wall segments, and inserts time-varying windows whose usable state depends on both opening width and rotation angle.
 
-This implementation intentionally does not include a 3D quadrotor, full SITT proxy-student machinery, world models, future video prediction, or active camera control.
+This version does not include visual students, behavior cloning, heuristic teacher demonstrations, SITT, future prediction, world models, active camera control, or 3D quadrotor dynamics.
+
+## Code Layout
+
+All runnable project code lives directly under `gap_step/`:
+
+- `gap_step/env.py`: continuous maze environment, ray observation, collision, rendering
+- `gap_step/curriculum.py`: online C1-C5 procedural maze generator
+- `gap_step/model.py`: MLP Gaussian actor-critic teacher
+- `gap_step/ppo.py`: rollout collection and PPO update
+- `gap_step/train.py`: teacher training entrypoint
+- `gap_step/evaluate.py`: ID/OOD evaluation entrypoint
+- `gap_step/visualize.py`: typical rollout GIF generation
+- `gap_step/configs/`: teacher training YAML configs
+- `gap_step/tests/`: curriculum, environment, and model tests
 
 ## Environment
 
-The provided environment uses GPU PyTorch for an NVIDIA driver compatible with CUDA 12.x. For the supplied machine info, `pytorch-cuda=12.1` is used.
+Use the existing conda environment:
 
 ```bash
-conda env create -f environment.yml
-conda activate gap-step
+conda activate wyh
 ```
 
-If you already have a compatible environment, such as `isaac`, you can use it directly:
+Or create a fresh environment from `environment.yml`.
+
+## Commands
+
+Smoke test:
 
 ```bash
-conda activate isaac
+pytest -q
+python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
+python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 5
+python -m gap_step.visualize --checkpoint checkpoints/teacher_final.pt
 ```
 
-## Required Commands
+Full training:
 
 ```bash
-python scripts/render_random_policy.py
-python trainers/generate_demos.py
-python trainers/train_bc.py
-python trainers/train_ppo.py
-python trainers/evaluate.py
-```
-
-## Useful Commands
-
-```bash
-python trainers/train_bc.py --mode bc_only
-python trainers/train_bc.py --mode bc_aux
-python trainers/train_ppo.py --init none --output checkpoints/visual_ppo.pt
-python scripts/render_trained_policy.py --checkpoint checkpoints/bc_aux.pt
-python scripts/render_trained_policy.py --checkpoint checkpoints/bc_aux_ppo.pt
-pytest
+python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
+python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt
+python -m gap_step.visualize --checkpoint checkpoints/teacher_final.pt
 ```
 
 ## Outputs
 
-- Demonstrations: `data/demos_e3.npz`
-- Checkpoints: `checkpoints/bc_only.pt`, `checkpoints/bc_aux.pt`, `checkpoints/bc_aux_ppo.pt`
-- TensorBoard logs: `runs/`
-- Evaluation table: `logs/eval_results.csv`
-- Rollout GIFs: `runs/random_policy.gif`, `runs/trained_policy.gif`
+- `checkpoints/teacher_final.pt`
+- `results/train_metrics.csv`
+- `results/eval_metrics.csv`
+- `results/typical_success.gif`
+- `results/typical_wait.gif`
+- `results/typical_collision.gif`
 
-## Notes
+Generated artifacts under `data/`, `checkpoints/`, `logs/`, `runs/`, and `results/` are ignored by Git.
 
-`train_ppo.py` implements a compact continuous-action Gaussian PPO. The environment executes only the 2D acceleration action; the gate head is kept for imitation, diagnostics, and auxiliary interpretability. This is a deliberate MVP choice rather than a full hybrid discrete-continuous PPO implementation.
+## Observation
+
+The privileged teacher observation is fixed-size:
+
+```text
+self_features + goal_features + ray_features
+4 + 3 + 32 = 39 dimensions
+```
+
+`N_ray = 32` is fixed. The ray maximum distance scales with the current maze size:
+
+```text
+ray_max_dist = 0.35 * S
+```

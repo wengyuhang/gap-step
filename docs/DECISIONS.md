@@ -1,52 +1,51 @@
 # Decisions
 
-## 2026-05-10: Keep GAP-Step as a 2D MVP
+## 2026-05-11: Refactor to v4.6 PPO teacher only
 
 Decision:
 
-Use a 2D double-integrator robot and time-varying wall windows instead of a full 3D quadrotor simulator.
+Replace the visual student / BC / heuristic teacher project with the v4.6 continuous 2D rotating time-varying window maze. Train only a PPO privileged teacher.
 
 Reasoning:
 
-The project goal is to validate gate choice, crossing timing, visual BC, auxiliary prediction, and PPO fine-tuning. Full 3D dynamics would add simulator and control complexity before the core learning question is answered.
+The current research stage is to obtain a teacher policy in a procedurally generated continuous maze before introducing student learning.
 
-## 2026-05-10: Use heuristic privileged teacher
+## 2026-05-11: Keep all active code in `gap_step/`
 
 Decision:
 
-Implement a deterministic heuristic teacher with access to current true state and current gate widths/safety flags.
+All runnable code now lives directly in the `gap_step/` package. Do not keep active code in `trainers/`, `scripts/`, or nested `gap_step/envs`, `gap_step/models`, `gap_step/teachers` packages.
 
 Reasoning:
 
-The teacher is meant to provide clean demonstrations, not solve future prediction. It must not see future gate states, so the student experiment remains focused on current visual inference and timing.
+The user requested a clean single-folder code layout without backward compatibility.
 
-## 2026-05-10: Keep PPO continuous-action only
+## 2026-05-11: Use fixed-dimensional ray observations
 
 Decision:
 
-PPO controls only the continuous 2D acceleration action. The gate head remains supervised and diagnostic.
+Use `N_ray = 32`, `ray_max_dist = 0.35 * S`, and `obs_dim = 39`.
 
 Reasoning:
 
-A full hybrid discrete-continuous PPO implementation would be heavier than needed for the MVP. The environment is controlled by acceleration, while gate choice can still be evaluated through the classification head and trajectory behavior.
+Window count should not enter the teacher observation dimension. Scaling ray distance by maze size makes ID and OOD-size evaluation better matched while preserving a fixed network input.
 
-## 2026-05-10: Ignore generated artifacts in Git
+## 2026-05-11: Ignore generated outputs
 
 Decision:
 
-Exclude `data/`, `checkpoints/`, `logs/`, and `runs/` from source control.
+Ignore `data/`, `checkpoints/`, `logs/`, `runs/`, and `results/`.
 
 Reasoning:
 
-These files can be large and are reproducible from scripts and configs. Keeping them out of Git makes the repository easier to clone and review.
+These are reproducible experiment artifacts and may become large.
 
-## 2026-05-10: Prefer config-driven experiments
+## 2026-05-11: Generate ordinary maze topology before continuous walls
 
 Decision:
 
-Use YAML files under `configs/` for environment and training parameters.
+Generate each maze as a randomized grid maze, add a small number of loop openings, then convert closed edges and selected passage edges into continuous `WallSegment` and `Gate` objects.
 
 Reasoning:
 
-This makes E1/E2/E3 experiments easier to reproduce and reduces hidden hard-coded settings in scripts.
-
+This produces ordinary maze-like layouts with both horizontal and vertical corridors while keeping the implementation compact and readable.

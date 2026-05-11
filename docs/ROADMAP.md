@@ -2,47 +2,29 @@
 
 ## Current MVP
 
-- 2D dynamic gate crossing environment
-- heuristic privileged teacher
-- visual student policy
-- BC-only and BC+Aux training
-- PPO fine-tuning from BC+Aux
-- CSV evaluation and GIF visualization
-- basic tests for dynamics, environment, and teacher
+- continuous 2D procedural maze from randomized grid topology
+- rotating time-varying windows
+- fixed 39D privileged ray observation
+- PPO teacher actor-critic
+- curriculum C1 -> C5
+- ID, OOD-size, and OOD-dynamics evaluation
+- GIF rollout visualization
 
 ## Near-Term Improvements
 
-1. Improve PPO diagnostics
-   - log policy entropy, value loss, KL proxy, and success curves more explicitly
-   - add early stopping when deterministic evaluation degrades
+1. Improve PPO stability and diagnostics.
+2. Add vectorized environments for faster teacher training.
+3. Improve typical GIF selection by searching for actual success/wait/collision cases.
+4. Save exact config snapshots next to the teacher checkpoint.
+5. Add more collision geometry tests for edge contact and high-speed crossing.
 
-2. Make evaluation more reproducible
-   - save exact config snapshots next to each checkpoint
-   - record seed lists used for evaluation
-   - add a single command for full E1/E2/E3 experiment runs
+## Out of Scope For This Stage
 
-3. Strengthen visual learning checks
-   - add ablations for image-only, proprio-only, and image+proprio inputs
-   - add confusion matrix for gate choice
-   - save example auxiliary predictions over rollout time
-
-4. Improve rendering artifacts
-   - annotate selected gate and unsafe gate attempts in rollout GIFs
-   - add side-by-side teacher vs student rollout rendering
-
-## Medium-Term Research Extensions
-
-- Add randomized wall and target layouts.
-- Add observation noise and actuation noise.
-- Add curriculum learning from E1 to E3.
-- Add recurrent student policy for longer timing memory.
-- Add domain randomization for gate appearance.
-
-## Out of Scope Unless Requested
-
-- full 3D quadrotor simulation
-- SITT proxy-student implementation
-- world model training
-- future frame prediction
-- active camera control
-
+- visual student policies
+- behavior cloning
+- demonstration datasets
+- SITT
+- world models
+- future video prediction
+- active perception
+- 3D quadrotor simulation

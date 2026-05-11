@@ -1,101 +1,55 @@
 # Architecture
 
-## High-Level Flow
+## Flow
 
 ```text
-configs/*.yaml
-    -> environment / training scripts
-        -> gap_step env, teacher, model
-            -> data, checkpoints, logs, rollout GIFs
+gap_step/configs/train_teacher_*.yaml
+    -> python -m gap_step.train
+        -> gap_step.curriculum.sample_maze
+        -> gap_step.env.ContinuousMazeEnv
+        -> gap_step.model.TeacherActorCritic
+        -> checkpoints/teacher_final.pt + results/train_metrics.csv
+
+checkpoints/teacher_final.pt
+    -> python -m gap_step.evaluate
+    -> results/eval_metrics.csv
+
+checkpoints/teacher_final.pt
+    -> python -m gap_step.visualize
+    -> results/*.gif
 ```
+
+## Modules
+
+- `gap_step/curriculum.py` defines C1-C5 procedural maze generation, time-varying gate parameters, and ID/OOD test distributions.
+- `gap_step/env.py` implements the Gymnasium-style continuous maze, collision checks, 39D privileged observation, reward, and RGB rendering.
+- `gap_step/model.py` defines the MLP Gaussian actor-critic teacher.
+- `gap_step/ppo.py` handles rollout collection, GAE, and PPO updates.
+- `gap_step/train.py` trains the teacher across the fixed curriculum order.
+- `gap_step/evaluate.py` evaluates ID, OOD-size, and OOD-dynamics splits.
+- `gap_step/visualize.py` saves typical GIF rollouts.
 
 ## Environment
 
-`gap_step/envs/gap_step_env.py` implements the Gymnasium-style environment.
+Each episode samples a square maze with side length `S`. `curriculum.py` builds a randomized DFS grid maze, adds a few extra openings for loops, and converts grid edges into continuous axis-aligned wall segments. Some passage edges are replaced by window slots. A window is traversable only when both width and angle are safe.
 
-Key responsibilities:
+Collision types:
 
-- maintain robot state: position, velocity, previous action
-- apply 2D acceleration action through double-integrator dynamics
-- update time-varying gate state
-- compute observations: image stack and proprioception
-- compute rewards and termination conditions
-- report diagnostic metrics through `info`
+- `wall`
+- `closed_gate`
+- `boundary`
 
-`gap_step/envs/gate_dynamics.py` owns the sinusoidal gate-width model:
+Rewards:
 
 ```text
-d_i(t) = d_min + (d_max - d_min) / 2 * (1 + sin(omega_i * t + phi_i))
++20.0 on goal
+-20.0 on collision
+-0.01 per step
+-0.001 * ||action||^2
 ```
 
-A gate is safe when:
+There is no progress reward, gate reward, waypoint reward, or path-following reward.
 
-```text
-width > 2 * robot_radius + safe_margin
-```
+## Code Boundary
 
-`gap_step/envs/renderer.py` converts environment state into grayscale images and RGB rollout frames.
-
-## Teacher
-
-`gap_step/teachers/heuristic_teacher.py` implements a privileged heuristic teacher.
-
-The teacher sees true robot state and current gate widths, but not future gate states. It selects:
-
-- the lowest-cost currently safe gate, if any exists
-- otherwise the currently widest gate and a staging point before the wall
-
-The teacher outputs:
-
-- `teacher_acc`: 2D acceleration command
-- `teacher_gate`: selected gate index
-
-## Student Model
-
-`gap_step/models/student_policy.py` combines:
-
-- CNN encoder for `image_stack`
-- MLP encoder for proprioception
-- action head for 2D acceleration
-- gate classification head
-- width regression head
-- safety prediction head
-
-The action head is used for environment control. The other heads support imitation, auxiliary supervision, and diagnostics.
-
-## Training Scripts
-
-`trainers/generate_demos.py`
-
-- rolls out the heuristic teacher
-- stores image stacks, proprioception, teacher actions, teacher gate labels, true widths, and safety flags
-
-`trainers/train_bc.py`
-
-- trains BC-only and BC+Aux variants
-- uses MSE for acceleration imitation
-- uses CE for gate classification
-- optionally adds L1 width loss and BCE safety loss
-
-`trainers/train_ppo.py`
-
-- loads BC+Aux initialization by default
-- performs compact Gaussian continuous-action PPO
-- saves best checkpoint according to deterministic evaluation
-
-`trainers/evaluate.py`
-
-- evaluates teacher and available checkpoints
-- writes metrics such as success rate, collision rate, closed-gate attempts, width MAE, safe F1, and return
-
-## Generated Artifacts
-
-Generated outputs are ignored by Git:
-
-- `data/`
-- `checkpoints/`
-- `logs/`
-- `runs/`
-
-This keeps the repository small while preserving full reproducibility through configs and scripts.
-
+All active code is directly under `gap_step/`. Legacy folders such as `trainers/`, `scripts/`, `gap_step/envs/`, `gap_step/models/`, and `gap_step/teachers/` are intentionally removed from the active architecture.
