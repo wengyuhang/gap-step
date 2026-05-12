@@ -41,11 +41,13 @@ Do not reintroduce `trainers/`, `scripts/`, `gap_step/envs/`, `gap_step/models/`
 - Preserve generated-output ignores for `data/`, `checkpoints/`, `logs/`, `runs/`, and `results/`.
 - Avoid committing large artifacts such as `.pt`, `.npz`, logs, or GIF/video rollouts unless the user explicitly asks.
 - Use the `wyh` conda environment when running tests locally.
+- In non-interactive shells, initialize conda before activation: `source /home/jack/anaconda3/etc/profile.d/conda.sh && conda activate wyh`.
 - Run `pytest -q` after behavior changes when feasible.
 
 ## Common Commands
 
 ```bash
+source /home/jack/anaconda3/etc/profile.d/conda.sh
 conda activate wyh
 pytest -q
 python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml

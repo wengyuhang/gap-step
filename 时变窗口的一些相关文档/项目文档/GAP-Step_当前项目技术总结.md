@@ -144,7 +144,7 @@ log_std 为可学习参数
 [-a_max, a_max]^2
 ```
 
-奖励函数固定：
+环境默认的 strict v4.6 稀疏奖励为：
 
 ```text
 reward = +20 if goal
@@ -153,7 +153,16 @@ reward = +20 if goal
        - 0.001 * ||action||^2
 ```
 
-没有进展奖励、窗口通过奖励、路径跟踪奖励或 waypoint 奖励。
+当前训练配置额外启用连续几何动态进展 shaping：
+
+```text
+progress_reward = reward_progress * (prev_remaining_time - current_remaining_time)
+reward_timeout = -5.0 on timeout
+```
+
+`remaining_time` 由连续几何 visibility roadmap 估计，不使用 `cell/open_edges` 作为奖励路径。roadmap 节点来自当前连续位置、目标、窗口两侧 approach point 和膨胀墙体转角点；窗口边会从预计到达时间开始分析未来是否可通行，并把等待时间计入代价。因此奖励会在绕行更便宜时偏向绕行，在必须经过窗口时仍给出等待后通过的训练信号。
+
+没有窗口通过奖励、路径跟踪奖励或 waypoint 奖励。动态进展 shaping 只用于训练奖励，不改变教师观测、碰撞规则或成功判定。
 
 ## 7. 输出
 

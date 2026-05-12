@@ -58,3 +58,15 @@ where `S` is the current episode's sampled maze side length.
 - `results/typical_collision.gif`
 
 Generated outputs are ignored by Git.
+
+## Current Training Status
+
+The project now has an end-to-end PPO teacher pipeline that can run the full C1-C5 curriculum and complete ID/OOD evaluation. The current dynamic-geometry reward shaping is a training aid, not a solved policy recipe.
+
+Latest full-run result after enabling dynamic geometry shaping:
+
+- ID success rate: 5.0%
+- OOD-size success rate: 5.5%
+- OOD-dynamics success rate: 5.0%
+
+Primary hypothesis for the next iteration: the teacher still needs reward/curriculum tuning before model architecture changes. Inspect progress reward magnitude, gate waiting cost, collision pressure, timeout behavior, and C4/C5 curriculum difficulty first.

@@ -25,3 +25,7 @@ env:
   max_steps: 500
   num_rays: 32
   ray_max_dist_ratio: 0.35
+  reward_progress: 2.0
+  reward_timeout: -5.0
+  progress_mode: dynamic_geometry
+  gate_lookahead_time: 20.0

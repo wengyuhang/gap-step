@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import heapq
+from dataclasses import dataclass
 from typing import Any
 
 import gymnasium as gym
@@ -8,6 +10,13 @@ from gymnasium import spaces
 
 from gap_step.curriculum import Maze, sample_maze
 from gap_step.utils import circle_intersects_rect, ray_rect_distance
+
+
+@dataclass(frozen=True)
+class RoadmapEdge:
+    to: int
+    travel_time: float
+    gate_id: int | None = None
 
 
 class ContinuousMazeEnv(gym.Env):
@@ -32,6 +41,12 @@ class ContinuousMazeEnv(gym.Env):
         self.reward_collision = float(config.get("reward_collision", -20.0))
         self.reward_time = float(config.get("reward_time", -0.01))
         self.reward_action = float(config.get("reward_action", -0.001))
+        self.reward_progress = float(config.get("reward_progress", 0.0))
+        self.reward_timeout = float(config.get("reward_timeout", 0.0))
+        self.progress_mode = str(config.get("progress_mode", "none"))
+        self.gate_lookahead_time = float(config.get("gate_lookahead_time", 20.0))
+        self.gate_time_resolution = float(config.get("gate_time_resolution", self.dt))
+        self.gate_unreachable_cost = float(config.get("gate_unreachable_cost", 1e6))
         self.render_size = int(config.get("render_size", 512))
 
         self.action_space = spaces.Box(-self.max_acc, self.max_acc, shape=(2,), dtype=np.float32)
@@ -46,6 +61,17 @@ class ContinuousMazeEnv(gym.Env):
         self.t = 0.0
         self.step_count = 0
         self.trajectory: list[np.ndarray] = []
+        self._roadmap_nodes: list[np.ndarray] = []
+        self._roadmap_edges: list[list[RoadmapEdge]] = []
+        self._roadmap_gates: dict[int, Any] = {}
+        self._gate_approach_nodes: dict[int, tuple[int, int]] = {}
+        self._visibility_blockers: list[dict[str, float]] = []
+        self._prev_progress_potential = 0.0
+        self._last_progress_potential = 0.0
+        self._last_progress_delta = 0.0
+        self._last_progress_reward = 0.0
+        self._last_dynamic_path_wait_time = 0.0
+        self._last_dynamic_path_uses_gate = False
 
     def reset(self, *, seed: int | None = None, options: dict | None = None):
         super().reset(seed=seed)
@@ -62,12 +88,21 @@ class ContinuousMazeEnv(gym.Env):
         self.t = 0.0
         self.step_count = 0
         self.trajectory = [self.pos.copy()]
+        self._build_dynamic_geometry_roadmap()
+        potential, wait_time, uses_gate = self._progress_potential(self.pos, self.t)
+        self._prev_progress_potential = potential
+        self._last_progress_potential = potential
+        self._last_progress_delta = 0.0
+        self._last_progress_reward = 0.0
+        self._last_dynamic_path_wait_time = wait_time
+        self._last_dynamic_path_uses_gate = uses_gate
         return self.get_privileged_obs(), self._info(success=False, collision=False, truncated=False, collision_type="")
 
     def step(self, action):
         action = np.asarray(action, dtype=np.float32)
         action = np.clip(action, -self.max_acc, self.max_acc)
         old_pos = self.pos.copy()
+        old_potential = self._prev_progress_potential
 
         self.vel = self.vel + action * self.dt
         speed = float(np.linalg.norm(self.vel))
@@ -83,13 +118,28 @@ class ContinuousMazeEnv(gym.Env):
         terminated = bool(success or collision)
         truncated = bool(self.step_count >= self.max_steps and not terminated)
 
-        reward = -self.reward_time if self.reward_time < 0.0 else self.reward_time
+        current_potential, wait_time, uses_gate = self._progress_potential(self.pos, self.t)
+        progress_delta = 0.0
+        if self.reward_progress != 0.0 and self.progress_mode == "dynamic_geometry":
+            if old_potential < 0.5 * self.gate_unreachable_cost and current_potential < 0.5 * self.gate_unreachable_cost:
+                progress_delta = old_potential - current_potential
+        progress_reward = self.reward_progress * progress_delta
+        self._prev_progress_potential = current_potential
+        self._last_progress_potential = current_potential
+        self._last_progress_delta = progress_delta
+        self._last_progress_reward = progress_reward
+        self._last_dynamic_path_wait_time = wait_time
+        self._last_dynamic_path_uses_gate = uses_gate
+
         reward = -abs(self.reward_time)
         reward += -abs(self.reward_action) * float(np.dot(action, action))
+        reward += progress_reward
         if success:
             reward += self.reward_goal
         if collision:
             reward += self.reward_collision
+        if truncated:
+            reward += self.reward_timeout
 
         self.trajectory.append(self.pos.copy())
         info = self._info(success=success, collision=collision, truncated=truncated, collision_type=collision_type)
@@ -143,6 +193,157 @@ class ContinuousMazeEnv(gym.Env):
             if not gate.is_safe(self.t, self.robot_radius, self.safe_margin):
                 rects.append(gate.slot_rect)
         return rects
+
+    def _build_dynamic_geometry_roadmap(self) -> None:
+        self._roadmap_nodes = [self.goal.copy().astype(np.float32)]
+        self._roadmap_edges = [[]]
+        self._roadmap_gates = {gate.id: gate for gate in self.maze.gates}
+        self._gate_approach_nodes = {}
+        self._visibility_blockers = self._inflated_visibility_blockers()
+
+        for gate in self.maze.gates:
+            p0, p1 = self._gate_approach_points(gate)
+            if not (self._is_clear_point(p0) and self._is_clear_point(p1)):
+                continue
+            i0 = self._add_roadmap_node(p0)
+            i1 = self._add_roadmap_node(p1)
+            self._gate_approach_nodes[gate.id] = (i0, i1)
+
+        for rect in self._visibility_blockers:
+            cx = 0.5 * (rect["xmin"] + rect["xmax"])
+            cy = 0.5 * (rect["ymin"] + rect["ymax"])
+            for x in (rect["xmin"], rect["xmax"]):
+                for y in (rect["ymin"], rect["ymax"]):
+                    direction = np.array([np.sign(x - cx), np.sign(y - cy)], dtype=np.float32)
+                    point = np.array([x, y], dtype=np.float32) + 0.05 * direction
+                    if self._is_clear_point(point):
+                        self._add_roadmap_node(point)
+
+        self._roadmap_edges = [[] for _ in self._roadmap_nodes]
+        for i in range(len(self._roadmap_nodes)):
+            for j in range(i + 1, len(self._roadmap_nodes)):
+                if self._visible(self._roadmap_nodes[i], self._roadmap_nodes[j]):
+                    self._add_static_edge(i, j, None)
+
+        for gate_id, (i0, i1) in self._gate_approach_nodes.items():
+            self._add_static_edge(i0, i1, gate_id)
+
+    def _add_roadmap_node(self, point: np.ndarray) -> int:
+        point = point.astype(np.float32)
+        key = tuple(np.round(point, 3))
+        for idx, existing in enumerate(self._roadmap_nodes):
+            if tuple(np.round(existing, 3)) == key:
+                return idx
+        self._roadmap_nodes.append(point)
+        return len(self._roadmap_nodes) - 1
+
+    def _add_static_edge(self, i: int, j: int, gate_id: int | None) -> None:
+        travel_time = float(np.linalg.norm(self._roadmap_nodes[j] - self._roadmap_nodes[i]) / max(1e-6, self.max_speed))
+        self._roadmap_edges[i].append(RoadmapEdge(j, travel_time, gate_id))
+        self._roadmap_edges[j].append(RoadmapEdge(i, travel_time, gate_id))
+
+    def _inflated_visibility_blockers(self) -> list[dict[str, float]]:
+        clearance = self.robot_radius + 0.02
+        rects = list(self.maze.walls)
+        rects.extend(gate.slot_rect for gate in self.maze.gates)
+        return [_inflate_rect(rect, clearance) for rect in rects]
+
+    def _gate_approach_points(self, gate) -> tuple[np.ndarray, np.ndarray]:
+        offset = 0.5 * gate.wall_thickness + self.robot_radius + 0.06
+        if gate.orientation == "vertical":
+            return (
+                np.array([gate.center[0] - offset, gate.center[1]], dtype=np.float32),
+                np.array([gate.center[0] + offset, gate.center[1]], dtype=np.float32),
+            )
+        return (
+            np.array([gate.center[0], gate.center[1] - offset], dtype=np.float32),
+            np.array([gate.center[0], gate.center[1] + offset], dtype=np.float32),
+        )
+
+    def _is_clear_point(self, point: np.ndarray) -> bool:
+        if np.any(point < self.robot_radius) or np.any(point > self.S - self.robot_radius):
+            return False
+        for rect in self._visibility_blockers:
+            if _point_in_rect(point, rect):
+                return False
+        return True
+
+    def _visible(self, p0: np.ndarray, p1: np.ndarray) -> bool:
+        if not (self._point_within_bounds(p0) and self._point_within_bounds(p1)):
+            return False
+        for rect in self._visibility_blockers:
+            if _segment_intersects_rect(p0, p1, rect):
+                return False
+        return True
+
+    def _point_within_bounds(self, point: np.ndarray) -> bool:
+        return bool(np.all(point >= self.robot_radius) and np.all(point <= self.S - self.robot_radius))
+
+    def _progress_potential(self, pos: np.ndarray, t: float) -> tuple[float, float, bool]:
+        if self.reward_progress == 0.0 or self.progress_mode != "dynamic_geometry":
+            return 0.0, 0.0, False
+        if not self._roadmap_nodes:
+            return self.gate_unreachable_cost, 0.0, False
+
+        goal_index = 0
+        heap: list[tuple[float, int, float, bool]] = []
+        best: dict[int, float] = {}
+        current_gate_edges = self._current_gate_edges(pos, t)
+        for node_idx, travel_time, wait_time, uses_gate in self._current_visibility_edges(pos):
+            total = travel_time
+            heapq.heappush(heap, (total, node_idx, wait_time, uses_gate))
+        for node_idx, travel_time, wait_time, uses_gate in current_gate_edges:
+            total = travel_time + wait_time
+            heapq.heappush(heap, (total, node_idx, wait_time, uses_gate))
+
+        while heap:
+            cost, node_idx, wait_sum, uses_gate = heapq.heappop(heap)
+            if cost >= best.get(node_idx, float("inf")):
+                continue
+            best[node_idx] = cost
+            if node_idx == goal_index:
+                return float(cost), float(wait_sum), bool(uses_gate)
+            arrival_time = t + cost
+            for edge in self._roadmap_edges[node_idx]:
+                wait = 0.0
+                edge_uses_gate = edge.gate_id is not None
+                if edge.gate_id is not None:
+                    wait = self._gate_wait_until_safe(self._roadmap_gates[edge.gate_id], arrival_time)
+                next_cost = cost + wait + edge.travel_time
+                if next_cost < best.get(edge.to, float("inf")):
+                    heapq.heappush(heap, (next_cost, edge.to, wait_sum + wait, uses_gate or edge_uses_gate))
+        return self.gate_unreachable_cost, 0.0, False
+
+    def _current_visibility_edges(self, pos: np.ndarray) -> list[tuple[int, float, float, bool]]:
+        edges = []
+        if not self._point_within_bounds(pos):
+            return edges
+        for idx, node in enumerate(self._roadmap_nodes):
+            if self._visible(pos, node):
+                travel_time = float(np.linalg.norm(node - pos) / max(1e-6, self.max_speed))
+                edges.append((idx, travel_time, 0.0, False))
+        return edges
+
+    def _current_gate_edges(self, pos: np.ndarray, t: float) -> list[tuple[int, float, float, bool]]:
+        edges = []
+        for gate in self.maze.gates:
+            blocker = _inflate_rect(gate.slot_rect, self.robot_radius + 0.02)
+            if not _point_in_rect(pos, blocker):
+                continue
+            wait = self._gate_wait_until_safe(gate, t)
+            for node_idx in self._gate_approach_nodes.get(gate.id, ()):
+                travel_time = float(np.linalg.norm(self._roadmap_nodes[node_idx] - pos) / max(1e-6, self.max_speed))
+                edges.append((node_idx, travel_time, wait, True))
+        return edges
+
+    def _gate_wait_until_safe(self, gate, arrival_time: float) -> float:
+        resolution = max(1e-6, self.gate_time_resolution)
+        steps = int(np.ceil(self.gate_lookahead_time / resolution))
+        for step in range(steps + 1):
+            wait = step * resolution
+            if gate.is_safe(arrival_time + wait, self.robot_radius, self.safe_margin):
+                return float(wait)
+        return self.gate_unreachable_cost
 
     def _collision_type(self, old_pos: np.ndarray, new_pos: np.ndarray) -> str:
         # 先判定落点碰撞，再判定一步运动中是否穿过薄墙或窗口槽位。
@@ -221,6 +422,11 @@ class ContinuousMazeEnv(gym.Env):
             "closed_gate_collision": collision_type == "closed_gate",
             "wall_collision": collision_type == "wall",
             "boundary_collision": collision_type == "boundary",
+            "progress_potential": self._last_progress_potential,
+            "progress_delta": self._last_progress_delta,
+            "progress_reward": self._last_progress_reward,
+            "dynamic_path_wait_time": self._last_dynamic_path_wait_time,
+            "dynamic_path_uses_gate": self._last_dynamic_path_uses_gate,
         }
 
     def render(self):
@@ -238,6 +444,43 @@ def _draw_disk(img: np.ndarray, cx: int, cy: int, radius_px: int, color: np.ndar
     yy, xx = np.ogrid[:h, :w]
     mask = (xx - cx) ** 2 + (yy - cy) ** 2 <= radius_px**2
     img[mask] = color
+
+
+def _inflate_rect(rect: dict[str, float], amount: float) -> dict[str, float]:
+    return {
+        "xmin": float(rect["xmin"] - amount),
+        "xmax": float(rect["xmax"] + amount),
+        "ymin": float(rect["ymin"] - amount),
+        "ymax": float(rect["ymax"] + amount),
+    }
+
+
+def _point_in_rect(point: np.ndarray, rect: dict[str, float]) -> bool:
+    return bool(rect["xmin"] <= float(point[0]) <= rect["xmax"] and rect["ymin"] <= float(point[1]) <= rect["ymax"])
+
+
+def _segment_intersects_rect(p0: np.ndarray, p1: np.ndarray, rect: dict[str, float]) -> bool:
+    direction = p1 - p0
+    tmin = 0.0
+    tmax = 1.0
+    for axis, lo_key, hi_key in ((0, "xmin", "xmax"), (1, "ymin", "ymax")):
+        d = float(direction[axis])
+        origin = float(p0[axis])
+        lo = float(rect[lo_key])
+        hi = float(rect[hi_key])
+        if abs(d) < 1e-8:
+            if lo <= origin <= hi:
+                continue
+            return False
+        t1 = (lo - origin) / d
+        t2 = (hi - origin) / d
+        t_near = min(t1, t2)
+        t_far = max(t1, t2)
+        tmin = max(tmin, t_near)
+        tmax = min(tmax, t_far)
+        if tmin > tmax:
+            return False
+    return bool(tmax >= 1e-8 and tmin <= 1.0 - 1e-8)
 
 
 def _draw_rect(img: np.ndarray, rect: dict[str, float], S: float, color: np.ndarray) -> None:

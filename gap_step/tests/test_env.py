@@ -30,6 +30,76 @@ def test_reset_step_render_and_info():
     assert env.render().shape == (env.render_size, env.render_size, 3)
 
 
+def test_default_reward_matches_strict_v46_sparse_reward():
+    env = ContinuousMazeEnv({"stage_name": "C1"})
+    env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
+    _, reward, terminated, truncated, info = env.step(np.zeros(2, dtype=np.float32))
+    assert np.isclose(reward, -0.01)
+    assert not terminated
+    assert not truncated
+    assert info["progress_reward"] == 0.0
+
+
+def test_dynamic_geometry_progress_rewards_visible_goal_progress():
+    env = ContinuousMazeEnv({"stage_name": "C1", "reward_progress": 2.0, "progress_mode": "dynamic_geometry"})
+    env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
+    env.pos = env.goal + np.array([-0.8, 0.0], dtype=np.float32)
+    env.vel = np.zeros(2, dtype=np.float32)
+    env.t = 0.0
+    far, _, _ = env._progress_potential(env.pos, env.t)
+    near, _, _ = env._progress_potential(env.goal + np.array([-0.4, 0.0], dtype=np.float32), env.t)
+    assert near < far
+
+
+def test_dynamic_geometry_gate_waits_for_future_safe_window():
+    env = ContinuousMazeEnv(
+        {
+            "stage_name": "C2",
+            "reward_progress": 2.0,
+            "progress_mode": "dynamic_geometry",
+            "gate_lookahead_time": 60.0,
+        }
+    )
+    env.reset(seed=0, options={"stage_name": "C2", "split": "train"})
+    gate = env.maze.gates[0]
+    closed_t = next(t for t in np.linspace(0.0, 60.0, 601) if not gate.is_safe(float(t), env.robot_radius, env.safe_margin))
+    wait = env._gate_wait_until_safe(gate, float(closed_t))
+    assert 0.0 < wait < env.gate_unreachable_cost
+
+
+def test_dynamic_geometry_potential_can_use_required_future_gate():
+    env = ContinuousMazeEnv(
+        {
+            "stage_name": "C2",
+            "reward_progress": 2.0,
+            "progress_mode": "dynamic_geometry",
+            "gate_lookahead_time": 60.0,
+        }
+    )
+    env.reset(seed=1, options={"stage_name": "C2", "split": "train"})
+    potential, wait_time, uses_gate = env._progress_potential(env.pos, env.t)
+    assert potential < env.gate_unreachable_cost
+    assert wait_time >= 0.0
+    assert isinstance(uses_gate, bool)
+
+
+def test_timeout_reward_is_applied_with_progress_shaping():
+    env = ContinuousMazeEnv(
+        {
+            "stage_name": "C1",
+            "max_steps": 1,
+            "reward_progress": 2.0,
+            "reward_timeout": -5.0,
+            "progress_mode": "dynamic_geometry",
+        }
+    )
+    env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
+    _, reward, terminated, truncated, _ = env.step(np.zeros(2, dtype=np.float32))
+    assert not terminated
+    assert truncated
+    assert reward <= -5.01
+
+
 def test_ray_max_dist_scales_with_episode_maze_size():
     env = ContinuousMazeEnv()
     obs, _ = env.reset(seed=0, options={"stage_name": "C1", "split": "train"})

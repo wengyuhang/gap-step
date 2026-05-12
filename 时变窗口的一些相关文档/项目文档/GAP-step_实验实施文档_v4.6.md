@@ -4,7 +4,7 @@
 
 项目总名称：**GAP-step**。
 
-本实验实现一个连续二维旋转时变窗口迷宫环境，并训练一个 PPO 特权教师。实验只训练教师，不实现学生模型。教师观测保持低维，包含自身状态、目标相对位置和当前几何射线距离。窗口安全状态只参与当前可碰撞几何构造，不再作为显式窗口列表输入。奖励函数只包含目标奖励、碰撞惩罚、时间惩罚和动作惩罚。
+本实验实现一个连续二维旋转时变窗口迷宫环境，并训练一个 PPO 特权教师。实验只训练教师，不实现学生模型。教师观测保持低维，包含自身状态、目标相对位置和当前几何射线距离。窗口安全状态只参与当前可碰撞几何构造，不再作为显式窗口列表输入。环境默认奖励只包含目标奖励、碰撞惩罚、时间惩罚和动作惩罚；当前训练配置额外启用连续几何动态进展 shaping，用于缓解稀疏奖励下的超时局部最优。
 
 本实验不构建显式训练集或测试集。训练和测试均由程序化迷宫生成器在线生成。课程学习通过改变程序化生成规则控制任务难度。
 
@@ -503,7 +503,7 @@ collision |= check_boundary_collision(pos, S)
 
 ## 7. 奖励函数实现
 
-奖励函数固定为：
+环境默认保留 strict v4.6 稀疏奖励：
 
 ```python
 reward = 0.0
@@ -513,10 +513,22 @@ reward += -0.01
 reward += -0.001 * np.sum(action ** 2)
 ```
 
-代码中不实现以下奖励：
+当前训练配置启用连续几何动态进展 shaping：
+
+```python
+progress_reward = reward_progress * (prev_remaining_time - current_remaining_time)
+
+reward += progress_reward
+reward += reward_timeout if truncated else 0.0
+```
+
+其中 `current_remaining_time` 来自连续几何 visibility roadmap 的 time-dependent Dijkstra 估计。该 roadmap 使用当前连续位置、目标、窗口两侧 approach point 和膨胀墙体转角点；普通边要求线段不穿过膨胀静态障碍，窗口边单独通过窗口两侧 approach point 连接，并从预计到达时间开始采样未来 `gate.is_safe(t)` 计算等待代价。
+
+该 shaping 不作为教师观测，不提供 waypoint，不提供完整地图展开，也不是窗口穿越奖励。窗口不可通行时实际穿越仍按碰撞处理。
+
+代码中仍不实现以下奖励：
 
 ```text
-progress_reward
 gate_pass_reward
 near_gate_reward
 path_following_reward
