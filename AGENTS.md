@@ -4,7 +4,7 @@ Project-specific context for agents working on GAP-Step.
 
 ## Goal
 
-GAP-Step trains a PPO privileged teacher in a continuous 2D rotating time-varying window maze. Current scope is teacher-only RL with low-dimensional observations: normalized robot state, relative goal features, and 32 ray distances.
+GAP-Step trains a PPO privileged teacher in a continuous 2D rotating time-varying window maze. Current scope is teacher-only RL with low-dimensional observations: a stable 39D state/goal/ray prefix plus time-aware gate summaries.
 
 Out of scope for this stage: visual students, BC, heuristic demos, SITT, world models, future video prediction, active perception, 3D simulators, and quadrotor dynamics.
 
@@ -25,9 +25,9 @@ Do not reintroduce `trainers/`, `scripts/`, `gap_step/envs/`, `gap_step/models/`
 ## Rules
 
 - Read relevant `docs/` before non-trivial work.
-- Preserve observation contract: `N_ray = 32`, `ray_max_dist = 0.35 * S`, `obs_dim = 39`.
+- Preserve the base observation prefix: `N_ray = 32`, `ray_max_dist = 0.35 * S`; current teacher obs is 161D with gate timing summaries.
 - Keep config in YAML when possible.
-- Full training defaults to adaptive C1-C5 curriculum: 70% recent success over 100 episodes, 500k min steps, 2M soft warning, 5M hard stop.
+- Full training defaults to adaptive C1-C5 curriculum: 70% rollout success, 60% deterministic promotion eval, 500k min steps, 5M soft warning, 10M hard stop.
 - PPO actions use tanh-squashed Gaussian log probabilities matching executed actions; do not return to `Normal -> clamp(action)`.
 - Progress reward must use continuous geometry, not cells; compare old/new positions at the same time and clip delta to avoid time-passing reward leakage.
 - Do not change collision rules, success criteria, or maze generation unless explicitly asked.

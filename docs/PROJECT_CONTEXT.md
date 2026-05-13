@@ -11,7 +11,7 @@ Included:
 - continuous square mazes generated from randomized grid topology
 - 2D double-integrator robot dynamics
 - time-varying window width and rotation safety checks
-- low-dimensional privileged observation with 32 ray distances
+- low-dimensional privileged observation with 32 ray distances plus time-aware gate summaries
 - PPO actor-critic teacher training
 - adaptive C1-C5 curriculum training
 - ID, OOD-size, OOD-dynamics, and stage-wise evaluation
@@ -32,22 +32,24 @@ Excluded:
 The teacher observation is:
 
 ```text
-[self_features, goal_features, ray_features]
+[base_39d_prefix, time_features, gate_summary_features]
 ```
 
 Dimensions:
 
 ```text
-4 + 3 + 32 = 39
+39 + 2 + 10 * 12 = 161
 ```
 
-`N_ray = 32` is fixed. The ray maximum distance is not a fixed constant:
+The base prefix remains `self_features + goal_features + ray_features`, so `N_ray = 32` is still fixed. The ray maximum distance is not a fixed constant:
 
 ```text
 ray_max_dist = 0.35 * S
 ```
 
 where `S` is the current episode's sampled maze side length.
+
+The appended privileged gate summaries expose dynamic-window timing for the teacher only: current safety, clearance, angle error, time to next safe opening, time to close, and wait cost for up to 10 gates.
 
 ## Expected Outputs
 
@@ -70,4 +72,4 @@ Latest full-run result after enabling dynamic geometry shaping:
 - OOD-size success rate: 5.5%
 - OOD-dynamics success rate: 5.0%
 
-Follow-up changes have now addressed the first-order training signal issues: adaptive curriculum replaces fixed C1-C5 step switches, PPO actions use a squashed Gaussian instead of post-sampling clamp, and progress shaping no longer rewards pure time passing near future-opening gates. A new adaptive full run is needed before updating the success-rate baseline.
+Follow-up changes addressed the first-order training signal issues, but the adaptive full run still stopped in C3 and deterministic evaluation showed earlier-stage forgetting. The next iteration now uses 161D time-aware privileged observations, PPO std protection, and deterministic validation before stage promotion. A new full run is needed before updating the success-rate baseline.

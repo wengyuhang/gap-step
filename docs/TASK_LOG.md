@@ -64,3 +64,25 @@ Note:
 
 - The smoke run overwrites `checkpoints/teacher_final.pt` and `results/*.csv`; current local generated outputs are smoke artifacts, not the previous full-run artifacts.
 - A new adaptive full training run is still needed to judge policy quality.
+
+## 2026-05-13
+
+Implemented the next teacher-training iteration after the adaptive full run failed in C3:
+
+- expanded teacher observation from the old 39D ray-only vector to a 161D time-aware privileged vector while preserving the original 39D prefix
+- added fixed-length summaries for up to 10 dynamic gates, including safety, timing, clearance, orientation, and wait-cost features
+- added `min_log_std` / `max_log_std` protection and PPO diagnostics for effective std
+- tightened adaptive promotion so a stage requires both rollout rolling success and deterministic train-validation success before advancing
+- kept hard max as a stop condition; training does not save best/intermediate checkpoints
+- updated full config soft/hard max to 5M/10M steps per stage
+
+Validation:
+
+- `pytest -q`: 25 passed
+- `python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml`: completed and wrote `obs_dim=161` metrics/checkpoint
+- `python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 20 --stages C1,C2,C3,C4,C5`: completed
+
+Open issues:
+
+- The smoke checkpoint is only a plumbing check and has no policy-quality meaning.
+- A new full adaptive run is needed to test whether time-aware gate features and std protection can progress beyond C3 and eventually solve C5.

@@ -20,10 +20,10 @@ def _cross_gate_points(gate) -> tuple[np.ndarray, np.ndarray]:
 def test_reset_step_render_and_info():
     env = ContinuousMazeEnv({"stage_name": "C1"})
     obs, info = env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
-    assert obs.shape == (39,)
+    assert obs.shape == (161,)
     assert np.isclose(info["ray_max_dist"], 0.35 * info["S"])
     next_obs, reward, terminated, truncated, info = env.step(np.zeros(2, dtype=np.float32))
-    assert next_obs.shape == (39,)
+    assert next_obs.shape == (161,)
     assert isinstance(reward, float)
     assert isinstance(terminated, bool)
     assert isinstance(truncated, bool)
@@ -131,15 +131,35 @@ def test_timeout_reward_is_applied_with_progress_shaping():
 def test_ray_max_dist_scales_with_episode_maze_size():
     env = ContinuousMazeEnv()
     obs, _ = env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
-    assert obs.shape == (39,)
+    assert obs.shape == (161,)
     assert env.S == 15.0
     assert np.isclose(env.ray_max_dist, 5.25)
-    assert np.all(obs[-env.num_rays :] >= 0.0)
-    assert np.all(obs[-env.num_rays :] <= 1.0)
+    rays = obs[7 : 7 + env.num_rays]
+    assert np.all(rays >= 0.0)
+    assert np.all(rays <= 1.0)
 
     env.reset(seed=30000, options={"stage_name": "C5", "split": "ood_dynamics_test"})
     assert env.S in {17.0, 25.0, 31.0}
     assert np.isclose(env.ray_max_dist, 0.35 * env.S)
+
+
+def test_privileged_obs_keeps_base_prefix_and_gate_padding():
+    env = ContinuousMazeEnv({"stage_name": "C1", "max_gate_obs": 10})
+    obs, _ = env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
+    base_dim = 4 + 3 + env.num_rays
+    assert obs.shape == (base_dim + 2 + env.max_gate_obs * env.gate_obs_dim,)
+    assert np.all(np.isfinite(obs))
+    assert np.all(obs[7 : 7 + env.num_rays] >= 0.0)
+    assert np.all(obs[7 : 7 + env.num_rays] <= 1.0)
+
+    gate_features = obs[base_dim + 2 :].reshape(env.max_gate_obs, env.gate_obs_dim)
+    present = gate_features[:, 0]
+    assert int(np.sum(present)) == min(len(env.maze.gates), env.max_gate_obs)
+    assert np.all(gate_features[present == 0.0] == 0.0)
+    assert np.all(gate_features[present == 1.0, 9] >= 0.0)
+    assert np.all(gate_features[present == 1.0, 9] <= 1.0)
+    assert np.all(gate_features[present == 1.0, 10] >= 0.0)
+    assert np.all(gate_features[present == 1.0, 10] <= 1.0)
 
 
 def test_closed_gate_collision_is_reported():

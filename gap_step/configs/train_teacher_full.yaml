@@ -4,10 +4,13 @@ steps_per_stage: 1000000
 total_steps: 5000000
 curriculum_mode: adaptive
 promotion_success_rate: 0.70
+promotion_eval_success_rate: 0.60
+promotion_eval_episodes: 50
+promotion_eval_interval_updates: 10
 promotion_window_episodes: 100
 min_steps_per_stage: 500000
-soft_max_steps_per_stage: 2000000
-hard_max_steps_per_stage: 5000000
+soft_max_steps_per_stage: 5000000
+hard_max_steps_per_stage: 10000000
 hard_max_policy: stop
 rollout_steps: 2048
 minibatch_size: 256
@@ -19,6 +22,8 @@ clip_ratio: 0.2
 value_coef: 0.5
 entropy_coef: 0.01
 max_grad_norm: 0.5
+min_log_std: -1.0
+max_log_std: 2.0
 checkpoint_path: checkpoints/teacher_final.pt
 train_metrics_path: results/train_metrics.csv
 env:
@@ -31,6 +36,7 @@ env:
   a_max: 3.0
   max_steps: 500
   num_rays: 32
+  max_gate_obs: 10
   ray_max_dist_ratio: 0.35
   reward_progress: 2.0
   reward_timeout: -5.0

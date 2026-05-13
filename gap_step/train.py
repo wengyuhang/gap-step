@@ -31,14 +31,19 @@ DEFAULT_CONFIG = {
     "value_coef": 0.5,
     "entropy_coef": 0.01,
     "max_grad_norm": 0.5,
+    "min_log_std": -1.0,
+    "max_log_std": 2.0,
     "checkpoint_path": "checkpoints/teacher_final.pt",
     "train_metrics_path": "results/train_metrics.csv",
     "curriculum_mode": "fixed",
     "promotion_success_rate": 0.70,
+    "promotion_eval_success_rate": 0.60,
+    "promotion_eval_episodes": 50,
+    "promotion_eval_interval_updates": 10,
     "promotion_window_episodes": 100,
     "min_steps_per_stage": 500_000,
-    "soft_max_steps_per_stage": 2_000_000,
-    "hard_max_steps_per_stage": 5_000_000,
+    "soft_max_steps_per_stage": 5_000_000,
+    "hard_max_steps_per_stage": 10_000_000,
     "hard_max_policy": "stop",
 }
 
@@ -50,6 +55,9 @@ class AdaptiveCurriculumState:
     stage_episodes: int = 0
     recent_successes: deque[bool] = field(default_factory=deque)
     soft_warning_emitted: bool = False
+    last_promotion_eval_success_rate: float = 0.0
+    last_promotion_eval_episodes: int = 0
+    last_promotion_eval_update: int = -1
 
     @property
     def stage_name(self) -> str:
@@ -66,6 +74,9 @@ class AdaptiveCurriculumState:
         self.stage_episodes = 0
         self.recent_successes.clear()
         self.soft_warning_emitted = False
+        self.last_promotion_eval_success_rate = 0.0
+        self.last_promotion_eval_episodes = 0
+        self.last_promotion_eval_update = -1
 
 
 def _mean_info(infos: list[dict], key: str) -> float:
@@ -82,12 +93,14 @@ def adaptive_stage_status(
     hard_max_steps: int,
     promotion_success_rate: float,
     hard_max_policy: str,
+    promotion_eval_success_rate: float = 0.0,
 ) -> str:
     rolling_success_rate = state.rolling_success_rate()
     can_promote = (
         state.stage_steps >= min_steps
         and len(state.recent_successes) == state.recent_successes.maxlen
         and rolling_success_rate >= promotion_success_rate
+        and state.last_promotion_eval_success_rate >= promotion_eval_success_rate
     )
     if can_promote:
         return "completed_success" if state.stage_index == len(STAGE_ORDER) - 1 else "promoted_success"
@@ -112,6 +125,9 @@ def _build_row(
     stage_episodes: int,
     rolling_success_rate: float,
     stage_status: str,
+    promotion_eval_success_rate: float = 0.0,
+    promotion_eval_episodes: int = 0,
+    obs_dim: int = 0,
 ) -> dict:
     infos = batch.episode_infos
     step_infos = batch.step_infos
@@ -122,7 +138,10 @@ def _build_row(
         "stage_steps": stage_steps,
         "stage_episodes": stage_episodes,
         "rolling_success_rate": rolling_success_rate,
+        "promotion_eval_success_rate": promotion_eval_success_rate,
+        "promotion_eval_episodes": promotion_eval_episodes,
         "stage_status": stage_status,
+        "obs_dim": obs_dim,
         "episodes": len(infos),
         "average_return": float(np.mean(batch.episode_returns)) if batch.episode_returns else 0.0,
         "success_rate": _mean_info(infos, "success"),
@@ -143,6 +162,47 @@ def _build_row(
     }
 
 
+def _deterministic_promotion_eval(
+    model: TeacherActorCritic,
+    env_config: dict,
+    stage_name: str,
+    device: torch.device,
+    *,
+    episodes: int,
+    seed_base: int,
+) -> dict[str, float]:
+    if episodes <= 0:
+        return {"success_rate": 0.0, "collision_rate": 0.0, "timeout_rate": 0.0}
+    eval_config = dict(env_config)
+    eval_config.update({"stage_name": stage_name, "split": "train"})
+    env = ContinuousMazeEnv(eval_config)
+    successes: list[float] = []
+    collisions: list[float] = []
+    timeouts: list[float] = []
+    was_training = model.training
+    model.eval()
+    with torch.no_grad():
+        for idx in range(episodes):
+            obs, _ = env.reset(seed=seed_base + idx, options={"stage_name": stage_name, "split": "train"})
+            done = False
+            final_info = {}
+            while not done:
+                obs_t = torch.as_tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+                action, _, _ = model.act(obs_t, deterministic=True)
+                obs, _, terminated, truncated, final_info = env.step(action.squeeze(0).cpu().numpy())
+                done = terminated or truncated
+            successes.append(float(final_info.get("success", False)))
+            collisions.append(float(final_info.get("collision", False)))
+            timeouts.append(float(final_info.get("timeout", False)))
+    if was_training:
+        model.train()
+    return {
+        "success_rate": float(np.mean(successes)),
+        "collision_rate": float(np.mean(collisions)),
+        "timeout_rate": float(np.mean(timeouts)),
+    }
+
+
 def _write_outputs(config: dict, env: ContinuousMazeEnv, model: TeacherActorCritic, rows: list[dict]) -> None:
     ckpt_path = resolve_path(config["checkpoint_path"])
     ensure_dir(ckpt_path.parent)
@@ -151,6 +211,8 @@ def _write_outputs(config: dict, env: ContinuousMazeEnv, model: TeacherActorCrit
             "model_state": model.state_dict(),
             "obs_dim": env.observation_space.shape[0],
             "max_acc": env.max_acc,
+            "min_log_std": model.min_log_std,
+            "max_log_std": model.max_log_std,
             "config": config,
             "stages": STAGE_ORDER,
         },
@@ -182,7 +244,12 @@ def main() -> None:
     set_seed(seed)
     device = get_device(str(config["device"]))
     env = ContinuousMazeEnv(config.get("env", {}))
-    model = TeacherActorCritic(obs_dim=env.observation_space.shape[0], max_acc=env.max_acc).to(device)
+    model = TeacherActorCritic(
+        obs_dim=env.observation_space.shape[0],
+        max_acc=env.max_acc,
+        min_log_std=float(config["min_log_std"]),
+        max_log_std=float(config["max_log_std"]),
+    ).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=float(config["learning_rate"]))
 
     rollout_steps = int(config["rollout_steps"])
@@ -199,6 +266,9 @@ def main() -> None:
         min_steps = int(config["min_steps_per_stage"])
         soft_max_steps = int(config["soft_max_steps_per_stage"])
         promotion_success_rate = float(config["promotion_success_rate"])
+        promotion_eval_success_rate = float(config["promotion_eval_success_rate"])
+        promotion_eval_episodes = int(config["promotion_eval_episodes"])
+        promotion_eval_interval = max(1, int(config["promotion_eval_interval_updates"]))
         hard_max_policy = str(config.get("hard_max_policy", "stop"))
         stop_training = False
 
@@ -224,6 +294,24 @@ def main() -> None:
             state.stage_episodes += len(batch.episode_infos)
             state.recent_successes.extend(bool(info["success"]) for info in batch.episode_infos)
             rolling_success_rate = state.rolling_success_rate()
+            should_run_promotion_eval = (
+                state.stage_steps >= min_steps
+                and len(state.recent_successes) == state.recent_successes.maxlen
+                and rolling_success_rate >= promotion_success_rate
+                and (state.last_promotion_eval_update < 0 or (update + 1 - state.last_promotion_eval_update) >= promotion_eval_interval)
+            )
+            if should_run_promotion_eval:
+                eval_stats = _deterministic_promotion_eval(
+                    model,
+                    config.get("env", {}),
+                    stage_name,
+                    device,
+                    episodes=promotion_eval_episodes,
+                    seed_base=seed + 1_000_000 + state.stage_index * 10_000 + update * promotion_eval_episodes,
+                )
+                state.last_promotion_eval_success_rate = eval_stats["success_rate"]
+                state.last_promotion_eval_episodes = promotion_eval_episodes
+                state.last_promotion_eval_update = update + 1
 
             stage_status = adaptive_stage_status(
                 state,
@@ -231,6 +319,7 @@ def main() -> None:
                 soft_max_steps=soft_max_steps,
                 hard_max_steps=hard_max_steps,
                 promotion_success_rate=promotion_success_rate,
+                promotion_eval_success_rate=promotion_eval_success_rate,
                 hard_max_policy=hard_max_policy,
             )
 
@@ -245,6 +334,9 @@ def main() -> None:
                     stage_episodes=state.stage_episodes,
                     rolling_success_rate=rolling_success_rate,
                     stage_status=stage_status,
+                    promotion_eval_success_rate=state.last_promotion_eval_success_rate,
+                    promotion_eval_episodes=state.last_promotion_eval_episodes,
+                    obs_dim=env.observation_space.shape[0],
                 )
             )
 
@@ -289,6 +381,7 @@ def main() -> None:
                     stage_episodes=fixed_stage_episodes[stage_name],
                     rolling_success_rate=0.0,
                     stage_status="training",
+                    obs_dim=env.observation_space.shape[0],
                 )
             )
     else:

@@ -9,7 +9,7 @@ import numpy as np
 from gymnasium import spaces
 
 from gap_step.curriculum import Maze, sample_maze
-from gap_step.utils import circle_intersects_rect, ray_rect_distance
+from gap_step.utils import circle_intersects_rect, ray_rect_distance, wrap_angle
 
 
 @dataclass(frozen=True)
@@ -37,6 +37,8 @@ class ContinuousMazeEnv(gym.Env):
         self.goal_radius = float(config.get("goal_radius", 0.45))
         self.num_rays = int(config.get("num_rays", config.get("N_ray", 32)))
         self.ray_max_dist_ratio = float(config.get("ray_max_dist_ratio", 0.35))
+        self.max_gate_obs = int(config.get("max_gate_obs", 10))
+        self.gate_obs_dim = 12
         self.reward_goal = float(config.get("reward_goal", 20.0))
         self.reward_collision = float(config.get("reward_collision", -20.0))
         self.reward_time = float(config.get("reward_time", -0.01))
@@ -51,7 +53,8 @@ class ContinuousMazeEnv(gym.Env):
         self.render_size = int(config.get("render_size", 512))
 
         self.action_space = spaces.Box(-self.max_acc, self.max_acc, shape=(2,), dtype=np.float32)
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(4 + 3 + self.num_rays,), dtype=np.float32)
+        obs_dim = 4 + 3 + self.num_rays + 2 + self.max_gate_obs * self.gate_obs_dim
+        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(obs_dim,), dtype=np.float32)
         self.np_random: np.random.Generator
         self.maze: Maze
         self.S = 15.0
@@ -159,7 +162,48 @@ class ContinuousMazeEnv(gym.Env):
         )
         goal_features = np.array([goal_rel[0] / self.S, goal_rel[1] / self.S, np.linalg.norm(goal_rel) / self.S], dtype=np.float32)
         rays = self._ray_features()
-        return np.concatenate([self_features, goal_features, rays]).astype(np.float32)
+        time_features = self._time_features()
+        gate_features = self._gate_summary_features()
+        return np.concatenate([self_features, goal_features, rays, time_features, gate_features]).astype(np.float32)
+
+    def _time_features(self) -> np.ndarray:
+        horizon = max(1e-6, self.max_steps * self.dt)
+        phase = 2.0 * np.pi * (self.t % horizon) / horizon
+        return np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
+
+    def _gate_summary_features(self) -> np.ndarray:
+        features = np.zeros((self.max_gate_obs, self.gate_obs_dim), dtype=np.float32)
+        gates = sorted(self.maze.gates, key=lambda gate: float(np.linalg.norm(gate.center - self.pos)))[: self.max_gate_obs]
+        for idx, gate in enumerate(gates):
+            rel = (gate.center - self.pos) / max(1e-6, self.S)
+            distance = float(np.linalg.norm(gate.center - self.pos) / max(1e-6, self.S))
+            normal = np.array([1.0, 0.0], dtype=np.float32) if gate.orientation == "vertical" else np.array([0.0, 1.0], dtype=np.float32)
+            is_safe = gate.is_safe(self.t, self.robot_radius, self.safe_margin)
+            required_width = 2.0 * self.robot_radius + self.safe_margin
+            width_clearance = (gate.width(self.t) - required_width) / max(1e-6, gate.slot_width)
+            angle_error = abs(wrap_angle(gate.theta(self.t) - gate.theta_ref)) / np.pi
+            wait = self._gate_wait_until_safe(gate, self.t)
+            time_to_next_safe = self._normalize_gate_time(wait)
+            time_to_close = self._normalize_gate_time(self._gate_time_until_unsafe(gate, self.t) if is_safe else 0.0)
+            current_wait_cost = time_to_next_safe
+            features[idx] = np.array(
+                [
+                    1.0,
+                    rel[0],
+                    rel[1],
+                    distance,
+                    normal[0],
+                    normal[1],
+                    float(is_safe),
+                    np.clip(width_clearance, -1.0, 1.0),
+                    np.clip(angle_error, 0.0, 1.0),
+                    time_to_next_safe,
+                    time_to_close,
+                    current_wait_cost,
+                ],
+                dtype=np.float32,
+            )
+        return features.reshape(-1)
 
     def _ray_features(self) -> np.ndarray:
         angles = np.linspace(0.0, 2.0 * np.pi, self.num_rays, endpoint=False, dtype=np.float32)
@@ -349,6 +393,20 @@ class ContinuousMazeEnv(gym.Env):
             if gate.is_safe(arrival_time + wait, self.robot_radius, self.safe_margin):
                 return float(wait)
         return self.gate_unreachable_cost
+
+    def _gate_time_until_unsafe(self, gate, arrival_time: float) -> float:
+        resolution = max(1e-6, self.gate_time_resolution)
+        steps = int(np.ceil(self.gate_lookahead_time / resolution))
+        for step in range(steps + 1):
+            wait = step * resolution
+            if not gate.is_safe(arrival_time + wait, self.robot_radius, self.safe_margin):
+                return float(wait)
+        return self.gate_lookahead_time
+
+    def _normalize_gate_time(self, value: float) -> float:
+        if value >= 0.5 * self.gate_unreachable_cost:
+            return 1.0
+        return float(np.clip(value / max(1e-6, self.gate_lookahead_time), 0.0, 1.0))
 
     def _collision_type(self, old_pos: np.ndarray, new_pos: np.ndarray) -> str:
         # 先判定落点碰撞，再判定一步运动中是否穿过薄墙或窗口槽位。

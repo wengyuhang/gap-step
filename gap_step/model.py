@@ -6,9 +6,19 @@ from torch.distributions import Normal
 
 
 class TeacherActorCritic(nn.Module):
-    def __init__(self, obs_dim: int = 39, action_dim: int = 2, max_acc: float = 3.0, hidden_dim: int = 256):
+    def __init__(
+        self,
+        obs_dim: int = 161,
+        action_dim: int = 2,
+        max_acc: float = 3.0,
+        hidden_dim: int = 256,
+        min_log_std: float = -1.0,
+        max_log_std: float = 2.0,
+    ):
         super().__init__()
         self.max_acc = float(max_acc)
+        self.min_log_std = float(min_log_std)
+        self.max_log_std = float(max_log_std)
         self.actor = nn.Sequential(
             nn.Linear(obs_dim, hidden_dim),
             nn.Tanh(),
@@ -34,8 +44,11 @@ class TeacherActorCritic(nn.Module):
     def distribution(self, obs: torch.Tensor) -> tuple[Normal, torch.Tensor]:
         raw_mean = self.actor(obs)
         value = self.critic(obs).squeeze(-1)
-        std = torch.exp(self.log_std).expand_as(raw_mean)
+        std = torch.exp(self.effective_log_std()).expand_as(raw_mean)
         return Normal(raw_mean, std), value
+
+    def effective_log_std(self) -> torch.Tensor:
+        return torch.clamp(self.log_std, self.min_log_std, self.max_log_std)
 
     def _squash(self, raw_action: torch.Tensor) -> torch.Tensor:
         return torch.tanh(raw_action) * self.max_acc

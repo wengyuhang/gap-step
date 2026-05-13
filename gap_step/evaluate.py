@@ -23,7 +23,12 @@ SPLITS = {
 
 def load_teacher(checkpoint: str, device: torch.device) -> TeacherActorCritic:
     ckpt = torch.load(resolve_path(checkpoint), map_location=device, weights_only=False)
-    model = TeacherActorCritic(obs_dim=int(ckpt.get("obs_dim", 39)), max_acc=float(ckpt.get("max_acc", 3.0))).to(device)
+    model = TeacherActorCritic(
+        obs_dim=int(ckpt.get("obs_dim", 161)),
+        max_acc=float(ckpt.get("max_acc", 3.0)),
+        min_log_std=float(ckpt.get("min_log_std", -1.0)),
+        max_log_std=float(ckpt.get("max_log_std", 2.0)),
+    ).to(device)
     model.load_state_dict(ckpt["model_state"])
     model.eval()
     return model

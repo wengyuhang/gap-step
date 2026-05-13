@@ -67,11 +67,11 @@ gate_safe = safe_width and safe_angle
 
 ## 4. 特权教师观测
 
-教师观测是固定 39 维低维向量：
+教师观测当前为 161 维低维特权向量，保留原 39 维前缀：
 
 ```text
-self_features + goal_features + ray_features
-4 + 3 + 32 = 39
+base_39d_prefix + time_features + gate_summary_features
+39 + 2 + 10 * 12 = 161
 ```
 
 其中：
@@ -87,7 +87,7 @@ goal_features = [(goal_x-x)/S, (goal_y-y)/S, norm(goal-pos)/S]
 ray_max_dist = 0.35 * S
 ```
 
-因此在更大尺寸的 OOD 迷宫中，局部感知半径也同步变大，但网络输入维度保持不变。
+因此在更大尺寸的 OOD 迷宫中，局部感知半径也同步变大。追加的窗口摘要给 teacher 提供当前 safe、宽度余量、角度误差、下次安全时间、距离关闭时间和等待代价，用于学习等待/穿越/绕行。
 
 教师观测不包含：
 
@@ -98,7 +98,6 @@ waypoint
 窗口数量列表
 窗口宽度原始值
 窗口角度原始值
-未来窗口状态
 图像观测
 ```
 
@@ -133,9 +132,9 @@ OOD-dynamics:   [17, 25, 31] + 训练外窗口动力学参数
 教师网络是 MLP Actor-Critic，动作分布为 tanh-squashed Gaussian：
 
 ```text
-obs_dim=39 -> 256 -> 256 -> actor_raw_mean(2)
-obs_dim=39 -> 256 -> 256 -> value(1)
-log_std 为可学习参数
+obs_dim=161 -> 256 -> 256 -> actor_raw_mean(2)
+obs_dim=161 -> 256 -> 256 -> value(1)
+log_std 为可学习参数，并通过 min_log_std 防止探索塌缩
 action = tanh(raw_action) * a_max
 ```
 
@@ -188,6 +187,6 @@ python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
 python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 20 --stages C1,C2,C3,C4,C5
 ```
 
-当前测试数量为 22 passed。smoke 训练只验证流程，会覆盖 `checkpoints/teacher_final.pt` 和 `results/*.csv`，不代表正式 full 训练效果。下一步需要运行 adaptive full training 重新评估成功率。
+当前测试数量为 25 passed。smoke 训练只验证流程，会覆盖 `checkpoints/teacher_final.pt` 和 `results/*.csv`，不代表正式 full 训练效果。下一步需要运行 161D 时间感知特权教师的 adaptive full training 重新评估成功率。
 
 smoke 训练可以生成 `checkpoints/teacher_final.pt` 和 `results/train_metrics.csv`。完整收敛需要运行 `gap_step/configs/train_teacher_full.yaml`。

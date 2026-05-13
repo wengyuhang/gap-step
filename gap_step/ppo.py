@@ -148,4 +148,9 @@ def ppo_update(
             metrics["value_loss"] += float(value_loss.detach().cpu())
             metrics["entropy"] += float(entropy.detach().cpu())
             updates += 1
-    return {k: v / max(1, updates) for k, v in metrics.items()}
+    out = {k: v / max(1, updates) for k, v in metrics.items()}
+    with torch.no_grad():
+        log_std = model.effective_log_std()
+        out["log_std_mean"] = float(log_std.mean().detach().cpu())
+        out["std_mean"] = float(torch.exp(log_std).mean().detach().cpu())
+    return out

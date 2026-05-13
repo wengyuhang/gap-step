@@ -22,7 +22,7 @@ checkpoints/teacher_final.pt
 ## Modules
 
 - `gap_step/curriculum.py` defines C1-C5 procedural maze generation, time-varying gate parameters, and ID/OOD test distributions.
-- `gap_step/env.py` implements the Gymnasium-style continuous maze, collision checks, 39D privileged observation, reward, and RGB rendering.
+- `gap_step/env.py` implements the Gymnasium-style continuous maze, collision checks, 161D time-aware privileged observation, reward, and RGB rendering.
 - `gap_step/model.py` defines the MLP actor-critic teacher with tanh-squashed Gaussian actions.
 - `gap_step/ppo.py` handles rollout collection, GAE, and PPO updates.
 - `gap_step/train.py` trains the teacher across C1-C5. Full training uses adaptive curriculum promotion by recent success rate; fixed stage stepping remains available for compatibility.
@@ -56,19 +56,22 @@ reward_progress * clip(potential(old_pos, current_t) - potential(new_pos, curren
 
 This term estimates remaining time to the goal on a visibility roadmap built from continuous wall rectangles, gate approach points, and future gate safety checks. Window crossing cost includes estimated waiting time for a future safe opening. The same-time old/new comparison prevents pure time passing near a future-opening gate from becoming a large dense reward. The shaping path model is only a reward guide; it does not change observations, collision rules, or success criteria.
 
+Teacher observations keep the original 39D state/goal/ray prefix and append global time phase plus fixed-length summaries for up to 10 gates. Gate summaries expose privileged timing and safety features so the policy can learn wait/cross/bypass behavior instead of inferring future windows from current rays alone.
+
 ## Training Curriculum
 
 Full teacher training uses adaptive C1-C5 progression:
 
 ```text
 promotion_success_rate = 0.70
+promotion_eval_success_rate = 0.60
 promotion_window_episodes = 100
 min_steps_per_stage = 500_000
-soft_max_steps_per_stage = 2_000_000
-hard_max_steps_per_stage = 5_000_000
+soft_max_steps_per_stage = 5_000_000
+hard_max_steps_per_stage = 10_000_000
 ```
 
-Stages promote only after the recent episode window reaches the success threshold and the minimum stage steps have elapsed. Soft max emits a diagnostic warning; hard max stops training and saves the current checkpoint/metrics.
+Stages promote only after the recent episode window reaches the rollout success threshold, deterministic train-validation reaches its threshold, and the minimum stage steps have elapsed. Soft max emits a diagnostic warning; hard max stops training and saves the current checkpoint/metrics.
 
 ## Code Boundary
 

@@ -30,6 +30,10 @@ Reasoning:
 
 Window count should not enter the teacher observation dimension. Scaling ray distance by maze size makes ID and OOD-size evaluation better matched while preserving a fixed network input.
 
+Status:
+
+Superseded on 2026-05-13 for the teacher policy. The 39D vector is now retained as a stable prefix inside the 161D time-aware privileged observation.
+
 ## 2026-05-11: Ignore generated outputs
 
 Decision:
@@ -100,6 +104,10 @@ Reasoning:
 
 The first full run showed C1 could learn but C2-C5 remained weak under fixed 1M-step stage switches. Promotion should be based on demonstrated stage competence; step limits are safety valves, not the main curriculum criterion.
 
+Status:
+
+Updated on 2026-05-13: full training now also requires deterministic promotion evaluation and uses 5M/10M soft/hard limits.
+
 ## 2026-05-12: Use squashed Gaussian PPO actions
 
 Decision:
@@ -119,3 +127,23 @@ Progress shaping now compares `potential(old_pos, current_time)` and `potential(
 Reasoning:
 
 Time-varying windows can make remaining-time potential decrease while the agent stands still. Waiting can be necessary, but it should not produce large dense reward unless the agent improves its spatial state.
+
+## 2026-05-13: Expand teacher observation with time-aware gate summaries
+
+Decision:
+
+Break the old `obs_dim = 39` teacher contract. Keep the original 39D prefix, then add global time phase and fixed-length summaries for up to 10 gates. The default teacher observation is now 161D.
+
+Reasoning:
+
+The adaptive full run reached C3 and then collapsed; final evaluation showed the policy forgot even earlier stages. Reward shaping used future gate timing, but the policy could only observe current ray geometry. The teacher needs privileged timing features to learn whether to wait, cross, or bypass time-varying windows.
+
+## 2026-05-13: Require deterministic validation for curriculum promotion
+
+Decision:
+
+Adaptive promotion requires both stochastic rollout rolling success and deterministic train-validation success. Hard max remains a stop condition rather than saving or rolling back to a best checkpoint.
+
+Reasoning:
+
+Training rollout success alone can overstate deployable policy quality. The project goal is to actually train through C5, not preserve the best intermediate checkpoint; if a stage cannot meet the stricter criterion before hard max, training should stop and expose the failing stage.

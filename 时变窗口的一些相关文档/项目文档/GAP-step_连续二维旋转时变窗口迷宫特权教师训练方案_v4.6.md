@@ -14,6 +14,8 @@
 课程机制：在线程序化课程学习  
 泛化要求：训练和测试使用不同迷宫尺寸与窗口动力学参数
 
+2026-05-13 实现修订：当前代码已将教师观测从原计划的 39D 当前几何 ray-only 观测扩展为 161D 时间感知特权观测，保留原 39D 前缀，并追加全局时间相位与最多 10 个窗口的安全/等待时间摘要。adaptive curriculum 也已改为 rollout success 与 deterministic train-validation 双条件升阶；soft/hard max 更新为 5M/10M steps。
+
 ---
 
 ## 1. 任务定义
@@ -399,7 +401,7 @@ $$
 - 窗口是否旋转；
 - 窗口动力学参数范围。
 
-当前 full 配置使用自适应课程推进。每个阶段至少训练 500k steps；最近 100 个完整 episode 成功率达到 70% 后进入下一阶段。2M steps 未达标只记录 soft warning；5M steps 未达标则停止训练并保存当前 checkpoint/metrics。固定步数课程仍保留为兼容模式，但不作为默认 full 训练方案。
+当前 full 配置使用自适应课程推进。每个阶段至少训练 500k steps；最近 100 个完整 episode 成功率达到 70%，且 deterministic train-validation 成功率达到 60% 后进入下一阶段。5M steps 未达标只记录 soft warning；10M steps 未达标则停止训练并保存当前 checkpoint/metrics。固定步数课程仍保留为兼容模式，但不作为默认 full 训练方案。
 
 ### 7.2 单个 episode 的生成流程
 
