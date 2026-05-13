@@ -89,3 +89,33 @@ For full teacher training, `train.py` determines C1-C5 progression from `global_
 Reasoning:
 
 This keeps single-environment smoke/manual runs simple while allowing one full config to train all five curriculum stages without duplicating environment config blocks.
+
+## 2026-05-12: Use adaptive curriculum for full teacher training
+
+Decision:
+
+Full teacher training now uses `curriculum_mode: adaptive`: each stage trains for at least 500k steps, promotes when the recent 100 completed episodes reach 70% success, emits a soft warning after 2M steps without promotion, and stops at 5M steps without forcing a promotion.
+
+Reasoning:
+
+The first full run showed C1 could learn but C2-C5 remained weak under fixed 1M-step stage switches. Promotion should be based on demonstrated stage competence; step limits are safety valves, not the main curriculum criterion.
+
+## 2026-05-12: Use squashed Gaussian PPO actions
+
+Decision:
+
+The teacher policy now samples from a tanh-squashed Gaussian and computes PPO log probabilities for the squashed action that is actually executed.
+
+Reasoning:
+
+The previous `Normal -> clamp(action)` path could store log probabilities for unclamped samples while the environment executed clamped actions, weakening PPO's importance-ratio update.
+
+## 2026-05-12: Remove time-passing reward leakage from progress shaping
+
+Decision:
+
+Progress shaping now compares `potential(old_pos, current_time)` and `potential(new_pos, current_time)`, then clips the delta before scaling. It no longer directly rewards the decrease in future wait time caused only by time passing.
+
+Reasoning:
+
+Time-varying windows can make remaining-time potential decrease while the agent stands still. Waiting can be necessary, but it should not produce large dense reward unless the agent improves its spatial state.

@@ -20,6 +20,7 @@ class PPOBatch:
     last_value: float
     episode_returns: list[float]
     episode_infos: list[dict]
+    step_infos: list[dict]
 
 
 def get_device(requested: str = "auto") -> torch.device:
@@ -41,6 +42,7 @@ def collect_rollout(
     obs_buf, action_buf, logp_buf, value_buf, reward_buf, done_buf = [], [], [], [], [], []
     episode_returns: list[float] = []
     episode_infos: list[dict] = []
+    step_infos: list[dict] = []
     ep_return = 0.0
     for _ in range(steps):
         obs_t = torch.as_tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
@@ -56,6 +58,7 @@ def collect_rollout(
         value_buf.append(float(value_t.item()))
         reward_buf.append(float(reward))
         done_buf.append(float(done))
+        step_infos.append(dict(info))
 
         ep_return += float(reward)
         obs = next_obs
@@ -81,6 +84,7 @@ def collect_rollout(
         last_value=last_value,
         episode_returns=episode_returns,
         episode_infos=episode_infos,
+        step_infos=step_infos,
     )
 
 
@@ -129,14 +133,12 @@ def ppo_update(
         np.random.shuffle(inds)
         for start in range(0, n, minibatch_size):
             mb = inds[start : start + minibatch_size]
-            dist, value = model.distribution(tensors["obs"][mb])
-            logp = dist.log_prob(tensors["actions"][mb]).sum(dim=-1)
+            logp, entropy, value = model.evaluate_actions(tensors["obs"][mb], tensors["actions"][mb])
             ratio = torch.exp(logp - tensors["old_logp"][mb])
             pg1 = ratio * tensors["advantages"][mb]
             pg2 = torch.clamp(ratio, 1.0 - clip_ratio, 1.0 + clip_ratio) * tensors["advantages"][mb]
             policy_loss = -torch.min(pg1, pg2).mean()
             value_loss = torch.nn.functional.mse_loss(value, tensors["returns"][mb])
-            entropy = dist.entropy().sum(dim=-1).mean()
             loss = policy_loss + value_coef * value_loss - entropy_coef * entropy
             optimizer.zero_grad(set_to_none=True)
             loss.backward()

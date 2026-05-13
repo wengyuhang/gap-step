@@ -13,7 +13,8 @@ Included:
 - time-varying window width and rotation safety checks
 - low-dimensional privileged observation with 32 ray distances
 - PPO actor-critic teacher training
-- ID, OOD-size, and OOD-dynamics evaluation
+- adaptive C1-C5 curriculum training
+- ID, OOD-size, OOD-dynamics, and stage-wise evaluation
 - rollout GIF visualization
 
 Excluded:
@@ -69,4 +70,4 @@ Latest full-run result after enabling dynamic geometry shaping:
 - OOD-size success rate: 5.5%
 - OOD-dynamics success rate: 5.0%
 
-Primary hypothesis for the next iteration: the teacher still needs reward/curriculum tuning before model architecture changes. Inspect progress reward magnitude, gate waiting cost, collision pressure, timeout behavior, and C4/C5 curriculum difficulty first.
+Follow-up changes have now addressed the first-order training signal issues: adaptive curriculum replaces fixed C1-C5 step switches, PPO actions use a squashed Gaussian instead of post-sampling clamp, and progress shaping no longer rewards pure time passing near future-opening gates. A new adaptive full run is needed before updating the success-rate baseline.

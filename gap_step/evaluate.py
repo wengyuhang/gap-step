@@ -7,6 +7,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 
+from gap_step.curriculum import STAGE_ORDER
 from gap_step.env import ContinuousMazeEnv
 from gap_step.model import TeacherActorCritic
 from gap_step.ppo import get_device
@@ -28,13 +29,13 @@ def load_teacher(checkpoint: str, device: torch.device) -> TeacherActorCritic:
     return model
 
 
-def evaluate_split(model: TeacherActorCritic, split: str, episodes: int, device: torch.device) -> dict:
-    env = ContinuousMazeEnv({"stage_name": "C5", "split": split})
+def evaluate_split(model: TeacherActorCritic, split: str, episodes: int, device: torch.device, stage_name: str = "C5") -> dict:
+    env = ContinuousMazeEnv({"stage_name": stage_name, "split": split})
     seeds = list(SPLITS[split])[:episodes]
     stats = []
     with torch.no_grad():
-        for seed in tqdm(seeds, desc=f"eval {split}"):
-            obs, _ = env.reset(seed=seed, options={"stage_name": "C5", "split": split})
+        for seed in tqdm(seeds, desc=f"eval {stage_name} {split}"):
+            obs, _ = env.reset(seed=seed, options={"stage_name": stage_name, "split": split})
             done = False
             ep_return = 0.0
             action_norms = []
@@ -55,6 +56,7 @@ def evaluate_split(model: TeacherActorCritic, split: str, episodes: int, device:
 
     return {
         "split": split,
+        "stage": stage_name,
         "episodes": len(stats),
         "success_rate": float(np.mean([s["success"] for s in stats])),
         "collision_rate": float(np.mean([s["collision"] for s in stats])),
@@ -74,11 +76,19 @@ def main() -> None:
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--output", default="results/eval_metrics.csv")
+    parser.add_argument("--stages", default="")
     args = parser.parse_args()
 
     device = get_device(args.device)
     model = load_teacher(args.checkpoint, device)
-    rows = [evaluate_split(model, split, args.episodes, device) for split in SPLITS]
+    stages = [stage.strip() for stage in args.stages.split(",") if stage.strip()]
+    if stages:
+        unknown = [stage for stage in stages if stage not in STAGE_ORDER]
+        if unknown:
+            raise ValueError(f"Unknown stages: {unknown}")
+        rows = [evaluate_split(model, "id_test", args.episodes, device, stage_name=stage) for stage in stages]
+    else:
+        rows = [evaluate_split(model, split, args.episodes, device, stage_name="C5") for split in SPLITS]
     output = resolve_path(args.output)
     ensure_dir(output.parent)
     with output.open("w", newline="", encoding="utf-8") as f:

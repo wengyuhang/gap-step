@@ -24,6 +24,7 @@ class TeacherActorCritic(nn.Module):
             nn.Linear(hidden_dim, 1),
         )
         self.log_std = nn.Parameter(torch.zeros(action_dim))
+        self._eps = 1e-6
 
     def forward(self, obs: torch.Tensor) -> dict[str, torch.Tensor]:
         mean = torch.tanh(self.actor(obs)) * self.max_acc
@@ -31,13 +32,33 @@ class TeacherActorCritic(nn.Module):
         return {"mean": mean, "value": value}
 
     def distribution(self, obs: torch.Tensor) -> tuple[Normal, torch.Tensor]:
-        out = self.forward(obs)
-        std = torch.exp(self.log_std).expand_as(out["mean"])
-        return Normal(out["mean"], std), out["value"]
+        raw_mean = self.actor(obs)
+        value = self.critic(obs).squeeze(-1)
+        std = torch.exp(self.log_std).expand_as(raw_mean)
+        return Normal(raw_mean, std), value
+
+    def _squash(self, raw_action: torch.Tensor) -> torch.Tensor:
+        return torch.tanh(raw_action) * self.max_acc
+
+    def _atanh_scaled_action(self, action: torch.Tensor) -> torch.Tensor:
+        scaled = torch.clamp(action / self.max_acc, -1.0 + self._eps, 1.0 - self._eps)
+        return 0.5 * (torch.log1p(scaled) - torch.log1p(-scaled))
+
+    def _squashed_log_prob(self, dist: Normal, raw_action: torch.Tensor) -> torch.Tensor:
+        scaled = torch.tanh(raw_action)
+        log_det = torch.log(self.max_acc * (1.0 - scaled.pow(2)) + self._eps)
+        return (dist.log_prob(raw_action) - log_det).sum(dim=-1)
 
     def act(self, obs: torch.Tensor, deterministic: bool = False) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         dist, value = self.distribution(obs)
-        action = dist.mean if deterministic else dist.rsample()
-        log_prob = dist.log_prob(action).sum(dim=-1)
-        action = torch.clamp(action, -self.max_acc, self.max_acc)
+        raw_action = dist.mean if deterministic else dist.rsample()
+        action = self._squash(raw_action)
+        log_prob = self._squashed_log_prob(dist, raw_action)
         return action, log_prob, value
+
+    def evaluate_actions(self, obs: torch.Tensor, actions: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        dist, value = self.distribution(obs)
+        raw_action = self._atanh_scaled_action(actions)
+        log_prob = self._squashed_log_prob(dist, raw_action)
+        entropy = dist.entropy().sum(dim=-1).mean()
+        return log_prob, entropy, value

@@ -130,19 +130,16 @@ OOD-dynamics:   [17, 25, 31] + 训练外窗口动力学参数
 
 ## 6. PPO 教师
 
-教师网络是 MLP Gaussian Actor-Critic：
+教师网络是 MLP Actor-Critic，动作分布为 tanh-squashed Gaussian：
 
 ```text
-obs_dim=39 -> 256 -> 256 -> actor_mean(2)
+obs_dim=39 -> 256 -> 256 -> actor_raw_mean(2)
 obs_dim=39 -> 256 -> 256 -> value(1)
 log_std 为可学习参数
+action = tanh(raw_action) * a_max
 ```
 
-执行动作前裁剪到：
-
-```text
-[-a_max, a_max]^2
-```
+这样采样动作天然位于 `[-a_max, a_max]^2`，PPO update 中 log probability 与实际执行动作一致。
 
 环境默认的 strict v4.6 稀疏奖励为：
 
@@ -156,11 +153,13 @@ reward = +20 if goal
 当前训练配置额外启用连续几何动态进展 shaping：
 
 ```text
-progress_reward = reward_progress * (prev_remaining_time - current_remaining_time)
+spatial_delta = potential(old_pos, current_t) - potential(new_pos, current_t)
+progress_delta = clip(spatial_delta, -progress_delta_clip, progress_delta_clip)
+progress_reward = reward_progress * progress_delta
 reward_timeout = -5.0 on timeout
 ```
 
-`remaining_time` 由连续几何 visibility roadmap 估计，不使用 `cell/open_edges` 作为奖励路径。roadmap 节点来自当前连续位置、目标、窗口两侧 approach point 和膨胀墙体转角点；窗口边会从预计到达时间开始分析未来是否可通行，并把等待时间计入代价。因此奖励会在绕行更便宜时偏向绕行，在必须经过窗口时仍给出等待后通过的训练信号。
+`potential` 由连续几何 visibility roadmap 估计，不使用 `cell/open_edges` 作为奖励路径。roadmap 节点来自当前连续位置、目标、窗口两侧 approach point 和膨胀墙体转角点；窗口边会从预计到达时间开始分析未来是否可通行，并把等待时间计入代价。同一 `current_t` 下比较 old/new 位置，避免原地等待仅因窗口未来更接近打开而获得大额进展奖励。
 
 没有窗口通过奖励、路径跟踪奖励或 waypoint 奖励。动态进展 shaping 只用于训练奖励，不改变教师观测、碰撞规则或成功判定。
 
@@ -186,6 +185,9 @@ results/typical_collision.gif
 ```bash
 pytest -q
 python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
+python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 20 --stages C1,C2,C3,C4,C5
 ```
+
+当前测试数量为 22 passed。smoke 训练只验证流程，会覆盖 `checkpoints/teacher_final.pt` 和 `results/*.csv`，不代表正式 full 训练效果。下一步需要运行 adaptive full training 重新评估成功率。
 
 smoke 训练可以生成 `checkpoints/teacher_final.pt` 和 `results/train_metrics.csv`。完整收敛需要运行 `gap_step/configs/train_teacher_full.yaml`。

@@ -16,10 +16,18 @@
 
 ## 实现要点
 
-动态进展奖励形式：
+第一版动态进展奖励形式：
 
 ```text
 progress_reward = reward_progress * (prev_remaining_time - current_remaining_time)
+```
+
+后续已修正为同一时刻的空间进展：
+
+```text
+spatial_delta = potential(old_pos, current_t) - potential(new_pos, current_t)
+progress_delta = clip(spatial_delta, -progress_delta_clip, progress_delta_clip)
+progress_reward = reward_progress * progress_delta
 ```
 
 每步 reward 组合：
@@ -51,7 +59,7 @@ wait_until_future_safe(arrival_time) + crossing_length / max_speed
 
 ## 已完成验证
 
-已完成：
+第一版已完成：
 
 - `pytest -q`：15 passed
 - full teacher 训练：完成 C1-C5，生成 `checkpoints/teacher_final.pt`
@@ -81,6 +89,8 @@ wait_until_future_safe(arrival_time) + crossing_length / max_speed
 
 因此，当前问题不是“环境完全不可学”，而是 reward、PPO 动作概率、课程推进和动态窗口难度之间仍未调顺。
 
+后续已先修复 PPO action/log probability、自适应课程和 progress reward 时间泄漏问题，新的 adaptive full training 尚未运行。
+
 ## 已发现的主要风险点
 
 1. PPO 中采样 action 后进行了 clamp，但 log probability 可能与实际执行 action 不完全一致。
@@ -100,3 +110,32 @@ wait_until_future_safe(arrival_time) + crossing_length / max_speed
 5. 优化课程推进方式：固定步数切换改为成功率阈值或混合旧课程复习。
 
 暂不建议优先改 observation 维度、模型结构或引入学生策略；应先确认 reward/PPO/curriculum 的基础训练信号是否稳定。
+
+## 后续已落实优化
+
+已按上述保守排障路线完成第一轮训练基础修复：
+
+1. 课程推进从固定步数切换为 adaptive curriculum。
+   - 最近 100 个完整 episode 成功率达到 70% 后升阶。
+   - 每阶段至少训练 500k steps。
+   - 2M steps 未达标只记录 `soft_max_warning`。
+   - 5M steps 未达标停止训练并记录 `hard_max_stop`。
+2. PPO 动作分布改为 tanh-squashed Gaussian。
+   - 动作天然落在 `[-a_max, a_max]`。
+   - PPO update 中 log probability 与实际执行 action 一致。
+3. Progress reward 改为同一时刻的空间进展。
+   - 使用 `potential(old_pos, current_t) - potential(new_pos, current_t)`。
+   - 新增 `progress_delta_clip`，降低 roadmap potential 跳变影响。
+   - 避免原地等待仅因窗口未来更接近打开而获得大额正奖励。
+4. 训练 CSV 增加诊断字段。
+   - 包括 `stage_steps`、`rolling_success_rate`、`stage_status`、progress reward、gate wait/use、碰撞类型和 action norm。
+5. `evaluate.py` 增加阶段评估。
+   - 可运行 `--stages C1,C2,C3,C4,C5` 定位失败阶段。
+
+已完成快速验证：
+
+- `pytest -q`：22 passed
+- `python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml`
+- `python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 20 --stages C1,C2,C3,C4,C5`
+
+注意：smoke 验证会覆盖 `checkpoints/teacher_final.pt` 和 `results/*.csv`。当前 smoke 输出只用于验证流程，不代表正式训练结果。下一步需要重新运行 adaptive full training，再判断成功率是否改善。

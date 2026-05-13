@@ -47,6 +47,7 @@ class ContinuousMazeEnv(gym.Env):
         self.gate_lookahead_time = float(config.get("gate_lookahead_time", 20.0))
         self.gate_time_resolution = float(config.get("gate_time_resolution", self.dt))
         self.gate_unreachable_cost = float(config.get("gate_unreachable_cost", 1e6))
+        self.progress_delta_clip = float(config.get("progress_delta_clip", 0.25))
         self.render_size = int(config.get("render_size", 512))
 
         self.action_space = spaces.Box(-self.max_acc, self.max_acc, shape=(2,), dtype=np.float32)
@@ -102,7 +103,6 @@ class ContinuousMazeEnv(gym.Env):
         action = np.asarray(action, dtype=np.float32)
         action = np.clip(action, -self.max_acc, self.max_acc)
         old_pos = self.pos.copy()
-        old_potential = self._prev_progress_potential
 
         self.vel = self.vel + action * self.dt
         speed = float(np.linalg.norm(self.vel))
@@ -118,11 +118,16 @@ class ContinuousMazeEnv(gym.Env):
         terminated = bool(success or collision)
         truncated = bool(self.step_count >= self.max_steps and not terminated)
 
+        old_potential_at_current_time, _, _ = self._progress_potential(old_pos, self.t)
         current_potential, wait_time, uses_gate = self._progress_potential(self.pos, self.t)
         progress_delta = 0.0
         if self.reward_progress != 0.0 and self.progress_mode == "dynamic_geometry":
-            if old_potential < 0.5 * self.gate_unreachable_cost and current_potential < 0.5 * self.gate_unreachable_cost:
-                progress_delta = old_potential - current_potential
+            if (
+                old_potential_at_current_time < 0.5 * self.gate_unreachable_cost
+                and current_potential < 0.5 * self.gate_unreachable_cost
+            ):
+                raw_delta = old_potential_at_current_time - current_potential
+                progress_delta = float(np.clip(raw_delta, -self.progress_delta_clip, self.progress_delta_clip))
         progress_reward = self.reward_progress * progress_delta
         self._prev_progress_potential = current_potential
         self._last_progress_potential = current_potential

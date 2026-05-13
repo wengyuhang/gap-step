@@ -2,6 +2,13 @@ seed: 0
 device: auto
 steps_per_stage: 1000000
 total_steps: 5000000
+curriculum_mode: adaptive
+promotion_success_rate: 0.70
+promotion_window_episodes: 100
+min_steps_per_stage: 500000
+soft_max_steps_per_stage: 2000000
+hard_max_steps_per_stage: 5000000
+hard_max_policy: stop
 rollout_steps: 2048
 minibatch_size: 256
 update_epochs: 10
@@ -29,3 +36,4 @@ env:
   reward_timeout: -5.0
   progress_mode: dynamic_geometry
   gate_lookahead_time: 20.0
+  progress_delta_clip: 0.25

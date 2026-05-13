@@ -1,64 +1,46 @@
 # AGENTS.md
 
-This file gives coding agents the project-specific context needed to work on GAP-Step.
+Project-specific context for agents working on GAP-Step.
 
-## Project Goal
+## Goal
 
-GAP-Step is a continuous 2D rotating time-varying window maze project with mixed horizontal and vertical wall segments. The current stage trains only a PPO privileged teacher policy with low-dimensional observations:
+GAP-Step trains a PPO privileged teacher in a continuous 2D rotating time-varying window maze. Current scope is teacher-only RL with low-dimensional observations: normalized robot state, relative goal features, and 32 ray distances.
 
-- normalized robot position and velocity
-- normalized relative goal features
-- 32 ray distances against the current traversable geometry
+Out of scope for this stage: visual students, BC, heuristic demos, SITT, world models, future video prediction, active perception, 3D simulators, and quadrotor dynamics.
 
-The project intentionally excludes visual students, behavior cloning, heuristic demonstrations, full SITT, world models, future video prediction, active perception, 3D simulators, and quadrotor dynamics.
+## Code Layout
 
-## Repository Layout
+Runnable code lives directly under `gap_step/`:
 
-All runnable project code lives directly under `gap_step/`:
+- `env.py`: continuous maze, collision, ray observation, reward, rendering
+- `curriculum.py`: C1-C5 procedural maze generation
+- `model.py`: tanh-squashed Gaussian PPO teacher actor-critic
+- `ppo.py`: rollout, GAE, PPO update
+- `train.py`: fixed/adaptive curriculum training entrypoint
+- `evaluate.py`: ID/OOD and stage-wise evaluation
+- `visualize.py`: GIF rollout visualization
 
-- `gap_step/env.py`: environment, collision, raycast observation, rendering
-- `gap_step/curriculum.py`: C1-C5 procedural maze generation
-- `gap_step/model.py`: PPO teacher actor-critic
-- `gap_step/ppo.py`: rollout and PPO update logic
-- `gap_step/train.py`: training entrypoint
-- `gap_step/evaluate.py`: evaluation entrypoint
-- `gap_step/visualize.py`: GIF visualization entrypoint
-- `gap_step/utils.py`: shared utilities
-- `gap_step/configs/`: teacher training YAML configs
-- `gap_step/tests/`: focused curriculum, environment, and model tests
-- `docs/`: persistent project context
+Do not reintroduce `trainers/`, `scripts/`, `gap_step/envs/`, `gap_step/models/`, or `gap_step/teachers/` as active paths.
 
-Do not reintroduce `trainers/`, `scripts/`, `gap_step/envs/`, `gap_step/models/`, or `gap_step/teachers/` as active code paths.
+## Rules
 
-## Working Rules
-
-- Prefer small, runnable changes over broad rewrites unless the user explicitly asks for a full refactor.
-- At the start of non-trivial tasks, inspect `docs/` and read the relevant project notes.
-- Keep configuration in YAML when possible.
-- Preserve the v4.6 observation contract: `N_ray = 32`, `ray_max_dist = 0.35 * S`, `obs_dim = 39`.
-- Do not add 3D simulator dependencies unless explicitly requested.
-- Do not implement students, BC, SITT, future video prediction, world models, or active camera control in this stage.
-- Preserve generated-output ignores for `data/`, `checkpoints/`, `logs/`, `runs/`, and `results/`.
-- Avoid committing large artifacts such as `.pt`, `.npz`, logs, or GIF/video rollouts unless the user explicitly asks.
-- Use the `wyh` conda environment when running tests locally.
-- In non-interactive shells, initialize conda before activation: `source /home/jack/anaconda3/etc/profile.d/conda.sh && conda activate wyh`.
+- Read relevant `docs/` before non-trivial work.
+- Preserve observation contract: `N_ray = 32`, `ray_max_dist = 0.35 * S`, `obs_dim = 39`.
+- Keep config in YAML when possible.
+- Full training defaults to adaptive C1-C5 curriculum: 70% recent success over 100 episodes, 500k min steps, 2M soft warning, 5M hard stop.
+- PPO actions use tanh-squashed Gaussian log probabilities matching executed actions; do not return to `Normal -> clamp(action)`.
+- Progress reward must use continuous geometry, not cells; compare old/new positions at the same time and clip delta to avoid time-passing reward leakage.
+- Do not change collision rules, success criteria, or maze generation unless explicitly asked.
+- Preserve generated-output ignores for `data/`, `checkpoints/`, `logs/`, `runs/`, and `results/`; avoid committing large artifacts unless asked.
+- Use `wyh` conda env. In non-interactive shells: `source /home/jack/anaconda3/etc/profile.d/conda.sh && conda activate wyh`.
 - Run `pytest -q` after behavior changes when feasible.
 
-## Common Commands
+## Commands
 
 ```bash
-source /home/jack/anaconda3/etc/profile.d/conda.sh
-conda activate wyh
+source /home/jack/anaconda3/etc/profile.d/conda.sh && conda activate wyh
 pytest -q
 python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
-python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 5
-python -m gap_step.visualize --checkpoint checkpoints/teacher_final.pt
-```
-
-## Git Notes
-
-The current remote is expected to use the SSH alias:
-
-```bash
-git@github-wengyuhang:wengyuhang/gap-step.git
+python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 20 --stages C1,C2,C3,C4,C5
+python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt
 ```

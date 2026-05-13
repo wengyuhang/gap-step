@@ -51,6 +51,34 @@ def test_dynamic_geometry_progress_rewards_visible_goal_progress():
     assert near < far
 
 
+def test_progress_reward_clips_large_potential_jumps():
+    env = ContinuousMazeEnv(
+        {"stage_name": "C1", "reward_progress": 2.0, "progress_mode": "dynamic_geometry", "progress_delta_clip": 0.25}
+    )
+    env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
+    potentials = [(10.0, 0.0, False), (0.0, 0.0, False)]
+
+    def fake_potential(pos, t):
+        return potentials.pop(0)
+
+    env._progress_potential = fake_potential
+    _, _, _, _, info = env.step(np.zeros(2, dtype=np.float32))
+    assert np.isclose(info["progress_delta"], 0.25)
+    assert np.isclose(info["progress_reward"], 0.5)
+
+
+def test_progress_reward_does_not_reward_time_passing_in_place():
+    env = ContinuousMazeEnv(
+        {"stage_name": "C2", "reward_progress": 2.0, "progress_mode": "dynamic_geometry", "gate_lookahead_time": 60.0}
+    )
+    env.reset(seed=0, options={"stage_name": "C2", "split": "train"})
+    env.vel = np.zeros(2, dtype=np.float32)
+    _, _, terminated, truncated, info = env.step(np.zeros(2, dtype=np.float32))
+    assert not terminated
+    assert not truncated
+    assert np.isclose(info["progress_reward"], 0.0)
+
+
 def test_dynamic_geometry_gate_waits_for_future_safe_window():
     env = ContinuousMazeEnv(
         {

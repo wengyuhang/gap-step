@@ -23,10 +23,10 @@ checkpoints/teacher_final.pt
 
 - `gap_step/curriculum.py` defines C1-C5 procedural maze generation, time-varying gate parameters, and ID/OOD test distributions.
 - `gap_step/env.py` implements the Gymnasium-style continuous maze, collision checks, 39D privileged observation, reward, and RGB rendering.
-- `gap_step/model.py` defines the MLP Gaussian actor-critic teacher.
+- `gap_step/model.py` defines the MLP actor-critic teacher with tanh-squashed Gaussian actions.
 - `gap_step/ppo.py` handles rollout collection, GAE, and PPO updates.
-- `gap_step/train.py` trains the teacher across the fixed curriculum order. For full training, the active stage is derived from `global_steps` and `steps_per_stage` and passed into environment resets; `env.stage_name` in YAML is only a reset default when no override is provided.
-- `gap_step/evaluate.py` evaluates ID, OOD-size, and OOD-dynamics splits.
+- `gap_step/train.py` trains the teacher across C1-C5. Full training uses adaptive curriculum promotion by recent success rate; fixed stage stepping remains available for compatibility.
+- `gap_step/evaluate.py` evaluates ID, OOD-size, OOD-dynamics, and optional stage-wise splits.
 - `gap_step/visualize.py` saves typical GIF rollouts.
 
 ## Environment
@@ -51,10 +51,24 @@ Rewards:
 Strict v4.6 sparse rewards remain the environment default. Teacher training configs additionally enable a continuous-geometry progress shaping term:
 
 ```text
-reward_progress * (previous_remaining_time - current_remaining_time)
+reward_progress * clip(potential(old_pos, current_t) - potential(new_pos, current_t))
 ```
 
-This term estimates remaining time to the goal on a visibility roadmap built from continuous wall rectangles, gate approach points, and future gate safety checks. Window crossing cost includes estimated waiting time for a future safe opening. The shaping path model is only a reward guide; it does not change observations, collision rules, or success criteria.
+This term estimates remaining time to the goal on a visibility roadmap built from continuous wall rectangles, gate approach points, and future gate safety checks. Window crossing cost includes estimated waiting time for a future safe opening. The same-time old/new comparison prevents pure time passing near a future-opening gate from becoming a large dense reward. The shaping path model is only a reward guide; it does not change observations, collision rules, or success criteria.
+
+## Training Curriculum
+
+Full teacher training uses adaptive C1-C5 progression:
+
+```text
+promotion_success_rate = 0.70
+promotion_window_episodes = 100
+min_steps_per_stage = 500_000
+soft_max_steps_per_stage = 2_000_000
+hard_max_steps_per_stage = 5_000_000
+```
+
+Stages promote only after the recent episode window reaches the success threshold and the minimum stage steps have elapsed. Soft max emits a diagnostic warning; hard max stops training and saves the current checkpoint/metrics.
 
 ## Code Boundary
 

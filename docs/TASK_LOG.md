@@ -43,3 +43,24 @@ Open issues:
 - Dynamic geometry shaping runs end-to-end but is not yet sufficient to train a strong teacher.
 - C5 training remains collision-heavy; OOD dynamics evaluation is mostly timeout-heavy.
 - Next work should inspect reward scale, potential clipping, gate wait cost, and curriculum smoothness before treating the teacher as solved.
+
+## 2026-05-12 Follow-Up
+
+Implemented the next conservative training fixes:
+
+- replaced `Normal -> clamp(action)` with tanh-squashed Gaussian actions so PPO log probabilities match executed actions
+- changed progress shaping to compare old/new positions at the same current time and clip `progress_delta`
+- added adaptive curriculum mode with success-rate promotion, soft warning, and hard stop
+- added training diagnostics for progress reward, gate usage/wait time, collision type, action norm, and curriculum status
+- added stage-wise evaluation via `--stages C1,C2,C3,C4,C5`
+
+Validation:
+
+- `pytest -q`: 22 passed
+- `python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml`: completed and wrote adaptive curriculum diagnostics
+- `python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 20 --stages C1,C2,C3,C4,C5`: completed
+
+Note:
+
+- The smoke run overwrites `checkpoints/teacher_final.pt` and `results/*.csv`; current local generated outputs are smoke artifacts, not the previous full-run artifacts.
+- A new adaptive full training run is still needed to judge policy quality.
