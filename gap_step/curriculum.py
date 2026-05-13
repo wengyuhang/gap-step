@@ -26,6 +26,7 @@ class WallSegment:
 class Gate:
     id: int
     wall_id: int
+    cell_edge: CellEdge
     orientation: Orientation
     center: np.ndarray
     slot_width: float
@@ -93,7 +94,13 @@ class Maze:
     goal_cell: Cell
 
 
-STAGE_ORDER = ["C1", "C2", "C3", "C4", "C5"]
+STAGE_ORDER = ["C1", "C1_5", "C2A", "C2B", "C3", "C4", "C5"]
+
+
+def canonical_stage_name(stage_name: str) -> str:
+    if stage_name == "C2":
+        return "C2B"
+    return stage_name
 
 
 def stage_from_step(step: int, steps_per_stage: int) -> str:
@@ -103,6 +110,7 @@ def stage_from_step(step: int, steps_per_stage: int) -> str:
 
 def sample_maze(stage_name: str = "C5", split: SplitName = "train", seed: int | None = None) -> Maze:
     rng = np.random.default_rng(seed)
+    stage_name = canonical_stage_name(stage_name)
     S = _sample_size(stage_name, split, rng)
     rows, cols, gate_range, extra_openings = _stage_layout(stage_name, rng)
     wall_thickness = 0.12
@@ -131,17 +139,23 @@ def _sample_size(stage_name: str, split: SplitName, rng: np.random.Generator) ->
         return float(rng.choice([17.0, 21.0, 25.0, 31.0]))
     if split == "ood_dynamics_test":
         return float(rng.choice([17.0, 25.0, 31.0]))
+    stage_name = canonical_stage_name(stage_name)
     if stage_name == "C1":
         return 15.0
-    if stage_name in {"C2", "C3"}:
+    if stage_name in {"C1_5", "C2A", "C2B", "C3"}:
         return float(rng.choice([15.0, 19.0]))
     return float(rng.choice([15.0, 19.0, 23.0]))
 
 
 def _stage_layout(stage_name: str, rng: np.random.Generator) -> tuple[int, int, tuple[int, int], int]:
+    stage_name = canonical_stage_name(stage_name)
     if stage_name == "C1":
         return 3, 4, (1, 1), 0
-    if stage_name == "C2":
+    if stage_name == "C1_5":
+        return 3, 4, (1, 1), 0
+    if stage_name == "C2A":
+        return 3, 4, (1, 1), 0
+    if stage_name == "C2B":
         return 4, 5, (1, 2), 1
     if stage_name == "C3":
         return (4, 5, (2, 3), 2) if rng.random() < 0.5 else (5, 6, (2, 3), 3)
@@ -295,6 +309,7 @@ def _segments_and_gates(
             Gate(
                 id=len(gates),
                 wall_id=wall_id,
+                cell_edge=edge,
                 orientation=orientation,
                 center=center,
                 slot_width=float(slot_width),
@@ -339,12 +354,35 @@ def _merge_segments(segments: list[tuple[Orientation, float, tuple[float, float]
 
 
 def _gate_dynamics(stage_name: str, split: SplitName, rng: np.random.Generator) -> dict:
+    stage_name = canonical_stage_name(stage_name)
     if stage_name == "C1":
         return {
             "d_min": 1.4,
             "d_max": 1.4,
             "omega_d": 0.0,
             "phi_d": 0.0,
+            "theta0": 0.0,
+            "theta_amp": 0.0,
+            "omega_theta": 0.0,
+            "phi_theta": 0.0,
+        }
+    if stage_name == "C1_5":
+        return {
+            "d_min": 0.75,
+            "d_max": float(rng.uniform(1.45, 1.70)),
+            "omega_d": float(rng.uniform(0.25, 0.45)),
+            "phi_d": float(rng.uniform(0.0, 2.0 * np.pi)),
+            "theta0": 0.0,
+            "theta_amp": 0.0,
+            "omega_theta": 0.0,
+            "phi_theta": 0.0,
+        }
+    if stage_name == "C2A":
+        return {
+            "d_min": float(rng.uniform(0.30, 0.45)),
+            "d_max": float(rng.uniform(1.35, 1.65)),
+            "omega_d": float(rng.uniform(0.35, 0.65)),
+            "phi_d": float(rng.uniform(0.0, 2.0 * np.pi)),
             "theta0": 0.0,
             "theta_amp": 0.0,
             "omega_theta": 0.0,

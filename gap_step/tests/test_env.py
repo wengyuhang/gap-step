@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 
 from gap_step.env import ContinuousMazeEnv
+from gap_step.graph import EDGE_FEATURE_DIM, GLOBAL_FEATURE_DIM, NODE_FEATURE_DIM, GraphObs
 
 
 def _cross_gate_points(gate) -> tuple[np.ndarray, np.ndarray]:
@@ -20,10 +21,13 @@ def _cross_gate_points(gate) -> tuple[np.ndarray, np.ndarray]:
 def test_reset_step_render_and_info():
     env = ContinuousMazeEnv({"stage_name": "C1"})
     obs, info = env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
-    assert obs.shape == (161,)
+    assert isinstance(obs, GraphObs)
+    assert obs.global_features.shape == (GLOBAL_FEATURE_DIM,)
+    assert obs.node_features.shape[1] == NODE_FEATURE_DIM
+    assert obs.edge_features.shape[1] == EDGE_FEATURE_DIM
     assert np.isclose(info["ray_max_dist"], 0.35 * info["S"])
     next_obs, reward, terminated, truncated, info = env.step(np.zeros(2, dtype=np.float32))
-    assert next_obs.shape == (161,)
+    assert isinstance(next_obs, GraphObs)
     assert isinstance(reward, float)
     assert isinstance(terminated, bool)
     assert isinstance(truncated, bool)
@@ -128,38 +132,35 @@ def test_timeout_reward_is_applied_with_progress_shaping():
     assert reward <= -5.01
 
 
-def test_ray_max_dist_scales_with_episode_maze_size():
+def test_graph_obs_scales_with_episode_maze_size():
     env = ContinuousMazeEnv()
     obs, _ = env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
-    assert obs.shape == (161,)
+    assert isinstance(obs, GraphObs)
     assert env.S == 15.0
-    assert np.isclose(env.ray_max_dist, 5.25)
-    rays = obs[7 : 7 + env.num_rays]
-    assert np.all(rays >= 0.0)
-    assert np.all(rays <= 1.0)
+    assert obs.node_features.shape[0] == env.maze.rows * env.maze.cols + len(env.maze.gates)
+    assert np.all(np.isfinite(obs.global_features))
+    assert np.all(np.isfinite(obs.node_features))
+    assert np.all(np.isfinite(obs.edge_features))
 
-    env.reset(seed=30000, options={"stage_name": "C5", "split": "ood_dynamics_test"})
+    obs, _ = env.reset(seed=30000, options={"stage_name": "C5", "split": "ood_dynamics_test"})
     assert env.S in {17.0, 25.0, 31.0}
-    assert np.isclose(env.ray_max_dist, 0.35 * env.S)
+    assert obs.node_features.shape[0] == env.maze.rows * env.maze.cols + len(env.maze.gates)
 
 
-def test_privileged_obs_keeps_base_prefix_and_gate_padding():
-    env = ContinuousMazeEnv({"stage_name": "C1", "max_gate_obs": 10})
-    obs, _ = env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
-    base_dim = 4 + 3 + env.num_rays
-    assert obs.shape == (base_dim + 2 + env.max_gate_obs * env.gate_obs_dim,)
-    assert np.all(np.isfinite(obs))
-    assert np.all(obs[7 : 7 + env.num_rays] >= 0.0)
-    assert np.all(obs[7 : 7 + env.num_rays] <= 1.0)
-
-    gate_features = obs[base_dim + 2 :].reshape(env.max_gate_obs, env.gate_obs_dim)
-    present = gate_features[:, 0]
-    assert int(np.sum(present)) == min(len(env.maze.gates), env.max_gate_obs)
-    assert np.all(gate_features[present == 0.0] == 0.0)
-    assert np.all(gate_features[present == 1.0, 9] >= 0.0)
-    assert np.all(gate_features[present == 1.0, 9] <= 1.0)
-    assert np.all(gate_features[present == 1.0, 10] >= 0.0)
-    assert np.all(gate_features[present == 1.0, 10] <= 1.0)
+def test_privileged_graph_obs_has_gate_nodes_and_topology_edges():
+    env = ContinuousMazeEnv({"stage_name": "C2B"})
+    obs, _ = env.reset(seed=0, options={"stage_name": "C2B", "split": "train"})
+    assert int(np.sum(obs.node_type == 1)) == len(env.maze.gates)
+    assert int(np.sum(obs.node_type == 0)) == env.maze.rows * env.maze.cols
+    edge_types = obs.edge_features[:, :5]
+    assert np.any(edge_types[:, 0] == 1.0)  # self loops
+    assert np.any(edge_types[:, 3] == 1.0)  # gate cell-cell edges
+    assert np.any(edge_types[:, 4] == 1.0)  # gate-node links
+    gate_nodes = obs.node_features[obs.node_type == 1]
+    assert np.all(gate_nodes[:, 23] >= 0.0)
+    assert np.all(gate_nodes[:, 23] <= 1.0)
+    assert np.all(gate_nodes[:, 24] >= 0.0)
+    assert np.all(gate_nodes[:, 24] <= 1.0)
 
 
 def test_closed_gate_collision_is_reported():

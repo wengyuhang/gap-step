@@ -9,6 +9,7 @@ import numpy as np
 from gymnasium import spaces
 
 from gap_step.curriculum import Maze, sample_maze
+from gap_step.graph import EDGE_FEATURE_DIM, GLOBAL_FEATURE_DIM, NODE_FEATURE_DIM, GraphObs
 from gap_step.utils import circle_intersects_rect, ray_rect_distance, wrap_angle
 
 
@@ -35,10 +36,8 @@ class ContinuousMazeEnv(gym.Env):
         self.max_acc = float(config.get("a_max", config.get("max_acc", 3.0)))
         self.max_steps = int(config.get("max_steps", 500))
         self.goal_radius = float(config.get("goal_radius", 0.45))
-        self.num_rays = int(config.get("num_rays", config.get("N_ray", 32)))
+        self.num_rays = int(config.get("debug_num_rays", 32))
         self.ray_max_dist_ratio = float(config.get("ray_max_dist_ratio", 0.35))
-        self.max_gate_obs = int(config.get("max_gate_obs", 10))
-        self.gate_obs_dim = 12
         self.reward_goal = float(config.get("reward_goal", 20.0))
         self.reward_collision = float(config.get("reward_collision", -20.0))
         self.reward_time = float(config.get("reward_time", -0.01))
@@ -53,8 +52,12 @@ class ContinuousMazeEnv(gym.Env):
         self.render_size = int(config.get("render_size", 512))
 
         self.action_space = spaces.Box(-self.max_acc, self.max_acc, shape=(2,), dtype=np.float32)
-        obs_dim = 4 + 3 + self.num_rays + 2 + self.max_gate_obs * self.gate_obs_dim
-        self.observation_space = spaces.Box(-np.inf, np.inf, shape=(obs_dim,), dtype=np.float32)
+        self.observation_space = None
+        self.graph_feature_dims = {
+            "global": GLOBAL_FEATURE_DIM,
+            "node": NODE_FEATURE_DIM,
+            "edge": EDGE_FEATURE_DIM,
+        }
         self.np_random: np.random.Generator
         self.maze: Maze
         self.S = 15.0
@@ -154,56 +157,246 @@ class ContinuousMazeEnv(gym.Env):
         info["action_norm"] = float(np.linalg.norm(action))
         return self.get_privileged_obs(), float(reward), terminated, truncated, info
 
-    def get_privileged_obs(self) -> np.ndarray:
+    def get_privileged_obs(self) -> GraphObs:
+        return self._build_graph_obs()
+
+    def _build_graph_obs(self) -> GraphObs:
+        cell_nodes: dict[tuple[int, int], int] = {}
+        node_features: list[np.ndarray] = []
+        node_type: list[int] = []
+        node_positions: list[np.ndarray] = []
+        agent_cell = self._cell_from_position(self.pos)
+        goal_cell = self.maze.goal_cell
+
+        for r in range(self.maze.rows):
+            for c in range(self.maze.cols):
+                cell = (r, c)
+                center = self._cell_center(cell)
+                cell_nodes[cell] = len(node_features)
+                node_features.append(self._cell_node_features(cell, center, agent_cell, goal_cell))
+                node_type.append(0)
+                node_positions.append(center)
+
+        gate_nodes: dict[int, int] = {}
+        for gate in self.maze.gates:
+            gate_nodes[gate.id] = len(node_features)
+            node_features.append(self._gate_node_features(gate))
+            node_type.append(1)
+            node_positions.append(gate.center.astype(np.float32))
+
+        edge_index: list[tuple[int, int]] = []
+        edge_features: list[np.ndarray] = []
+
+        def add_edge(src: int, dst: int, features: np.ndarray) -> None:
+            edge_index.append((src, dst))
+            edge_features.append(features)
+
+        gate_by_edge = {gate.cell_edge: gate for gate in self.maze.gates}
+        for r in range(self.maze.rows):
+            for c in range(self.maze.cols):
+                cell = (r, c)
+                for nxt in ((r + 1, c), (r, c + 1)):
+                    nr, nc = nxt
+                    if nr >= self.maze.rows or nc >= self.maze.cols:
+                        continue
+                    edge = _cell_edge(cell, nxt)
+                    gate = gate_by_edge.get(edge)
+                    if gate is not None:
+                        kind = "gate"
+                    elif edge in self.maze.open_edges:
+                        kind = "open"
+                    else:
+                        kind = "wall"
+                    i, j = cell_nodes[cell], cell_nodes[nxt]
+                    add_edge(i, j, self._edge_features(kind, node_positions[i], node_positions[j], gate))
+                    add_edge(j, i, self._edge_features(kind, node_positions[j], node_positions[i], gate))
+
+        for gate in self.maze.gates:
+            gate_idx = gate_nodes[gate.id]
+            for cell in gate.cell_edge:
+                cell_idx = cell_nodes[cell]
+                add_edge(gate_idx, cell_idx, self._edge_features("gate_cell", node_positions[gate_idx], node_positions[cell_idx], gate))
+                add_edge(cell_idx, gate_idx, self._edge_features("gate_cell", node_positions[cell_idx], node_positions[gate_idx], gate))
+
+        for idx, pos in enumerate(node_positions):
+            add_edge(idx, idx, self._edge_features("self", pos, pos, None))
+
+        edges = np.asarray(edge_index, dtype=np.int64).T if edge_index else np.zeros((2, 0), dtype=np.int64)
+        return GraphObs(
+            global_features=self._global_features(),
+            node_features=np.asarray(node_features, dtype=np.float32),
+            node_type=np.asarray(node_type, dtype=np.int64),
+            edge_index=edges,
+            edge_features=np.asarray(edge_features, dtype=np.float32),
+        )
+
+    def _global_features(self) -> np.ndarray:
         goal_rel = self.goal - self.pos
-        self_features = np.array(
-            [self.pos[0] / self.S, self.pos[1] / self.S, self.vel[0] / self.max_speed, self.vel[1] / self.max_speed],
+        goal_dist = float(np.linalg.norm(goal_rel))
+        phase = 2.0 * np.pi * (self.t % max(1e-6, self.max_steps * self.dt)) / max(1e-6, self.max_steps * self.dt)
+        safe_count = sum(gate.is_safe(self.t, self.robot_radius, self.safe_margin) for gate in self.maze.gates)
+        denom = max(1, len(self.maze.gates))
+        return np.array(
+            [
+                self.pos[0] / self.S,
+                self.pos[1] / self.S,
+                self.vel[0] / self.max_speed,
+                self.vel[1] / self.max_speed,
+                goal_rel[0] / self.S,
+                goal_rel[1] / self.S,
+                goal_dist / self.S,
+                self.S / 31.0,
+                self.maze.rows / 8.0,
+                self.maze.cols / 8.0,
+                np.sin(phase),
+                np.cos(phase),
+                self.step_count / max(1, self.max_steps),
+                len(self.maze.gates) / 16.0,
+                safe_count / denom,
+                1.0,
+            ],
             dtype=np.float32,
         )
-        goal_features = np.array([goal_rel[0] / self.S, goal_rel[1] / self.S, np.linalg.norm(goal_rel) / self.S], dtype=np.float32)
-        rays = self._ray_features()
-        time_features = self._time_features()
-        gate_features = self._gate_summary_features()
-        return np.concatenate([self_features, goal_features, rays, time_features, gate_features]).astype(np.float32)
 
-    def _time_features(self) -> np.ndarray:
-        horizon = max(1e-6, self.max_steps * self.dt)
-        phase = 2.0 * np.pi * (self.t % horizon) / horizon
-        return np.array([np.sin(phase), np.cos(phase)], dtype=np.float32)
+    def _cell_node_features(
+        self,
+        cell: tuple[int, int],
+        center: np.ndarray,
+        agent_cell: tuple[int, int],
+        goal_cell: tuple[int, int],
+    ) -> np.ndarray:
+        rel_agent = center - self.pos
+        rel_goal = center - self.goal
+        out = np.zeros(NODE_FEATURE_DIM, dtype=np.float32)
+        out[:16] = np.array(
+            [
+                1.0,
+                0.0,
+                center[0] / self.S,
+                center[1] / self.S,
+                rel_agent[0] / self.S,
+                rel_agent[1] / self.S,
+                rel_goal[0] / self.S,
+                rel_goal[1] / self.S,
+                np.linalg.norm(rel_agent) / self.S,
+                np.linalg.norm(rel_goal) / self.S,
+                cell[0] / max(1, self.maze.rows - 1),
+                cell[1] / max(1, self.maze.cols - 1),
+                float(cell == self.maze.start_cell),
+                float(cell == goal_cell),
+                float(cell == agent_cell),
+                float(cell == goal_cell),
+            ],
+            dtype=np.float32,
+        )
+        return out
 
-    def _gate_summary_features(self) -> np.ndarray:
-        features = np.zeros((self.max_gate_obs, self.gate_obs_dim), dtype=np.float32)
-        gates = sorted(self.maze.gates, key=lambda gate: float(np.linalg.norm(gate.center - self.pos)))[: self.max_gate_obs]
-        for idx, gate in enumerate(gates):
-            rel = (gate.center - self.pos) / max(1e-6, self.S)
-            distance = float(np.linalg.norm(gate.center - self.pos) / max(1e-6, self.S))
-            normal = np.array([1.0, 0.0], dtype=np.float32) if gate.orientation == "vertical" else np.array([0.0, 1.0], dtype=np.float32)
-            is_safe = gate.is_safe(self.t, self.robot_radius, self.safe_margin)
-            required_width = 2.0 * self.robot_radius + self.safe_margin
-            width_clearance = (gate.width(self.t) - required_width) / max(1e-6, gate.slot_width)
-            angle_error = abs(wrap_angle(gate.theta(self.t) - gate.theta_ref)) / np.pi
-            wait = self._gate_wait_until_safe(gate, self.t)
-            time_to_next_safe = self._normalize_gate_time(wait)
-            time_to_close = self._normalize_gate_time(self._gate_time_until_unsafe(gate, self.t) if is_safe else 0.0)
-            current_wait_cost = time_to_next_safe
-            features[idx] = np.array(
-                [
-                    1.0,
-                    rel[0],
-                    rel[1],
-                    distance,
-                    normal[0],
-                    normal[1],
-                    float(is_safe),
-                    np.clip(width_clearance, -1.0, 1.0),
-                    np.clip(angle_error, 0.0, 1.0),
-                    time_to_next_safe,
-                    time_to_close,
-                    current_wait_cost,
-                ],
-                dtype=np.float32,
-            )
-        return features.reshape(-1)
+    def _gate_node_features(self, gate) -> np.ndarray:
+        rel_agent = gate.center - self.pos
+        rel_goal = gate.center - self.goal
+        width = gate.width(self.t)
+        theta = gate.theta(self.t)
+        required_width = 2.0 * self.robot_radius + self.safe_margin
+        clearance = (width - required_width) / max(1e-6, gate.slot_width)
+        safe = gate.is_safe(self.t, self.robot_radius, self.safe_margin)
+        out = np.zeros(NODE_FEATURE_DIM, dtype=np.float32)
+        out[:10] = np.array(
+            [
+                0.0,
+                1.0,
+                gate.center[0] / self.S,
+                gate.center[1] / self.S,
+                rel_agent[0] / self.S,
+                rel_agent[1] / self.S,
+                rel_goal[0] / self.S,
+                rel_goal[1] / self.S,
+                np.linalg.norm(rel_agent) / self.S,
+                np.linalg.norm(rel_goal) / self.S,
+            ],
+            dtype=np.float32,
+        )
+        out[16:] = np.array(
+            [
+                float(gate.orientation == "vertical"),
+                float(gate.orientation == "horizontal"),
+                gate.slot_width / self.S,
+                width / max(1e-6, gate.slot_width),
+                np.clip(clearance, -1.0, 1.0),
+                float(safe),
+                abs(wrap_angle(theta - gate.theta_ref)) / np.pi,
+                self._normalize_gate_time(self._gate_wait_until_safe(gate, self.t)),
+                self._normalize_gate_time(self._gate_time_until_unsafe(gate, self.t) if safe else 0.0),
+                np.sin(theta),
+                np.cos(theta),
+                gate.d_min / max(1e-6, gate.slot_width),
+                gate.d_max / max(1e-6, gate.slot_width),
+                gate.omega_d / 2.0,
+                gate.theta_amp / np.pi,
+                gate.omega_theta / 2.0,
+            ],
+            dtype=np.float32,
+        )
+        return out
+
+    def _edge_features(self, kind: str, src: np.ndarray, dst: np.ndarray, gate) -> np.ndarray:
+        delta = dst - src
+        distance = float(np.linalg.norm(delta))
+        direction = delta / distance if distance > 1e-8 else np.zeros(2, dtype=np.float32)
+        out = np.zeros(EDGE_FEATURE_DIM, dtype=np.float32)
+        type_index = {"self": 0, "wall": 1, "open": 2, "gate": 3, "gate_cell": 4}[kind]
+        out[type_index] = 1.0
+        out[5:8] = np.array([direction[0], direction[1], distance / max(1e-6, self.S)], dtype=np.float32)
+        if gate is None:
+            out[8] = 1.0 if kind in {"self", "open"} else 0.0
+            return out
+
+        width = gate.width(self.t)
+        theta = gate.theta(self.t)
+        required_width = 2.0 * self.robot_radius + self.safe_margin
+        safe = gate.is_safe(self.t, self.robot_radius, self.safe_margin)
+        out[8:] = np.array(
+            [
+                float(safe),
+                self._normalize_gate_time(self._gate_wait_until_safe(gate, self.t)),
+                self._normalize_gate_time(self._gate_time_until_unsafe(gate, self.t) if safe else 0.0),
+                np.clip((width - required_width) / max(1e-6, gate.slot_width), -1.0, 1.0),
+                abs(wrap_angle(theta - gate.theta_ref)) / np.pi,
+                float(gate.orientation == "vertical"),
+                float(gate.orientation == "horizontal"),
+                gate.slot_width / self.S,
+                width / max(1e-6, gate.slot_width),
+                np.sin(theta),
+                np.cos(theta),
+                1.0,
+            ],
+            dtype=np.float32,
+        )
+        return out
+
+    def _cell_from_position(self, pos: np.ndarray) -> tuple[int, int]:
+        geom = self._grid_geometry()
+        c = int(np.floor((float(pos[0]) - geom["margin"]) / max(1e-6, geom["cell_w"])))
+        r = int(np.floor((float(pos[1]) - geom["margin"]) / max(1e-6, geom["cell_h"])))
+        return int(np.clip(r, 0, self.maze.rows - 1)), int(np.clip(c, 0, self.maze.cols - 1))
+
+    def _cell_center(self, cell: tuple[int, int]) -> np.ndarray:
+        geom = self._grid_geometry()
+        r, c = cell
+        return np.array(
+            [
+                geom["margin"] + (c + 0.5) * geom["cell_w"],
+                geom["margin"] + (r + 0.5) * geom["cell_h"],
+            ],
+            dtype=np.float32,
+        )
+
+    def _grid_geometry(self) -> dict[str, float]:
+        margin = max(0.70, 0.055 * self.S)
+        return {
+            "margin": margin,
+            "cell_w": (self.S - 2.0 * margin) / self.maze.cols,
+            "cell_h": (self.S - 2.0 * margin) / self.maze.rows,
+        }
 
     def _ray_features(self) -> np.ndarray:
         angles = np.linspace(0.0, 2.0 * np.pi, self.num_rays, endpoint=False, dtype=np.float32)
@@ -494,6 +687,10 @@ class ContinuousMazeEnv(gym.Env):
 
     def render(self):
         return render_rgb(self)
+
+
+def _cell_edge(a: tuple[int, int], b: tuple[int, int]) -> tuple[tuple[int, int], tuple[int, int]]:
+    return (a, b) if a <= b else (b, a)
 
 
 def world_to_pixel(pos: np.ndarray, S: float, image_size: int) -> tuple[int, int]:

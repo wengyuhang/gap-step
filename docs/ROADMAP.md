@@ -1,31 +1,23 @@
 # Roadmap
 
-## Current MVP
+## Current Mainline
 
-- continuous 2D procedural maze from randomized grid topology
-- rotating time-varying windows
-- 161D time-aware privileged teacher observation with a stable 39D ray prefix
-- PPO teacher actor-critic with tanh-squashed Gaussian actions
-- adaptive curriculum C1 -> C5 with rollout + deterministic validation promotion and hard stop
-- ID, OOD-size, OOD-dynamics, and stage-wise evaluation
-- GIF rollout visualization
+- Continuous 2D time-varying window maze
+- PPO privileged teacher only
+- Pure PyTorch GNN actor-critic
+- Graph observation with full topology and gate dynamics
+- Adaptive curriculum: C1, C1_5, C2A, C2B, C3, C4, C5
 
-## Near-Term Improvements
+## Near-Term Work
 
-1. Run the new 161D time-aware adaptive full training and compare stage promotion, hard-stop behavior, and final ID/OOD success rates.
-2. Inspect whether deterministic promotion and std protection prevent C3 collapse/early-stage forgetting.
-3. Add vectorized environments for faster teacher training once reward/curriculum behavior is more trustworthy.
-4. Improve typical GIF selection by searching for actual success/wait/collision cases.
-5. Save exact config snapshots next to the teacher checkpoint.
-6. Add more collision geometry tests for edge contact and high-speed crossing.
+1. Run a focused GNN teacher training sweep through C2B.
+2. Compare deterministic and stochastic success for C1, C1_5, C2A, and C2B.
+3. Inspect wait/cross behavior near closed gates.
+4. Tune entropy, target KL, GNN hidden size, and curriculum thresholds if C2A/C2B remain weak.
+5. Only after C2B is stable, run C3-C5 full training.
 
-## Out of Scope For This Stage
+## Later Work
 
-- visual student policies
-- behavior cloning
-- demonstration datasets
-- SITT
-- world models
-- future video prediction
-- active perception
-- 3D quadrotor simulation
+- Improve graph pooling or add attention if C5 needs longer-range credit assignment.
+- Add richer diagnostics for gate timing decisions.
+- Consider a student policy only after the privileged teacher reliably solves C5.

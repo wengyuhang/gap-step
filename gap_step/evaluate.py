@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from gap_step.curriculum import STAGE_ORDER
 from gap_step.env import ContinuousMazeEnv
+from gap_step.graph import EDGE_FEATURE_DIM, GLOBAL_FEATURE_DIM, NODE_FEATURE_DIM, collate_graph_obs
 from gap_step.model import TeacherActorCritic
 from gap_step.ppo import get_device
 from gap_step.utils import ensure_dir, resolve_path
@@ -24,9 +25,13 @@ SPLITS = {
 def load_teacher(checkpoint: str, device: torch.device) -> TeacherActorCritic:
     ckpt = torch.load(resolve_path(checkpoint), map_location=device, weights_only=False)
     model = TeacherActorCritic(
-        obs_dim=int(ckpt.get("obs_dim", 161)),
+        global_dim=int(ckpt.get("global_dim", GLOBAL_FEATURE_DIM)),
+        node_dim=int(ckpt.get("node_dim", NODE_FEATURE_DIM)),
+        edge_dim=int(ckpt.get("edge_dim", EDGE_FEATURE_DIM)),
+        hidden_dim=int(ckpt.get("hidden_dim", 128)),
+        gnn_layers=int(ckpt.get("gnn_layers", 4)),
         max_acc=float(ckpt.get("max_acc", 3.0)),
-        min_log_std=float(ckpt.get("min_log_std", -1.0)),
+        min_log_std=float(ckpt.get("min_log_std", -0.5)),
         max_log_std=float(ckpt.get("max_log_std", 2.0)),
     ).to(device)
     model.load_state_dict(ckpt["model_state"])
@@ -46,7 +51,7 @@ def evaluate_split(model: TeacherActorCritic, split: str, episodes: int, device:
             action_norms = []
             final_info = {}
             while not done:
-                obs_t = torch.as_tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+                obs_t = collate_graph_obs([obs], device)
                 action, _, _ = model.act(obs_t, deterministic=True)
                 action_np = action.squeeze(0).cpu().numpy()
                 obs, reward, terminated, truncated, final_info = env.step(action_np)
@@ -77,7 +82,7 @@ def evaluate_split(model: TeacherActorCritic, split: str, episodes: int, device:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", default="checkpoints/teacher_final.pt")
+    parser.add_argument("--checkpoint", default="checkpoints/teacher_best.pt")
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--output", default="results/eval_metrics.csv")

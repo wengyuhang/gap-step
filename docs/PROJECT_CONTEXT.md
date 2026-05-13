@@ -2,7 +2,9 @@
 
 ## Summary
 
-GAP-Step is a continuous 2D rotating time-varying window maze project. The current implementation trains a PPO privileged teacher in procedurally generated ordinary mazes. Each episode first samples a randomized grid-maze topology, then converts it into continuous horizontal/vertical walls with time-varying windows that open, close, and rotate.
+GAP-Step is a continuous 2D rotating time-varying window maze project. The current implementation trains a PPO privileged teacher with a pure PyTorch GNN actor-critic. The environment remains continuous: the robot state, acceleration actions, walls, window slots, collision checks, and success checks are all continuous geometry.
+
+The teacher observation is now privileged topology state rather than local ray state. Each step returns a graph containing cell nodes, gate nodes, topology edges, gate-cell edges, and self-loops. The graph exposes simulator-only structure such as wall/open/gate edge type and gate dynamics. The policy still outputs continuous acceleration directly and does not run planning at inference time.
 
 ## Scope
 
@@ -11,9 +13,9 @@ Included:
 - continuous square mazes generated from randomized grid topology
 - 2D double-integrator robot dynamics
 - time-varying window width and rotation safety checks
-- low-dimensional privileged observation with 32 ray distances plus time-aware gate summaries
-- PPO actor-critic teacher training
-- adaptive C1-C5 curriculum training
+- graph privileged observation with full topology and gate timing/dynamics
+- pure PyTorch GNN PPO actor-critic teacher training
+- adaptive curriculum training across C1, C1_5, C2A, C2B, C3, C4, C5
 - ID, OOD-size, OOD-dynamics, and stage-wise evaluation
 - rollout GIF visualization
 
@@ -22,6 +24,7 @@ Excluded:
 - visual student policies
 - behavior cloning and demonstration datasets
 - heuristic teacher demonstrations
+- A*/MPC/waypoint execution
 - SITT proxy-student machinery
 - world models or future video prediction
 - active camera control
@@ -32,28 +35,36 @@ Excluded:
 The teacher observation is:
 
 ```text
-[base_39d_prefix, time_features, gate_summary_features]
+GraphObs(
+  global_features: [16],
+  node_features: [num_nodes, 32],
+  node_type: [num_nodes],
+  edge_index: [2, num_edges],
+  edge_features: [num_edges, 20],
+)
 ```
 
-Dimensions:
+Nodes:
 
-```text
-39 + 2 + 10 * 12 = 161
-```
+- cell nodes for every generated maze cell
+- gate nodes for every time-varying window
 
-The base prefix remains `self_features + goal_features + ray_features`, so `N_ray = 32` is still fixed. The ray maximum distance is not a fixed constant:
+Edges:
 
-```text
-ray_max_dist = 0.35 * S
-```
+- directed cell-cell edges for adjacent cells, labeled as wall/open/gate
+- directed gate-cell edges connecting each gate to its two neighboring cells
+- self-loops for every node
 
-where `S` is the current episode's sampled maze side length.
+The graph is batched by `gap_step.graph.collate_graph_obs`, which concatenates nodes/edges and offsets edge indices. There is no fixed padding limit and no local ray prefix in the teacher contract.
 
-The appended privileged gate summaries expose dynamic-window timing for the teacher only: current safety, clearance, angle error, time to next safe opening, time to close, and wait cost for up to 10 gates.
+## Current Training Status
 
-## Expected Outputs
+The previous local teacher reached C1 but failed to learn stable deterministic C2 behavior. The project has therefore moved to a full privileged GNN teacher. The first validation target is C2A/C2B deterministic success, then C3-C5.
+
+Generated outputs:
 
 - `checkpoints/teacher_final.pt`
+- `checkpoints/teacher_best.pt`
 - `results/train_metrics.csv`
 - `results/eval_metrics.csv`
 - `results/typical_success.gif`
@@ -61,15 +72,3 @@ The appended privileged gate summaries expose dynamic-window timing for the teac
 - `results/typical_collision.gif`
 
 Generated outputs are ignored by Git.
-
-## Current Training Status
-
-The project now has an end-to-end PPO teacher pipeline that can run the full C1-C5 curriculum and complete ID/OOD evaluation. The current dynamic-geometry reward shaping is a training aid, not a solved policy recipe.
-
-Latest full-run result after enabling dynamic geometry shaping:
-
-- ID success rate: 5.0%
-- OOD-size success rate: 5.5%
-- OOD-dynamics success rate: 5.0%
-
-Follow-up changes addressed the first-order training signal issues, but the adaptive full run still stopped in C3 and deterministic evaluation showed earlier-stage forgetting. The next iteration now uses 161D time-aware privileged observations, PPO std protection, and deterministic validation before stage promotion. A new full run is needed before updating the success-rate baseline.

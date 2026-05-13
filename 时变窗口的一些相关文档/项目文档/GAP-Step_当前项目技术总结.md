@@ -2,34 +2,33 @@
 
 ## 1. 当前定位
 
-当前项目已重构为 v4.6 版本：连续二维旋转时变窗口迷宫中的 PPO 特权教师训练系统。
+当前项目是连续二维旋转时变窗口迷宫中的 PPO 特权教师训练系统。
 
-当前阶段只做一件事：
+当前主线为：
 
 ```text
-程序化连续二维迷宫
-    -> 低维特权射线观测
-    -> PPO 训练教师策略
+连续二维迷宫
+    -> 完整拓扑图 + gate 动力学特权观测
+    -> 纯 PyTorch GNN PPO 教师
     -> ID / OOD-size / OOD-dynamics 评估
 ```
 
-旧版本的视觉学生、行为克隆、Aux 辅助预测、启发式教师演示、`trainers/` 和 `scripts/` 主流程已经移出当前实现。代码不再兼容旧 E1/E2/E3 固定窗口实验。
+迷宫、墙体、窗口、碰撞和动作仍然是连续的。GNN 图只是 teacher 的 privileged state，不把机器人运动离散化，也不在推理时执行 A*/MPC/路径规划。
 
 ## 2. 代码结构
 
-所有当前可运行代码都放在 `gap_step/` 文件夹内：
+所有当前可运行代码都放在 `gap_step/`：
 
 ```text
-gap_step/
-  env.py          # 连续迷宫环境、碰撞、射线观测、渲染
-  curriculum.py   # C1-C5 在线程序化课程生成
-  model.py        # PPO 教师 Actor-Critic
-  ppo.py          # rollout、GAE、PPO update
-  train.py        # 教师训练入口
-  evaluate.py     # ID/OOD 评估入口
-  visualize.py    # GIF 可视化入口
-  utils.py        # 通用工具
-  gif.py          # GIF 保存
+env.py          # 连续迷宫、碰撞、GraphObs、奖励、渲染
+graph.py        # GraphObs、GraphBatch、图 batch collation
+curriculum.py   # C1/C1_5/C2A/C2B/C3/C4/C5 在线课程
+model.py        # GNN PPO 教师 Actor-Critic
+ppo.py          # graph rollout、GAE、PPO update
+train.py        # 教师训练入口
+evaluate.py     # ID/OOD 和 stage-wise 评估
+visualize.py    # GIF 可视化入口
+utils.py        # 通用工具
 ```
 
 旧目录 `gap_step/envs/`、`gap_step/models/`、`gap_step/teachers/`、`trainers/`、`scripts/` 不再作为代码入口使用。
@@ -42,20 +41,14 @@ gap_step/
 Omega_S = [0, S] x [0, S]
 ```
 
-智能体是圆盘机器人，状态为位置和速度，动作是二维连续加速度：
-
-```text
-a_t = [a_x, a_y]
-```
-
-动力学为双积分：
+智能体是圆盘机器人，状态为连续位置和速度，动作是二维连续加速度：
 
 ```text
 v = clip(v + a * dt, -v_max, v_max)
 p = p + v * dt
 ```
 
-迷宫先由 randomized DFS 生成离散网格拓扑，再转换为连续坐标下的横向/竖向墙段。生成器会额外打开少量边形成环路，使 C4/C5 更接近普通二维迷宫，而不是规则墙体阵列。部分通路边被替换成时变窗口槽位。窗口的当前可通行性由宽度和旋转角共同决定：
+迷宫先由 randomized DFS 生成网格拓扑，再转换为连续墙段和时变窗口槽位。窗口是否可通行由宽度和旋转角共同决定：
 
 ```text
 safe_width = d(t) >= 2 * robot_radius + safe_margin
@@ -63,130 +56,82 @@ safe_angle = abs(wrap(theta(t) - theta_ref)) <= theta_safe
 gate_safe = safe_width and safe_angle
 ```
 
-不可通行窗口按障碍处理；可通行窗口在当前几何中表现为开口。
+不可通行窗口按障碍处理；可通行窗口作为连续开口处理。
 
-## 4. 特权教师观测
+## 4. GNN 特权教师观测
 
-教师观测当前为 161 维低维特权向量，保留原 39 维前缀：
-
-```text
-base_39d_prefix + time_features + gate_summary_features
-39 + 2 + 10 * 12 = 161
-```
-
-其中：
+teacher 当前观测为 `GraphObs`：
 
 ```text
-self_features = [x/S, y/S, vx/v_max, vy/v_max]
-goal_features = [(goal_x-x)/S, (goal_y-y)/S, norm(goal-pos)/S]
+global_features: [16]
+node_features:   [num_nodes, 32]
+node_type:       [num_nodes]
+edge_index:      [2, num_edges]
+edge_features:   [num_edges, 20]
 ```
 
-`ray_features` 使用固定 `N_ray = 32` 条射线。射线最大距离不再是固定 6.0，而是：
+节点包括：
 
-```text
-ray_max_dist = 0.35 * S
-```
+- 每个迷宫 cell 一个 cell node；
+- 每个时变窗口一个 gate node。
 
-因此在更大尺寸的 OOD 迷宫中，局部感知半径也同步变大。追加的窗口摘要给 teacher 提供当前 safe、宽度余量、角度误差、下次安全时间、距离关闭时间和等待代价，用于学习等待/穿越/绕行。
+边包括：
 
-教师观测不包含：
+- 相邻 cell 之间的有向 cell-cell 边，标注 wall/open/gate；
+- gate node 到两侧 cell 的有向 gate-cell 边；
+- 每个节点的 self-loop。
 
-```text
-完整地图
-A* 路径
-waypoint
-窗口数量列表
-窗口宽度原始值
-窗口角度原始值
-图像观测
-```
+gate 节点和 gate 边提供当前 safe、宽度、余量、角度误差、time-to-open、time-to-close、宽度/旋转周期参数等完整特权信息。
+
+这不是规划算法。GNN 只是可学习的图编码器，策略仍然一次前向输出连续动作。
 
 ## 5. 课程学习
 
-课程由 `gap_step/curriculum.py` 在线生成，不保存训练集。
+当前课程顺序为：
 
 ```text
-C1: 小迷宫，1 个固定可通行窗口
-C2: 小迷宫，1-2 个开闭窗口，无旋转
-C3: 小/中迷宫，加入旋转窗口
-C4: 中型普通迷宫，3-5 个时变窗口
-C5: 最终普通迷宫，6-10 个异步时变窗口，含横竖墙和少量环路
+C1   静态 always-safe gate
+C1_5 动态宽度 gate，高 open 占空比
+C2A  单动态 gate，可能需要等待
+C2B  小迷宫，1-2 个动态 gate
+C3   加入旋转 gate
+C4   中型多 gate
+C5   最终异步多 gate 普通迷宫
 ```
 
-训练尺寸：
-
-```text
-S_train = [15, 19, 23]
-```
-
-测试包含：
-
-```text
-ID:             [15, 19, 23]
-OOD-size:       [17, 21, 25, 31]
-OOD-dynamics:   [17, 25, 31] + 训练外窗口动力学参数
-```
+训练和测试仍由程序化生成器在线生成，不保存训练集。
 
 ## 6. PPO 教师
 
-教师网络是 MLP Actor-Critic，动作分布为 tanh-squashed Gaussian：
+教师网络为 GNN actor-critic：
 
 ```text
-obs_dim=161 -> 256 -> 256 -> actor_raw_mean(2)
-obs_dim=161 -> 256 -> 256 -> value(1)
-log_std 为可学习参数，并通过 min_log_std 防止探索塌缩
+GraphObs -> global/node/edge encoder -> message passing -> graph pooling -> actor/value
+```
+
+动作分布为 tanh-squashed Gaussian：
+
+```text
 action = tanh(raw_action) * a_max
 ```
 
-这样采样动作天然位于 `[-a_max, a_max]^2`，PPO update 中 log probability 与实际执行动作一致。
-
-环境默认的 strict v4.6 稀疏奖励为：
-
-```text
-reward = +20 if goal
-       + -20 if collision
-       - 0.01
-       - 0.001 * ||action||^2
-```
-
-当前训练配置额外启用连续几何动态进展 shaping：
-
-```text
-spatial_delta = potential(old_pos, current_t) - potential(new_pos, current_t)
-progress_delta = clip(spatial_delta, -progress_delta_clip, progress_delta_clip)
-progress_reward = reward_progress * progress_delta
-reward_timeout = -5.0 on timeout
-```
-
-`potential` 由连续几何 visibility roadmap 估计，不使用 `cell/open_edges` 作为奖励路径。roadmap 节点来自当前连续位置、目标、窗口两侧 approach point 和膨胀墙体转角点；窗口边会从预计到达时间开始分析未来是否可通行，并把等待时间计入代价。同一 `current_t` 下比较 old/new 位置，避免原地等待仅因窗口未来更接近打开而获得大额进展奖励。
-
-没有窗口通过奖励、路径跟踪奖励或 waypoint 奖励。动态进展 shaping 只用于训练奖励，不改变教师观测、碰撞规则或成功判定。
-
-## 7. 输出
-
-训练和评估只保存必要结果：
+PPO update 中 log probability 与实际执行动作一致。训练支持 target-KL early stop，并保存：
 
 ```text
 checkpoints/teacher_final.pt
-results/train_metrics.csv
-results/eval_metrics.csv
-results/typical_success.gif
-results/typical_wait.gif
-results/typical_collision.gif
+checkpoints/teacher_best.pt
 ```
 
-`data/`、`checkpoints/`、`logs/`、`runs/`、`results/` 都是生成物目录，已从 Git 中忽略。
+默认评估使用 `teacher_best.pt`。
 
-## 8. 当前验证状态
+## 7. 验证状态
 
-已通过：
+当前已通过：
 
 ```bash
 pytest -q
 python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
-python -m gap_step.evaluate --checkpoint checkpoints/teacher_final.pt --episodes 20 --stages C1,C2,C3,C4,C5
+python -m gap_step.evaluate --checkpoint checkpoints/teacher_best.pt --episodes 2 --stages C1,C1_5,C2A,C2B,C3,C4,C5 --output /tmp/gap_gnn_eval_smoke.csv
 ```
 
-当前测试数量为 25 passed。smoke 训练只验证流程，会覆盖 `checkpoints/teacher_final.pt` 和 `results/*.csv`，不代表正式 full 训练效果。下一步需要运行 161D 时间感知特权教师的 adaptive full training 重新评估成功率。
-
-smoke 训练可以生成 `checkpoints/teacher_final.pt` 和 `results/train_metrics.csv`。完整收敛需要运行 `gap_step/configs/train_teacher_full.yaml`。
+smoke 训练只验证流程，不代表策略质量。下一步应集中训练到 C2B，并以 deterministic success 判断 GNN privileged teacher 是否真正学会等待和过门。

@@ -7,6 +7,7 @@ import torch
 from gap_step.env import ContinuousMazeEnv
 from gap_step.evaluate import load_teacher
 from gap_step.gif import save_gif
+from gap_step.graph import collate_graph_obs
 from gap_step.ppo import get_device
 from gap_step.utils import resolve_path
 
@@ -18,7 +19,7 @@ def rollout_gif(model, output: str, seed: int, split: str, device: torch.device,
     final_info = {}
     with torch.no_grad():
         for step in range(max_steps):
-            obs_t = torch.as_tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+            obs_t = collate_graph_obs([obs], device)
             action, _, _ = model.act(obs_t, deterministic=True)
             obs, _, terminated, truncated, final_info = env.step(action.squeeze(0).cpu().numpy())
             if step % 2 == 0:
@@ -31,7 +32,7 @@ def rollout_gif(model, output: str, seed: int, split: str, device: torch.device,
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", default="checkpoints/teacher_final.pt")
+    parser.add_argument("--checkpoint", default="checkpoints/teacher_best.pt")
     parser.add_argument("--device", default="auto")
     parser.add_argument("--split", default="id_test")
     args = parser.parse_args()

@@ -11,6 +11,7 @@ from tqdm import trange
 
 from gap_step.curriculum import STAGE_ORDER, stage_from_step
 from gap_step.env import ContinuousMazeEnv
+from gap_step.graph import EDGE_FEATURE_DIM, GLOBAL_FEATURE_DIM, NODE_FEATURE_DIM, collate_graph_obs
 from gap_step.model import TeacherActorCritic
 from gap_step.ppo import collect_rollout, get_device, ppo_update
 from gap_step.utils import ensure_dir, load_yaml, resolve_path, set_seed
@@ -29,11 +30,16 @@ DEFAULT_CONFIG = {
     "gae_lambda": 0.95,
     "clip_ratio": 0.2,
     "value_coef": 0.5,
-    "entropy_coef": 0.01,
+    "entropy_coef": 0.02,
+    "target_kl": 0.03,
     "max_grad_norm": 0.5,
-    "min_log_std": -1.0,
+    "min_log_std": -0.5,
     "max_log_std": 2.0,
+    "model_type": "gnn",
+    "gnn_hidden_dim": 128,
+    "gnn_layers": 4,
     "checkpoint_path": "checkpoints/teacher_final.pt",
+    "best_checkpoint_path": "checkpoints/teacher_best.pt",
     "train_metrics_path": "results/train_metrics.csv",
     "curriculum_mode": "fixed",
     "promotion_success_rate": 0.70,
@@ -142,6 +148,7 @@ def _build_row(
         "promotion_eval_episodes": promotion_eval_episodes,
         "stage_status": stage_status,
         "obs_dim": obs_dim,
+        "obs_type": "graph",
         "episodes": len(infos),
         "average_return": float(np.mean(batch.episode_returns)) if batch.episode_returns else 0.0,
         "success_rate": _mean_info(infos, "success"),
@@ -187,7 +194,7 @@ def _deterministic_promotion_eval(
             done = False
             final_info = {}
             while not done:
-                obs_t = torch.as_tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+                obs_t = collate_graph_obs([obs], device)
                 action, _, _ = model.act(obs_t, deterministic=True)
                 obs, _, terminated, truncated, final_info = env.step(action.squeeze(0).cpu().numpy())
                 done = terminated or truncated
@@ -203,30 +210,51 @@ def _deterministic_promotion_eval(
     }
 
 
+def _checkpoint_payload(config: dict, env: ContinuousMazeEnv, model: TeacherActorCritic) -> dict:
+    return {
+        "model_state": model.state_dict(),
+        "model_type": "gnn",
+        "global_dim": GLOBAL_FEATURE_DIM,
+        "node_dim": NODE_FEATURE_DIM,
+        "edge_dim": EDGE_FEATURE_DIM,
+        "hidden_dim": model.hidden_dim,
+        "gnn_layers": model.gnn_layers,
+        "max_acc": env.max_acc,
+        "min_log_std": model.min_log_std,
+        "max_log_std": model.max_log_std,
+        "config": config,
+        "stages": STAGE_ORDER,
+    }
+
+
+def _save_checkpoint(path: str, config: dict, env: ContinuousMazeEnv, model: TeacherActorCritic) -> None:
+    ckpt_path = resolve_path(path)
+    ensure_dir(ckpt_path.parent)
+    torch.save(_checkpoint_payload(config, env, model), ckpt_path)
+
+
 def _write_outputs(config: dict, env: ContinuousMazeEnv, model: TeacherActorCritic, rows: list[dict]) -> None:
     ckpt_path = resolve_path(config["checkpoint_path"])
-    ensure_dir(ckpt_path.parent)
-    torch.save(
-        {
-            "model_state": model.state_dict(),
-            "obs_dim": env.observation_space.shape[0],
-            "max_acc": env.max_acc,
-            "min_log_std": model.min_log_std,
-            "max_log_std": model.max_log_std,
-            "config": config,
-            "stages": STAGE_ORDER,
-        },
-        ckpt_path,
-    )
+    _save_checkpoint(config["checkpoint_path"], config, env, model)
+    best_path = resolve_path(config.get("best_checkpoint_path", config["checkpoint_path"]))
+    has_best_eval = any("best_eval_success_rate" in row for row in rows)
+    if not has_best_eval:
+        _save_checkpoint(str(best_path), config, env, model)
 
     metrics_path = resolve_path(config["train_metrics_path"])
     ensure_dir(metrics_path.parent)
     if rows:
         with metrics_path.open("w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+            fieldnames: list[str] = []
+            for row in rows:
+                for key in row:
+                    if key not in fieldnames:
+                        fieldnames.append(key)
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(rows)
     print(f"Saved teacher checkpoint to {ckpt_path}")
+    print(f"Saved best teacher checkpoint to {best_path}")
     print(f"Saved train metrics to {metrics_path}")
 
 
@@ -245,8 +273,9 @@ def main() -> None:
     device = get_device(str(config["device"]))
     env = ContinuousMazeEnv(config.get("env", {}))
     model = TeacherActorCritic(
-        obs_dim=env.observation_space.shape[0],
         max_acc=env.max_acc,
+        hidden_dim=int(config["gnn_hidden_dim"]),
+        gnn_layers=int(config["gnn_layers"]),
         min_log_std=float(config["min_log_std"]),
         max_log_std=float(config["max_log_std"]),
     ).to(device)
@@ -271,6 +300,7 @@ def main() -> None:
         promotion_eval_interval = max(1, int(config["promotion_eval_interval_updates"]))
         hard_max_policy = str(config.get("hard_max_policy", "stop"))
         stop_training = False
+        best_eval_success = -1.0
 
         for update in trange(updates, desc="teacher PPO"):
             stage_name = state.stage_name
@@ -288,6 +318,7 @@ def main() -> None:
                 update_epochs=int(config["update_epochs"]),
                 minibatch_size=int(config["minibatch_size"]),
                 max_grad_norm=float(config["max_grad_norm"]),
+                target_kl=float(config["target_kl"]) if config.get("target_kl") is not None else None,
             )
             global_steps += rollout_steps
             state.stage_steps += rollout_steps
@@ -312,6 +343,10 @@ def main() -> None:
                 state.last_promotion_eval_success_rate = eval_stats["success_rate"]
                 state.last_promotion_eval_episodes = promotion_eval_episodes
                 state.last_promotion_eval_update = update + 1
+                if eval_stats["success_rate"] >= best_eval_success:
+                    best_eval_success = eval_stats["success_rate"]
+                    _save_checkpoint(config.get("best_checkpoint_path", config["checkpoint_path"]), config, env, model)
+                    metrics["best_eval_success_rate"] = best_eval_success
 
             stage_status = adaptive_stage_status(
                 state,
@@ -336,7 +371,7 @@ def main() -> None:
                     stage_status=stage_status,
                     promotion_eval_success_rate=state.last_promotion_eval_success_rate,
                     promotion_eval_episodes=state.last_promotion_eval_episodes,
-                    obs_dim=env.observation_space.shape[0],
+                    obs_dim="graph",
                 )
             )
 
@@ -367,6 +402,7 @@ def main() -> None:
                 update_epochs=int(config["update_epochs"]),
                 minibatch_size=int(config["minibatch_size"]),
                 max_grad_norm=float(config["max_grad_norm"]),
+                target_kl=float(config["target_kl"]) if config.get("target_kl") is not None else None,
             )
             global_steps += rollout_steps
             fixed_stage_episodes[stage_name] += len(batch.episode_infos)
@@ -381,7 +417,7 @@ def main() -> None:
                     stage_episodes=fixed_stage_episodes[stage_name],
                     rolling_success_rate=0.0,
                     stage_status="training",
-                    obs_dim=env.observation_space.shape[0],
+                    obs_dim="graph",
                 )
             )
     else:

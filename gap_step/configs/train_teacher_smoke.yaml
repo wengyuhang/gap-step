@@ -21,10 +21,15 @@ gae_lambda: 0.95
 clip_ratio: 0.2
 value_coef: 0.5
 entropy_coef: 0.01
+target_kl: 0.03
 max_grad_norm: 0.5
-min_log_std: -1.0
+model_type: gnn
+gnn_hidden_dim: 128
+gnn_layers: 4
+min_log_std: -0.5
 max_log_std: 2.0
 checkpoint_path: checkpoints/teacher_final.pt
+best_checkpoint_path: checkpoints/teacher_best.pt
 train_metrics_path: results/train_metrics.csv
 env:
   stage_name: C1
@@ -35,9 +40,6 @@ env:
   v_max: 2.0
   a_max: 3.0
   max_steps: 500
-  num_rays: 32
-  max_gate_obs: 10
-  ray_max_dist_ratio: 0.35
   reward_progress: 2.0
   reward_timeout: -5.0
   progress_mode: dynamic_geometry
