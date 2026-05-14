@@ -7,13 +7,12 @@ from dataclasses import dataclass, field
 
 import numpy as np
 import torch
-from tqdm import trange
 
 from gap_step.curriculum import STAGE_ORDER, stage_from_step
 from gap_step.env import ContinuousMazeEnv
 from gap_step.graph import EDGE_FEATURE_DIM, GLOBAL_FEATURE_DIM, NODE_FEATURE_DIM, collate_graph_obs
 from gap_step.model import TeacherActorCritic
-from gap_step.ppo import collect_rollout, get_device, ppo_update
+from gap_step.ppo import collect_rollout, get_device, ppo_update, sync_policy_old
 from gap_step.utils import ensure_dir, load_yaml, resolve_path, set_seed
 
 
@@ -30,18 +29,22 @@ DEFAULT_CONFIG = {
     "gae_lambda": 0.95,
     "clip_ratio": 0.2,
     "value_coef": 0.5,
-    "entropy_coef": 0.02,
+    "entropy_coef": 0.001,
     "target_kl": 0.03,
     "max_grad_norm": 0.5,
+    "normalize_advantage": True,
     "min_log_std": -0.5,
-    "max_log_std": 2.0,
+    "max_log_std": 0.5,
     "model_type": "gnn",
     "gnn_hidden_dim": 128,
     "gnn_layers": 4,
     "checkpoint_path": "checkpoints/teacher_final.pt",
-    "best_checkpoint_path": "checkpoints/teacher_best.pt",
     "train_metrics_path": "results/train_metrics.csv",
-    "curriculum_mode": "fixed",
+    "checkpoint_dir": "checkpoints",
+    "results_dir": "results",
+    "stage_order": STAGE_ORDER,
+    "log_interval_updates": 1,
+    "curriculum_mode": "stagewise",
     "promotion_success_rate": 0.70,
     "promotion_eval_success_rate": 0.60,
     "promotion_eval_episodes": 50,
@@ -233,15 +236,8 @@ def _save_checkpoint(path: str, config: dict, env: ContinuousMazeEnv, model: Tea
     torch.save(_checkpoint_payload(config, env, model), ckpt_path)
 
 
-def _write_outputs(config: dict, env: ContinuousMazeEnv, model: TeacherActorCritic, rows: list[dict]) -> None:
-    ckpt_path = resolve_path(config["checkpoint_path"])
-    _save_checkpoint(config["checkpoint_path"], config, env, model)
-    best_path = resolve_path(config.get("best_checkpoint_path", config["checkpoint_path"]))
-    has_best_eval = any("best_eval_success_rate" in row for row in rows)
-    if not has_best_eval:
-        _save_checkpoint(str(best_path), config, env, model)
-
-    metrics_path = resolve_path(config["train_metrics_path"])
+def _write_rows(path: str, rows: list[dict]) -> None:
+    metrics_path = resolve_path(path)
     ensure_dir(metrics_path.parent)
     if rows:
         with metrics_path.open("w", newline="", encoding="utf-8") as f:
@@ -253,9 +249,48 @@ def _write_outputs(config: dict, env: ContinuousMazeEnv, model: TeacherActorCrit
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(rows)
-    print(f"Saved teacher checkpoint to {ckpt_path}")
-    print(f"Saved best teacher checkpoint to {best_path}")
-    print(f"Saved train metrics to {metrics_path}")
+
+
+def _write_outputs(config: dict, env: ContinuousMazeEnv, model: TeacherActorCritic, rows: list[dict]) -> None:
+    ckpt_path = resolve_path(config["checkpoint_path"])
+    _save_checkpoint(config["checkpoint_path"], config, env, model)
+    _write_rows(config["train_metrics_path"], rows)
+    print(f"已保存最终教师模型: {ckpt_path}")
+    print(f"已保存训练指标: {resolve_path(config['train_metrics_path'])}")
+
+
+def _stage_checkpoint_path(config: dict, stage_name: str) -> str:
+    return str(resolve_path(config.get("checkpoint_dir", "checkpoints")) / stage_name / "teacher_final.pt")
+
+
+def _stage_metrics_path(config: dict, stage_name: str) -> str:
+    return str(resolve_path(config.get("results_dir", "results")) / stage_name / "train_metrics.csv")
+
+
+def _write_stage_outputs(config: dict, env: ContinuousMazeEnv, model: TeacherActorCritic, stage_name: str, rows: list[dict]) -> None:
+    checkpoint_path = _stage_checkpoint_path(config, stage_name)
+    metrics_path = _stage_metrics_path(config, stage_name)
+    _save_checkpoint(checkpoint_path, config, env, model)
+    _write_rows(metrics_path, rows)
+    print(f"课程 {stage_name} 最终模型已保存: {resolve_path(checkpoint_path)}")
+    print(f"课程 {stage_name} 训练指标已保存: {resolve_path(metrics_path)}")
+
+
+def _format_training_log(row: dict) -> str:
+    return (
+        f"课程 {row['stage']} | 更新 {row['update']} | 阶段步数 {row['stage_steps']} | "
+        f"回合 {row['episodes']} | 成功率 {row['success_rate']:.3f} | "
+        f"滚动成功率 {row['rolling_success_rate']:.3f} | 碰撞率 {row['collision_rate']:.3f} | "
+        f"超时率 {row['timeout_rate']:.3f} | 平均回报 {row['average_return']:.2f} | "
+        f"动作范数 {row['average_action_norm']:.2f} | 熵 {row['entropy']:.3f} | "
+        f"KL {row['approx_kl']:.4f} | 裁剪率 {row.get('clip_fraction', 0.0):.3f} | "
+        f"解释方差 {row.get('explained_variance', 0.0):.3f} | PPO更新 {int(row['ppo_updates'])}"
+    )
+
+
+def _maybe_print_log(row: dict, log_interval_updates: int) -> None:
+    if int(row["update"]) % max(1, log_interval_updates) == 0:
+        print(_format_training_log(row), flush=True)
 
 
 def main() -> None:
@@ -270,7 +305,11 @@ def main() -> None:
 
     seed = int(config["seed"])
     set_seed(seed)
+    print(f"CUDA 是否可用: {torch.cuda.is_available()}")
+    if torch.cuda.is_available():
+        print(f"CUDA 设备: {torch.cuda.get_device_name(0)}")
     device = get_device(str(config["device"]))
+    print(f"训练设备: {device}")
     env = ContinuousMazeEnv(config.get("env", {}))
     model = TeacherActorCritic(
         max_acc=env.max_acc,
@@ -279,6 +318,14 @@ def main() -> None:
         min_log_std=float(config["min_log_std"]),
         max_log_std=float(config["max_log_std"]),
     ).to(device)
+    model_old = TeacherActorCritic(
+        max_acc=env.max_acc,
+        hidden_dim=int(config["gnn_hidden_dim"]),
+        gnn_layers=int(config["gnn_layers"]),
+        min_log_std=float(config["min_log_std"]),
+        max_log_std=float(config["max_log_std"]),
+    ).to(device)
+    sync_policy_old(model, model_old)
     optimizer = torch.optim.Adam(model.parameters(), lr=float(config["learning_rate"]))
 
     rollout_steps = int(config["rollout_steps"])
@@ -288,9 +335,68 @@ def main() -> None:
     rows: list[dict] = []
     global_steps = 0
 
-    if curriculum_mode == "adaptive":
+    if curriculum_mode == "stagewise":
+        stage_order = [str(stage) for stage in config.get("stage_order", STAGE_ORDER)]
+        unknown = [stage for stage in stage_order if stage not in STAGE_ORDER]
+        if unknown:
+            raise ValueError(f"Unknown stages: {unknown}")
+        updates_per_stage = max(1, int(np.ceil(steps_per_stage / rollout_steps)))
+        log_interval_updates = int(config.get("log_interval_updates", 1))
+        print(f"逐课程训练: {','.join(stage_order)}")
+        print(f"每个课程更新次数: {updates_per_stage}")
+        for stage_idx, stage_name in enumerate(stage_order):
+            print(f"开始课程 {stage_name}")
+            optimizer = torch.optim.Adam(model.parameters(), lr=float(config["learning_rate"]))
+            stage_rows: list[dict] = []
+            stage_episodes = 0
+            recent_successes: deque[bool] = deque(maxlen=int(config["promotion_window_episodes"]))
+            for update in range(updates_per_stage):
+                batch = collect_rollout(env, model_old, rollout_steps, device, stage_name=stage_name, seed=seed + stage_idx * 100_000 + update)
+                metrics = ppo_update(
+                    model,
+                    optimizer,
+                    batch,
+                    device,
+                    gamma=float(config["gamma"]),
+                    gae_lambda=float(config["gae_lambda"]),
+                    clip_ratio=float(config["clip_ratio"]),
+                    value_coef=float(config["value_coef"]),
+                    entropy_coef=float(config["entropy_coef"]),
+                    update_epochs=int(config["update_epochs"]),
+                    minibatch_size=int(config["minibatch_size"]),
+                    max_grad_norm=float(config["max_grad_norm"]),
+                    target_kl=float(config["target_kl"]) if config.get("target_kl") is not None else None,
+                    normalize_advantage=bool(config.get("normalize_advantage", True)),
+                )
+                sync_policy_old(model, model_old)
+                global_steps += rollout_steps
+                stage_steps = min((update + 1) * rollout_steps, steps_per_stage)
+                stage_episodes += len(batch.episode_infos)
+                recent_successes.extend(bool(info["success"]) for info in batch.episode_infos)
+                row = _build_row(
+                    update + 1,
+                    global_steps,
+                    stage_name,
+                    batch,
+                    metrics,
+                    stage_steps=stage_steps,
+                    stage_episodes=stage_episodes,
+                    rolling_success_rate=float(np.mean(recent_successes)) if recent_successes else 0.0,
+                    stage_status="training" if update + 1 < updates_per_stage else "completed",
+                    obs_dim="graph",
+                )
+                stage_rows.append(row)
+                _maybe_print_log(row, log_interval_updates)
+            _write_stage_outputs(config, env, model, stage_name, stage_rows)
+            rows.extend(stage_rows)
+    elif curriculum_mode == "adaptive":
         hard_max_steps = int(config["hard_max_steps_per_stage"])
         updates = max(1, int(np.ceil(hard_max_steps * len(STAGE_ORDER) / rollout_steps)))
+        print(
+            "自适应课程最大更新次数: "
+            f"{updates} = ceil({hard_max_steps} 每课程硬上限步数 "
+            f"* {len(STAGE_ORDER)} 个课程 / {rollout_steps} rollout步数)"
+        )
         state = AdaptiveCurriculumState(recent_successes=deque(maxlen=int(config["promotion_window_episodes"])))
         min_steps = int(config["min_steps_per_stage"])
         soft_max_steps = int(config["soft_max_steps_per_stage"])
@@ -300,11 +406,10 @@ def main() -> None:
         promotion_eval_interval = max(1, int(config["promotion_eval_interval_updates"]))
         hard_max_policy = str(config.get("hard_max_policy", "stop"))
         stop_training = False
-        best_eval_success = -1.0
 
-        for update in trange(updates, desc="teacher PPO"):
+        for update in range(updates):
             stage_name = state.stage_name
-            batch = collect_rollout(env, model, rollout_steps, device, stage_name=stage_name, seed=seed + update)
+            batch = collect_rollout(env, model_old, rollout_steps, device, stage_name=stage_name, seed=seed + update)
             metrics = ppo_update(
                 model,
                 optimizer,
@@ -319,7 +424,9 @@ def main() -> None:
                 minibatch_size=int(config["minibatch_size"]),
                 max_grad_norm=float(config["max_grad_norm"]),
                 target_kl=float(config["target_kl"]) if config.get("target_kl") is not None else None,
+                normalize_advantage=bool(config.get("normalize_advantage", True)),
             )
+            sync_policy_old(model, model_old)
             global_steps += rollout_steps
             state.stage_steps += rollout_steps
             state.stage_episodes += len(batch.episode_infos)
@@ -343,10 +450,6 @@ def main() -> None:
                 state.last_promotion_eval_success_rate = eval_stats["success_rate"]
                 state.last_promotion_eval_episodes = promotion_eval_episodes
                 state.last_promotion_eval_update = update + 1
-                if eval_stats["success_rate"] >= best_eval_success:
-                    best_eval_success = eval_stats["success_rate"]
-                    _save_checkpoint(config.get("best_checkpoint_path", config["checkpoint_path"]), config, env, model)
-                    metrics["best_eval_success_rate"] = best_eval_success
 
             stage_status = adaptive_stage_status(
                 state,
@@ -374,6 +477,7 @@ def main() -> None:
                     obs_dim="graph",
                 )
             )
+            _maybe_print_log(rows[-1], int(config.get("log_interval_updates", 1)))
 
             if stage_status == "completed_success" or stage_status == "hard_max_stop":
                 stop_training = True
@@ -384,11 +488,11 @@ def main() -> None:
     elif curriculum_mode == "fixed":
         updates = max(1, total_steps // rollout_steps)
         fixed_stage_episodes = {stage: 0 for stage in STAGE_ORDER}
-        for update in trange(updates, desc="teacher PPO"):
+        for update in range(updates):
             stage_name = stage_from_step(global_steps, steps_per_stage)
             stage_start = STAGE_ORDER.index(stage_name) * steps_per_stage
             stage_steps = global_steps - stage_start + rollout_steps
-            batch = collect_rollout(env, model, rollout_steps, device, stage_name=stage_name, seed=seed + update)
+            batch = collect_rollout(env, model_old, rollout_steps, device, stage_name=stage_name, seed=seed + update)
             metrics = ppo_update(
                 model,
                 optimizer,
@@ -403,7 +507,9 @@ def main() -> None:
                 minibatch_size=int(config["minibatch_size"]),
                 max_grad_norm=float(config["max_grad_norm"]),
                 target_kl=float(config["target_kl"]) if config.get("target_kl") is not None else None,
+                normalize_advantage=bool(config.get("normalize_advantage", True)),
             )
+            sync_policy_old(model, model_old)
             global_steps += rollout_steps
             fixed_stage_episodes[stage_name] += len(batch.episode_infos)
             rows.append(
@@ -420,10 +526,12 @@ def main() -> None:
                     obs_dim="graph",
                 )
             )
+            _maybe_print_log(rows[-1], int(config.get("log_interval_updates", 1)))
     else:
         raise ValueError(f"Unsupported curriculum_mode: {curriculum_mode}")
 
-    _write_outputs(config, env, model, rows)
+    if curriculum_mode != "stagewise":
+        _write_outputs(config, env, model, rows)
 
 
 if __name__ == "__main__":

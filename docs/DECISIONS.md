@@ -1,73 +1,106 @@
 # Decisions
 
-## 2026-05-11: Refactor to PPO teacher only
+## 2026-05-11：只训练 PPO 特权教师
 
-Decision: replace the visual student / BC / heuristic teacher project with the continuous 2D rotating time-varying window maze and train only a PPO privileged teacher.
+决定：当前阶段只保留连续二维时变窗口迷宫中的 PPO 特权教师。
 
-Reasoning: the current research stage is to obtain a teacher policy in a procedurally generated continuous maze before introducing student learning.
+原因：先得到可靠 teacher，再考虑学生、视觉或其他模块。
 
-## 2026-05-11: Keep all active code in `gap_step/`
+## 2026-05-11：可运行代码只放在 `gap_step/`
 
-Decision: all runnable code lives directly in the `gap_step/` package. Do not keep active code in `trainers/`, `scripts/`, or nested `gap_step/envs`, `gap_step/models`, `gap_step/teachers` packages.
+决定：不再使用 `trainers/`、`scripts/`、`gap_step/envs/`、`gap_step/models/`、`gap_step/teachers/` 作为活动入口。
 
-Reasoning: the project should have a clean single-folder code layout without backward compatibility paths.
+原因：项目保持单一清晰入口。
 
-## 2026-05-11: Ignore generated outputs
+## 2026-05-12：progress reward 使用连续几何
 
-Decision: ignore `data/`, `checkpoints/`, `logs/`, `runs/`, and `results/`.
+决定：训练可启用 `dynamic_geometry` progress shaping，但 reward potential 必须基于连续位置、墙体、窗口和可见性。
 
-Reasoning: these are reproducible experiment artifacts and may become large.
+原因：cell 是拓扑元数据，不能代替连续几何距离。
 
-## 2026-05-11: Generate ordinary maze topology before continuous walls
+## 2026-05-12：使用 tanh-squashed Gaussian PPO 动作
 
-Decision: generate each maze as a randomized grid maze, add a small number of loop openings, then convert closed edges and selected passage edges into continuous `WallSegment` and `Gate` objects.
+决定：PPO log prob 必须对应实际执行的 tanh-squashed action。
 
-Reasoning: this produces ordinary maze-like layouts with both horizontal and vertical corridors while keeping the implementation compact and readable.
+原因：不能回到 `Normal -> clamp(action)`，否则 log prob 与环境动作不一致。
 
-## 2026-05-12: Add continuous-geometry progress shaping for PPO training
+## 2026-05-13：采用完整图特权教师
 
-Decision: keep strict sparse rewards as the environment default, but enable `dynamic_geometry` progress shaping in teacher training configs.
+决定：教师观测使用 `GraphObs`，包含完整拓扑、gate 动力学、当前安全状态和全局状态。
 
-Reasoning: sparse rewards alone collapse to timeout/collision. The shaping term uses continuous visibility geometry and future gate safety sampling without changing observations, collision semantics, or success criteria.
+原因：局部向量教师无法稳定通过早期动态课程。
 
-## 2026-05-12: Do not use grid cells for reward potentials
+## 2026-05-13：使用纯 PyTorch GNN
 
-Decision: reward shaping potentials must be computed from continuous geometry: positions, wall rectangles, gate approach points, line-segment visibility, and future gate safety.
+决定：不引入 PyG/DGL。
 
-Reasoning: cells are topology metadata, not the continuous state. Cell-based potentials can reward misleading movement around walls and windows.
+原因：依赖更少，图 batch 逻辑保持可控。
 
-## 2026-05-12: Use squashed Gaussian PPO actions
+## 2026-05-14：改为逐课程训练
 
-Decision: sample from a tanh-squashed Gaussian and compute PPO log probabilities for the squashed action actually executed.
+决定：训练模式改为 `stagewise`，顺序为：
 
-Reasoning: `Normal -> clamp(action)` stores log probabilities for a different action than the environment executes.
+```text
+C1 -> C1_5 -> C2A -> C2B -> C3 -> C4 -> C5
+```
 
-## 2026-05-12: Remove time-passing reward leakage from progress shaping
+每个课程继承前一课程模型参数，但重置优化器；每个课程单独保存最终模型和训练 CSV。
 
-Decision: compare `potential(old_pos, current_time)` and `potential(new_pos, current_time)`, then clip the delta before scaling.
+原因：上一次训练卡在 C1，需要先逐课程观察和稳定早期能力。
 
-Reasoning: waiting near a future-opening gate may be necessary, but pure time passage should not create large dense progress reward.
+## 2026-05-14：取消 best checkpoint
 
-## 2026-05-13: Adopt full privileged GNN teacher observation
+决定：不再保存 `teacher_best.pt`，只保存每个课程的 `teacher_final.pt`。
 
-Decision: discard the local vector observation teacher path and use graph privileged observation as the teacher contract. The graph includes full maze topology, gate nodes, wall/open/gate edge labels, current gate safety, gate timing, and gate dynamics.
+原因：当前实验重点是逐课程最终结果和实时诊断，减少 checkpoint 语义混乱。
 
-Reasoning: the previous local teacher could learn C1 but failed to learn stable deterministic C2 behavior. The teacher needs enough privileged information to know which gates matter and when they open/close, while still learning a continuous-action policy rather than executing a planner.
+## 2026-05-14：训练日志改为中文实时指标
 
-## 2026-05-13: Use pure PyTorch message passing
+决定：训练时不使用进度条，每次 PPO update 输出中文指标。
 
-Decision: implement the GNN actor-critic in pure PyTorch rather than adding PyG/DGL.
+原因：更容易直接看到成功率、碰撞率、回报、熵、KL 和 PPO 更新次数。
 
-Reasoning: this keeps dependencies simple and makes graph batching explicit in `gap_step/graph.py` and `gap_step/ppo.py`.
+## 2026-05-14：降低探索噪声
 
-## 2026-05-13: Split early dynamic curriculum
+决定：默认设置为：
 
-Decision: replace the direct C1->C2 jump with `C1`, `C1_5`, `C2A`, `C2B`, `C3`, `C4`, `C5`.
+```text
+entropy_coef = 0.001
+max_log_std = 0.5
+```
 
-Reasoning: the failed run showed that static-gate competence does not transfer directly to waiting for dynamic gates. The bridge stages isolate high-duty-cycle gates, single-gate waiting, and then the original small dynamic maze.
+原因：上一次训练中 std 和 entropy 持续升高，策略后期退化为高噪声动作。
 
-## 2026-05-13: Save best deterministic teacher checkpoint
+## 2026-05-14：碰撞时不保留正 progress reward
 
-Decision: save both `teacher_final.pt` and `teacher_best.pt`. Update best from deterministic promotion evaluation.
+决定：如果当前 step 发生撞墙或撞门，并且 progress reward 为正，则置零。
 
-Reasoning: PPO can pass through useful intermediate policies and later degrade. Evaluation and visualization should default to the best deterministic teacher unless explicitly testing the final state.
+原因：避免策略通过冲墙获得短期进展奖励。
+
+## 2026-05-14：GNN 读出加入 agent/goal cell
+
+决定：actor/critic 输入从全图池化扩展为：
+
+```text
+global + mean_pool + max_pool + agent_cell + goal_cell
+```
+
+原因：只靠全图池化会稀释“当前位置”和“目标位置”的关键信息。
+
+## 2026-05-14：PPO 改为显式旧策略流程
+
+决定：训练时维护 `model` 和 `model_old`。`model_old` 只用于 rollout 采样，`model` 只用于 PPO 梯度更新，每次更新后同步 `model_old <- model`。
+
+原因：与标准 PPO 流程对齐，避免采样策略和更新策略语义混在一起。
+
+## 2026-05-14：KL 指标改为标准非负近似
+
+决定：PPO early stop 使用：
+
+```text
+mean((exp(new_logp - old_logp) - 1) - (new_logp - old_logp))
+```
+
+同时记录裁剪率和解释方差。
+
+原因：原来的 `old_logp - new_logp` 均值可能为负，不适合作为主要 KL 停止指标。

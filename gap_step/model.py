@@ -65,7 +65,7 @@ class GNNTeacherActorCritic(nn.Module):
         self.node_encoder = _mlp(self.node_dim, hidden_dim, hidden_dim)
         self.edge_encoder = _mlp(self.edge_dim, hidden_dim, hidden_dim)
         self.layers = nn.ModuleList([GNNLayer(hidden_dim) for _ in range(self.gnn_layers)])
-        graph_dim = hidden_dim * 3
+        graph_dim = hidden_dim * 5
         self.actor = _mlp(graph_dim, hidden_dim, action_dim)
         self.critic = _mlp(graph_dim, hidden_dim, 1)
         self.log_std = nn.Parameter(torch.zeros(action_dim))
@@ -80,7 +80,9 @@ class GNNTeacherActorCritic(nn.Module):
             node_h = layer(node_h, edge_h, batch.edge_index, global_per_node)
         mean_pool = self._mean_pool(node_h, batch.node_batch, batch.num_graphs)
         max_pool = self._max_pool(node_h, batch.node_batch, batch.num_graphs)
-        return torch.cat([global_h, mean_pool, max_pool], dim=-1)
+        agent_h = self._flagged_node_pool(node_h, batch.node_features[:, 14], batch.node_batch, batch.num_graphs)
+        goal_h = self._flagged_node_pool(node_h, batch.node_features[:, 13], batch.node_batch, batch.num_graphs)
+        return torch.cat([global_h, mean_pool, max_pool, agent_h, goal_h], dim=-1)
 
     def _mean_pool(self, x: torch.Tensor, batch_index: torch.Tensor, num_graphs: int) -> torch.Tensor:
         out = torch.zeros((num_graphs, x.shape[-1]), dtype=x.dtype, device=x.device)
@@ -97,6 +99,25 @@ class GNNTeacherActorCritic(nn.Module):
                 pooled.append(torch.zeros((x.shape[-1],), dtype=x.dtype, device=x.device))
             else:
                 pooled.append(values.max(dim=0).values)
+        return torch.stack(pooled, dim=0)
+
+    def _flagged_node_pool(
+        self,
+        x: torch.Tensor,
+        flags: torch.Tensor,
+        batch_index: torch.Tensor,
+        num_graphs: int,
+    ) -> torch.Tensor:
+        pooled = []
+        for graph_idx in range(num_graphs):
+            in_graph = batch_index == graph_idx
+            values = x[in_graph]
+            graph_flags = flags[in_graph]
+            selected = values[graph_flags > 0.5]
+            if selected.numel() == 0:
+                pooled.append(torch.zeros((x.shape[-1],), dtype=x.dtype, device=x.device))
+            else:
+                pooled.append(selected.mean(dim=0))
         return torch.stack(pooled, dim=0)
 
     def forward(self, batch: GraphBatch) -> dict[str, torch.Tensor]:

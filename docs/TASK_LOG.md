@@ -2,77 +2,104 @@
 
 ## 2026-05-11
 
-Refactored GAP-Step to PPO teacher only:
+完成项目主线整理：
 
-- moved active code into flat `gap_step/` modules
-- removed old visual student, BC, heuristic teacher, `trainers/`, and `scripts/` paths
-- added randomized grid-maze curriculum C1-C5 with continuous walls and time-varying windows
-- added PPO teacher training, evaluation, and visualization entrypoints
-- updated tests for curriculum, environment, and actor-critic model
+- 活动代码集中到 `gap_step/`
+- 保留连续二维迷宫、时变窗口、PPO teacher
+- 移除旧视觉学生、BC、启发式 teacher、旧目录入口
+- 增加课程迷宫、PPO 训练、评估和可视化
 
-Validation:
+验证：
 
-- `pytest -q`
-- `python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml`
+```bash
+pytest -q
+python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
+```
 
 ## 2026-05-12
 
-Implemented continuous-geometry dynamic progress shaping:
+增加连续几何 progress shaping：
 
-- added optional `dynamic_geometry` progress shaping in `ContinuousMazeEnv`
-- kept sparse rewards as the environment default
-- enabled dynamic progress shaping in teacher smoke/full configs
-- required reward potentials to use continuous geometry, not topology cells
-- added diagnostics for progress reward, gate usage/wait time, collision type, action norm, and curriculum status
+- `dynamic_geometry` progress mode
+- reward potential 使用连续位置、墙、窗口和可见性
+- 避免纯时间流逝产生 progress reward
 
-Validation:
+结果：
 
-- `pytest -q`
-- full training/evaluation ran end to end, but final ID/OOD success stayed weak
+- 训练能跑通
+- 但成功率仍弱
 
-Open issue:
+## 2026-05-13
 
-- Shaping alone did not produce a strong teacher.
+改为完整图特权教师：
 
-## 2026-05-13 Earlier Iteration
+- 新增 `GraphObs` 和图 batch
+- 教师观测包含 cell、gate、拓扑边、gate 动力学
+- 模型改为纯 PyTorch GNN actor-critic
+- PPO 支持变长图 rollout 和 minibatch
+- 课程拆成 `C1,C1_5,C2A,C2B,C3,C4,C5`
 
-Tried a time-aware local privileged vector teacher:
+验证：
 
-- added gate timing summaries to the local teacher observation
-- added log-std protection
-- required deterministic validation before stage promotion
+```bash
+pytest -q
+python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
+```
 
-Result:
+## 2026-05-14 实验分析
 
-- The teacher learned some C1 behavior but failed to produce stable deterministic C2 behavior.
-- Current checkpoint evaluation showed C1 around 70% on a small deterministic sample and C2-C5 at 0%.
+完整训练结果显示：
 
-Conclusion:
+- 训练一直停在 C1
+- C1 rolling success 最高约 0.39，后期退化到 0
+- entropy 和 std 持续升高
+- PPO 后期经常被 KL early stop 卡到很少更新
+- C5 评估成功率为 0
 
-- The teacher was still not privileged enough; it lacked full topology and full gate dynamics context.
+判断：
 
-## 2026-05-13 GNN Privileged Teacher Refactor
+- 不是单纯动态门信息不足
+- C1 就失败，说明基础连续导航不稳
+- 全局 goal 向量会诱导直冲，但迷宫里起点到目标通常被墙阻断
+- reward 和模型读出都需要小修
 
-Implemented the new mainline teacher:
+## 2026-05-14 本次修改
 
-- added `gap_step/graph.py` with `GraphObs`, `GraphBatch`, feature dimensions, and graph collation
-- replaced teacher observation with graph privileged topology state
-- added cell nodes, gate nodes, directed cell-cell edges, directed gate-cell edges, and self-loops
-- replaced the MLP actor-critic with pure PyTorch GNN message passing
-- updated PPO rollout/minibatch update to collate variable-size graph observations
-- added target-KL early stopping diagnostics
-- added `teacher_best.pt` checkpointing
-- split curriculum into `C1`, `C1_5`, `C2A`, `C2B`, `C3`, `C4`, `C5`
-- updated smoke/full configs for the GNN teacher
-- updated tests for graph observations, GNN forward/action/log-prob, and graph PPO updates
+实现简化方案：
 
-Validation:
+- 新增 `stagewise` 逐课程训练
+- 每个课程单独保存 `checkpoints/<课程>/teacher_final.pt`
+- 每个课程单独保存 `results/<课程>/train_metrics.csv`
+- 不再保存 `teacher_best.pt`
+- 移除训练进度条，改为中文实时指标
+- 降低探索噪声：`entropy_coef=0.001`，`max_log_std=0.5`
+- 撞墙或撞门时截断正 progress reward
+- GNN actor/critic 读出加入 agent cell 和 goal cell 表示
+- 更新全部项目文档
 
-- `pytest -q`: 25 passed
-- `python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml`: completed
-- `python -m gap_step.evaluate --checkpoint checkpoints/teacher_best.pt --episodes 2 --stages C1,C1_5,C2A,C2B,C3,C4,C5 --output /tmp/gap_gnn_eval_smoke.csv`: completed
+验证：
 
-Note:
+```bash
+pytest -q
+```
 
-- Smoke training only validates plumbing and overwrites ignored generated outputs. It does not indicate policy quality.
-- Next meaningful experiment should train through C1/C1_5/C2A/C2B and check deterministic C2B success.
+后续建议：
+
+```bash
+python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
+python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
+```
+
+先观察 C1 是否稳定，再分析 C1_5/C2A。
+
+## 2026-05-14 PPO 标准化
+
+按参考 PPO 流程重写训练核心：
+
+- 新增显式 `model_old`，rollout 只用旧策略
+- PPO 更新只修改当前 `model`
+- 每次 update 后同步 `model_old <- model`
+- 保留 GAE 和 tanh-squashed Gaussian 连续动作
+- KL 改为标准非负近似
+- 日志和 CSV 增加裁剪率、解释方差、loss 等诊断指标
+- 未采用 SB3，也不保留 SB3 训练入口

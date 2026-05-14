@@ -1,38 +1,51 @@
 # Project Context
 
-## Summary
+## 当前目标
 
-GAP-Step is a continuous 2D rotating time-varying window maze project. The current implementation trains a PPO privileged teacher with a pure PyTorch GNN actor-critic. The environment remains continuous: the robot state, acceleration actions, walls, window slots, collision checks, and success checks are all continuous geometry.
+GAP-Step 当前只训练 PPO 特权教师。环境是连续二维时变窗口迷宫，机器人是双积分圆盘，动作是二维连续加速度。
 
-The teacher observation is now privileged topology state rather than local ray state. Each step returns a graph containing cell nodes, gate nodes, topology edges, gate-cell edges, and self-loops. The graph exposes simulator-only structure such as wall/open/gate edge type and gate dynamics. The policy still outputs continuous acceleration directly and does not run planning at inference time.
+教师观测是完整图状态：cell、gate、拓扑边、窗口动力学和全局状态。教师不执行 A*/MPC/waypoint，也不使用专家标签。
 
-## Scope
+## 当前训练策略
 
-Included:
+训练改为逐课程方式：
 
-- continuous square mazes generated from randomized grid topology
-- 2D double-integrator robot dynamics
-- time-varying window width and rotation safety checks
-- graph privileged observation with full topology and gate timing/dynamics
-- pure PyTorch GNN PPO actor-critic teacher training
-- adaptive curriculum training across C1, C1_5, C2A, C2B, C3, C4, C5
-- ID, OOD-size, OOD-dynamics, and stage-wise evaluation
-- rollout GIF visualization
+```text
+C1 -> C1_5 -> C2A -> C2B -> C3 -> C4 -> C5
+```
 
-Excluded:
+每个课程单独训练和保存。后一个课程继承前一个课程的模型参数，但重置优化器。
 
-- visual student policies
-- behavior cloning and demonstration datasets
-- heuristic teacher demonstrations
-- A*/MPC/waypoint execution
-- SITT proxy-student machinery
-- world models or future video prediction
-- active camera control
-- full 3D quadrotor physics
+输出结构：
 
-## Observation Contract
+```text
+checkpoints/<课程>/teacher_final.pt
+results/<课程>/train_metrics.csv
+```
 
-The teacher observation is:
+不再保存 `teacher_best.pt`。
+
+## 失败原因判断
+
+上一次完整训练一直停在 C1，说明问题不是复杂动态门本身，而是基础连续迷宫导航没有稳定学会。
+
+主要判断：
+
+- 全局特权信息有用，但不是路径答案；目标相对向量在有墙迷宫中会诱导直冲
+- 原 GNN 只靠全图 mean/max pool，agent cell 和 goal cell 信息容易被稀释
+- 原训练中 entropy 和 std 持续升高，PPO 后期变成高噪声策略
+- C1 中高回报基本对应高成功率，因此当前优先排查 PPO 流程和超参数，而不是继续改奖励函数
+- PPO 已改为显式旧策略流程：旧策略负责采样，当前策略负责更新，更新后同步
+- progress reward 能提供方向，但撞墙前也可能给正收益，容易鼓励“冲墙式进展”
+
+因此当前先做小修：
+
+- 降低 `entropy_coef` 和 `max_log_std`
+- 撞墙/撞门时截断正 progress reward
+- GNN 读出显式加入 agent cell 和 goal cell 表示
+- 先验证 C1 稳定性，再逐级推进
+
+## 观测约定
 
 ```text
 GraphObs(
@@ -44,31 +57,4 @@ GraphObs(
 )
 ```
 
-Nodes:
-
-- cell nodes for every generated maze cell
-- gate nodes for every time-varying window
-
-Edges:
-
-- directed cell-cell edges for adjacent cells, labeled as wall/open/gate
-- directed gate-cell edges connecting each gate to its two neighboring cells
-- self-loops for every node
-
-The graph is batched by `gap_step.graph.collate_graph_obs`, which concatenates nodes/edges and offsets edge indices. There is no fixed padding limit and no local ray prefix in the teacher contract.
-
-## Current Training Status
-
-The previous local teacher reached C1 but failed to learn stable deterministic C2 behavior. The project has therefore moved to a full privileged GNN teacher. The first validation target is C2A/C2B deterministic success, then C3-C5.
-
-Generated outputs:
-
-- `checkpoints/teacher_final.pt`
-- `checkpoints/teacher_best.pt`
-- `results/train_metrics.csv`
-- `results/eval_metrics.csv`
-- `results/typical_success.gif`
-- `results/typical_wait.gif`
-- `results/typical_collision.gif`
-
-Generated outputs are ignored by Git.
+图观测是特权模拟器状态，但环境动力学、碰撞和成功判定仍是连续几何。

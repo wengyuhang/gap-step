@@ -1,23 +1,24 @@
 # Roadmap
 
-## Current Mainline
+## 当前主线
 
-- Continuous 2D time-varying window maze
-- PPO privileged teacher only
-- Pure PyTorch GNN actor-critic
-- Graph observation with full topology and gate dynamics
-- Adaptive curriculum: C1, C1_5, C2A, C2B, C3, C4, C5
+- 连续二维时变窗口迷宫
+- PPO 特权教师
+- 纯 PyTorch GNN actor-critic
+- 图观测包含完整拓扑和 gate 动力学
+- 逐课程训练：`C1 -> C1_5 -> C2A -> C2B -> C3 -> C4 -> C5`
+- 每个课程只保存最终模型
 
-## Near-Term Work
+## 近期任务
 
-1. Run a focused GNN teacher training sweep through C2B.
-2. Compare deterministic and stochastic success for C1, C1_5, C2A, and C2B.
-3. Inspect wait/cross behavior near closed gates.
-4. Tune entropy, target KL, GNN hidden size, and curriculum thresholds if C2A/C2B remain weak.
-5. Only after C2B is stable, run C3-C5 full training.
+1. 跑 smoke，确认逐课程输出、中文日志和 PPO 新指标正常。
+2. 跑 C1 训练，确认成功率是否随平均回报稳定上升。
+3. 如果 C1 不稳，优先看 PPO 指标和超参数：KL、裁剪率、解释方差、熵、std。
+4. C1 稳定后再看 C1_5 和 C2A。
+5. C2A/C2B 稳定后再推进 C3-C5。
 
-## Later Work
+## 后续可能工作
 
-- Improve graph pooling or add attention if C5 needs longer-range credit assignment.
-- Add richer diagnostics for gate timing decisions.
-- Consider a student policy only after the privileged teacher reliably solves C5.
+- 如果 agent/goal 读出仍不够，再考虑更强的图读出或 attention。
+- 增加更细的 gate 等待和穿越诊断。
+- 只有 teacher 稳定解决 C5 后，再考虑学生策略。

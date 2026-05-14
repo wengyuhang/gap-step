@@ -82,7 +82,7 @@ def evaluate_split(model: TeacherActorCritic, split: str, episodes: int, device:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", default="checkpoints/teacher_best.pt")
+    parser.add_argument("--checkpoint", default="checkpoints/C5/teacher_final.pt")
     parser.add_argument("--episodes", type=int, default=200)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--output", default="results/eval_metrics.csv")

@@ -1,86 +1,101 @@
 # Architecture
 
-## Flow
+## 主流程
 
 ```text
 gap_step/configs/train_teacher_*.yaml
     -> python -m gap_step.train
-        -> gap_step.curriculum.sample_maze
-        -> gap_step.env.ContinuousMazeEnv
-        -> gap_step.graph.GraphObs / collate_graph_obs
-        -> gap_step.model.GNNTeacherActorCritic
-        -> checkpoints/teacher_final.pt + checkpoints/teacher_best.pt + results/train_metrics.csv
+    -> C1 -> C1_5 -> C2A -> C2B -> C3 -> C4 -> C5
+    -> checkpoints/<课程>/teacher_final.pt
+    -> results/<课程>/train_metrics.csv
 
-checkpoints/teacher_best.pt
+checkpoints/C5/teacher_final.pt
     -> python -m gap_step.evaluate
     -> results/eval_metrics.csv
 
-checkpoints/teacher_best.pt
+checkpoints/C5/teacher_final.pt
     -> python -m gap_step.visualize
     -> results/*.gif
 ```
 
-## Modules
+不再保存或依赖 `teacher_best.pt`。
 
-- `gap_step/curriculum.py` defines C1, C1_5, C2A, C2B, C3, C4, C5 procedural maze generation, time-varying gate parameters, and ID/OOD test distributions.
-- `gap_step/env.py` implements the Gymnasium-style continuous maze, collision checks, graph privileged observation, reward, and RGB rendering.
-- `gap_step/graph.py` defines `GraphObs`, `GraphBatch`, feature dimensions, and graph collation.
-- `gap_step/model.py` defines the pure PyTorch GNN actor-critic with tanh-squashed Gaussian actions.
-- `gap_step/ppo.py` handles graph rollout collection, graph minibatch collation, GAE, and PPO updates with target-KL early stopping.
-- `gap_step/train.py` trains the teacher across the adaptive curriculum and saves final/best checkpoints.
-- `gap_step/evaluate.py` evaluates ID, OOD-size, OOD-dynamics, and optional stage-wise splits.
-- `gap_step/visualize.py` saves typical GIF rollouts.
+## 模块
 
-## Environment
+- `curriculum.py`：生成 C1、C1_5、C2A、C2B、C3、C4、C5 课程迷宫
+- `env.py`：连续迷宫、碰撞、奖励、图观测、渲染
+- `graph.py`：`GraphObs`、`GraphBatch`、图拼接
+- `model.py`：纯 PyTorch GNN actor-critic
+- `ppo.py`：旧策略 rollout、GAE、PPO update、策略同步
+- `train.py`：逐课程训练、中文实时日志、分课程保存
+- `evaluate.py`：ID/OOD 和分课程评估
+- `visualize.py`：GIF 可视化
 
-Each episode samples a square maze with side length `S`. `curriculum.py` builds a randomized DFS grid topology, adds a few extra openings for loops, and converts grid edges into continuous horizontal/vertical walls with time-varying windows. A window is traversable only when both width and angle are safe.
+## 环境
 
-Collision types:
+每局采样一个连续方形迷宫。迷宫先生成离散拓扑，再转换为连续墙段和时变窗口。
 
-- `wall`
-- `closed_gate`
-- `boundary`
-
-Rewards:
+奖励基础项：
 
 ```text
-+20.0 on goal
--20.0 on collision
--0.01 per step
++20.0 成功
+-20.0 碰撞
+-0.01 每步
 -0.001 * ||action||^2
 ```
 
-Training configs additionally enable continuous-geometry progress shaping. The potential uses visibility over continuous wall rectangles and gate approach points; it is not a planner used by the policy and it does not change observations, collision rules, or success criteria.
+训练配置启用连续几何 progress shaping。现在如果当前 step 发生碰撞，并且 progress reward 为正，则该正奖励会被置零，避免“撞墙前进”得到收益。
 
-## Graph Observation
+## 图观测
 
-The teacher sees full privileged simulator topology:
+教师看到完整特权图：
 
-- `global_features`: robot state, goal relation, maze scale, time phase, stage progress, gate counts
-- `cell nodes`: normalized cell center, start/goal/agent flags, relation to agent and goal
-- `gate nodes`: gate center, orientation, width, clearance, safety, timing, and dynamics parameters
-- `cell-cell edges`: adjacent topology with wall/open/gate type and gate timing when applicable
-- `gate-cell edges`: each gate connected to the two cells it separates
-- self-loops
+- cell node：cell 中心、相对 agent/goal、start/goal/agent 标记
+- gate node：窗口中心、开度、旋转、安全状态、time-to-open/time-to-close、动力学参数
+- cell-cell edge：wall/open/gate 类型
+- gate-cell edge：gate 与相邻 cell 连接
+- self-loop
 
-The GNN consumes variable-size graphs directly through batching; there is no padding limit and no local ray observation in the teacher contract.
+## 模型
 
-## Training Curriculum
+模型仍是纯 PyTorch GNN。
 
-Full teacher training uses adaptive progression:
+当前读出方式：
 
 ```text
-C1   static always-safe gate
-C1_5 dynamic width gate with high open duty cycle
-C2A  single dynamic gate that may require waiting
-C2B  small maze with 1-2 dynamic gates
-C3   adds rotating gates
-C4   medium multi-gate maze
-C5   final asynchronous multi-gate maze
+global_h
++ mean_pool(node_h)
++ max_pool(node_h)
++ agent_cell_h
++ goal_cell_h
 ```
 
-Promotion requires recent stochastic rollout success, deterministic train-validation success, and minimum stage steps. `teacher_best.pt` is updated from deterministic validation, while `teacher_final.pt` stores the final training state.
+这样 actor/critic 不只依赖全图池化，也能直接看到 agent 所在 cell 和 goal cell 的表示。
 
-## Code Boundary
+## 训练
 
-All active code is directly under `gap_step/`. Legacy folders such as `trainers/`, `scripts/`, `gap_step/envs/`, `gap_step/models/`, and `gap_step/teachers/` are intentionally outside the active architecture.
+训练模式为 `stagewise`：
+
+- 每个课程训练固定 `steps_per_stage`
+- 下一课程继承上一课程模型参数
+- 每个课程重置 Adam 优化器
+- 每个 PPO update 输出中文性能指标
+- 每个课程单独保存最终模型和 CSV 指标
+
+PPO 使用显式旧策略流程：
+
+- `model_old` 只用于 rollout 采样
+- `model` 只用于梯度更新
+- 每次 PPO update 后同步 `model_old <- model`
+- KL 使用标准非负近似，并记录裁剪率和解释方差
+
+当前稳定性默认：
+
+```text
+entropy_coef = 0.001
+max_log_std = 0.5
+```
+
+## 边界
+
+不引入 A*/MPC/waypoint 执行，不使用专家动作标签，不改变碰撞规则、成功条件或迷宫生成语义。

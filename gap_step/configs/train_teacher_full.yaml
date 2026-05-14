@@ -2,7 +2,8 @@ seed: 0
 device: auto
 steps_per_stage: 1000000
 total_steps: 5000000
-curriculum_mode: adaptive
+curriculum_mode: stagewise
+stage_order: [C1, C1_5, C2A, C2B, C3, C4, C5]
 promotion_success_rate: 0.70
 promotion_eval_success_rate: 0.60
 promotion_eval_episodes: 50
@@ -20,17 +21,18 @@ gamma: 0.99
 gae_lambda: 0.95
 clip_ratio: 0.2
 value_coef: 0.5
-entropy_coef: 0.02
+entropy_coef: 0.001
 target_kl: 0.03
 max_grad_norm: 0.5
+normalize_advantage: true
 model_type: gnn
 gnn_hidden_dim: 128
 gnn_layers: 4
 min_log_std: -0.5
-max_log_std: 2.0
-checkpoint_path: checkpoints/teacher_final.pt
-best_checkpoint_path: checkpoints/teacher_best.pt
-train_metrics_path: results/train_metrics.csv
+max_log_std: 0.5
+checkpoint_dir: checkpoints
+results_dir: results
+log_interval_updates: 1
 env:
   stage_name: C1
   split: train
@@ -43,5 +45,6 @@ env:
   reward_progress: 2.0
   reward_timeout: -5.0
   progress_mode: dynamic_geometry
+  suppress_positive_progress_on_collision: true
   gate_lookahead_time: 20.0
   progress_delta_clip: 0.25

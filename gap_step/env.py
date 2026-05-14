@@ -45,6 +45,7 @@ class ContinuousMazeEnv(gym.Env):
         self.reward_progress = float(config.get("reward_progress", 0.0))
         self.reward_timeout = float(config.get("reward_timeout", 0.0))
         self.progress_mode = str(config.get("progress_mode", "none"))
+        self.suppress_positive_progress_on_collision = bool(config.get("suppress_positive_progress_on_collision", True))
         self.gate_lookahead_time = float(config.get("gate_lookahead_time", 20.0))
         self.gate_time_resolution = float(config.get("gate_time_resolution", self.dt))
         self.gate_unreachable_cost = float(config.get("gate_unreachable_cost", 1e6))
@@ -135,6 +136,9 @@ class ContinuousMazeEnv(gym.Env):
                 raw_delta = old_potential_at_current_time - current_potential
                 progress_delta = float(np.clip(raw_delta, -self.progress_delta_clip, self.progress_delta_clip))
         progress_reward = self.reward_progress * progress_delta
+        if collision and self.suppress_positive_progress_on_collision and progress_reward > 0.0:
+            progress_delta = 0.0
+            progress_reward = 0.0
         self._prev_progress_potential = current_potential
         self._last_progress_potential = current_potential
         self._last_progress_delta = progress_delta

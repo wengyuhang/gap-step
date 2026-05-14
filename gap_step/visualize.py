@@ -32,7 +32,7 @@ def rollout_gif(model, output: str, seed: int, split: str, device: torch.device,
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--checkpoint", default="checkpoints/teacher_best.pt")
+    parser.add_argument("--checkpoint", default="checkpoints/C5/teacher_final.pt")
     parser.add_argument("--device", default="auto")
     parser.add_argument("--split", default="id_test")
     args = parser.parse_args()
