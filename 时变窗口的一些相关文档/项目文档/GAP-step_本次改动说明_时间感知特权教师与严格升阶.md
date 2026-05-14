@@ -96,6 +96,58 @@ goal_cell_h
 
 这样模型不只依赖全图平均，也能直接看到当前位置和目标位置。
 
+## C5 tune 追加改动
+
+为缩短 C5 调参周期，新增了特权几何动作先验：
+
+- `global_features` 从 16 维扩展到 26 维
+- 新增路径首段方向、动态几何 potential、门等待、下一路标距离、前方关闭门距离/等待和归一化动作先验
+- actor 将动作先验转成 tanh-squashed Gaussian 的 raw mean，PPO 学残差
+- `evaluate.py` 和 `visualize.py` 均复用 checkpoint 内保存的 env 配置
+- 新增 `gap_step/configs/train_teacher_c5_tune.yaml`
+- 训练指标新增 `guidance_reward_mean`
+
+C5 tune 当前使用放宽口径：
+
+```yaml
+robot_radius: 0.1
+safe_margin: 0.0
+max_steps: 800
+```
+
+当前最好正式评估：
+
+```text
+python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --stages C5 --output results/eval_c5_tune.csv
+
+C5 id_test success_rate = 0.68
+closed_gate_collision_rate = 0.16
+wall_collision_rate = 0.10
+timeout_rate = 0.06
+```
+
+结论：训练 rollout 中可达到 75%-80%，但正式 50 回合评估尚未真实超过 70%。下一步应优先降低 closed gate collision。
+
+本轮泛化评估：
+
+```text
+python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --output results/eval_generalization_50.csv
+
+id_test          success_rate = 0.68
+ood_size_test    success_rate = 0.64
+ood_dynamics     success_rate = 0.40
+```
+
+可视化：
+
+```text
+results/typical_success.gif
+results/typical_wait.gif
+results/typical_collision.gif
+```
+
+当前 checkpoint 下三个默认可视化 seed 都成功，文件名 `typical_collision.gif` 沿用旧案例名。
+
 ## 验证命令
 
 ```bash
@@ -103,4 +155,7 @@ source /home/jack/anaconda3/etc/profile.d/conda.sh
 conda activate wyh
 pytest -q
 python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
+python -m gap_step.train --config gap_step/configs/train_teacher_c5_tune.yaml
+python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --stages C5 --output results/eval_c5_tune.csv
+python -m gap_step.visualize --checkpoint checkpoints/C5/teacher_final.pt
 ```

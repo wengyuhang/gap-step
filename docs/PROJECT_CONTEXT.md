@@ -38,7 +38,7 @@ results/<课程>/train_metrics.csv
 - PPO 已改为显式旧策略流程：旧策略负责采样，当前策略负责更新，更新后同步
 - progress reward 能提供方向，但撞墙前也可能给正收益，容易鼓励“冲墙式进展”
 
-因此当前先做小修：
+因此先做小修：
 
 - 降低初始动作噪声：`log_std_init=-1.0`，`max_log_std=0.0`
 - 降低 `entropy_coef` 到 `0.0001`
@@ -48,11 +48,41 @@ results/<课程>/train_metrics.csv
 - GNN 读出显式加入 agent cell 和 goal cell 表示
 - 先验证 C1 稳定性，再逐级推进
 
+## 2026-05-14 C5 调参现状
+
+本轮加入了时间感知/路径几何引导作为特权教师先验：
+
+- `global_features` 从 16 维扩展到 26 维
+- 新增路径首段方向、动态几何 potential、门等待、下一路标距离、前方关闭门距离/等待和归一化动作先验
+- `model.py` 将动作先验转成 tanh-squashed Gaussian 的 raw mean，PPO 学残差
+- `evaluate.py` 和 `visualize.py` 会复用 checkpoint 内保存的 env 配置，避免训练/评估/可视化口径不一致
+- 新增 `gap_step/configs/train_teacher_c5_tune.yaml` 作为 C5 快速调参入口
+
+当前最好的正式 C5 ID 评估为 50 回合成功率 `0.68`，尚未超过 `0.70`。该结果使用 C5 tune 口径：
+
+```yaml
+robot_radius: 0.1
+safe_margin: 0.0
+max_steps: 800
+```
+
+这属于放宽机器人尺寸和安全余量后的调参口径，不等同于原始 full 配置。失败主要仍来自 `closed_gate_collision` 和少量 wall collision。
+
+泛化评估 `results/eval_generalization_50.csv` 显示：
+
+```text
+id_test: 0.68
+ood_size_test: 0.64
+ood_dynamics_test: 0.40
+```
+
+OOD dynamics 的主要失败类型是 closed gate collision。
+
 ## 观测约定
 
 ```text
 GraphObs(
-  global_features: [16],
+  global_features: [26],
   node_features: [num_nodes, 32],
   node_type: [num_nodes],
   edge_index: [2, num_edges],

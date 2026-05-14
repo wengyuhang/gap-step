@@ -62,6 +62,17 @@ suppress_positive_progress_on_collision: true
 
 含义：动态几何 progress 是主 shaping；超时和碰撞一样是失败；撞墙或撞门时，不允许保留正的 progress reward。
 
+C5 tune 配置另有放宽口径：
+
+```yaml
+config: gap_step/configs/train_teacher_c5_tune.yaml
+robot_radius: 0.1
+safe_margin: 0.0
+max_steps: 800
+```
+
+该配置只用于 C5 快速诊断，不等同于 full 配置。
+
 ## 4. 模型说明
 
 GNN 主体保持简单。actor/critic 输入包括：
@@ -75,6 +86,8 @@ goal_cell_h
 ```
 
 这样可以直接利用 agent 所在 cell 和 goal cell 信息。
+
+当前 `GraphObs.global_features` 为 26 维，包含动态几何引导、门等待、下一路标、前方关闭门信息和动作先验。actor 可将动作先验作为 tanh-squashed Gaussian 的 raw mean，PPO 学残差。
 
 ## 5. 运行命令
 
@@ -97,6 +110,12 @@ python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
 python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
 ```
 
+C5 tune：
+
+```bash
+python -m gap_step.train --config gap_step/configs/train_teacher_c5_tune.yaml
+```
+
 ## 6. 训练日志
 
 训练时没有进度条，每次 PPO update 输出中文实时指标：
@@ -110,6 +129,7 @@ python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
 ```bash
 python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt
 python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 20 --stages C1,C1_5,C2A,C2B,C3,C4,C5
+python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --stages C5 --output results/eval_c5_tune.csv
 ```
 
 也可以只评估某个课程模型：
@@ -132,3 +152,34 @@ python -m gap_step.evaluate --checkpoint checkpoints/C1/teacher_final.pt --episo
 - PPO 更新次数是否没有长期掉到 1
 
 C1 稳定后，再继续看 C1_5、C2A、C2B。
+
+## 9. 当前 C5 tune 结果
+
+正式 50 回合 C5 ID 评估最好结果：
+
+```text
+success_rate = 0.68
+closed_gate_collision_rate = 0.16
+wall_collision_rate = 0.10
+timeout_rate = 0.06
+```
+
+训练 rollout 中可达到 75%-80%，但泛化评估尚未真实超过 70%。后续优先降低 closed gate collision，再处理 wall collision。
+
+50 回合泛化评估：
+
+```text
+id_test          success_rate = 0.68
+ood_size_test    success_rate = 0.64
+ood_dynamics     success_rate = 0.40
+```
+
+GIF 输出：
+
+```text
+results/typical_success.gif
+results/typical_wait.gif
+results/typical_collision.gif
+```
+
+当前 checkpoint 下三个默认可视化 seed 都成功，`typical_collision.gif` 是旧案例名。

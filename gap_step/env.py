@@ -43,6 +43,7 @@ class ContinuousMazeEnv(gym.Env):
         self.reward_time = float(config.get("reward_time", -0.01))
         self.reward_action = float(config.get("reward_action", -0.001))
         self.reward_progress = float(config.get("reward_progress", 0.0))
+        self.reward_guidance = float(config.get("reward_guidance", 0.0))
         self.reward_timeout = float(config.get("reward_timeout", 0.0))
         self.progress_mode = str(config.get("progress_mode", "none"))
         self.suppress_positive_progress_on_collision = bool(config.get("suppress_positive_progress_on_collision", True))
@@ -78,6 +79,7 @@ class ContinuousMazeEnv(gym.Env):
         self._last_progress_potential = 0.0
         self._last_progress_delta = 0.0
         self._last_progress_reward = 0.0
+        self._last_guidance_reward = 0.0
         self._last_dynamic_path_wait_time = 0.0
         self._last_dynamic_path_uses_gate = False
 
@@ -102,6 +104,7 @@ class ContinuousMazeEnv(gym.Env):
         self._last_progress_potential = potential
         self._last_progress_delta = 0.0
         self._last_progress_reward = 0.0
+        self._last_guidance_reward = 0.0
         self._last_dynamic_path_wait_time = wait_time
         self._last_dynamic_path_uses_gate = uses_gate
         return self.get_privileged_obs(), self._info(success=False, collision=False, truncated=False, collision_type="")
@@ -139,16 +142,24 @@ class ContinuousMazeEnv(gym.Env):
         if collision and self.suppress_positive_progress_on_collision and progress_reward > 0.0:
             progress_delta = 0.0
             progress_reward = 0.0
+        if self.reward_guidance != 0.0 and not collision:
+            guidance_dir, _, _, _, _, _ = self._progress_guidance(old_pos, self.t)
+            speed_scale = max(1e-6, self.max_speed)
+            guidance_reward = self.reward_guidance * float(np.dot(self.vel / speed_scale, guidance_dir))
+        else:
+            guidance_reward = 0.0
         self._prev_progress_potential = current_potential
         self._last_progress_potential = current_potential
         self._last_progress_delta = progress_delta
         self._last_progress_reward = progress_reward
+        self._last_guidance_reward = guidance_reward
         self._last_dynamic_path_wait_time = wait_time
         self._last_dynamic_path_uses_gate = uses_gate
 
         reward = -abs(self.reward_time)
         reward += -abs(self.reward_action) * float(np.dot(action, action))
         reward += progress_reward
+        reward += guidance_reward
         if success:
             reward += self.reward_goal
         if collision:
@@ -240,6 +251,28 @@ class ContinuousMazeEnv(gym.Env):
         phase = 2.0 * np.pi * (self.t % max(1e-6, self.max_steps * self.dt)) / max(1e-6, self.max_steps * self.dt)
         safe_count = sum(gate.is_safe(self.t, self.robot_radius, self.safe_margin) for gate in self.maze.gates)
         denom = max(1, len(self.maze.gates))
+        if self.reward_guidance != 0.0:
+            guidance_dir, guidance_potential, guidance_wait, guidance_uses_gate, target_dist, next_gate_wait = self._progress_guidance(
+                self.pos, self.t
+            )
+            closed_gate_dist, closed_gate_wait = self._closed_gate_ahead(guidance_dir, self.t)
+            action_prior = self._guidance_action_prior(
+                guidance_dir,
+                target_dist,
+                next_gate_wait,
+                closed_gate_dist,
+                closed_gate_wait,
+            )
+        else:
+            guidance_dir = np.zeros(2, dtype=np.float32)
+            guidance_potential = 0.0
+            guidance_wait = 0.0
+            guidance_uses_gate = False
+            target_dist = 0.0
+            next_gate_wait = 0.0
+            closed_gate_dist = 1.0
+            closed_gate_wait = 0.0
+            action_prior = np.zeros(2, dtype=np.float32)
         return np.array(
             [
                 self.pos[0] / self.S,
@@ -258,6 +291,16 @@ class ContinuousMazeEnv(gym.Env):
                 len(self.maze.gates) / 16.0,
                 safe_count / denom,
                 1.0,
+                guidance_dir[0],
+                guidance_dir[1],
+                np.clip(guidance_potential / max(1e-6, self.max_steps * self.dt), 0.0, 1.0),
+                guidance_wait if guidance_uses_gate else -guidance_wait,
+                np.clip(target_dist / max(1e-6, self.S), 0.0, 1.0),
+                next_gate_wait,
+                closed_gate_dist,
+                closed_gate_wait,
+                action_prior[0],
+                action_prior[1],
             ],
             dtype=np.float32,
         )
@@ -526,7 +569,7 @@ class ContinuousMazeEnv(gym.Env):
         return bool(np.all(point >= self.robot_radius) and np.all(point <= self.S - self.robot_radius))
 
     def _progress_potential(self, pos: np.ndarray, t: float) -> tuple[float, float, bool]:
-        if self.reward_progress == 0.0 or self.progress_mode != "dynamic_geometry":
+        if self.progress_mode != "dynamic_geometry":
             return 0.0, 0.0, False
         if not self._roadmap_nodes:
             return self.gate_unreachable_cost, 0.0, False
@@ -559,6 +602,135 @@ class ContinuousMazeEnv(gym.Env):
                 if next_cost < best.get(edge.to, float("inf")):
                     heapq.heappush(heap, (next_cost, edge.to, wait_sum + wait, uses_gate or edge_uses_gate))
         return self.gate_unreachable_cost, 0.0, False
+
+    def _progress_guidance(self, pos: np.ndarray, t: float) -> tuple[np.ndarray, float, float, bool, float, float]:
+        if self.progress_mode != "dynamic_geometry":
+            return np.zeros(2, dtype=np.float32), 0.0, 0.0, False, 0.0, 0.0
+        if not self._roadmap_nodes:
+            return np.zeros(2, dtype=np.float32), self.gate_unreachable_cost, 0.0, False, 0.0, 0.0
+
+        goal_index = 0
+        heap: list[tuple[float, int, float, bool, float, float, float, float]] = []
+        best: dict[int, float] = {}
+        initial_edges = self._current_visibility_edges(pos)
+        initial_edges.extend(self._current_gate_edges(pos, t))
+        for node_idx, travel_time, wait_time, uses_gate in initial_edges:
+            direction = self._roadmap_nodes[node_idx] - pos
+            distance = float(np.linalg.norm(direction))
+            if distance > 1e-8:
+                direction = direction / distance
+            else:
+                direction = np.zeros(2, dtype=np.float32)
+            total = travel_time + wait_time
+            heapq.heappush(
+                heap,
+                (total, node_idx, wait_time, uses_gate, float(direction[0]), float(direction[1]), distance, self._normalize_gate_time(wait_time)),
+            )
+
+        while heap:
+            cost, node_idx, wait_sum, uses_gate, dir_x, dir_y, target_dist, next_gate_wait = heapq.heappop(heap)
+            if cost >= best.get(node_idx, float("inf")):
+                continue
+            best[node_idx] = cost
+            if node_idx == goal_index:
+                direction = np.array([dir_x, dir_y], dtype=np.float32)
+                return direction, float(cost), self._normalize_gate_time(wait_sum), bool(uses_gate), float(target_dist), float(next_gate_wait)
+            arrival_time = t + cost
+            for edge in self._roadmap_edges[node_idx]:
+                wait = 0.0
+                edge_uses_gate = edge.gate_id is not None
+                if edge.gate_id is not None:
+                    wait = self._gate_wait_until_safe(self._roadmap_gates[edge.gate_id], arrival_time)
+                next_cost = cost + wait + edge.travel_time
+                if next_cost < best.get(edge.to, float("inf")):
+                    first_gate_wait = next_gate_wait
+                    if first_gate_wait <= 1e-6 and edge_uses_gate:
+                        first_gate_wait = self._normalize_gate_time(wait)
+                    heapq.heappush(
+                        heap,
+                        (next_cost, edge.to, wait_sum + wait, uses_gate or edge_uses_gate, dir_x, dir_y, target_dist, first_gate_wait),
+                    )
+        return np.zeros(2, dtype=np.float32), self.gate_unreachable_cost, 0.0, False, 0.0, 0.0
+
+    def _closed_gate_ahead(self, direction: np.ndarray, t: float) -> tuple[float, float]:
+        norm = float(np.linalg.norm(direction))
+        if norm <= 1e-8:
+            return 1.0, 0.0
+        direction = direction / norm
+        best_distance = float("inf")
+        best_wait = 0.0
+        for gate in self.maze.gates:
+            if gate.is_safe(t, self.robot_radius, self.safe_margin):
+                continue
+            rel = gate.center - self.pos
+            forward = float(np.dot(rel, direction))
+            if forward <= 0.0:
+                continue
+            lateral = float(abs(rel[0] * direction[1] - rel[1] * direction[0]))
+            if lateral > 0.5 * gate.slot_width + self.robot_radius:
+                continue
+            if forward < best_distance:
+                best_distance = forward
+                best_wait = self._normalize_gate_time(self._gate_wait_until_safe(gate, t))
+        if not np.isfinite(best_distance):
+            return 1.0, 0.0
+        return float(np.clip(best_distance / max(1e-6, self.S), 0.0, 1.0)), best_wait
+
+    def _guidance_action_prior(
+        self,
+        direction: np.ndarray,
+        target_dist: float,
+        next_gate_wait: float,
+        closed_gate_dist: float,
+        closed_gate_wait: float,
+    ) -> np.ndarray:
+        norm = float(np.linalg.norm(direction))
+        if norm <= 1e-8:
+            desired_vel = np.zeros(2, dtype=np.float32)
+        else:
+            direction = (direction / norm).astype(np.float32)
+            target_dist_world = float(target_dist)
+            closed_dist_world = float(closed_gate_dist) * self.S
+            braking_distance = 0.60 + float(np.dot(self.vel, direction).clip(0.0, self.max_speed)) ** 2 / (2.0 * self.max_acc)
+            should_wait = (next_gate_wait > 0.005 and target_dist_world < 1.25) or (
+                closed_gate_wait > 0.005 and closed_dist_world < max(1.2, braking_distance)
+            )
+            if should_wait:
+                desired_vel = -0.25 * direction
+            else:
+                speed = min(self.max_speed, max(0.35, 1.8 * target_dist_world))
+                if target_dist_world < 1.25 and next_gate_wait <= 0.005:
+                    speed = max(speed, 1.5)
+                if closed_dist_world < 1.5 and closed_gate_wait <= 0.005:
+                    speed = max(speed, 1.5)
+                desired_vel = direction * speed
+        accel = (desired_vel - self.vel) / max(1e-6, self.dt)
+        return np.clip(accel / max(1e-6, self.max_acc), -0.95, 0.95).astype(np.float32)
+
+    def _one_step_safe_action(self, preferred_accel: np.ndarray) -> np.ndarray:
+        candidates = [preferred_accel, np.zeros(2, dtype=np.float32), -self.vel / max(1e-6, self.dt)]
+        for angle in np.linspace(0.0, 2.0 * np.pi, 8, endpoint=False):
+            candidates.append(self.max_acc * np.array([np.cos(angle), np.sin(angle)], dtype=np.float32))
+
+        best_accel = preferred_accel
+        best_score = float("inf")
+        for accel in candidates:
+            accel = np.clip(np.asarray(accel, dtype=np.float32), -self.max_acc, self.max_acc)
+            vel = self.vel + accel * self.dt
+            speed = float(np.linalg.norm(vel))
+            if speed > self.max_speed:
+                vel = vel / speed * self.max_speed
+            pos = self.pos + vel * self.dt
+            collision = bool(self._collision_type(self.pos, pos))
+            if collision:
+                score = self.gate_unreachable_cost
+            else:
+                potential, wait_time, _ = self._progress_potential(pos, self.t + self.dt)
+                score = potential + 0.2 * wait_time + 0.02 * float(np.dot(accel, accel))
+            if score < best_score:
+                best_score = score
+                best_accel = accel
+        return np.asarray(best_accel, dtype=np.float32)
 
     def _current_visibility_edges(self, pos: np.ndarray) -> list[tuple[int, float, float, bool]]:
         edges = []
@@ -685,6 +857,7 @@ class ContinuousMazeEnv(gym.Env):
             "progress_potential": self._last_progress_potential,
             "progress_delta": self._last_progress_delta,
             "progress_reward": self._last_progress_reward,
+            "guidance_reward": self._last_guidance_reward,
             "dynamic_path_wait_time": self._last_dynamic_path_wait_time,
             "dynamic_path_uses_gate": self._last_dynamic_path_uses_gate,
         }

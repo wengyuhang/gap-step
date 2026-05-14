@@ -6,7 +6,7 @@ import numpy as np
 import torch
 
 
-GLOBAL_FEATURE_DIM = 16
+GLOBAL_FEATURE_DIM = 26
 NODE_FEATURE_DIM = 32
 EDGE_FEATURE_DIM = 20
 

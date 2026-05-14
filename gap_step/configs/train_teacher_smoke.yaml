@@ -44,6 +44,7 @@ env:
   a_max: 3.0
   max_steps: 500
   reward_progress: 4.0
+  reward_guidance: 0.5
   reward_timeout: -20.0
   progress_mode: dynamic_geometry
   suppress_positive_progress_on_collision: true

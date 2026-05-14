@@ -47,7 +47,7 @@ C5      最终异步多窗口迷宫
 
 ```text
 GraphObs(
-  global_features: [16],
+  global_features: [26],
   node_features: [num_nodes, 32],
   node_type: [num_nodes],
   edge_index: [2, num_edges],
@@ -66,6 +66,8 @@ GraphObs(
 - gate-cell 边
 - self-loop
 
+当前 global features 除基础机器人、目标、时间和课程尺度信息外，还包含动态几何引导、门等待、下一路标、前方关闭门信息和动作先验。
+
 ## 5. 模型
 
 模型是纯 PyTorch GNN actor-critic。
@@ -81,6 +83,8 @@ global_h
 ```
 
 加入 agent 和 goal cell 是为了避免当前位置和目标位置被全图池化稀释。
+
+在 C5 tune 中，如果观测提供归一化动作先验，actor 会将它作为 tanh-squashed Gaussian 的 raw mean，PPO 输出学习残差。
 
 ## 6. PPO 动作
 
@@ -161,6 +165,17 @@ reward_timeout: -20.0
 suppress_positive_progress_on_collision: true
 ```
 
+C5 快速调参配置：
+
+```yaml
+config: gap_step/configs/train_teacher_c5_tune.yaml
+robot_radius: 0.1
+safe_margin: 0.0
+max_steps: 800
+```
+
+这是放宽口径，只用于诊断最终课程；不要和 full 配置的原始任务口径混用。
+
 ## 10. 实验顺序
 
 先跑：
@@ -176,4 +191,22 @@ python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
 python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
 ```
 
-分析时先看 C1 是否稳定，不要直接从 C5 失败推断全部问题。
+调 C5 时：
+
+```bash
+python -m gap_step.train --config gap_step/configs/train_teacher_c5_tune.yaml
+python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --stages C5 --output results/eval_c5_tune.csv
+python -m gap_step.visualize --checkpoint checkpoints/C5/teacher_final.pt
+```
+
+当前 C5 tune 正式 50 回合 ID 评估最好为 `0.68`，未真实超过 `0.70`。分析时优先看 closed gate collision 和 wall collision。
+
+50 回合泛化评估：
+
+```text
+id_test          success_rate = 0.68
+ood_size_test    success_rate = 0.64
+ood_dynamics     success_rate = 0.40
+```
+
+OOD dynamics 的主要问题是 closed gate collision。可视化 GIF 输出在 `results/typical_success.gif`、`results/typical_wait.gif`、`results/typical_collision.gif`。

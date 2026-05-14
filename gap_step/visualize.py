@@ -5,15 +5,25 @@ import argparse
 import torch
 
 from gap_step.env import ContinuousMazeEnv
-from gap_step.evaluate import load_teacher
+from gap_step.evaluate import load_checkpoint
 from gap_step.gif import save_gif
 from gap_step.graph import collate_graph_obs
 from gap_step.ppo import get_device
 from gap_step.utils import resolve_path
 
 
-def rollout_gif(model, output: str, seed: int, split: str, device: torch.device, max_steps: int = 500) -> dict:
-    env = ContinuousMazeEnv({"stage_name": "C5", "split": split})
+def rollout_gif(
+    model,
+    output: str,
+    seed: int,
+    split: str,
+    device: torch.device,
+    env_config: dict | None = None,
+    max_steps: int = 500,
+) -> dict:
+    config = dict(env_config or {})
+    config.update({"stage_name": "C5", "split": split})
+    env = ContinuousMazeEnv(config)
     obs, _ = env.reset(seed=seed, options={"stage_name": "C5", "split": split})
     frames = []
     final_info = {}
@@ -38,14 +48,15 @@ def main() -> None:
     args = parser.parse_args()
 
     device = get_device(args.device)
-    model = load_teacher(args.checkpoint, device)
+    model, checkpoint_config = load_checkpoint(args.checkpoint, device)
+    env_config = dict(checkpoint_config.get("env", {}))
     cases = [
         ("results/typical_success.gif", 10000),
         ("results/typical_wait.gif", 10005),
         ("results/typical_collision.gif", 10010),
     ]
     for output, seed in cases:
-        info = rollout_gif(model, output, seed, args.split, device)
+        info = rollout_gif(model, output, seed, args.split, device, env_config=env_config)
         print(f"Saved {output}: {info}")
 
 

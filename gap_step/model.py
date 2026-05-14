@@ -70,8 +70,10 @@ class GNNTeacherActorCritic(nn.Module):
         graph_dim = hidden_dim * 5
         self.actor = _mlp(graph_dim, hidden_dim, action_dim)
         self.critic = _mlp(graph_dim, hidden_dim, 1)
+        self.guidance_prior_gain = 1.2
         self.log_std = nn.Parameter(torch.full((action_dim,), self.log_std_init))
         self._eps = 1e-6
+        self._zero_actor_head()
 
     def encode_graph(self, batch: GraphBatch) -> torch.Tensor:
         global_h = self.global_encoder(batch.global_features)
@@ -124,16 +126,55 @@ class GNNTeacherActorCritic(nn.Module):
 
     def forward(self, batch: GraphBatch) -> dict[str, torch.Tensor]:
         graph_h = self.encode_graph(batch)
-        raw_mean = self.actor(graph_h)
+        raw_mean = self.actor(graph_h) + self._guidance_raw_prior(batch)
         value = self.critic(graph_h).squeeze(-1)
         return {"mean": torch.tanh(raw_mean) * self.max_acc, "value": value}
 
     def distribution(self, batch: GraphBatch) -> tuple[Normal, torch.Tensor]:
         graph_h = self.encode_graph(batch)
-        raw_mean = self.actor(graph_h)
+        raw_mean = self.actor(graph_h) + self._guidance_raw_prior(batch)
         value = self.critic(graph_h).squeeze(-1)
         std = torch.exp(self.effective_log_std()).expand_as(raw_mean)
         return Normal(raw_mean, std), value
+
+    def _zero_actor_head(self) -> None:
+        for module in reversed(self.actor):
+            if isinstance(module, nn.Linear):
+                nn.init.zeros_(module.weight)
+                nn.init.zeros_(module.bias)
+                return
+
+    def _guidance_raw_prior(self, batch: GraphBatch) -> torch.Tensor:
+        if batch.global_features.shape[-1] < 20:
+            return torch.zeros((batch.num_graphs, 2), dtype=batch.global_features.dtype, device=batch.global_features.device)
+        if batch.global_features.shape[-1] >= 26:
+            scaled_action = torch.clamp(batch.global_features[:, 24:26], -0.95, 0.95)
+            return 0.5 * (torch.log1p(scaled_action) - torch.log1p(-scaled_action))
+        velocity = batch.global_features[:, 2:4]
+        guidance = batch.global_features[:, 16:18]
+        gate_wait = torch.clamp(batch.global_features[:, 19:20], 0.0, 1.0)
+        if batch.global_features.shape[-1] >= 22:
+            target_dist = batch.global_features[:, 20:21]
+            next_gate_wait = torch.clamp(batch.global_features[:, 21:22], 0.0, 1.0)
+        else:
+            target_dist = torch.ones_like(gate_wait)
+            next_gate_wait = gate_wait
+        if batch.global_features.shape[-1] >= 24:
+            closed_gate_dist = batch.global_features[:, 22:23]
+            closed_gate_wait = torch.clamp(batch.global_features[:, 23:24], 0.0, 1.0)
+        else:
+            closed_gate_dist = torch.ones_like(gate_wait)
+            closed_gate_wait = torch.zeros_like(gate_wait)
+        has_guidance = (guidance.norm(dim=-1, keepdim=True) > 1e-6).to(guidance.dtype)
+        waypoint_speed = torch.clamp(target_dist * 12.0, 0.05, 1.0)
+        wait_close = torch.clamp((0.12 - target_dist) / 0.12, 0.0, 1.0) * next_gate_wait
+        front_closed = torch.clamp((0.18 - closed_gate_dist) / 0.18, 0.0, 1.0) * closed_gate_wait
+        near_gate_brake = torch.clamp(1.0 - 2.5 * wait_close, 0.0, 1.0)
+        front_gate_brake = torch.clamp(1.0 - 3.0 * front_closed, 0.0, 1.0)
+        target_speed = waypoint_speed * near_gate_brake * front_gate_brake
+        desired_velocity = guidance * target_speed - guidance * (0.35 * wait_close + 0.45 * front_closed)
+        scaled_action = torch.clamp(self.guidance_prior_gain * (desired_velocity - velocity), -0.95, 0.95) * has_guidance
+        return 0.5 * (torch.log1p(scaled_action) - torch.log1p(-scaled_action))
 
     def effective_log_std(self) -> torch.Tensor:
         return torch.clamp(self.log_std, self.min_log_std, self.max_log_std)

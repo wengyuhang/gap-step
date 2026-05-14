@@ -159,6 +159,7 @@ def _build_row(
         "collision_rate": _mean_info(infos, "collision"),
         "timeout_rate": _mean_info(infos, "timeout"),
         "progress_reward_mean": _mean_info(step_infos, "progress_reward"),
+        "guidance_reward_mean": _mean_info(step_infos, "guidance_reward"),
         "progress_delta_mean": _mean_info(step_infos, "progress_delta"),
         "progress_delta_abs_mean": float(np.mean([abs(float(info.get("progress_delta", 0.0))) for info in step_infos]))
         if step_infos

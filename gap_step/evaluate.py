@@ -22,7 +22,7 @@ SPLITS = {
 }
 
 
-def load_teacher(checkpoint: str, device: torch.device) -> TeacherActorCritic:
+def load_checkpoint(checkpoint: str, device: torch.device) -> tuple[TeacherActorCritic, dict]:
     ckpt = torch.load(resolve_path(checkpoint), map_location=device, weights_only=False)
     model = TeacherActorCritic(
         global_dim=int(ckpt.get("global_dim", GLOBAL_FEATURE_DIM)),
@@ -36,11 +36,25 @@ def load_teacher(checkpoint: str, device: torch.device) -> TeacherActorCritic:
     ).to(device)
     model.load_state_dict(ckpt["model_state"])
     model.eval()
+    return model, dict(ckpt.get("config", {}))
+
+
+def load_teacher(checkpoint: str, device: torch.device) -> TeacherActorCritic:
+    model, _ = load_checkpoint(checkpoint, device)
     return model
 
 
-def evaluate_split(model: TeacherActorCritic, split: str, episodes: int, device: torch.device, stage_name: str = "C5") -> dict:
-    env = ContinuousMazeEnv({"stage_name": stage_name, "split": split})
+def evaluate_split(
+    model: TeacherActorCritic,
+    split: str,
+    episodes: int,
+    device: torch.device,
+    stage_name: str = "C5",
+    env_config: dict | None = None,
+) -> dict:
+    config = dict(env_config or {})
+    config.update({"stage_name": stage_name, "split": split})
+    env = ContinuousMazeEnv(config)
     seeds = list(SPLITS[split])[:episodes]
     stats = []
     with torch.no_grad():
@@ -90,15 +104,16 @@ def main() -> None:
     args = parser.parse_args()
 
     device = get_device(args.device)
-    model = load_teacher(args.checkpoint, device)
+    model, checkpoint_config = load_checkpoint(args.checkpoint, device)
+    env_config = dict(checkpoint_config.get("env", {}))
     stages = [stage.strip() for stage in args.stages.split(",") if stage.strip()]
     if stages:
         unknown = [stage for stage in stages if stage not in STAGE_ORDER]
         if unknown:
             raise ValueError(f"Unknown stages: {unknown}")
-        rows = [evaluate_split(model, "id_test", args.episodes, device, stage_name=stage) for stage in stages]
+        rows = [evaluate_split(model, "id_test", args.episodes, device, stage_name=stage, env_config=env_config) for stage in stages]
     else:
-        rows = [evaluate_split(model, split, args.episodes, device, stage_name="C5") for split in SPLITS]
+        rows = [evaluate_split(model, split, args.episodes, device, stage_name="C5", env_config=env_config) for split in SPLITS]
     output = resolve_path(args.output)
     ensure_dir(output.parent)
     with output.open("w", newline="", encoding="utf-8") as f:

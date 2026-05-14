@@ -117,3 +117,50 @@ mean((exp(new_logp - old_logp) - 1) - (new_logp - old_logp))
 同时记录裁剪率和解释方差。
 
 原因：原来的 `old_logp - new_logp` 均值可能为负，不适合作为主要 KL 停止指标。
+
+## 2026-05-14：C5 tune 加入几何动作先验
+
+决定：在特权教师全局观测中加入动态几何引导特征，并将归一化动作先验作为 actor raw mean 的先验项，PPO 学残差。
+
+新增全局特征包括：
+
+```text
+路径首段方向、动态几何 potential、门等待、下一路标距离、前方关闭门距离/等待、动作先验
+```
+
+当前 `GLOBAL_FEATURE_DIM = 26`。
+
+原因：纯 PPO 从稀疏/弱 shaping 中学习门前等待和穿门时机效率太低；几何先验能把 C5 起点从接近 0 提高到可训练范围。
+
+## 2026-05-14：评估和可视化复用 checkpoint env 配置
+
+决定：`evaluate.py` 和 `visualize.py` 加载 checkpoint 后复用其中的 `config["env"]`。
+
+原因：C5 tune 配置和 full 配置可能不同。如果评估或可视化使用默认环境，会把训练出的策略放到另一个任务口径里，导致结果不可比。
+
+## 2026-05-14：C5 tune 当前未真实超过 70%
+
+决定：记录当前最好正式评估结果，不把训练 rollout 成功率当作最终达标。
+
+当前结果：
+
+```text
+checkpoint: checkpoints/C5/teacher_final.pt
+eval: python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --stages C5
+C5 id_test success_rate = 0.68
+closed_gate_collision_rate = 0.16
+wall_collision_rate = 0.10
+timeout_rate = 0.06
+```
+
+该结果使用 `train_teacher_c5_tune.yaml` 的放宽口径：`robot_radius=0.1`、`safe_margin=0.0`、`max_steps=800`。原始 full 口径仍未达标。
+
+随后运行 50 回合三 split 泛化评估：
+
+```text
+id_test = 0.68
+ood_size_test = 0.64
+ood_dynamics_test = 0.40
+```
+
+OOD dynamics 的主失败类型是 closed gate collision。

@@ -119,3 +119,68 @@ python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
 - `log_std_init=-1.0`，`max_log_std=0.0`，降低初始乱撞
 - `learning_rate=0.0001`，`target_kl=0.2`，`update_epochs=4`
 - 完整训练每课程步数改为 300000，用于更快验证是否进入收敛趋势
+
+## 2026-05-14 C5 tune 调参记录
+
+实现：
+
+- `GLOBAL_FEATURE_DIM` 扩展到 26
+- `env.py` 增加动态几何引导特征、门等待/前方关闭门信息和归一化动作先验
+- `model.py` 将动作先验转换为 tanh-squashed Gaussian 的 raw mean，PPO 继续学习残差
+- `evaluate.py` 加载 checkpoint 内的 env 配置
+- `visualize.py` 同样复用 checkpoint env 配置
+- 新增 `gap_step/configs/train_teacher_c5_tune.yaml`
+- 训练 CSV 增加 `guidance_reward_mean`
+
+GPU 诊断：
+
+- Codex 默认沙箱内 `torch.cuda.is_available()` 为 `False`
+- 沙箱外 `wyh` 环境可见 `NVIDIA RTX A4000`
+- 后续训练和评估使用授权的沙箱外命令运行
+
+调参结论：
+
+- 原始 C5 口径仍未达到 70%
+- C5 tune 放宽口径使用：
+
+```yaml
+robot_radius: 0.1
+safe_margin: 0.0
+max_steps: 800
+```
+
+- 训练 rollout 中可出现 `0.75` 到 `0.80+` 的 C5 成功率
+- 正式 50 回合 C5 ID 评估最好为 `0.68`
+- 当前主要失败仍是 `closed_gate_collision`，其次是 wall collision
+
+验证：
+
+```bash
+pytest -q
+python -m gap_step.train --config gap_step/configs/train_teacher_c5_tune.yaml
+python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --stages C5 --output results/eval_c5_tune.csv
+```
+
+## 2026-05-14 泛化评估和可视化
+
+命令：
+
+```bash
+python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --output results/eval_generalization_50.csv
+python -m gap_step.visualize --checkpoint checkpoints/C5/teacher_final.pt --device cuda --split id_test
+```
+
+结果：
+
+```text
+id_test          success_rate=0.68  closed_gate=0.16  wall=0.10  timeout=0.06
+ood_size_test    success_rate=0.64  closed_gate=0.16  wall=0.06  timeout=0.14
+ood_dynamics     success_rate=0.40  closed_gate=0.44  wall=0.06  timeout=0.10
+```
+
+结论：
+
+- OOD size 退化不大，但 timeout 增加
+- OOD dynamics 明显退化，主要由 closed gate collision 拉低
+- GIF 已输出到 `results/typical_success.gif`、`results/typical_wait.gif`、`results/typical_collision.gif`
+- 当前 checkpoint 下三个默认可视化 seed 都成功，`typical_collision.gif` 文件名沿用旧命名，不代表本次一定碰撞

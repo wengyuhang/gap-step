@@ -29,7 +29,7 @@ checkpoints/C5/teacher_final.pt
 - `ppo.py`：旧策略 rollout、GAE、PPO update、策略同步
 - `train.py`：逐课程训练、中文实时日志、分课程保存
 - `evaluate.py`：ID/OOD 和分课程评估
-- `visualize.py`：GIF 可视化
+- `visualize.py`：GIF 可视化，复用 checkpoint 内保存的 env 配置
 
 ## 环境
 
@@ -50,6 +50,7 @@ checkpoints/C5/teacher_final.pt
 
 教师看到完整特权图：
 
+- global features：基础机器人/目标/课程尺度/时间信息，以及动态几何引导、门等待、下一路标和动作先验
 - cell node：cell 中心、相对 agent/goal、start/goal/agent 标记
 - gate node：窗口中心、开度、旋转、安全状态、time-to-open/time-to-close、动力学参数
 - cell-cell edge：wall/open/gate 类型
@@ -71,6 +72,8 @@ global_h
 ```
 
 这样 actor/critic 不只依赖全图池化，也能直接看到 agent 所在 cell 和 goal cell 的表示。
+
+如果 `global_features` 中存在归一化动作先验，actor 会把该先验转换到 tanh-squashed Gaussian 的 raw mean，网络输出作为 PPO 残差继续学习。当前 `GLOBAL_FEATURE_DIM = 26`。
 
 ## 训练
 
@@ -102,6 +105,14 @@ max_log_std = 0.0
 reward_progress = 4.0
 reward_timeout = -20.0
 ```
+
+当前另有 C5 快速调参配置：
+
+```text
+gap_step/configs/train_teacher_c5_tune.yaml
+```
+
+该配置用于诊断最终课程，当前口径放宽为 `robot_radius=0.1`、`safe_margin=0.0`、`max_steps=800`。正式 50 回合 C5 ID 评估最好达到 `0.68`，尚未稳定超过 `0.70`。
 
 ## 边界
 
