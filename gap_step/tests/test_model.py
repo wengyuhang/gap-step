@@ -147,3 +147,9 @@ def test_min_log_std_is_enforced():
     with torch.no_grad():
         model.log_std.fill_(-5.0)
     assert torch.allclose(model.effective_log_std(), torch.full_like(model.log_std, -1.0))
+
+
+def test_log_std_init_is_configurable():
+    model = TeacherActorCritic(max_acc=3.0, min_log_std=-2.0, max_log_std=0.0, log_std_init=-1.0)
+    assert torch.allclose(model.log_std.detach(), torch.full_like(model.log_std, -1.0))
+    assert torch.allclose(model.effective_log_std(), torch.full_like(model.log_std, -1.0))

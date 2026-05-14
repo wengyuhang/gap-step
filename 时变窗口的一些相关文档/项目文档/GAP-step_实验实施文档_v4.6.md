@@ -35,8 +35,16 @@ results/<课程>/train_metrics.csv
 
 ```yaml
 curriculum_mode: stagewise
-entropy_coef: 0.001
-max_log_std: 0.5
+steps_per_stage: 300000
+rollout_steps: 4096
+minibatch_size: 512
+update_epochs: 4
+learning_rate: 0.0001
+target_kl: 0.2
+entropy_coef: 0.0001
+log_std_init: -1.0
+min_log_std: -2.0
+max_log_std: 0.0
 checkpoint_dir: checkpoints
 results_dir: results
 log_interval_updates: 1
@@ -47,10 +55,12 @@ normalize_advantage: true
 
 ```yaml
 progress_mode: dynamic_geometry
+reward_progress: 4.0
+reward_timeout: -20.0
 suppress_positive_progress_on_collision: true
 ```
 
-含义：撞墙或撞门时，不允许保留正的 progress reward。
+含义：动态几何 progress 是主 shaping；超时和碰撞一样是失败；撞墙或撞门时，不允许保留正的 progress reward。
 
 ## 4. 模型说明
 

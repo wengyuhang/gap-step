@@ -40,7 +40,10 @@ results/<课程>/train_metrics.csv
 
 因此当前先做小修：
 
-- 降低 `entropy_coef` 和 `max_log_std`
+- 降低初始动作噪声：`log_std_init=-1.0`，`max_log_std=0.0`
+- 降低 `entropy_coef` 到 `0.0001`
+- 超时奖励改为 `-20.0`，避免“原地等超时”优于探索
+- `reward_progress` 提高到 `4.0`，继续使用动态几何 potential，适用于后续时变窗口课程
 - 撞墙/撞门时截断正 progress reward
 - GNN 读出显式加入 agent cell 和 goal cell 表示
 - 先验证 C1 稳定性，再逐级推进

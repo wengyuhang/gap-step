@@ -1,6 +1,6 @@
 seed: 0
 device: auto
-steps_per_stage: 256
+steps_per_stage: 512
 total_steps: 512
 curriculum_mode: stagewise
 stage_order: [C1, C1_5, C2A, C2B, C3, C4, C5]
@@ -13,23 +13,24 @@ min_steps_per_stage: 128
 soft_max_steps_per_stage: 256
 hard_max_steps_per_stage: 512
 hard_max_policy: stop
-rollout_steps: 128
-minibatch_size: 64
-update_epochs: 2
-learning_rate: 0.0003
+rollout_steps: 256
+minibatch_size: 128
+update_epochs: 4
+learning_rate: 0.0001
 gamma: 0.99
 gae_lambda: 0.95
 clip_ratio: 0.2
 value_coef: 0.5
-entropy_coef: 0.001
-target_kl: 0.03
+entropy_coef: 0.0001
+target_kl: 0.2
 max_grad_norm: 0.5
 normalize_advantage: true
 model_type: gnn
 gnn_hidden_dim: 128
 gnn_layers: 4
-min_log_std: -0.5
-max_log_std: 0.5
+min_log_std: -2.0
+max_log_std: 0.0
+log_std_init: -1.0
 checkpoint_dir: checkpoints
 results_dir: results
 log_interval_updates: 1
@@ -42,8 +43,8 @@ env:
   v_max: 2.0
   a_max: 3.0
   max_steps: 500
-  reward_progress: 2.0
-  reward_timeout: -5.0
+  reward_progress: 4.0
+  reward_timeout: -20.0
   progress_mode: dynamic_geometry
   suppress_positive_progress_on_collision: true
   gate_lookahead_time: 20.0

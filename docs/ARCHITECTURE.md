@@ -92,8 +92,15 @@ PPO 使用显式旧策略流程：
 当前稳定性默认：
 
 ```text
-entropy_coef = 0.001
-max_log_std = 0.5
+learning_rate = 0.0001
+rollout_steps = 4096
+update_epochs = 4
+target_kl = 0.2
+entropy_coef = 0.0001
+log_std_init = -1.0
+max_log_std = 0.0
+reward_progress = 4.0
+reward_timeout = -20.0
 ```
 
 ## 边界

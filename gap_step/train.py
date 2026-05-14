@@ -21,20 +21,21 @@ DEFAULT_CONFIG = {
     "device": "auto",
     "steps_per_stage": 1_000_000,
     "total_steps": 5_000_000,
-    "rollout_steps": 2048,
-    "minibatch_size": 256,
-    "update_epochs": 10,
-    "learning_rate": 3e-4,
+    "rollout_steps": 4096,
+    "minibatch_size": 512,
+    "update_epochs": 4,
+    "learning_rate": 1e-4,
     "gamma": 0.99,
     "gae_lambda": 0.95,
     "clip_ratio": 0.2,
     "value_coef": 0.5,
-    "entropy_coef": 0.001,
-    "target_kl": 0.03,
+    "entropy_coef": 0.0001,
+    "target_kl": 0.2,
     "max_grad_norm": 0.5,
     "normalize_advantage": True,
-    "min_log_std": -0.5,
-    "max_log_std": 0.5,
+    "min_log_std": -2.0,
+    "max_log_std": 0.0,
+    "log_std_init": -1.0,
     "model_type": "gnn",
     "gnn_hidden_dim": 128,
     "gnn_layers": 4,
@@ -225,6 +226,7 @@ def _checkpoint_payload(config: dict, env: ContinuousMazeEnv, model: TeacherActo
         "max_acc": env.max_acc,
         "min_log_std": model.min_log_std,
         "max_log_std": model.max_log_std,
+        "log_std_init": model.log_std_init,
         "config": config,
         "stages": STAGE_ORDER,
     }
@@ -317,6 +319,7 @@ def main() -> None:
         gnn_layers=int(config["gnn_layers"]),
         min_log_std=float(config["min_log_std"]),
         max_log_std=float(config["max_log_std"]),
+        log_std_init=float(config.get("log_std_init", 0.0)),
     ).to(device)
     model_old = TeacherActorCritic(
         max_acc=env.max_acc,
@@ -324,6 +327,7 @@ def main() -> None:
         gnn_layers=int(config["gnn_layers"]),
         min_log_std=float(config["min_log_std"]),
         max_log_std=float(config["max_log_std"]),
+        log_std_init=float(config.get("log_std_init", 0.0)),
     ).to(device)
     sync_policy_old(model, model_old)
     optimizer = torch.optim.Adam(model.parameters(), lr=float(config["learning_rate"]))

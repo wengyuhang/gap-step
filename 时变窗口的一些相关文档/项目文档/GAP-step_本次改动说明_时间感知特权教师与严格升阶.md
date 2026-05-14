@@ -62,8 +62,12 @@ model_old 采样 rollout -> model 做 PPO 更新 -> model_old <- model
 配置默认改为：
 
 ```yaml
-entropy_coef: 0.001
-max_log_std: 0.5
+entropy_coef: 0.0001
+log_std_init: -1.0
+min_log_std: -2.0
+max_log_std: 0.0
+learning_rate: 0.0001
+target_kl: 0.2
 ```
 
 原因：之前训练后期 entropy/std 过大，策略变成高噪声动作。
@@ -75,6 +79,8 @@ PPO 主 KL 指标改为标准非负近似，避免使用可能为负的 `old_log
 如果当前 step 发生碰撞，并且 progress reward 为正，则置零。
 
 这不会改变碰撞判定和成功判定，只是避免“冲墙也有收益”。
+
+训练配置还将 `reward_progress` 提高到 `4.0`，并将 `reward_timeout` 改为 `-20.0`。这不是 C1 专用设置，而是避免所有课程里出现“原地等超时比探索撞墙更划算”的局部最优。
 
 ## 模型改动
 

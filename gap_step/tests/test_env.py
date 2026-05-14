@@ -156,6 +156,22 @@ def test_timeout_reward_is_applied_with_progress_shaping():
     assert reward <= -5.01
 
 
+def test_timeout_penalty_can_match_collision_penalty_for_exploration():
+    env = ContinuousMazeEnv(
+        {
+            "stage_name": "C1",
+            "max_steps": 1,
+            "reward_timeout": -20.0,
+            "reward_collision": -20.0,
+        }
+    )
+    env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
+    _, reward, terminated, truncated, _ = env.step(np.zeros(2, dtype=np.float32))
+    assert not terminated
+    assert truncated
+    assert np.isclose(reward, -20.01)
+
+
 def test_graph_obs_scales_with_episode_maze_size():
     env = ContinuousMazeEnv()
     obs, _ = env.reset(seed=0, options={"stage_name": "C1", "split": "train"})

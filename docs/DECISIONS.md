@@ -65,11 +65,24 @@ C1 -> C1_5 -> C2A -> C2B -> C3 -> C4 -> C5
 决定：默认设置为：
 
 ```text
-entropy_coef = 0.001
-max_log_std = 0.5
+entropy_coef = 0.0001
+log_std_init = -1.0
+min_log_std = -2.0
+max_log_std = 0.0
 ```
 
 原因：上一次训练中 std 和 entropy 持续升高，策略后期退化为高噪声动作。
+
+## 2026-05-14：提高通用导航失败代价
+
+决定：训练配置中使用：
+
+```text
+reward_progress = 4.0
+reward_timeout = -20.0
+```
+
+原因：诊断显示原地不动到超时比随机探索撞墙更划算，会把 PPO 推向“少动等死”。这不是 C1 专用改动，后续时变窗口课程也需要避免超时成为低风险局部最优。
 
 ## 2026-05-14：碰撞时不保留正 progress reward
 

@@ -72,7 +72,7 @@ python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
 - 每个课程单独保存 `results/<课程>/train_metrics.csv`
 - 不再保存 `teacher_best.pt`
 - 移除训练进度条，改为中文实时指标
-- 降低探索噪声：`entropy_coef=0.001`，`max_log_std=0.5`
+- 降低探索噪声：`entropy_coef=0.0001`，`log_std_init=-1.0`，`max_log_std=0.0`
 - 撞墙或撞门时截断正 progress reward
 - GNN actor/critic 读出加入 agent cell 和 goal cell 表示
 - 更新全部项目文档
@@ -103,3 +103,19 @@ python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
 - KL 改为标准非负近似
 - 日志和 CSV 增加裁剪率、解释方差、loss 等诊断指标
 - 未采用 SB3，也不保留 SB3 训练入口
+
+## 2026-05-14 收敛性诊断和通用奖励调整
+
+诊断结果：
+
+- C1 最短中心线可通，简单 waypoint-PD 控制器能成功
+- 原地不动到超时的回报高于随机探索撞墙，容易形成“少动等死”局部最优
+- 观测值基本在 `[-1, 1]`，没有 NaN，归一化不是主因
+
+调整：
+
+- `reward_timeout=-20.0`，让超时和碰撞一样是明确失败
+- `reward_progress=4.0`，加强动态几何 progress shaping
+- `log_std_init=-1.0`，`max_log_std=0.0`，降低初始乱撞
+- `learning_rate=0.0001`，`target_kl=0.2`，`update_epochs=4`
+- 完整训练每课程步数改为 300000，用于更快验证是否进入收敛趋势

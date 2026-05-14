@@ -90,7 +90,9 @@ python -m gap_step.visualize --checkpoint checkpoints/C5/teacher_final.pt
 
 ## 当前训练改动
 
-- 降低探索噪声：`entropy_coef=0.001`，`max_log_std=0.5`
+- 降低初期探索噪声：`log_std_init=-1.0`，`entropy_coef=0.0001`，`max_log_std=0.0`
+- PPO 调得更保守：`learning_rate=0.0001`，`target_kl=0.2`，`rollout_steps=4096`
+- 通用导航奖励更重视失败代价：`reward_progress=4.0`，`reward_timeout=-20.0`
 - PPO 采样改为显式旧策略，KL 改为标准非负近似，并记录裁剪率和解释方差
 - 撞墙或撞门时，不允许获得正的 `progress_reward`
 - GNN 读出除了全图池化，还显式加入 agent 所在 cell 和 goal cell 的表示

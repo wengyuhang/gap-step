@@ -51,6 +51,7 @@ class GNNTeacherActorCritic(nn.Module):
         gnn_layers: int = 4,
         min_log_std: float = -0.5,
         max_log_std: float = 2.0,
+        log_std_init: float = 0.0,
     ):
         super().__init__()
         self.global_dim = int(global_dim)
@@ -61,6 +62,7 @@ class GNNTeacherActorCritic(nn.Module):
         self.max_acc = float(max_acc)
         self.min_log_std = float(min_log_std)
         self.max_log_std = float(max_log_std)
+        self.log_std_init = float(log_std_init)
         self.global_encoder = _mlp(self.global_dim, hidden_dim, hidden_dim)
         self.node_encoder = _mlp(self.node_dim, hidden_dim, hidden_dim)
         self.edge_encoder = _mlp(self.edge_dim, hidden_dim, hidden_dim)
@@ -68,7 +70,7 @@ class GNNTeacherActorCritic(nn.Module):
         graph_dim = hidden_dim * 5
         self.actor = _mlp(graph_dim, hidden_dim, action_dim)
         self.critic = _mlp(graph_dim, hidden_dim, 1)
-        self.log_std = nn.Parameter(torch.zeros(action_dim))
+        self.log_std = nn.Parameter(torch.full((action_dim,), self.log_std_init))
         self._eps = 1e-6
 
     def encode_graph(self, batch: GraphBatch) -> torch.Tensor:

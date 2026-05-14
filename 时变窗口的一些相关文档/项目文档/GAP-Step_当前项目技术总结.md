@@ -63,8 +63,11 @@ results/C5/train_metrics.csv
 
 ## 5. 本次简化修正
 
-- `entropy_coef` 降到 `0.001`
-- `max_log_std` 降到 `0.5`
+- `entropy_coef` 降到 `0.0001`
+- `log_std_init` 改为 `-1.0`
+- `max_log_std` 降到 `0.0`
+- `reward_progress` 提高到 `4.0`
+- `reward_timeout` 改为 `-20.0`
 - 撞墙或撞门时，正的 `progress_reward` 置零
 - GNN 读出加入 agent 所在 cell 和 goal cell 表示
 - 训练日志改成中文实时输出
@@ -91,4 +94,4 @@ python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episo
 
 ## 7. 下一步
 
-先看 C1 是否稳定成功。如果 C1 仍不稳定，优先看 KL、裁剪率、解释方差、熵和 std，再决定是否调整超参数；不要急着分析 C5。
+先看 C1 是否稳定成功。如果 C1 仍不稳定，优先看 KL、裁剪率、解释方差、熵、std、超时率和碰撞率，再决定是否继续调超参数；不要急着分析 C5。
