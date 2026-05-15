@@ -1,0 +1,38 @@
+seed: 7
+device: auto
+stage_order: [C3, C4, C5]
+rollout_steps: 4096
+steps_per_stage: 163840
+minibatch_size: 512
+update_epochs: 4
+learning_rate: 0.00025
+gamma: 0.99
+gae_lambda: 0.95
+clip_ratio: 0.2
+value_coef: 0.5
+entropy_coef: 0.004
+target_kl: 0.08
+max_grad_norm: 0.5
+normalize_advantage: true
+min_log_std: -2.5
+max_log_std: -0.35
+log_std_init: -1.2
+gnn_hidden_dim: 64
+gnn_layers: 3
+checkpoint_dir: checkpoints/window_generated
+results_dir: results/window_generated
+clean_outputs: false
+resume_checkpoint: checkpoints/window_generated/C2B/teacher_final.pt
+log_interval_updates: 1
+num_envs: 8
+validation_episodes: 8
+validation_interval_updates: 5
+promotion_success_rate: 0.68
+env:
+  return_graph_obs: true
+  graph_mode: compact
+  graph_max_cells: 128
+  max_steps: 320
+  period: 8
+  max_step: 0.28
+  robot_radius: 0.23

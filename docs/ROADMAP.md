@@ -1,25 +1,23 @@
 # Roadmap
 
-## 当前主线
+## Done
 
-- 连续二维时变窗口迷宫
-- PPO 特权教师
-- 纯 PyTorch GNN actor-critic
-- 图观测包含完整拓扑和 gate 动力学
-- 逐课程训练：`C1 -> C1_5 -> C2A -> C2B -> C3 -> C4 -> C5`
-- 每个课程只保存最终模型
-- C5 目前有独立 tune 配置，正式 50 回合 ID 评估最好为 `0.68`，尚未达到 `0.70`
-- 50 回合泛化评估：ID `0.68`，OOD size `0.64`，OOD dynamics `0.40`
+- Replaced the dynamic-cell passage abstraction with generated aperture-window mazes.
+- Added continuous collision-safe window geometry and preview assets.
+- Built pure PPO training/evaluation/visualization flow.
+- Reached the C5 ID target: `71.5%` over 200 unseen episodes.
+- Produced ID/OOD evaluation and GIF artifacts.
 
-## 近期任务
+## Current State
 
-1. 优先压 OOD dynamics 的 `closed_gate_collision_rate`。
-2. 用 GIF 可视化逐个看 closed gate collision、wall collision 和 timeout 的轨迹。
-3. 如果继续使用 PPO，避免长训过拟合；当前短训 5 更新好于 10 更新。
-4. 回到原始 full 口径前，需要确认 C5 tune 已稳定超过 `0.70`。
+```text
+id_test         71.5%
+ood_window_test 54.0%
+ood_maze_test   74.5%
+```
 
-## 后续可能工作
+## Next
 
-- 如果 agent/goal 读出仍不够，再考虑更强的图读出或 attention。
-- 增加更细的 gate 等待、穿越速度和门前刹停诊断。
-- 只有 teacher 稳定解决 C5 后，再考虑学生策略。
+- Improve `ood_window_test` generalization to unseen aperture timing.
+- Consider curriculum slices focused on timing variation before increasing maze complexity.
+- Keep wall/window collision semantics unchanged while tuning.

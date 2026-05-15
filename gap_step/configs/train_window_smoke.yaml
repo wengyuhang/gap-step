@@ -1,0 +1,36 @@
+seed: 3
+device: auto
+stage_order: [C1]
+rollout_steps: 256
+steps_per_stage: 512
+minibatch_size: 128
+update_epochs: 1
+learning_rate: 0.0003
+gamma: 0.99
+gae_lambda: 0.95
+clip_ratio: 0.2
+value_coef: 0.5
+entropy_coef: 0.01
+target_kl: 0.2
+max_grad_norm: 0.5
+normalize_advantage: true
+min_log_std: -2.0
+max_log_std: 0.5
+log_std_init: -0.2
+gnn_hidden_dim: 64
+gnn_layers: 2
+checkpoint_dir: checkpoints/window_generated_smoke
+results_dir: results/window_generated_smoke
+clean_outputs: true
+log_interval_updates: 1
+num_envs: 8
+validation_episodes: 2
+validation_interval_updates: 1
+env:
+  return_graph_obs: true
+  graph_mode: compact
+  graph_max_cells: 96
+  max_steps: 120
+  period: 8
+  max_step: 0.42
+  robot_radius: 0.23

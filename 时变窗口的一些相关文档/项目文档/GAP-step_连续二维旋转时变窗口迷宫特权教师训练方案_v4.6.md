@@ -1,212 +1,97 @@
-# GAP-Step 连续二维时变窗口迷宫特权教师训练方案
+# GAP-Step 二维时变窗口迷宫特权教师训练方案
 
-## 1. 目标
+## 1. 任务
 
-训练 PPO 特权教师，让圆盘机器人在连续二维时变窗口迷宫中到达目标。
+训练对象不是单一迷宫，而是一类程序生成的二维时变窗口迷宫。窗口由墙到墙的线/折线/曲线构成，线体是障碍，中间动态开口可通行。
 
-教师输入是完整图观测，输出是连续二维加速度。教师不执行 A*/MPC/waypoint，不使用专家动作标签。
-
-## 2. 环境
-
-机器人状态：
+## 2. 教师
 
 ```text
-位置 p
-速度 v
-动作 a
+纯 PPO 特权教师
+纯 PyTorch GNN
+连续二维动作
 ```
 
-动力学：
+当前不使用：
 
 ```text
-v = clip(v + a * dt, v_max)
-p = p + v * dt
+planner / BC / 专家演示 / waypoint executor / 最终兜底策略
 ```
 
-迷宫由网格拓扑生成，再转成连续墙体和窗口。窗口是否可通行由开度和旋转角共同决定。
-
-## 3. 课程
-
-训练顺序：
+## 3. 观测
 
 ```text
-C1      静态安全窗口
-C1_5    高开放占空比动态窗口
-C2A     单动态窗口，可能需要等待
-C2B     小迷宫，1-2 个动态窗口
-C3      加入旋转窗口
-C4      中等多窗口迷宫
-C5      最终异步多窗口迷宫
+GraphObs(global_features, node_features, node_type, edge_index, edge_features)
 ```
 
-当前采用逐课程训练。后一课程继承前一课程模型参数，但优化器重置。
+图中包含：
 
-## 4. 观测
+- cell node；
+- aperture window node；
+- cell-cell 边；
+- window-cell 边；
+- self-loop。
 
-教师观测为：
+窗口节点编码：
+
+- 当前开口；
+- 未来若干相位的开口宽度；
+- 未来开口中心变化；
+- 是否为当前路径上的下一个窗口。
+
+## 4. 课程
 
 ```text
-GraphObs(
-  global_features: [26],
-  node_features: [num_nodes, 32],
-  node_type: [num_nodes],
-  edge_index: [2, num_edges],
-  edge_features: [num_edges, 20],
-)
+C1      静态短路径
+C1_5    静态过渡
+C2-C3   少量窗口与渐进路径长度
+C3S*    长路径静态桥接
+C3_5-C4F 动态窗口桥接
+C5      高难度正式分布
 ```
 
-节点：
-
-- cell node
-- gate node
-
-边：
-
-- cell-cell 拓扑边
-- gate-cell 边
-- self-loop
-
-当前 global features 除基础机器人、目标、时间和课程尺度信息外，还包含动态几何引导、门等待、下一路标、前方关闭门信息和动作先验。
-
-## 5. 模型
-
-模型是纯 PyTorch GNN actor-critic。
-
-当前读出：
+C5 当前定义：
 
 ```text
-global_h
-+ mean_pool(node_h)
-+ max_pool(node_h)
-+ agent_cell_h
-+ goal_cell_h
+6 dynamic windows
+full-length maze
+mixed geometry
+gap range 0.72-0.96
+unseen seeds
 ```
 
-加入 agent 和 goal cell 是为了避免当前位置和目标位置被全图池化稀释。
+## 5. 奖励
 
-在 C5 tune 中，如果观测提供归一化动作先验，actor 会将它作为 tanh-squashed Gaussian 的 raw mean，PPO 输出学习残差。
+- 成功奖励；
+- 碰撞终止惩罚；
+- 连续几何 progress；
+- 窗前动态开口对齐奖励；
+- 关闭窗口风险惩罚；
+- 靠墙风险惩罚。
 
-## 6. PPO 动作
+窗前 shaping 以动态开口为优先，不再让静态路径中线压过窗口几何。
 
-动作使用 tanh-squashed Gaussian。PPO log probability 必须对应实际执行的 squashed action。
-
-不要改回 `Normal -> clamp(action)`。
-
-PPO 训练使用显式旧策略流程：
+## 6. 验收
 
 ```text
-model_old 负责采样
-model 负责更新
-每次 update 后同步 model_old <- model
+id_test         200 episodes >= 70%
+ood_window_test report
+ood_maze_test   report
 ```
 
-回报估计使用 GAE。KL early stop 使用标准非负近似，并记录裁剪率和解释方差。
-
-## 7. 奖励
-
-基础奖励：
+当前结果：
 
 ```text
-+20 成功
--20 碰撞
--0.01 每步
--0.001 * ||action||^2
+id_test         71.5%
+ood_window_test 54.0%
+ood_maze_test   74.5%
 ```
 
-训练时启用连续几何 progress shaping。
-
-当前新增规则：
+## 7. 产物
 
 ```text
-如果当前 step 撞墙或撞门，正的 progress_reward 置零。
+checkpoints/window_generated/C5/teacher_final.pt
+results/window_generated/C5/train_metrics.csv
+results/window_generated/eval_c5.csv
+results/window_generated/gifs/*.gif
 ```
-
-这不改变碰撞规则，也不改变成功条件。
-
-## 8. 训练输出
-
-每个课程单独保存：
-
-```text
-checkpoints/<课程>/teacher_final.pt
-results/<课程>/train_metrics.csv
-```
-
-不保存 `teacher_best.pt`。
-
-训练日志为中文实时指标，不显示进度条。
-
-## 9. 配置重点
-
-```yaml
-curriculum_mode: stagewise
-steps_per_stage: 300000
-rollout_steps: 4096
-minibatch_size: 512
-update_epochs: 4
-learning_rate: 0.0001
-target_kl: 0.2
-entropy_coef: 0.0001
-log_std_init: -1.0
-min_log_std: -2.0
-max_log_std: 0.0
-checkpoint_dir: checkpoints
-results_dir: results
-log_interval_updates: 1
-normalize_advantage: true
-```
-
-环境：
-
-```yaml
-progress_mode: dynamic_geometry
-reward_progress: 4.0
-reward_timeout: -20.0
-suppress_positive_progress_on_collision: true
-```
-
-C5 快速调参配置：
-
-```yaml
-config: gap_step/configs/train_teacher_c5_tune.yaml
-robot_radius: 0.1
-safe_margin: 0.0
-max_steps: 800
-```
-
-这是放宽口径，只用于诊断最终课程；不要和 full 配置的原始任务口径混用。
-
-## 10. 实验顺序
-
-先跑：
-
-```bash
-pytest -q
-python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
-```
-
-再跑完整训练：
-
-```bash
-python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
-```
-
-调 C5 时：
-
-```bash
-python -m gap_step.train --config gap_step/configs/train_teacher_c5_tune.yaml
-python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 50 --stages C5 --output results/eval_c5_tune.csv
-python -m gap_step.visualize --checkpoint checkpoints/C5/teacher_final.pt
-```
-
-当前 C5 tune 正式 50 回合 ID 评估最好为 `0.68`，未真实超过 `0.70`。分析时优先看 closed gate collision 和 wall collision。
-
-50 回合泛化评估：
-
-```text
-id_test          success_rate = 0.68
-ood_size_test    success_rate = 0.64
-ood_dynamics     success_rate = 0.40
-```
-
-OOD dynamics 的主要问题是 closed gate collision。可视化 GIF 输出在 `results/typical_success.gif`、`results/typical_wait.gif`、`results/typical_collision.gif`。

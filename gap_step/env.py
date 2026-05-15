@@ -707,31 +707,6 @@ class ContinuousMazeEnv(gym.Env):
         accel = (desired_vel - self.vel) / max(1e-6, self.dt)
         return np.clip(accel / max(1e-6, self.max_acc), -0.95, 0.95).astype(np.float32)
 
-    def _one_step_safe_action(self, preferred_accel: np.ndarray) -> np.ndarray:
-        candidates = [preferred_accel, np.zeros(2, dtype=np.float32), -self.vel / max(1e-6, self.dt)]
-        for angle in np.linspace(0.0, 2.0 * np.pi, 8, endpoint=False):
-            candidates.append(self.max_acc * np.array([np.cos(angle), np.sin(angle)], dtype=np.float32))
-
-        best_accel = preferred_accel
-        best_score = float("inf")
-        for accel in candidates:
-            accel = np.clip(np.asarray(accel, dtype=np.float32), -self.max_acc, self.max_acc)
-            vel = self.vel + accel * self.dt
-            speed = float(np.linalg.norm(vel))
-            if speed > self.max_speed:
-                vel = vel / speed * self.max_speed
-            pos = self.pos + vel * self.dt
-            collision = bool(self._collision_type(self.pos, pos))
-            if collision:
-                score = self.gate_unreachable_cost
-            else:
-                potential, wait_time, _ = self._progress_potential(pos, self.t + self.dt)
-                score = potential + 0.2 * wait_time + 0.02 * float(np.dot(accel, accel))
-            if score < best_score:
-                best_score = score
-                best_accel = accel
-        return np.asarray(best_accel, dtype=np.float32)
-
     def _current_visibility_edges(self, pos: np.ndarray) -> list[tuple[int, float, float, bool]]:
         edges = []
         if not self._point_within_bounds(pos):
@@ -786,7 +761,7 @@ class ContinuousMazeEnv(gym.Env):
             if circle_intersects_rect(new_pos, self.robot_radius, wall):
                 return "wall"
         for gate in self.maze.gates:
-            if not gate.is_safe(self.t, self.robot_radius, self.safe_margin) and circle_intersects_rect(new_pos, self.robot_radius, gate.slot_rect):
+            if circle_intersects_rect(new_pos, self.robot_radius, gate.slot_rect) and not self._gate_motion_is_allowed(old_pos, new_pos, gate):
                 return "closed_gate"
 
         segment_hit = self._segment_collision(old_pos, new_pos)
@@ -819,9 +794,8 @@ class ContinuousMazeEnv(gym.Env):
             for gate in gates:
                 lo, hi = gate.slot_axis_bounds
                 if lo <= axis_cross <= hi:
-                    # 安全窗口允许穿越；关闭或角度不安全时按动态障碍处理。
-                    safe_lo, safe_hi = gate.safe_axis_bounds(self.t, self.robot_radius)
-                    if gate.is_safe(self.t, self.robot_radius, self.safe_margin) and safe_lo <= axis_cross <= safe_hi:
+                    # 只有安全窗口内、且运动方向主要垂直于墙面时，才视作合法穿越。
+                    if self._gate_motion_is_allowed(old_pos, new_pos, gate):
                         hit_type = ""
                     else:
                         hit_type = "closed_gate"
@@ -837,6 +811,27 @@ class ContinuousMazeEnv(gym.Env):
             if hit_type:
                 return hit_type
         return ""
+
+    def _gate_motion_is_allowed(self, old_pos: np.ndarray, new_pos: np.ndarray, gate) -> bool:
+        if not gate.is_safe(self.t, self.robot_radius, self.safe_margin):
+            return False
+
+        safe_lo, safe_hi = gate.safe_axis_bounds(self.t, self.robot_radius)
+        delta = new_pos - old_pos
+        if gate.orientation == "vertical":
+            axis_value = float(new_pos[1])
+            normal_delta = float(delta[0])
+            axis_delta = float(delta[1])
+        else:
+            axis_value = float(new_pos[0])
+            normal_delta = float(delta[1])
+            axis_delta = float(delta[0])
+
+        if not safe_lo <= axis_value <= safe_hi:
+            return False
+        if abs(normal_delta) <= 1e-8:
+            return False
+        return abs(normal_delta) >= 0.35 * abs(axis_delta)
 
     def _info(self, success: bool, collision: bool, truncated: bool, collision_type: str) -> dict[str, Any]:
         return {

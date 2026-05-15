@@ -222,6 +222,20 @@ def test_safe_gate_crossing_is_not_a_collision():
     assert env._segment_collision(old_pos, new_pos) == ""
 
 
+def test_safe_gate_axis_sliding_is_collision():
+    env = ContinuousMazeEnv({"stage_name": "C1"})
+    env.reset(seed=0, options={"stage_name": "C1", "split": "train"})
+    gate = env.maze.gates[0]
+    env.t = 0.0
+    if gate.orientation == "vertical":
+        old_pos = np.array([gate.center[0], gate.center[1] - 0.02], dtype=np.float32)
+        new_pos = np.array([gate.center[0], gate.center[1] + 0.02], dtype=np.float32)
+    else:
+        old_pos = np.array([gate.center[0] - 0.02, gate.center[1]], dtype=np.float32)
+        new_pos = np.array([gate.center[0] + 0.02, gate.center[1]], dtype=np.float32)
+    assert env._collision_type(old_pos, new_pos) == "closed_gate"
+
+
 def test_horizontal_wall_crossing_is_checked():
     env = ContinuousMazeEnv({"stage_name": "C5"})
     env.reset(seed=0, options={"stage_name": "C5", "split": "train"})

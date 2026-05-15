@@ -69,11 +69,13 @@ class GNNTeacherActorCritic(nn.Module):
         self.layers = nn.ModuleList([GNNLayer(hidden_dim) for _ in range(self.gnn_layers)])
         graph_dim = hidden_dim * 5
         self.actor = _mlp(graph_dim, hidden_dim, action_dim)
+        self.global_actor = _mlp(self.global_dim, hidden_dim, action_dim)
         self.critic = _mlp(graph_dim, hidden_dim, 1)
         self.guidance_prior_gain = 1.2
         self.log_std = nn.Parameter(torch.full((action_dim,), self.log_std_init))
         self._eps = 1e-6
         self._zero_actor_head()
+        self._zero_head(self.global_actor)
 
     def encode_graph(self, batch: GraphBatch) -> torch.Tensor:
         global_h = self.global_encoder(batch.global_features)
@@ -126,19 +128,23 @@ class GNNTeacherActorCritic(nn.Module):
 
     def forward(self, batch: GraphBatch) -> dict[str, torch.Tensor]:
         graph_h = self.encode_graph(batch)
-        raw_mean = self.actor(graph_h) + self._guidance_raw_prior(batch)
+        raw_mean = self.actor(graph_h) + self.global_actor(batch.global_features) + self._guidance_raw_prior(batch)
         value = self.critic(graph_h).squeeze(-1)
         return {"mean": torch.tanh(raw_mean) * self.max_acc, "value": value}
 
     def distribution(self, batch: GraphBatch) -> tuple[Normal, torch.Tensor]:
         graph_h = self.encode_graph(batch)
-        raw_mean = self.actor(graph_h) + self._guidance_raw_prior(batch)
+        raw_mean = self.actor(graph_h) + self.global_actor(batch.global_features) + self._guidance_raw_prior(batch)
         value = self.critic(graph_h).squeeze(-1)
         std = torch.exp(self.effective_log_std()).expand_as(raw_mean)
         return Normal(raw_mean, std), value
 
     def _zero_actor_head(self) -> None:
-        for module in reversed(self.actor):
+        self._zero_head(self.actor)
+
+    @staticmethod
+    def _zero_head(module_stack: nn.Sequential) -> None:
+        for module in reversed(module_stack):
             if isinstance(module, nn.Linear):
                 nn.init.zeros_(module.weight)
                 nn.init.zeros_(module.bias)
