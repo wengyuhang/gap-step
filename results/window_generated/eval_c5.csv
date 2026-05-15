@@ -1,0 +1,4 @@
+split,stage,episodes,success_rate,collision_rate,timeout_rate,wall_collision_rate,window_collision_rate,average_return,average_steps
+id_test,C5,200,0.715,0.275,0.01,0.0,0.275,148.46579864175575,287.62
+ood_window_test,C5,200,0.54,0.46,0.0,0.0,0.46,117.27788479673836,246.735
+ood_maze_test,C5,200,0.745,0.245,0.01,0.0,0.245,153.19735481682937,292.98
