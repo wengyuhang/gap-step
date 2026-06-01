@@ -1,0 +1,2 @@
+split,stage,episodes,success_rate,collision_rate,timeout_rate,wall_collision_rate,window_collision_rate,average_return,average_steps,mandatory_window_fraction,wait_required_window_count,success_wait_steps_mean,success_window_pass_count_mean,window_pass_phase_hist,centerline_success_rate,no_wait_success_rate
+id_test,C2B,128,0.5546875,0.4453125,0.0,0.0,0.4453125,44.55387581292504,83.4921875,1.0,1.0,0.0,1.0,6;0;0;2;12;15;18;18,0.59375,0.0

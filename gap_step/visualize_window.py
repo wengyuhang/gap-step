@@ -36,6 +36,31 @@ def rollout_gif(checkpoint: str, output: str | Path, *, seed: int, split: str, s
     return dict(final_info)
 
 
+def find_case_seed(checkpoint: str, *, split: str, stage: str, device_name: str, kind: str, seed_start: int) -> int:
+    device = get_device(device_name)
+    model, config = load_checkpoint(checkpoint, device)
+    env_config = dict(config.get("env", {}))
+    env_config.update({"return_graph_obs": True, "stage_name": stage, "split": split})
+    env = TimeVaryingWindowMazeEnv(env_config)
+    with torch.no_grad():
+        for seed in range(seed_start, seed_start + 400):
+            obs, _ = env.reset(seed=seed, options={"stage_name": stage, "split": split})
+            done = False
+            final_info = {}
+            while not done:
+                obs_t = collate_graph_obs([obs], device)
+                action, _, _ = model.act(obs_t, deterministic=True)
+                obs, _, terminated, truncated, final_info = env.step(action.squeeze(0).cpu().numpy())
+                done = terminated or truncated
+            if kind == "success" and final_info.get("success"):
+                return seed
+            if kind == "collision" and final_info.get("collision"):
+                return seed
+            if kind == "timing" and final_info.get("success") and final_info.get("wait_steps", 0) >= 4:
+                return seed
+    raise RuntimeError(f"Could not find {kind} case for split={split}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint", default="checkpoints/window_generated/C5/teacher_final.pt")
@@ -45,15 +70,16 @@ def main() -> None:
     args = parser.parse_args()
 
     cases = [
-        ("success_case", 60_002, "id_test"),
-        ("collision_case", 60_000, "id_test"),
-        ("timing_case", 60_001, "id_test"),
-        ("ood_window_case", 70_001, "ood_window_test"),
-        ("ood_maze_case", 80_001, "ood_maze_test"),
+        ("success_case", "id_test", "success", 60_000),
+        ("collision_case", "id_test", "collision", 61_000),
+        ("timing_case", "id_test", "timing", 62_000),
+        ("ood_window_case", "ood_window_test", "success", 70_000),
+        ("ood_maze_case", "ood_maze_test", "success", 80_000),
     ]
     output_dir = resolve_path(args.output_dir)
     ensure_dir(output_dir)
-    for name, seed, split in cases:
+    for name, split, kind, seed_start in cases:
+        seed = find_case_seed(args.checkpoint, split=split, stage=args.stage, device_name=args.device, kind=kind, seed_start=seed_start)
         out = output_dir / f"{name}.gif"
         info = rollout_gif(args.checkpoint, out, seed=seed, split=split, stage=args.stage, device_name=args.device)
         print(f"{out}: success={info.get('success')} collision={info.get('collision')} timeout={info.get('timeout')}")

@@ -1,0 +1,20 @@
+seed: 83
+device: auto
+checkpoint: checkpoints/window_generated/bc_c2w_dense_large.pt
+output: checkpoints/window_generated/dagger_c2w.pt
+stage: C2W
+iterations: 4
+episodes_per_iter: 32
+epochs_per_iter: 4
+batch_size: 256
+learning_rate: 0.0002
+max_steps_per_episode: 120
+env:
+  return_graph_obs: true
+  graph_mode: compact
+  graph_max_cells: 128
+  max_steps: 700
+  period: 8
+  max_step: 0.30
+  robot_radius: 0.18
+  random_phase_reset: true

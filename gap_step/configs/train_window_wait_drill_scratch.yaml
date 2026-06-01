@@ -1,0 +1,40 @@
+seed: 41
+device: auto
+stage_order: [C2W0]
+rollout_steps: 4096
+steps_per_stage: 163840
+max_updates_per_stage: 40
+minibatch_size: 512
+update_epochs: 4
+learning_rate: 0.00012
+gamma: 0.99
+gae_lambda: 0.95
+clip_ratio: 0.18
+value_coef: 0.5
+entropy_coef: 0.003
+target_kl: 0.04
+max_grad_norm: 0.40
+normalize_advantage: true
+min_log_std: -3.0
+max_log_std: -0.6
+log_std_init: -1.0
+gnn_hidden_dim: 64
+gnn_layers: 3
+checkpoint_dir: checkpoints/window_generated_scratch
+results_dir: results/window_generated_scratch
+clean_outputs: true
+log_interval_updates: 1
+num_envs: 4
+validation_episodes: 64
+validation_interval_updates: 5
+promotion_success_rate: 0.70
+min_promotion_updates: 10
+env:
+  return_graph_obs: true
+  graph_mode: compact
+  graph_max_cells: 128
+  max_steps: 300
+  period: 8
+  max_step: 0.30
+  robot_radius: 0.18
+  random_phase_reset: true

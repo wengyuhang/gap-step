@@ -7,12 +7,14 @@ from pathlib import Path
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 
 from gap_step.graph import EDGE_FEATURE_DIM, GLOBAL_FEATURE_DIM, NODE_FEATURE_DIM, GraphObs, collate_graph_obs
 from gap_step.model import TeacherActorCritic
 from gap_step.ppo import PPOBatch, get_device, ppo_update, sync_policy_old
 from gap_step.utils import ensure_dir, load_yaml, resolve_path, set_seed
 from gap_step.window_maze_env import TimeVaryingWindowMazeEnv
+from gap_step.window_planner import plan_reference_actions
 
 
 STAGE_ORDER = ["C1", "C2", "C3", "C4", "C5"]
@@ -48,7 +50,11 @@ DEFAULT_CONFIG = {
     "validation_episodes": 24,
     "validation_interval_updates": 5,
     "promotion_success_rate": 0.68,
+    "min_promotion_updates": 3,
     "max_updates_per_stage": None,
+    "planner_aux_episodes": 0,
+    "planner_aux_coef": 0.0,
+    "planner_aux_steps": 0,
     "env": {"return_graph_obs": True, "max_steps": 320, "period": 8},
 }
 
@@ -192,6 +198,58 @@ def collect_window_rollout(
     )
 
 
+def collect_planner_dataset(
+    env_config: dict,
+    stage_name: str,
+    episodes: int,
+    *,
+    seed: int,
+) -> tuple[list[GraphObs], np.ndarray]:
+    observations: list[GraphObs] = []
+    actions: list[np.ndarray] = []
+    for ep in range(max(0, int(episodes))):
+        env = TimeVaryingWindowMazeEnv({**env_config, "return_graph_obs": True, "stage_name": stage_name, "split": "train"})
+        obs, _ = env.reset(seed=seed + ep, options={"stage_name": stage_name, "split": "train"})
+        plan = plan_reference_actions(env)
+        if plan is None:
+            continue
+        for action in plan:
+            observations.append(obs)
+            actions.append(np.asarray(action, dtype=np.float32))
+            obs, _, terminated, truncated, _ = env.step(action)
+            if terminated or truncated:
+                break
+    return observations, np.asarray(actions, dtype=np.float32)
+
+
+def planner_aux_update(
+    model: TeacherActorCritic,
+    optimizer: torch.optim.Optimizer,
+    observations: list[GraphObs],
+    actions: np.ndarray,
+    device: torch.device,
+    *,
+    coef: float,
+    steps: int,
+    batch_size: int,
+) -> float:
+    if coef <= 0.0 or steps <= 0 or not observations:
+        return 0.0
+    target = torch.as_tensor(actions, dtype=torch.float32, device=device)
+    losses = []
+    for _ in range(int(steps)):
+        idx = np.random.randint(0, len(observations), size=min(int(batch_size), len(observations)))
+        batch = collate_graph_obs([observations[int(i)] for i in idx], device)
+        pred = model(batch)["mean"]
+        loss = float(coef) * F.mse_loss(pred, target[idx])
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
+        optimizer.step()
+        losses.append(float(loss.detach().cpu()))
+    return float(np.mean(losses)) if losses else 0.0
+
+
 def evaluate_stage(
     model: TeacherActorCritic,
     env_config: dict,
@@ -279,6 +337,8 @@ def _row(update: int, global_steps: int, stage_name: str, batch, metrics: dict, 
         "center_penalty_mean": _mean_info(batch.step_infos, "center_penalty"),
         "closed_window_penalty_mean": _mean_info(batch.step_infos, "closed_window_penalty"),
         "closing_window_penalty_mean": _mean_info(batch.step_infos, "closing_window_penalty"),
+        "closed_approach_penalty_mean": _mean_info(batch.step_infos, "closed_approach_penalty"),
+        "wait_reward_mean": _mean_info(batch.step_infos, "wait_reward"),
         "alignment_reward_mean": _mean_info(batch.step_infos, "alignment_reward"),
         "gap_alignment_reward_mean": _mean_info(batch.step_infos, "gap_alignment_reward"),
         "average_action_norm": _mean_info(batch.step_infos, "action_norm"),
@@ -351,6 +411,10 @@ def main() -> None:
         if missing or unexpected:
             print(f"继续训练兼容加载: missing={list(missing)}, unexpected={list(unexpected)}")
         print(f"已加载继续训练模型: {resolve_path(resume_checkpoint)}")
+    if config.get("reset_log_std_on_resume") is not None:
+        with torch.no_grad():
+            model.log_std.fill_(float(config["reset_log_std_on_resume"]))
+        print(f"已重置继续训练动作方差 log_std={float(config['reset_log_std_on_resume']):.3f}")
     sync_policy_old(model, model_old)
 
     rollout_steps = int(config["rollout_steps"])
@@ -367,6 +431,14 @@ def main() -> None:
         optimizer = torch.optim.Adam(model.parameters(), lr=float(config["learning_rate"]))
         stage_rows: list[dict] = []
         print(f"开始课程 {stage_name}")
+        planner_obs, planner_actions = collect_planner_dataset(
+            config["env"],
+            stage_name,
+            int(config.get("planner_aux_episodes", 0)),
+            seed=seed + stage_idx * 100_000 + 77_000_000,
+        )
+        if planner_obs:
+            print(f"{stage_name} planner 辅助样本: {len(planner_obs)}", flush=True)
         for update in range(1, updates_per_stage + 1):
             batch = collect_window_rollout(
                 rollout_envs,
@@ -393,6 +465,17 @@ def main() -> None:
                 target_kl=float(config["target_kl"]) if config.get("target_kl") is not None else None,
                 normalize_advantage=bool(config["normalize_advantage"]),
             )
+            aux_decay = max(0.0, 1.0 - (update - 1) / max(1, updates_per_stage))
+            metrics["planner_aux_loss"] = planner_aux_update(
+                model,
+                optimizer,
+                planner_obs,
+                planner_actions,
+                device,
+                coef=float(config.get("planner_aux_coef", 0.0)) * aux_decay,
+                steps=int(config.get("planner_aux_steps", 0)),
+                batch_size=int(config["minibatch_size"]),
+            )
             sync_policy_old(model, model_old)
             global_steps += int(len(batch.rewards))
             eval_stats = {}
@@ -412,7 +495,7 @@ def main() -> None:
             if update % max(1, int(config["log_interval_updates"])) == 0:
                 _print_row(row)
             if (
-                update >= 3
+                update >= int(config.get("min_promotion_updates", 3))
                 and eval_stats
                 and stage_name != "C5"
                 and eval_stats["eval_success_rate"] >= float(config["promotion_success_rate"])

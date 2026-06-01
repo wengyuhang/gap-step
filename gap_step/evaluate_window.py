@@ -29,12 +29,34 @@ def load_checkpoint(checkpoint: str, device: torch.device) -> tuple[TeacherActor
         max_log_std=float(ckpt.get("max_log_std", 0.3)),
         log_std_init=float(ckpt.get("log_std_init", -0.35)),
     ).to(device)
-    model.load_state_dict(ckpt["model_state"])
+    missing, unexpected = model.load_state_dict(ckpt["model_state"], strict=False)
+    if missing or unexpected:
+        print(f"兼容加载评估模型: missing={list(missing)}, unexpected={list(unexpected)}")
     model.eval()
     return model, dict(ckpt.get("config", {}))
 
 
-def evaluate_split(
+def _policy_action(model: TeacherActorCritic, obs, device: torch.device) -> np.ndarray:
+    obs_t = collate_graph_obs([obs], device)
+    action, _, _ = model.act(obs_t, deterministic=True)
+    return action.squeeze(0).cpu().numpy()
+
+
+def _centerline_action(env: TimeVaryingWindowMazeEnv) -> np.ndarray:
+    return env._next_reference_direction(env.pos)
+
+
+def _no_wait_action(env: TimeVaryingWindowMazeEnv) -> np.ndarray:
+    nearest = env._nearest_obstacle_summary(env.pos, env.t)
+    if nearest["next_gap_distance"] < 1.4:
+        vec = np.array([nearest["next_gap_dx"], nearest["next_gap_dy"]], dtype=np.float32)
+    else:
+        vec = env._next_reference_direction(env.pos)
+    norm = float(np.linalg.norm(vec))
+    return vec / norm if norm > 1e-6 else np.zeros(2, dtype=np.float32)
+
+
+def _evaluate_controller(
     model: TeacherActorCritic,
     env_config: dict,
     split: str,
@@ -43,7 +65,8 @@ def evaluate_split(
     stage_name: str,
     *,
     seed_base: int,
-) -> dict:
+    controller: str,
+) -> list[dict]:
     cfg = dict(env_config)
     cfg.update({"return_graph_obs": True, "stage_name": stage_name, "split": split})
     num_eval_envs = max(1, min(8, episodes))
@@ -64,17 +87,45 @@ def evaluate_split(
             next_episode += 1
 
         while active_envs:
-            obs_t = collate_graph_obs(active_obs, device)
-            actions, _, _ = model.act(obs_t, deterministic=True)
+            if controller == "policy":
+                actions = []
+                obs_t = collate_graph_obs(active_obs, device)
+                policy_actions, _, _ = model.act(obs_t, deterministic=True)
+                actions = policy_actions.cpu().numpy()
+            else:
+                actions = np.stack(
+                    [
+                        _centerline_action(env) if controller == "centerline" else _no_wait_action(env)
+                        for env in active_envs
+                    ],
+                    axis=0,
+                )
             next_obs = []
             next_envs = []
             next_returns = []
             for idx, env in enumerate(active_envs):
-                obs, reward, terminated, truncated, final_info = env.step(actions[idx].cpu().numpy())
+                obs, reward, terminated, truncated, final_info = env.step(actions[idx])
                 ep_return = active_returns[idx] + float(reward)
                 done = terminated or truncated
                 if done:
-                    rows.append({**final_info, "return": ep_return, "steps": env.step_count})
+                    mandatory = set(env._mandatory_path_cells())
+                    wait_required = sum(
+                        any(not env.window_state(t)[widx]["safe"] for t in range(env.period))
+                        for widx, _ in enumerate(env.windows)
+                    )
+                    rows.append(
+                        {
+                            **final_info,
+                            "return": ep_return,
+                            "steps": env.step_count,
+                            "mandatory_window_fraction": (
+                                sum(window.cell in mandatory for window in env.windows) / len(env.windows)
+                                if env.windows
+                                else 1.0
+                            ),
+                            "wait_required_window_count": wait_required,
+                        }
+                    )
                     if next_episode < episodes:
                         obs, _ = env.reset(
                             seed=seed_base + next_episode,
@@ -91,7 +142,27 @@ def evaluate_split(
             active_obs = next_obs
             active_envs = next_envs
             active_returns = next_returns
-    return {
+    return rows
+
+
+def evaluate_split(
+    model: TeacherActorCritic,
+    env_config: dict,
+    split: str,
+    episodes: int,
+    device: torch.device,
+    stage_name: str,
+    *,
+    seed_base: int,
+    diagnostics: bool = False,
+) -> dict:
+    rows = _evaluate_controller(model, env_config, split, episodes, device, stage_name, seed_base=seed_base, controller="policy")
+    successful = [r for r in rows if r["success"]]
+    phase_hist = np.zeros((int(env_config.get("period", 8)),), dtype=np.int64)
+    for row in successful:
+        for phase in row["window_pass_phases"]:
+            phase_hist[int(phase) % len(phase_hist)] += 1
+    result = {
         "split": split,
         "stage": stage_name,
         "episodes": len(rows),
@@ -102,7 +173,36 @@ def evaluate_split(
         "window_collision_rate": float(np.mean([r["window_collision"] for r in rows])) if rows else 0.0,
         "average_return": float(np.mean([r["return"] for r in rows])) if rows else 0.0,
         "average_steps": float(np.mean([r["steps"] for r in rows])) if rows else 0.0,
+        "mandatory_window_fraction": float(np.mean([r["mandatory_window_fraction"] for r in rows])) if rows else 0.0,
+        "wait_required_window_count": float(np.mean([r["wait_required_window_count"] for r in rows])) if rows else 0.0,
+        "success_wait_steps_mean": float(np.mean([r["wait_steps"] for r in successful])) if successful else 0.0,
+        "success_window_pass_count_mean": float(np.mean([r["window_pass_count"] for r in successful])) if successful else 0.0,
+        "window_pass_phase_hist": ";".join(str(int(v)) for v in phase_hist),
     }
+    if diagnostics:
+        centerline_rows = _evaluate_controller(
+            model,
+            env_config,
+            split,
+            episodes,
+            device,
+            stage_name,
+            seed_base=seed_base,
+            controller="centerline",
+        )
+        no_wait_rows = _evaluate_controller(
+            model,
+            env_config,
+            split,
+            episodes,
+            device,
+            stage_name,
+            seed_base=seed_base,
+            controller="no_wait",
+        )
+        result["centerline_success_rate"] = float(np.mean([r["success"] for r in centerline_rows])) if centerline_rows else 0.0
+        result["no_wait_success_rate"] = float(np.mean([r["success"] for r in no_wait_rows])) if no_wait_rows else 0.0
+    return result
 
 
 def main() -> None:
@@ -115,6 +215,7 @@ def main() -> None:
     parser.add_argument("--output", default="results/window_generated/eval_c5.csv")
     parser.add_argument("--seed-base", type=int, default=50_000)
     parser.add_argument("--max-step", type=float, default=None)
+    parser.add_argument("--diagnostics", action="store_true")
     args = parser.parse_args()
 
     device = get_device(args.device)
@@ -127,7 +228,16 @@ def main() -> None:
     if unknown:
         raise ValueError(f"Unknown split: {unknown}")
     rows = [
-        evaluate_split(model, env_config, split, args.episodes, device, args.stage, seed_base=args.seed_base)
+        evaluate_split(
+            model,
+            env_config,
+            split,
+            args.episodes,
+            device,
+            args.stage,
+            seed_base=args.seed_base,
+            diagnostics=args.diagnostics,
+        )
         for split in splits
     ]
     output = resolve_path(args.output)

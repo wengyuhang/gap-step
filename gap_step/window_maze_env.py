@@ -40,6 +40,8 @@ class ApertureWindow:
     cell: tuple[int, int]
     orientation: str
     kind_id: int
+    dynamics_kind: str
+    mandatory: bool
 
     def state(self, phase: int, period: int) -> dict[str, Any]:
         points = self._curve_points()
@@ -100,25 +102,32 @@ class ApertureWindow:
 _STAGE_CONFIG: dict[str, dict[str, Any]] = {
     "C1": {"windows": 0, "braid": 70, "widen": 0.45, "goal_frac": 0.05, "min_spacing": 5, "gap": (0.75, 0.95), "curves": (0,)},
     "C1_5": {"windows": 0, "braid": 56, "widen": 0.30, "goal_frac": 0.10, "min_spacing": 5, "gap": (0.68, 0.92), "curves": (0,)},
-    "C2": {"windows": 1, "braid": 46, "widen": 0.20, "goal_frac": 0.18, "min_spacing": 4, "gap": (0.58, 0.90), "curves": (0,)},
-    "C2A": {"windows": 3, "braid": 42, "widen": 0.16, "goal_frac": 0.30, "min_spacing": 4, "gap": (0.56, 0.88), "curves": (0,)},
-    "C2B": {"windows": 6, "braid": 36, "widen": 0.10, "goal_frac": 0.45, "min_spacing": 4, "gap": (0.48, 0.84), "curves": (0, 1)},
-    "C3": {"windows": 6, "braid": 32, "widen": 0.08, "goal_frac": 0.54, "min_spacing": 3, "gap": (0.42, 0.82), "curves": (0, 1, 2)},
+    "C2": {"windows": 1, "braid": 46, "widen": 0.20, "goal_frac": 0.18, "min_spacing": 4, "endpoint_margin": 2, "gap": (0.68, 0.90), "curves": (0,), "gating": 0, "sweep_amp": 0.04},
+    "C2A": {"windows": 1, "braid": 42, "widen": 0.16, "goal_frac": 0.26, "min_spacing": 4, "endpoint_margin": 3, "gap": (0.62, 0.88), "curves": (0,), "gating": 0, "sweep_amp": 0.10},
+    "C2W0": {"windows": 1, "braid": 46, "widen": 0.20, "goal_frac": 0.24, "min_spacing": 4, "endpoint_margin": 2, "gap": (1.20, 1.45), "curves": (0,), "gating": 1, "closed_len": 2, "gate_offset": 0.0, "gate_swing": 0.0, "sweep_amp": 0.04, "window_pick": "early", "window_drill": True, "drill_before": 4, "drill_after": 4},
+    "C2W": {"windows": 1, "braid": 46, "widen": 0.20, "goal_frac": 0.18, "min_spacing": 4, "endpoint_margin": 2, "gap": (1.20, 1.45), "curves": (0,), "gating": 1, "closed_len": 2, "gate_offset": 0.0, "gate_swing": 0.0, "sweep_amp": 0.04, "window_pick": "early"},
+    "C2B": {"windows": 1, "braid": 36, "widen": 0.10, "goal_frac": 0.34, "min_spacing": 4, "endpoint_margin": 4, "gap": (0.72, 0.92), "curves": (0,), "gating": 1, "closed_len": 1, "gate_offset": 0.0, "sweep_amp": 0.12},
+    "C2C": {"windows": 2, "braid": 36, "widen": 0.10, "goal_frac": 0.40, "min_spacing": 3, "endpoint_margin": 5, "gap": (0.68, 0.90), "curves": (0,), "gating": 0, "sweep_amp": 0.08},
+    "C2D": {"windows": 2, "braid": 36, "widen": 0.10, "goal_frac": 0.40, "min_spacing": 3, "endpoint_margin": 5, "gap": (0.72, 0.92), "curves": (0,), "gating": 1, "closed_len": 1, "gate_offset": 0.0, "sweep_amp": 0.08},
+    "C3": {"windows": 2, "braid": 34, "widen": 0.09, "goal_frac": 0.44, "min_spacing": 3, "endpoint_margin": 5, "gap": (0.66, 0.90), "curves": (0,), "gating": 1, "closed_len": 1, "gate_offset": 0.06, "sweep_amp": 0.08},
+    "C3A": {"windows": 2, "braid": 34, "widen": 0.09, "goal_frac": 0.48, "min_spacing": 3, "endpoint_margin": 5, "gap": (0.64, 0.90), "curves": (0,), "gating": 1, "closed_len": 2, "gate_offset": 0.08, "sweep_amp": 0.10},
+    "C3B": {"windows": 2, "braid": 33, "widen": 0.08, "goal_frac": 0.52, "min_spacing": 3, "endpoint_margin": 5, "gap": (0.62, 0.88), "curves": (0,), "gating": 1, "closed_len": 2, "gate_offset": 0.08, "sweep_amp": 0.10},
+    "C3C": {"windows": 2, "braid": 33, "widen": 0.08, "goal_frac": 0.52, "min_spacing": 3, "endpoint_margin": 5, "gap": (0.62, 0.88), "curves": (0, 1), "gating": 1, "closed_len": 2, "gate_offset": 0.08, "sweep_amp": 0.10},
     "C3S70": {"windows": 0, "braid": 30, "widen": 0.06, "goal_frac": 0.70, "min_spacing": 3, "gap": (0.52, 0.84), "curves": (0,)},
     "C3S85": {"windows": 0, "braid": 26, "widen": 0.03, "goal_frac": 0.85, "min_spacing": 3, "gap": (0.52, 0.84), "curves": (0,)},
     "C3S100": {"windows": 0, "braid": 22, "widen": 0.0, "goal_frac": 1.0, "min_spacing": 3, "gap": (0.52, 0.84), "curves": (0,)},
-    "C3_5": {"windows": 4, "braid": 30, "widen": 0.06, "goal_frac": 0.62, "min_spacing": 3, "gap": (0.70, 0.95), "curves": (0, 1)},
-    "C4": {"windows": 6, "braid": 28, "widen": 0.04, "goal_frac": 0.70, "min_spacing": 3, "gap": (0.65, 0.92), "curves": (0, 1, 2)},
-    "C4A": {"windows": 6, "braid": 27, "widen": 0.03, "goal_frac": 0.78, "min_spacing": 3, "gap": (0.65, 0.92), "curves": (0, 1, 2, 3)},
-    "C4B": {"windows": 8, "braid": 27, "widen": 0.03, "goal_frac": 0.78, "min_spacing": 3, "gap": (0.65, 0.92), "curves": (0, 1, 2, 3)},
-    "C4C": {"windows": 8, "braid": 27, "widen": 0.03, "goal_frac": 0.78, "min_spacing": 3, "gap": (0.62, 0.90), "curves": (0, 1, 2, 3)},
-    "C4D": {"windows": 8, "braid": 27, "widen": 0.03, "goal_frac": 0.78, "min_spacing": 3, "gap": (0.58, 0.88), "curves": (0, 1, 2, 3)},
-    "C4E0": {"windows": 8, "braid": 28, "widen": 0.04, "goal_frac": 0.84, "min_spacing": 3, "gap": (0.62, 0.90), "curves": (0, 1, 2, 3)},
-    "C4E1": {"windows": 10, "braid": 28, "widen": 0.04, "goal_frac": 0.84, "min_spacing": 3, "gap": (0.58, 0.88), "curves": (0, 1, 2, 3)},
-    "C4E": {"windows": 10, "braid": 28, "widen": 0.04, "goal_frac": 0.90, "min_spacing": 3, "gap": (0.58, 0.88), "curves": (0, 1, 2, 3)},
-    "C4F": {"windows": 10, "braid": 28, "widen": 0.04, "goal_frac": 1.0, "min_spacing": 3, "gap": (0.52, 0.84), "curves": (0, 1, 2, 3)},
-    "C4_5": {"windows": 12, "braid": 28, "widen": 0.04, "goal_frac": 1.0, "min_spacing": 3, "gap": (0.46, 0.84), "force_narrow": 0.20, "curves": (0, 1, 2, 3)},
-    "C5": {"windows": 6, "braid": 28, "widen": 0.04, "goal_frac": 1.0, "min_spacing": 2, "gap": (0.72, 0.96), "force_narrow": 0.0, "curves": (0, 1, 2, 3)},
+    "C3_5": {"windows": 2, "braid": 32, "widen": 0.07, "goal_frac": 0.56, "min_spacing": 3, "gap": (0.60, 0.88), "curves": (0, 1), "gating": 1, "closed_len": 2, "gate_offset": 0.10, "sweep_amp": 0.12},
+    "C4": {"windows": 3, "braid": 30, "widen": 0.06, "goal_frac": 0.64, "min_spacing": 3, "gap": (0.58, 0.88), "curves": (0, 1, 2), "gating": 2, "closed_len": 2, "gate_offset": 0.12, "sweep_amp": 0.14},
+    "C4A": {"windows": 3, "braid": 29, "widen": 0.05, "goal_frac": 0.72, "min_spacing": 3, "gap": (0.56, 0.88), "curves": (0, 1, 2), "gating": 2, "closed_len": 2, "gate_offset": 0.16, "sweep_amp": 0.16},
+    "C4B": {"windows": 4, "braid": 28, "widen": 0.04, "goal_frac": 0.78, "min_spacing": 3, "gap": (0.54, 0.86), "curves": (0, 1, 2), "gating": 2, "closed_len": 2, "gate_offset": 0.18, "sweep_amp": 0.18},
+    "C4C": {"windows": 4, "braid": 28, "widen": 0.04, "goal_frac": 0.78, "min_spacing": 3, "gap": (0.52, 0.86), "curves": (0, 1, 2, 3), "gating": 3, "closed_len": 2, "gate_offset": 0.18, "sweep_amp": 0.20},
+    "C4D": {"windows": 5, "braid": 28, "widen": 0.04, "goal_frac": 0.78, "min_spacing": 3, "gap": (0.50, 0.86), "curves": (0, 1, 2, 3), "gating": 3, "closed_len": 2, "gate_offset": 0.18, "sweep_amp": 0.20},
+    "C4E0": {"windows": 5, "braid": 28, "widen": 0.04, "goal_frac": 0.84, "min_spacing": 3, "gap": (0.48, 0.84), "curves": (0, 1, 2, 3), "gating": 4, "closed_len": 2, "gate_offset": 0.20, "sweep_amp": 0.22},
+    "C4E1": {"windows": 6, "braid": 28, "widen": 0.04, "goal_frac": 0.84, "min_spacing": 3, "gap": (0.46, 0.84), "curves": (0, 1, 2, 3), "gating": 4, "closed_len": 2, "gate_offset": 0.20, "sweep_amp": 0.22},
+    "C4E": {"windows": 6, "braid": 28, "widen": 0.04, "goal_frac": 0.90, "min_spacing": 3, "gap": (0.46, 0.84), "curves": (0, 1, 2, 3), "gating": 4, "sweep_amp": 0.24},
+    "C4F": {"windows": 6, "braid": 28, "widen": 0.04, "goal_frac": 1.0, "min_spacing": 3, "gap": (0.46, 0.84), "curves": (0, 1, 2, 3), "gating": 4, "sweep_amp": 0.24},
+    "C4_5": {"windows": 6, "braid": 28, "widen": 0.04, "goal_frac": 1.0, "min_spacing": 3, "gap": (0.44, 0.84), "curves": (0, 1, 2, 3), "gating": 4, "sweep_amp": 0.24},
+    "C5": {"windows": 6, "braid": 28, "widen": 0.04, "goal_frac": 1.0, "min_spacing": 3, "gap": (0.44, 0.84), "curves": (0, 1, 2, 3), "gating": 4, "sweep_amp": 0.24},
 }
 
 _SPLIT_OFFSETS = {"train": 0, "id_test": 100_000, "ood_window_test": 200_000, "ood_maze_test": 300_000}
@@ -139,6 +148,7 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         self.graph_mode = str(self.config.get("graph_mode", "compact"))
         self.graph_max_cells = int(self.config.get("graph_max_cells", 128))
         self.fixed_layout = bool(self.config.get("fixed_layout", False))
+        self.random_phase_reset = bool(self.config.get("random_phase_reset", False))
         self.width = float(self.config.get("width", 35.0))
         self.height = float(self.config.get("height", 19.0))
         self.period = int(self.config.get("period", 8))
@@ -149,7 +159,9 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         self.render_width = int(self.config.get("render_width", 980))
         self.render_height = int(self.config.get("render_height", 540))
         self.show_reference_path = bool(self.config.get("show_reference_path", True))
-        self.start = np.array(self.config.get("start", [1.5, 17.5]), dtype=np.float32)
+        self.show_window_labels = bool(self.config.get("show_window_labels", False))
+        self.full_start = np.array(self.config.get("start", [1.5, 17.5]), dtype=np.float32)
+        self.start = self.full_start.copy()
         self.full_goal = np.array(self.config.get("goal", [33.5, 1.5]), dtype=np.float32)
         self.goal = self.full_goal.copy()
         self.action_space = spaces.Box(-1.0, 1.0, shape=(2,), dtype=np.float32)
@@ -175,6 +187,9 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         self.last_action = np.zeros(2, dtype=np.float32)
         self.trajectory: list[np.ndarray] = []
         self.collision_points: list[np.ndarray] = []
+        self.wait_steps = 0
+        self.window_pass_phases: list[int] = []
+        self._passed_window_indices: set[int] = set()
 
     def reset(self, *, seed: int | None = None, options: dict | None = None):
         options = {} if options is None else options
@@ -193,12 +208,21 @@ class TimeVaryingWindowMazeEnv(gym.Env):
             layout_seed = self._layout_seed_from_episode(self.layout_seed + self._episode_index * 9973, self.split)
         if layout_seed != self._current_layout_seed:
             self._regenerate_layout(layout_seed)
-        self.t = int(options.get("phase", options.get("phase_offset", 0))) % self.period
+        if "phase" in options or "phase_offset" in options:
+            phase = int(options.get("phase", options.get("phase_offset", 0)))
+        elif self.random_phase_reset:
+            phase = int(self.np_random.integers(0, self.period))
+        else:
+            phase = 0
+        self.t = phase % self.period
         self.step_count = 0
         self.pos = self.start.copy()
         self.last_action = np.zeros(2, dtype=np.float32)
         self.trajectory = [self.pos.copy()]
         self.collision_points = []
+        self.wait_steps = 0
+        self.window_pass_phases = []
+        self._passed_window_indices = set()
         return self._obs(), self._info(False, False, False, "")
 
     def step(self, action):
@@ -208,6 +232,7 @@ class TimeVaryingWindowMazeEnv(gym.Env):
             action = action / norm
         old_pos = self.pos.copy()
         old_route = self._route_distance(old_pos)
+        decision_nearest = self._nearest_obstacle_summary(old_pos, self.t)
         new_pos = old_pos + action * self.max_step
         collision_type, point = self._swept_collision(old_pos, new_pos, self.t)
         collision = bool(collision_type)
@@ -233,28 +258,32 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         wall_risk = max(0.0, self.robot_radius + 0.22 - nearest["wall_clearance"])
         center_offset = self._nearest_reference_offset(self.pos)
         route_direction = self._next_reference_direction(old_pos)
-        near_closed = max(0.0, 1.2 - nearest["next_gap_distance"]) * (1.0 - nearest["next_gap_safe"])
-        gap_vec = np.array([nearest["next_gap_future_dx"], nearest["next_gap_future_dy"]], dtype=np.float32)
+        near_closed = max(0.0, 2.6 - decision_nearest["next_gap_distance"]) * (1.0 - decision_nearest["next_gap_safe"])
+        gap_vec = np.array([decision_nearest["next_gap_future_dx"], decision_nearest["next_gap_future_dy"]], dtype=np.float32)
         gap_norm = float(np.linalg.norm(gap_vec))
         gap_dir = gap_vec / gap_norm if gap_norm > 1e-6 else np.zeros(2, dtype=np.float32)
-        near_open = max(0.0, 1.2 - nearest["next_gap_distance"]) * nearest["next_gap_safe"]
-        near_future_blocked = near_open * (1.0 - nearest["next_gap_future_safe"])
+        near_open = max(0.0, 1.2 - decision_nearest["next_gap_distance"]) * decision_nearest["next_gap_safe"]
+        near_future_blocked = near_open * (1.0 - decision_nearest["next_gap_future_safe"])
         window_focus = max(near_closed, near_open)
         # Near a moving aperture, the geometric route centerline can point into a panel.
         # Fade it out there and let the live gap midpoint dominate the local behavior.
         center_scale = max(0.15, 1.0 - 0.85 * min(window_focus, 1.0))
         center_penalty = -0.28 * center_scale * min(float(np.linalg.norm(center_offset)), 1.0)
         gap_alignment_reward = (
-            1.45 * near_open * nearest["next_gap_future_safe"] * float(np.dot(action, gap_dir))
+            1.45 * near_open * decision_nearest["next_gap_future_safe"] * float(np.dot(action, gap_dir))
             if not collision
             else 0.0
         )
         alignment_scale = 0.15 if near_closed > 0.0 else max(0.20, 1.0 - 0.80 * min(near_open, 1.0))
         alignment_reward = 0.45 * alignment_scale * float(np.dot(action, route_direction)) if not collision else 0.0
-        closed_window_penalty = -0.35 * near_closed
-        closing_window_penalty = -0.50 * near_future_blocked
+        closed_window_penalty = -0.03 * near_closed
+        closing_window_penalty = -0.35 * near_future_blocked
+        approach_closed = max(0.0, float(np.dot(action, gap_dir))) if near_closed > 0.0 else 0.0
+        closed_approach_penalty = -0.60 * near_closed * approach_closed
+        wait_reward = 3.00 * near_closed * max(0.0, 1.0 - float(np.linalg.norm(action)))
         wall_penalty = -0.35 * wall_risk
-        reward = -0.005 + 1.20 * progress_delta + alignment_reward + gap_alignment_reward - 0.002 * float(np.linalg.norm(action)) - 0.12 * risk + closed_window_penalty + closing_window_penalty + wall_penalty + center_penalty
+        progress_scale = 0.05 if near_closed > 0.0 else 1.0
+        reward = -0.005 + 1.20 * progress_scale * progress_delta + alignment_reward + gap_alignment_reward - 0.002 * float(np.linalg.norm(action)) - 0.12 * risk + closed_window_penalty + closing_window_penalty + closed_approach_penalty + wait_reward + wall_penalty + center_penalty
         if success:
             reward += 30.0
         if collision:
@@ -263,16 +292,21 @@ class TimeVaryingWindowMazeEnv(gym.Env):
             reward -= 2.0
         self.last_action = action.astype(np.float32)
         self.trajectory.append(self.pos.copy())
+        if near_closed > 0.0 and float(np.linalg.norm(action)) < 0.25 and not collision:
+            self.wait_steps += 1
+        self._record_window_passes(old_route, new_route)
         info = self._info(success, collision, truncated, collision_type)
         info.update(
             {
                 "progress_delta": progress_delta,
-                "progress_reward": 1.20 * progress_delta,
+                "progress_reward": 1.20 * progress_scale * progress_delta,
                 "risk_penalty": -0.12 * risk,
                 "wall_penalty": wall_penalty,
                 "center_penalty": center_penalty,
                 "closed_window_penalty": closed_window_penalty,
                 "closing_window_penalty": closing_window_penalty,
+                "closed_approach_penalty": closed_approach_penalty,
+                "wait_reward": wait_reward,
                 "alignment_reward": alignment_reward,
                 "gap_alignment_reward": gap_alignment_reward,
                 "action_norm": float(np.linalg.norm(action)),
@@ -306,7 +340,8 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         for state in states:
             for obstacle in state["obstacles"]:
                 self._draw_polygon(draw, obstacle, fill=(24, 24, 24), outline=(8, 8, 8))
-            self._draw_window_label(draw, state)
+            if self.show_window_labels:
+                self._draw_window_label(draw, state)
 
         if self.show_reference_path:
             self._draw_dashed_path(draw, self.reference_path, fill=(245, 85, 95), width=2)
@@ -330,6 +365,7 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         stage_cfg = self._stage_config()
         for attempt in range(32):
             rng = np.random.default_rng(seed + attempt * 7919)
+            self.start = self.full_start.copy()
             self.goal = self.full_goal.copy()
             self.maze_grid = self._build_maze_grid(rng, int(stage_cfg["braid"]), float(stage_cfg.get("widen", 0.0)))
             self.static_walls = self._walls_from_grid()
@@ -340,6 +376,9 @@ class TimeVaryingWindowMazeEnv(gym.Env):
             self._build_reference_remaining()
             self._free_cells = [(r, c) for r in range(self.maze_grid.shape[0]) for c in range(self.maze_grid.shape[1]) if self.maze_grid[r, c] == 0]
             self.windows = self._build_windows(rng, stage_cfg)
+            if len(self.windows) != int(stage_cfg["windows"]):
+                continue
+            self._apply_window_drill(stage_cfg)
             self._rebuild_cell_index()
             self._current_layout_seed = seed
             return
@@ -353,6 +392,20 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         target = self.reference_path[target_idx]
         self.goal = np.array([target[0], target[1]], dtype=np.float32)
         self.reference_path = self.reference_path[: target_idx + 1]
+
+    def _apply_window_drill(self, stage_cfg: dict[str, Any]) -> None:
+        if not stage_cfg.get("window_drill") or not self.windows:
+            return
+        path_cells = {(int(p[1]), int(p[0])): idx for idx, p in enumerate(self.reference_path)}
+        path_idx = path_cells.get(self.windows[0].cell)
+        if path_idx is None:
+            return
+        start_idx = max(0, int(path_idx) - int(stage_cfg.get("drill_before", 4)))
+        goal_idx = min(len(self.reference_path) - 1, int(path_idx) + int(stage_cfg.get("drill_after", 4)))
+        self.start = np.array(self.reference_path[start_idx], dtype=np.float32)
+        self.goal = np.array(self.reference_path[goal_idx], dtype=np.float32)
+        self.reference_path = self.reference_path[start_idx : goal_idx + 1]
+        self._build_reference_remaining()
 
     def _build_maze_grid(self, rng: np.random.Generator, braid_count: int, widen_prob: float) -> np.ndarray:
         rows, cols = int(self.height), int(self.width)
@@ -414,32 +467,34 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         if target_count <= 0:
             return tuple()
         min_spacing = int(stage_cfg["min_spacing"])
-        candidates: list[tuple[int, int, str]] = []
+        mandatory_cells = self._mandatory_path_cells()
+        path_index = {(int(p[1]), int(p[0])): idx for idx, p in enumerate(self.reference_path)}
+        candidates: list[tuple[int, int, str, int]] = []
         rows, cols = self.maze_grid.shape
-        for r in range(1, rows - 1):
-            for c in range(1, cols - 1):
-                if self.maze_grid[r, c] != 0:
-                    continue
-                if abs(c - 1) + abs(r - (rows - 2)) < 7 or abs(c - (cols - 2)) + abs(r - 1) < 7:
-                    continue
-                if self.maze_grid[r - 1, c] == 1 and self.maze_grid[r + 1, c] == 1:
-                    candidates.append((r, c, "vertical"))
-                if self.maze_grid[r, c - 1] == 1 and self.maze_grid[r, c + 1] == 1:
-                    candidates.append((r, c, "horizontal"))
-        if self.split == "ood_window_test":
+        endpoint_margin = int(stage_cfg.get("endpoint_margin", 7))
+        for r, c in mandatory_cells:
+            if abs(c - 1) + abs(r - (rows - 2)) < endpoint_margin or abs(c - (cols - 2)) + abs(r - 1) < endpoint_margin:
+                continue
+            if self.maze_grid[r - 1, c] == 1 and self.maze_grid[r + 1, c] == 1:
+                candidates.append((r, c, "vertical", path_index[(r, c)]))
+            if self.maze_grid[r, c - 1] == 1 and self.maze_grid[r, c + 1] == 1:
+                candidates.append((r, c, "horizontal", path_index[(r, c)]))
+        if stage_cfg.get("window_pick") == "early":
+            candidates = sorted(candidates, key=lambda item: item[3])
+        elif self.split == "ood_window_test":
             rng.shuffle(candidates)
             candidates = sorted(candidates, key=lambda x: (x[1] + 3 * x[0] + (x[2] == "vertical")) % 11)
         else:
             rng.shuffle(candidates)
 
-        selected: list[tuple[int, int, str]] = []
+        selected: list[tuple[int, int, str, int]] = []
         spacing = min_spacing
         while len(selected) < target_count and spacing >= 1:
-            for r, c, orient in candidates:
-                if (r, c, orient) in selected:
+            for r, c, orient, pidx in candidates:
+                if (r, c, orient, pidx) in selected:
                     continue
-                if all(abs(r - rr) + abs(c - cc) >= spacing for rr, cc, _ in selected):
-                    selected.append((r, c, orient))
+                if all(abs(pidx - other_idx) >= spacing for _, _, _, other_idx in selected):
+                    selected.append((r, c, orient, pidx))
                 if len(selected) >= target_count:
                     break
             spacing -= 1
@@ -447,24 +502,24 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         windows: list[ApertureWindow] = []
         curves = tuple(int(v) for v in stage_cfg["curves"])
         gap_lo, gap_hi = stage_cfg["gap"]
-        for idx, (r, c, orient) in enumerate(selected[:target_count]):
+        gating_count = min(target_count, int(stage_cfg.get("gating", 0)))
+        for idx, (r, c, orient, _) in enumerate(sorted(selected[:target_count], key=lambda item: item[3])):
             kind_id = int(rng.choice(curves))
             if self.split == "ood_window_test" and len(curves) > 1:
                 kind_id = int(curves[(idx + 2) % len(curves)])
             start, end, control = self._window_geometry(rng, r, c, orient, kind_id)
-            gap_sizes = rng.uniform(float(gap_lo), float(gap_hi), size=self.period)
-            gap_centers = rng.uniform(0.34, 0.66, size=self.period)
-            gap_sizes[idx % self.period] = float(gap_lo)
-            gap_sizes[(idx + 3) % self.period] = float(gap_hi)
-            force_narrow = float(stage_cfg.get("force_narrow", 0.0))
-            should_force_narrow = force_narrow > 0.0 and (force_narrow >= 1.0 or rng.random() < force_narrow)
-            if should_force_narrow or self.split == "ood_window_test":
-                narrow_idx = (idx + int(rng.integers(0, self.period))) % self.period
-                open_idx = (narrow_idx + int(rng.integers(2, 5))) % self.period
-                gap_sizes[narrow_idx] = max(0.08, float(gap_lo) * 0.75)
-                gap_sizes[open_idx] = min(0.86, float(gap_hi) + 0.14)
-                jitter = rng.normal(0.0, 0.06 if self.stage_name == "C5" else 0.035, size=self.period)
-                gap_centers = np.clip(gap_centers + jitter, 0.24, 0.76)
+            dynamics_kind = "gating" if idx < gating_count else "sweeping"
+            gap_sizes, gap_centers = self._window_schedule(
+                rng,
+                idx,
+                dynamics_kind,
+                gap_lo,
+                gap_hi,
+                float(stage_cfg.get("sweep_amp", 0.24)),
+                int(stage_cfg.get("closed_len", 3)),
+                float(stage_cfg.get("gate_offset", 0.22)),
+                float(stage_cfg.get("gate_swing", 0.07)),
+            )
             windows.append(
                 ApertureWindow(
                     _window_name(idx),
@@ -477,9 +532,64 @@ class TimeVaryingWindowMazeEnv(gym.Env):
                     (r, c),
                     orient,
                     kind_id,
+                    dynamics_kind,
+                    True,
                 )
             )
         return tuple(windows)
+
+    def _mandatory_path_cells(self) -> list[tuple[int, int]]:
+        path = [(int(p[1]), int(p[0])) for p in self.reference_path]
+        if len(path) < 3:
+            return []
+        start, goal = path[0], path[-1]
+        return [cell for cell in path[1:-1] if self._disconnects_start_goal(cell, start, goal)]
+
+    def _disconnects_start_goal(self, blocked: tuple[int, int], start: tuple[int, int], goal: tuple[int, int]) -> bool:
+        queue = deque([start])
+        seen = {start, blocked}
+        rows, cols = self.maze_grid.shape
+        while queue:
+            r, c = queue.popleft()
+            if (r, c) == goal:
+                return False
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                rr, cc = r + dr, c + dc
+                if 0 <= rr < rows and 0 <= cc < cols and self.maze_grid[rr, cc] == 0 and (rr, cc) not in seen:
+                    seen.add((rr, cc))
+                    queue.append((rr, cc))
+        return True
+
+    def _window_schedule(
+        self,
+        rng: np.random.Generator,
+        idx: int,
+        dynamics_kind: str,
+        gap_lo: float,
+        gap_hi: float,
+        sweep_amp: float,
+        closed_len: int,
+        gate_offset: float,
+        gate_swing: float,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        phase = np.arange(self.period, dtype=np.float32)
+        offset = (idx * 2 + int(rng.integers(0, 2))) % self.period
+        if dynamics_kind == "gating":
+            gap_sizes = np.full((self.period,), float(gap_hi), dtype=np.float32)
+            for step in range(closed_len):
+                gap_sizes[(offset + step) % self.period] = float(rng.uniform(0.16, 0.28))
+            gap_sizes[(offset + closed_len + 1) % self.period] = float(gap_hi)
+            center_base = 0.50 - gate_offset if idx % 2 == 0 else 0.50 + gate_offset
+            gap_centers = center_base + gate_swing * np.sin(2.0 * np.pi * (phase + offset) / self.period)
+        else:
+            wave = np.sin(2.0 * np.pi * (phase + offset) / self.period)
+            sweep_floor = max(0.58, float(gap_lo) + 0.10)
+            gap_sizes = np.clip(sweep_floor + 0.04 * np.cos(2.0 * np.pi * (phase + offset) / self.period), 0.56, float(gap_hi))
+            gap_centers = 0.50 + sweep_amp * wave
+        if self.split == "ood_window_test":
+            gap_sizes = np.roll(gap_sizes, 1 + idx % 3)
+            gap_centers = np.clip(np.roll(gap_centers, 2 - idx % 2) + rng.normal(0.0, 0.03, size=self.period), 0.22, 0.78)
+        return gap_sizes.astype(np.float32), np.clip(gap_centers, 0.22, 0.78).astype(np.float32)
 
     def _window_geometry(
         self, rng: np.random.Generator, r: int, c: int, orient: str, kind_id: int
@@ -729,9 +839,13 @@ class TimeVaryingWindowMazeEnv(gym.Env):
             -1.0,
             1.0,
         )
-        global_features[22] = min(nearest["next_gap_width"], 1.2) / 1.2
-        global_features[23] = nearest["next_gap_safe"]
-        global_features[24:26] = 0.0
+        global_features[22] = nearest["next_time_to_safe"] / max(1, self.period)
+        global_features[23] = nearest["next_gap_future_safe"]
+        global_features[24:26] = np.clip(
+            np.array([nearest["next_gap_future_dx"], nearest["next_gap_future_dy"]], dtype=np.float32) / 4.0,
+            -1.0,
+            1.0,
+        )
 
         node_features: list[np.ndarray] = []
         node_type: list[int] = []
@@ -858,18 +972,18 @@ class TimeVaryingWindowMazeEnv(gym.Env):
 
     def _time_to_safe(self, window_idx: int) -> float:
         for offset in range(self.period):
-            if self.windows[window_idx].state(self.t + offset, self.period)["safe"]:
+            if self.window_state(self.t + offset)[window_idx]["safe"]:
                 return float(offset)
         return float(self.period)
 
     def _stage_scalar(self) -> float:
-        order = ["C1", "C1_5", "C2", "C2A", "C2B", "C3", "C3S70", "C3S85", "C3S100", "C3_5", "C4", "C4A", "C4B", "C4C", "C4D", "C4E0", "C4E1", "C4E", "C4F", "C4_5", "C5"]
+        order = ["C1", "C1_5", "C2", "C2A", "C2W0", "C2W", "C2B", "C2C", "C2D", "C3", "C3A", "C3B", "C3C", "C3S70", "C3S85", "C3S100", "C3_5", "C4", "C4A", "C4B", "C4C", "C4D", "C4E0", "C4E1", "C4E", "C4F", "C4_5", "C5"]
         return order.index(self.stage_name) / max(1, len(order) - 1) if self.stage_name in order else 1.0
 
     def _collision_reward(self) -> float:
         if self.stage_name in {"C1", "C1_5", "C2"}:
             return -8.0
-        if self.stage_name in {"C2A", "C2B", "C3", "C3S70", "C3S85", "C3S100"}:
+        if self.stage_name in {"C2A", "C2W0", "C2W", "C2B", "C2C", "C2D", "C3", "C3A", "C3B", "C3C", "C3S70", "C3S85", "C3S100"}:
             return -18.0
         return -40.0
 
@@ -891,6 +1005,7 @@ class TimeVaryingWindowMazeEnv(gym.Env):
         next_gap_future_safe = 1.0
         next_gap_future_dx = 0.0
         next_gap_future_dy = 0.0
+        next_time_to_safe = 0.0
         next_window_index = -1
         next_ahead_delta = float("inf")
         closed_window_distance = 8.0
@@ -910,6 +1025,8 @@ class TimeVaryingWindowMazeEnv(gym.Env):
                 future_min_gap = float(np.min(future))
             if not state["safe"]:
                 closed_window_distance = min(closed_window_distance, dist)
+            if idx in self._passed_window_indices:
+                continue
             path_idx = self._reference_cell_index.get(window.cell)
             if path_idx is not None:
                 window_remaining = self._reference_remaining[path_idx]
@@ -927,24 +1044,29 @@ class TimeVaryingWindowMazeEnv(gym.Env):
                     future_mid = np.asarray(future_state["gap_midpoint"], dtype=np.float32)
                     next_gap_future_dx = float(future_mid[0] - pos[0])
                     next_gap_future_dy = float(future_mid[1] - pos[1])
+                    next_time_to_safe = self._time_to_safe(idx)
                     next_window_index = idx
         if next_ahead_delta == float("inf"):
-            next_gap_distance = nearest_gap_distance
-            next_gap_width = nearest_gap_width
-            next_gap_safe = nearest_gap_safe
-            next_gap_dx = nearest_gap_dx
-            next_gap_dy = nearest_gap_dy
-            if states:
+            remaining_indices = [idx for idx in range(len(states)) if idx not in self._passed_window_indices]
+            if remaining_indices:
                 nearest_idx = min(
-                    range(len(states)),
+                    remaining_indices,
                     key=lambda idx: float(np.linalg.norm(pos - np.asarray(states[idx]["gap_midpoint"], dtype=np.float32))),
                 )
+                current_state = states[nearest_idx]
+                current_mid = np.asarray(current_state["gap_midpoint"], dtype=np.float32)
+                next_gap_distance = float(np.linalg.norm(pos - current_mid))
+                next_gap_width = float(current_state["gap_width"])
+                next_gap_safe = 1.0 if current_state["safe"] else 0.0
+                next_gap_dx = float(current_mid[0] - pos[0])
+                next_gap_dy = float(current_mid[1] - pos[1])
                 future_state = self.windows[nearest_idx].state(t + 1, self.period)
                 next_gap_future_width = float(future_state["gap_width"])
                 next_gap_future_safe = 1.0 if next_gap_future_width > 2.15 * self.robot_radius else 0.0
                 future_mid = np.asarray(future_state["gap_midpoint"], dtype=np.float32)
                 next_gap_future_dx = float(future_mid[0] - pos[0])
                 next_gap_future_dy = float(future_mid[1] - pos[1])
+                next_time_to_safe = self._time_to_safe(nearest_idx)
                 next_window_index = nearest_idx
         return {
             "wall_clearance": float(wall_clearance),
@@ -963,6 +1085,7 @@ class TimeVaryingWindowMazeEnv(gym.Env):
             "next_gap_future_safe": float(next_gap_future_safe),
             "next_gap_future_dx": float(next_gap_future_dx),
             "next_gap_future_dy": float(next_gap_future_dy),
+            "next_time_to_safe": float(next_time_to_safe),
             "next_window_index": float(next_window_index),
             "closed_window_distance": float(closed_window_distance),
             "future_open_fraction": float(future_open_fraction),
@@ -999,7 +1122,24 @@ class TimeVaryingWindowMazeEnv(gym.Env):
             "window_collision": collision_type == "window",
             "closed_gate_collision": collision_type == "window",
             "boundary_collision": collision_type == "wall",
+            "wait_steps": int(self.wait_steps),
+            "window_pass_count": int(len(self._passed_window_indices)),
+            "window_pass_phases": tuple(self.window_pass_phases),
         }
+
+    def _record_window_passes(self, old_route: float, new_route: float) -> None:
+        if new_route >= old_route:
+            return
+        for idx, window in enumerate(self.windows):
+            if idx in self._passed_window_indices:
+                continue
+            path_idx = self._reference_cell_index.get(window.cell)
+            if path_idx is None:
+                continue
+            window_remaining = self._reference_remaining[path_idx]
+            if old_route >= window_remaining >= new_route:
+                self._passed_window_indices.add(idx)
+                self.window_pass_phases.append(int(self.t))
 
     def _world_to_px(self, p: Point | np.ndarray) -> tuple[int, int]:
         x, y = float(p[0]), float(p[1])

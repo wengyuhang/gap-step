@@ -1,0 +1,22 @@
+seed: 73
+device: auto
+stages: [C2W]
+episodes_per_stage: 96
+epochs: 20
+batch_size: 256
+learning_rate: 0.00025
+gnn_hidden_dim: 128
+gnn_layers: 4
+min_log_std: -3.0
+max_log_std: -1.0
+log_std_init: -1.6
+checkpoint: checkpoints/window_generated/bc_c2w_dense_large.pt
+env:
+  return_graph_obs: true
+  graph_mode: compact
+  graph_max_cells: 128
+  max_steps: 700
+  period: 8
+  max_step: 0.30
+  robot_radius: 0.18
+  random_phase_reset: true

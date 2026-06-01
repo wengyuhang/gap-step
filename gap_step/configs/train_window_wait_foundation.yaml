@@ -1,0 +1,42 @@
+seed: 19
+device: auto
+stage_order: [C2W, C2B, C2C, C2D, C3, C3A, C3B, C3C, C3_5, C4, C4A, C4B, C4C, C4D, C4E0, C4E1, C4E, C4F, C4_5, C5]
+rollout_steps: 4096
+steps_per_stage: 163840
+max_updates_per_stage: 40
+minibatch_size: 512
+update_epochs: 3
+learning_rate: 0.00006
+gamma: 0.99
+gae_lambda: 0.95
+clip_ratio: 0.12
+value_coef: 0.5
+entropy_coef: 0.0005
+target_kl: 0.018
+max_grad_norm: 0.30
+normalize_advantage: true
+min_log_std: -3.0
+max_log_std: -1.1
+log_std_init: -1.4
+gnn_hidden_dim: 64
+gnn_layers: 3
+checkpoint_dir: checkpoints/window_generated
+results_dir: results/window_generated
+clean_outputs: false
+resume_checkpoint: checkpoints/window_generated/C2A/teacher_final.pt
+reset_log_std_on_resume: -1.4
+log_interval_updates: 1
+num_envs: 4
+validation_episodes: 64
+validation_interval_updates: 5
+promotion_success_rate: 0.70
+min_promotion_updates: 10
+env:
+  return_graph_obs: true
+  graph_mode: compact
+  graph_max_cells: 128
+  max_steps: 700
+  period: 8
+  max_step: 0.30
+  robot_radius: 0.18
+  random_phase_reset: true
