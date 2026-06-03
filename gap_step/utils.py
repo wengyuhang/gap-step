@@ -8,7 +8,7 @@ import numpy as np
 import yaml
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parent
 
 
 def resolve_path(path: str | Path) -> Path:

@@ -32,11 +32,11 @@ The ID target is met. Unseen window timing is the current generalization weaknes
 ## Key Outputs
 
 ```text
-checkpoints/window_generated/C5/teacher_final.pt
-results/window_generated/eval_c5.csv
-results/window_generated/gifs/
-preview/high_difficulty_window_maze.gif
-preview/high_difficulty_window_maze_phases.png
+gap_step/checkpoints/window_generated/C5/teacher_final.pt
+gap_step/results/window_generated/eval_c5.csv
+gap_step/results/window_generated/gifs/
+gap_step/preview/high_difficulty_window_maze.gif
+gap_step/preview/high_difficulty_window_maze_phases.png
 ```
 
 ## TOGT Reproduction Context

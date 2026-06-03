@@ -6,7 +6,7 @@ GAP-Step 是一个连续二维时变窗口迷宫项目。当前目标是训练 P
 
 ## 代码结构
 
-所有可运行代码都在 `gap_step/`：
+所有可运行代码和资源文件在 `gap_step/` 下，项目文档在根目录 `docs/`：
 
 - `env.py`：连续迷宫、碰撞、奖励、图观测、渲染
 - `graph.py`：`GraphObs`、图 batch、特征维度
@@ -18,6 +18,8 @@ GAP-Step 是一个连续二维时变窗口迷宫项目。当前目标是训练 P
 - `visualize.py`：rollout GIF 可视化
 - `configs/`：训练配置
 - `tests/`：测试
+
+`docs/` 在根目录，包含项目文档。
 
 不要把旧的 `trainers/`、`scripts/`、`gap_step/envs/`、`gap_step/models/`、`gap_step/teachers/` 重新作为入口。
 
@@ -34,13 +36,13 @@ conda activate wyh
 
 ```bash
 pytest -q
-python -m gap_step.train --config gap_step/configs/train_teacher_smoke.yaml
+python -m gap_step.train --config configs/train_teacher_smoke.yaml
 ```
 
 完整训练：
 
 ```bash
-python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
+python -m gap_step.train --config configs/train_teacher_full.yaml
 ```
 
 训练现在使用逐课程模式：
@@ -122,9 +124,9 @@ GraphObs(
 本仓库还包含一个独立的新项目，用于复现和扩展论文 `复现/论文/2309.06837v3.pdf` / TOGT-Planner。该部分不属于 `gap_step/` 旧迷宫训练主线。
 
 ```text
-复现/TOGT-Planner-reproduction/   TOGT-Planner 源码级复现、结果级复现脚本和记录
-togt_timevarying_window/          独立论文式动态 gate/window 改进项目
-docs/TOGT_REPRODUCTION_AUDIT.md   需求到证据的完成度审计
+复现/TOGT-Planner-reproduction/                TOGT-Planner 源码级复现、结果级复现脚本和记录
+togt_timevarying_window/                       独立论文式动态 gate/window 改进项目
+docs/TOGT_REPRODUCTION_AUDIT.md                需求到证据的完成度审计
 ```
 
 常用命令：

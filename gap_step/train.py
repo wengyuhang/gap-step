@@ -298,7 +298,7 @@ def _maybe_print_log(row: dict, log_interval_updates: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default="gap_step/configs/train_teacher_smoke.yaml")
+    parser.add_argument("--config", default="configs/train_teacher_smoke.yaml")
     args = parser.parse_args()
 
     config = dict(DEFAULT_CONFIG)

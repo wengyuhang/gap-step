@@ -382,7 +382,7 @@ def train(config: dict[str, Any]) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default="gap_step/configs/train_passage_teacher.yaml")
+    parser.add_argument("--config", default="configs/train_passage_teacher.yaml")
     args = parser.parse_args()
     train(load_yaml(args.config))
 

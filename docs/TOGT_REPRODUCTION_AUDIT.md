@@ -19,7 +19,7 @@ User request: reproduce `复现/论文/2309.06837v3.pdf` / TOGT-Planner, create 
 | Improvement records | `togt_timevarying_window/README.md` | Done |
 | Visual/export artifacts | 12-gate complex 3D `togt_timevarying_window/outputs/*_trajectory.csv/png/gif` | Done |
 | Tests | `pytest -q togt_timevarying_window/tests` -> `3 passed` | Done |
-| Project docs synced | `README.md`, `docs/ARCHITECTURE.md`, `DECISIONS.md`, `PROJECT_CONTEXT.md`, `ROADMAP.md`, `TASK_LOG.md` | Done |
+| Project docs synced | `README.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, `docs/PROJECT_CONTEXT.md`, `docs/ROADMAP.md`, `docs/TASK_LOG.md` | Done |
 
 ## Native Build Result
 

@@ -359,7 +359,7 @@ def _print_row(row: dict) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default="gap_step/configs/train_window_teacher.yaml")
+    parser.add_argument("--config", default="configs/train_window_teacher.yaml")
     args = parser.parse_args()
 
     config = dict(DEFAULT_CONFIG)
