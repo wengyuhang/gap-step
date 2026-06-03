@@ -29,3 +29,9 @@ Reason: the previous `0.65` floor produced a stable `62.5%` ID plateau under pur
 Decision: retain and report both OOD splits after ID acceptance.
 
 Reason: `ood_window_test` remains materially weaker than ID, so it must be visible in the project record.
+
+## 2026-06-01: Make TOGT Extension An Independent Paper-Style Project
+
+Decision: TOGT reproduction lives under `复现/TOGT-Planner-reproduction/`, and the time-varying window adaptation lives under `togt_timevarying_window/`.
+
+Reason: the requested reproduction/improvement should use the paper environment abstraction. The extension therefore models ordered gates `G_i(t)` with dynamic position and shape rather than reusing the earlier maze environment.

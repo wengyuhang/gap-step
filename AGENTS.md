@@ -44,7 +44,7 @@ GAP-Step 项目给代码代理使用的本地约定。
 - progress reward 必须基于连续几何，不使用 cell 作为 reward potential
 - 撞墙或撞门时，不允许保留正的 progress reward
 - 不要改碰撞规则、成功条件或迷宫生成语义，除非用户明确要求
-- 保留 `data/`、`checkpoints/`、`logs/`、`runs/`、`results/` 的忽略规则
+- 保留 `data/`、`checkpoints/`、`logs/`、`runs/`、`results/`、`复现/` 的忽略规则
 
 ## 命令
 
@@ -56,3 +56,9 @@ python -m gap_step.train --config gap_step/configs/train_teacher_full.yaml
 python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt
 python -m gap_step.evaluate --checkpoint checkpoints/C5/teacher_final.pt --episodes 20 --stages C1,C1_5,C2A,C2B,C3,C4,C5
 ```
+
+## 文件镜像规则
+
+- `AGENTS.md` 是 AI agent 协作的规范源，`CLAUDE.md` 必须镜像其内容
+- 修改 `AGENTS.md` 后必须同步更新 `CLAUDE.md`，保持两文件完全一致
+- 修改 `CLAUDE.md` 时应优先在 `AGENTS.md` 编辑，再复制到 `CLAUDE.md`

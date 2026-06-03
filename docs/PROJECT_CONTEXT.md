@@ -38,3 +38,7 @@ results/window_generated/gifs/
 preview/high_difficulty_window_maze.gif
 preview/high_difficulty_window_maze_phases.png
 ```
+
+## TOGT Reproduction Context
+
+`复现/TOGT-Planner-reproduction/` contains the source-level reproduction package and notes for arXiv:2309.06837v3. `togt_timevarying_window/` is now an independent TOGT-style 3D dynamic gate/window project using paper-like ordered race gates, not the older maze environment.

@@ -21,3 +21,9 @@ ood_maze_test   74.5%
 - Improve `ood_window_test` generalization to unseen aperture timing.
 - Consider curriculum slices focused on timing variation before increasing maze complexity.
 - Keep wall/window collision semantics unchanged while tuning.
+
+## TOGT Extension Track
+
+- Keep `togt_timevarying_window/` as an independent TOGT reproduction extension, not as a wrapper around the old maze environment.
+- Add continuous refinement after the current discrete 3D dynamic-gate planner: optimize traversal time and gate-interior point variables with `p(t_i) in G_i(t_i)`.
+- Add richer paper-style tracks and compare static gates against dynamic position/shape gates.

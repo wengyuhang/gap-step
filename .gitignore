@@ -34,3 +34,6 @@ runs/
 *.mp4
 *.avi
 *.mov
+
+# External reproduction code
+复现/

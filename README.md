@@ -115,3 +115,26 @@ GraphObs(
 图中有 cell node、gate node、cell-cell 拓扑边、gate-cell 边和 self-loop。环境动力学、碰撞和成功判定仍然是连续几何。
 
 生成目录 `data/`、`checkpoints/`、`logs/`、`runs/`、`results/` 被 Git 忽略。
+
+
+## TOGT 论文复现与动态门改进
+
+本仓库还包含一个独立的新项目，用于复现和扩展论文 `复现/论文/2309.06837v3.pdf` / TOGT-Planner。该部分不属于 `gap_step/` 旧迷宫训练主线。
+
+```text
+复现/TOGT-Planner-reproduction/   TOGT-Planner 源码级复现、结果级复现脚本和记录
+togt_timevarying_window/          独立论文式动态 gate/window 改进项目
+docs/TOGT_REPRODUCTION_AUDIT.md   需求到证据的完成度审计
+```
+
+常用命令：
+
+```bash
+python 复现/TOGT-Planner-reproduction/check_reproduction.py
+python 复现/TOGT-Planner-reproduction/analyze_trajectory.py
+python -m togt_timevarying_window.demo
+python -m togt_timevarying_window.export_demo
+pytest -q togt_timevarying_window/tests
+```
+
+TOGT C++ 原生构建已通过本地 vendored Eigen 完成；源码树、CMake/build/ctest、结果级复现均已验证。动态门改进项目已升级为复杂 12-gate 3D 任务，动态任务约 31.4s，并通过测试、导出 CSV/PNG/GIF。

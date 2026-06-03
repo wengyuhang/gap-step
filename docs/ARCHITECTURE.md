@@ -37,3 +37,12 @@ Window nodes include current gap state plus future gap width/center features.
 - Explicit `model_old` sampling and `model <- model_old` sync.
 - Internal bridge curriculum up to `C5`.
 - No planner, BC, expert demonstrations, or fallback controller.
+
+## Offline TOGT-Style Prototype
+
+```text
+复现/TOGT-Planner-reproduction/   source-level reproduction package
+togt_timevarying_window/          standalone paper-style 3D dynamic gate/window planner
+```
+
+The TOGT prototype is a separate project and does not use the old maze environment. It models an ordered 3D race track with dynamic gates/windows `G_i(t)` and searches over gate order, arrival time, and gate-interior candidate points.
