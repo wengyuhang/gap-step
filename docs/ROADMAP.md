@@ -25,5 +25,11 @@ ood_maze_test   74.5%
 ## TOGT Extension Track
 
 - Keep `togt_timevarying_window/` as an independent TOGT reproduction extension, not as a wrapper around the old maze environment.
-- Add continuous refinement after the current discrete 3D dynamic-gate planner: optimize traversal time and gate-interior point variables with `p(t_i) in G_i(t_i)`.
-- Add richer paper-style tracks and compare static gates against dynamic position/shape gates.
+- DynaTOGT is now implemented: dynamic/deformable windows `G_i(t)`, discrete warm start, L-BFGS-B continuous refinement, Hermite continuous trajectory, and Chinese presentation-style visualization.
+- Ordered/static modes now accept arbitrary traversal task sequences, including repeated windows; `shuffled_dynamic` remains a one-pass permutation baseline.
+- Current experiment outputs live under `togt_timevarying_window/results/`, not the old `outputs/` directory.
+- Next useful extensions:
+  - add a MINCO-style trajectory backend for closer comparison with the original TOGT paper;
+  - add stronger quadrotor thrust/angular-rate feasibility metrics;
+  - add collision/obstacle constraints beyond window traversal;
+  - add publication-style result tables comparing `WaypointCenter`, `StaticTOGT`, `DiscreteDynamic`, and `DynaTOGT`.

@@ -47,7 +47,7 @@ def run_suite(suite: str, outdir: Path, frames: int = 18) -> list[dict[str, obje
             stem = f"{track.name}_{baseline}"
             export_plan_csv(plan, track, trajectory_dir / f"{stem}.csv")
             if baseline == "DynaTOGT" or suite == "smoke":
-                draw_plan_png(track, plan, figure_dir / f"{stem}.png", title=f"{track.name} {baseline}")
+                draw_plan_png(track, plan, figure_dir / f"{stem}.png", title=f"{track.name} - {baseline} 动态窗口穿越")
                 draw_plan_gif(track, plan, gif_dir / f"{stem}.gif", frames=frames)
     write_summary(summary_path, rows)
     return rows

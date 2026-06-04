@@ -8,12 +8,26 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 import numpy as np
 
 from .environment import WindowTrack
 from .optimizer import DynaTOGTPlan
 
 COLORS = ["#e41a1c", "#0b8f28", "#c98900", "#6a1fb0", "#1267d8", "#cc0b72", "#444444"]
+
+
+def _configure_chinese_font() -> None:
+    preferred = ["Microsoft YaHei", "Droid Sans Fallback", "Noto Sans CJK SC", "SimHei", "WenQuanYi Micro Hei"]
+    available = {font.name for font in font_manager.fontManager.ttflist}
+    for name in preferred:
+        if name in available:
+            plt.rcParams["font.sans-serif"] = [name, "DejaVu Sans"]
+            plt.rcParams["axes.unicode_minus"] = False
+            return
+
+
+_configure_chinese_font()
 
 
 def export_plan_csv(plan: DynaTOGTPlan, track: WindowTrack, path: Path) -> None:
@@ -41,12 +55,12 @@ def draw_plan_png(track: WindowTrack, plan: DynaTOGTPlan, path: Path, title: str
 
     traj2 = _project(plan.trajectory.positions)
     ax.plot(traj2[:, 0], traj2[:, 1], color="#23272d", lw=4.2, alpha=0.16, solid_capstyle="round", zorder=1)
-    ax.plot(traj2[:, 0], traj2[:, 1], color="#20242a", lw=2.25, solid_capstyle="round", zorder=2, label="continuous drone trajectory")
+    ax.plot(traj2[:, 0], traj2[:, 1], color="#20242a", lw=2.25, solid_capstyle="round", zorder=2, label="无人机连续轨迹")
 
     start2 = _project(track.start[None, :])[0]
     goal2 = _project(track.goal[None, :])[0]
-    ax.scatter([start2[0]], [start2[1]], color="#009e73", s=78, zorder=8, label="start")
-    ax.scatter([goal2[0]], [goal2[1]], color="#d55e00", s=78, zorder=8, label="goal")
+    ax.scatter([start2[0]], [start2[1]], color="#009e73", s=78, zorder=8, label="起点")
+    ax.scatter([goal2[0]], [goal2[1]], color="#d55e00", s=78, zorder=8, label="终点")
 
     for rank, (idx, crossing_t, point) in enumerate(zip(plan.order, plan.crossing_times, plan.crossing_points), start=1):
         color = COLORS[idx % len(COLORS)]
@@ -61,10 +75,10 @@ def draw_plan_png(track: WindowTrack, plan: DynaTOGTPlan, path: Path, title: str
         ax.text(point2[0], point2[1] - 0.40, f"t{rank}", color="black", fontsize=13, fontstyle="italic", ha="center", zorder=9)
         center2 = _project(window.center_at(float(crossing_t), dynamic=True)[None, :])[0]
         ax.text(center2[0], center2[1] + 0.72, window.name, color=color, fontsize=16, fontweight="bold", ha="center", zorder=9)
-        ax.text(point2[0] + 0.30, point2[1] + 0.28, f"PASS\nm={margin:.2f}", color="#007a2f", fontsize=8.5, fontweight="bold", zorder=10)
+        ax.text(point2[0] + 0.30, point2[1] + 0.28, f"穿越成功\n裕度 {margin:.2f}", color="#007a2f", fontsize=8.5, fontweight="bold", zorder=10)
 
     _draw_drone_2d(ax, _project(plan.trajectory.positions[-1:])[0], float(plan.trajectory.yaws[-1]))
-    ax.set_title(title or "DynaTOGT Dynamic Time-Varying Window Traversal", fontsize=20, fontweight="bold", pad=18)
+    ax.set_title(title or "DynaTOGT 动态时变窗口穿越演示", fontsize=20, fontweight="bold", pad=18)
     ax.legend(loc="upper left", fontsize=9, frameon=True)
     _draw_side_panel(side, plan)
     fig.savefig(path, dpi=155)
@@ -103,10 +117,10 @@ def draw_plan_gif(track: WindowTrack, plan: DynaTOGTPlan, path: Path, frames: in
                 margin = window.local_margin(local, float(t), dynamic=True)
                 p2 = _project(p[None, :])[0]
                 ax.scatter([p2[0]], [p2[1]], color="#00a651", s=135, marker="o", edgecolors="black", linewidths=1.2, zorder=10)
-                ax.text(p2[0] + 0.32, p2[1] + 0.32, f"PASS {window.name}\nmargin={margin:.3f}\nplane={plane_error:.1e}", color="#007a2f", fontsize=9, weight="bold", zorder=11)
+                ax.text(p2[0] + 0.32, p2[1] + 0.32, f"{window.name} 穿越成功\n裕度={margin:.3f}\n平面误差={plane_error:.1e}", color="#007a2f", fontsize=9, weight="bold", zorder=11)
         drone_idx = min(upto - 1, len(traj.positions) - 1)
         _draw_drone_2d(ax, _project(traj.positions[drone_idx : drone_idx + 1])[0], float(traj.yaws[drone_idx]))
-        status = "" if active_crossing is None else f" | PASS {plan.chosen_order[active_crossing]}"
+        status = "" if active_crossing is None else f" | {plan.chosen_order[active_crossing]} 穿越成功"
         ax.set_title(f"t={t:.2f}s{status} | {' -> '.join(plan.chosen_order)}", fontsize=13, fontweight="bold")
         frame_path = frame_dir / f"frame_{frame:03d}.png"
         fig.savefig(frame_path, dpi=110)
@@ -175,7 +189,7 @@ def _active_crossing(plan: DynaTOGTPlan, t: float) -> int | None:
 def _draw_side_panel(ax, plan: DynaTOGTPlan) -> None:
     ax.axis("off")
     ax.text(0.5, 0.96, "DynaTOGT", ha="center", va="top", fontsize=18, fontweight="bold", color="#0649c9", transform=ax.transAxes)
-    items = [("Dynamic constraint", r"$p(t_i)\in G_i(t_i)$"), ("Chosen order", _format_order(plan.chosen_order)), ("Evidence", "PASS frames + CSV margins")]
+    items = [("动态窗口约束", r"$p(t_i)\in G_i(t_i)$"), ("穿越顺序", _format_order(plan.chosen_order)), ("验证方式", "绿色点 + CSV 裕度")]
     y = 0.78
     for title, text in items:
         patch = plt.Rectangle((0.05, y - 0.10), 0.90, 0.15, transform=ax.transAxes, fill=False, lw=1.4, ec="#0649c9")
@@ -183,8 +197,8 @@ def _draw_side_panel(ax, plan: DynaTOGTPlan) -> None:
         ax.text(0.10, y, title, fontsize=9.5, color="#0649c9", fontweight="bold", transform=ax.transAxes)
         ax.text(0.50, y - 0.060, text, fontsize=10.5, ha="center", transform=ax.transAxes)
         y -= 0.21
-    ax.text(0.06, 0.19, "Green PASS dots are\nexact crossing points.", fontsize=10, color="#007a2f", transform=ax.transAxes)
-    ax.text(0.06, 0.08, "Dashed outlines show\npast / future poses.", fontsize=10, transform=ax.transAxes)
+    ax.text(0.06, 0.19, "绿色点表示\n精确穿越位置。", fontsize=10, color="#007a2f", transform=ax.transAxes)
+    ax.text(0.06, 0.08, "虚线表示窗口\n过去/未来姿态。", fontsize=10, transform=ax.transAxes)
 
 
 def _format_order(order: list[str], per_line: int = 4) -> str:

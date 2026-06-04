@@ -1,67 +1,234 @@
-# DynaTOGT Algorithm
+# DynaTOGT 算法说明
 
-## Relation to TOGT
+本文档解释 DynaTOGT 的算法设计，以及它和原 TOGT 论文方法的关系。
 
-The TOGT paper treats a racing gate as a geometric traversal constraint rather than a waypoint:
+## 1. 原 TOGT 方法在做什么
+
+TOGT 论文的题目是 *Time-Optimal Gate-Traversing Planner for Autonomous Drone Racing*。它关注无人机竞速中的一个问题：无人机不是简单地经过一串 waypoint，而是要穿过一串有形状、有大小的 gate。
+
+很多传统方法会把 gate 简化成中心点：
+
+```text
+无人机经过 gate 中心点
+```
+
+这样做简单，但浪费了 gate 的空间。例如一个矩形 gate 很宽，无人机不一定非要穿中心，可以从更有利的位置穿过去，从而缩短轨迹或降低时间。
+
+TOGT 的核心改进是：
 
 ```text
 p(t_i) in G_i
 ```
 
-DynaTOGT keeps this idea and replaces every static feasible set with a time-varying feasible set:
+含义是：在时间 `t_i`，无人机位置 `p(t_i)` 必须位于第 `i` 个 gate 的几何区域 `G_i` 内。
+
+原论文进一步使用：
+
+- gate 几何约束；
+- 分段轨迹；
+- MINCO 多项式轨迹；
+- 变量变换；
+- L-BFGS 优化；
+- 四旋翼动力学相关约束。
+
+目标是得到接近时间最优的竞速轨迹。
+
+## 2. 本项目为什么需要改算法
+
+本项目的任务更复杂：窗口不是静态的。
+
+窗口会：
+
+- 移动；
+- 旋转；
+- 缩放；
+- 形态变化。
+
+所以约束不再是：
+
+```text
+p(t_i) in G_i
+```
+
+而是：
 
 ```text
 p(t_i) in G_i(t_i)
 ```
 
-Each `G_i(t)` is represented by a local 2D convex shape embedded in a moving 3D plane. The plane center, orientation, and local shape scale can all vary with time.
+这里 `G_i(t_i)` 表示第 `i` 个窗口在时间 `t_i` 的几何区域。
 
-## Decision Variables
+这会带来一个关键变化：穿越时间和窗口几何形状耦合在一起。
 
-For a task sequence with `M` traversal events, DynaTOGT optimizes:
+在静态 TOGT 中，`G_i` 不随时间变；但在 DynaTOGT 中，如果 `t_i` 变了，窗口的位置、姿态、大小也会变。因此算法必须同时选择：
+
+- 什么时候穿；
+- 从窗口内部哪里穿；
+- 用什么轨迹连接这些穿越点。
+
+## 3. 动态窗口模型
+
+每个动态窗口由一个局部二维形状和一个三维位姿组成。
+
+局部形状可以是：
 
 ```text
-T = [T_1, ..., T_{M+1}]
-Z = [z_1, ..., z_M], z_i in R^2
+rectangle
+circle
+triangle
+pentagon
+hexagon
+slanted quadrilateral
 ```
 
-`T_i` are positive segment durations. `z_i` are unconstrained local variables. The task sequence may contain repeated windows, so multiple events can reference the same physical `G_j` at different times. A smooth bounded map converts each `z_i` into a local point inside the current dynamic window polygon, and the dynamic window transform maps it to world coordinates:
+窗口在世界坐标中的状态由时间决定：
 
 ```text
-local_i = phi_i(z_i, t_i)
+center(t)      位置变化
+orientation(t) 姿态变化
+scale(t)       尺寸/形态变化
+```
+
+局部窗口点 `local_i` 会被映射到世界坐标：
+
+```text
 p_i = world_i(local_i, t_i)
-t_i = sum_{k<=i} T_k
 ```
 
-Thus the geometric constraint is satisfied by construction.
+只要 `local_i` 在局部窗口内部，`p_i` 就一定在当前动态窗口 `G_i(t_i)` 内。
 
-## Objective
+## 4. 决策变量
 
-The optimized objective is:
+假设任务序列有 `M` 次穿越事件，例如：
+
+```text
+G1 -> G6 -> G1 -> G3 -> G2 -> G5 -> G4 -> G2
+```
+
+注意：这里不是 permutation，同一个窗口可以出现多次。
+
+DynaTOGT 优化两类变量。
+
+第一类是每段飞行时间：
+
+```text
+T = [T_1, T_2, ..., T_{M+1}]
+```
+
+第 `i` 次穿越时间为：
+
+```text
+t_i = T_1 + T_2 + ... + T_i
+```
+
+第二类是每个窗口内部的局部穿越点参数：
+
+```text
+Z = [z_1, z_2, ..., z_M]
+```
+
+`z_i` 是无约束变量。算法通过一个有界映射把它转换成窗口内部点：
+
+```text
+local_i = phi(z_i, G_i(t_i))
+```
+
+然后再映射到世界坐标：
+
+```text
+p_i = world_i(local_i, t_i)
+```
+
+这样做的好处是：优化过程中不需要额外写复杂的不等式约束，穿越点天然在窗口内。
+
+## 5. 轨迹生成
+
+优化得到：
+
+```text
+起点
+p_1, p_2, ..., p_M
+终点
+```
+
+以及对应时间：
+
+```text
+0, t_1, t_2, ..., t_M, t_f
+```
+
+然后用 Hermite 多项式生成连续轨迹。
+
+轨迹采样后可以计算：
+
+- 位置；
+- 速度；
+- 加速度；
+- jerk；
+- yaw。
+
+这里没有完整复现原论文中的四旋翼动力学约束，而是用速度、加速度和 jerk 作为轻量的可飞性近似。
+
+## 6. 目标函数
+
+DynaTOGT 优化的目标大致是：
 
 ```text
 J =
-  total_time
-  + length_weight * path_length
-  + acceleration_weight * max_acceleration
-  + jerk_weight * mean_jerk
-  + violation_weight * dynamic_feasibility_excess
-  + margin_weight * gate_margin_penalty
+  总飞行时间
+  + 路径长度惩罚
+  + 最大加速度惩罚
+  + jerk 平滑惩罚
+  + 动态可行性超限惩罚
+  + 窗口边界裕度惩罚
 ```
 
-The full quadrotor dynamics from the paper are not reproduced. Instead, this prototype uses sampled trajectory speed, acceleration, and jerk as dynamic feasibility proxies.
+直观理解：
 
-## Solver
+- 时间越短越好；
+- 路径不要太绕；
+- 轨迹不要突然加速或急转；
+- 穿越点不要贴着窗口边框；
+- 如果速度或加速度过大，要被惩罚。
 
-1. Build a discrete warm start by sampling arrival times and traversal points inside each dynamic window.
-2. Optionally search traversal order with a beam search over `visited_mask` for `shuffled_dynamic`.
-3. Optimize continuous variables with `scipy.optimize.minimize(method="L-BFGS-B")`.
-4. Generate a piecewise Hermite polynomial trajectory through start, selected window points, and goal.
-5. Validate traversal against the actual dynamic windows at the optimized crossing times.
+## 7. 求解流程
 
-## Baselines
+完整流程如下：
 
-- `WaypointCenter`: pass through dynamic window centers only.
-- `StaticTOGT`: optimize using `G_i(0)` and evaluate against true `G_i(t)`.
-- `DiscreteDynamic`: dynamic warm start without continuous optimization.
-- `DynaTOGT`: warm start plus continuous optimization.
+1. 输入动态窗口赛道和穿越序列。
+2. 在每个动态窗口内部采样候选穿越点。
+3. 采样可能的穿越时间，得到一个离散 warm start。
+4. 用 L-BFGS-B 连续优化飞行时间和局部穿越点。
+5. 用 Hermite 曲线生成连续无人机轨迹。
+6. 在每个 `t_i` 检查 `p(t_i)` 是否真的位于 `G_i(t_i)` 内。
+7. 导出 CSV、PNG、GIF。
+
+## 8. 和原论文方法的对照
+
+| 模块 | 原 TOGT 论文 | DynaTOGT |
+| --- | --- | --- |
+| gate 约束 | 静态 `G_i` | 动态 `G_i(t)` |
+| 穿越顺序 | 通常给定且每个 gate 一次 | 给定任务序列，可重复窗口 |
+| 穿越点 | 通过变量变换保证在 gate 内 | 通过局部窗口映射保证在动态窗口内 |
+| 时间变量 | 优化每段时间 | 优化每段时间，且时间影响窗口状态 |
+| 轨迹 | MINCO 多项式 | 轻量 Hermite 多项式 |
+| 动力学 | 更完整的四旋翼约束 | 速度/加速度/jerk 近似 |
+| 优化器 | L-BFGS | L-BFGS-B |
+| 目标 | 时间最优 + 动力学约束 | 时间、平滑性、动态穿越可行性折中 |
+
+## 9. 适用范围和限制
+
+适用：
+
+- 用于展示和验证动态窗口穿越任务；
+- 用于比较静态 TOGT、中心点穿越和动态窗口优化；
+- 用于组会展示动态窗口问题的算法思路和实验结果。
+
+限制：
+
+- 不是完整四旋翼控制器；
+- 没有复现原论文完整 MINCO 推导；
+- 没有考虑障碍物碰撞；
+- 当前 shuffled 模式仍是一次性 permutation 搜索，不处理无限重复访问问题。
+
+如果后续要进一步接近论文，可以把 Hermite 轨迹替换为 MINCO，并加入更真实的推力/角速度约束。

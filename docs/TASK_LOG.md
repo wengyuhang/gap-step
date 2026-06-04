@@ -71,3 +71,51 @@ Audit note: `docs/TOGT_REPRODUCTION_AUDIT.md` maps each requested TOGT reproduct
 Native TOGT build update: local Eigen 3.4.0 was installed under `复现/TOGT-Planner-reproduction/deps/eigen-install`; `cmake --build build -j2` completed and `ctest --test-dir build --output-on-failure` reported `100% tests passed, 0 tests failed out of 3`.
 
 3D upgrade update: `togt_timevarying_window` now uses a nonlinearly arranged 12-gate 3D track with time-varying center, yaw/pitch/roll, and gate shape scale. The dynamic task is about 31.4s and `python -m togt_timevarying_window.export_demo` generates `dynamic_trajectory.gif` in addition to CSV/PNG.
+
+## 2026-06-04 DynaTOGT Dynamic Time-Varying Window Rebuild
+
+Implemented:
+
+- rebuilt `togt_timevarying_window/` from the earlier discrete prototype into DynaTOGT;
+- extended the TOGT paper constraint from static `p(t_i) in G_i` to dynamic/deformable `p(t_i) in G_i(t_i)`;
+- added dynamic windows with translation, yaw/pitch/roll rotation, and anisotropic scale/shape changes;
+- added arbitrary ordered traversal task sequences, including repeated windows such as `G1 -> G6 -> G1 -> G3 -> G2 -> G5 -> G4 -> G2`;
+- added DynaTOGT warm start + L-BFGS-B continuous optimization over segment durations and window-local traversal variables;
+- added Hermite continuous drone trajectory sampling with speed, acceleration, jerk, and yaw metrics;
+- added baselines: `WaypointCenter`, `StaticTOGT`, `DiscreteDynamic`, and `DynaTOGT`;
+- added `smoke` and `default` experiment suites under `togt_timevarying_window/results/`;
+- replaced the old 3D debug visualization with Chinese presentation-style PNG/GIF showing `穿越成功`, `裕度`, current window pose, and past/future dashed poses;
+- rewrote `togt_timevarying_window/README.md`, `ALGORITHM.md`, and `EXPERIMENTS.md` in Chinese with original TOGT comparison.
+
+Current commands:
+
+```bash
+python -m togt_timevarying_window.demo --scenario canonical --mode ordered_dynamic
+python -m togt_timevarying_window.export_demo --scenario canonical --mode ordered_dynamic
+python -m togt_timevarying_window.export_demo --scenario canonical --mode ordered_dynamic --order G1,G6,G1,G3,G2,G5,G4,G2 --outdir togt_timevarying_window/results/repeated_demo
+python -m togt_timevarying_window.experiments --suite smoke --outdir togt_timevarying_window/results
+pytest -q togt_timevarying_window/tests
+python -m py_compile togt_timevarying_window/*.py
+```
+
+Current validation:
+
+```text
+pytest -q togt_timevarying_window/tests
+6 passed
+python -m py_compile togt_timevarying_window/*.py
+passed
+```
+
+Current demo artifacts:
+
+```text
+togt_timevarying_window/results/demo/trajectories/canonical_6_DynaTOGT.csv
+togt_timevarying_window/results/demo/figures/canonical_6_DynaTOGT.png
+togt_timevarying_window/results/demo/gifs/canonical_6_DynaTOGT.gif
+togt_timevarying_window/results/repeated_demo/trajectories/canonical_6_DynaTOGT.csv
+togt_timevarying_window/results/repeated_demo/figures/canonical_6_DynaTOGT.png
+togt_timevarying_window/results/repeated_demo/gifs/canonical_6_DynaTOGT.gif
+```
+
+Traversal evidence is recorded in CSV crossing rows via `contains=True`, near-zero `plane_error`, and positive `gate_margin`.

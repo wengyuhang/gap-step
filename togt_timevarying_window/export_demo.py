@@ -45,7 +45,7 @@ def main() -> None:
     png_path = outdir / "figures" / f"{stem}.png"
     gif_path = outdir / "gifs" / f"{stem}.gif"
     export_plan_csv(plan, track, csv_path)
-    draw_plan_png(track, plan, png_path, title=f"{track.name} {baseline}")
+    draw_plan_png(track, plan, png_path, title="动态时变窗口穿越演示")
     draw_plan_gif(track, plan, gif_path, frames=args.frames)
     metrics = baseline_metrics(baseline, plan, track, scenario=track.name)
     print(f"csv={csv_path}")
