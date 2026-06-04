@@ -1,14 +1,16 @@
-"""Standalone TOGT-style dynamic gate/window planning project."""
+"""DynaTOGT: dynamic time-varying window traversal experiments."""
 
-from .environment import DynamicGate, GateShape, RaceTrack, demo_track
-from .planner import DynamicTOGTPlanner, PlannerConfig, PlannedTrajectory
+from .environment import DEFAULT_ORDER, DynamicWindow, MotionProfile, WindowTrack, canonical_track, make_scenario
+from .optimizer import DynaTOGTConfig, DynaTOGTOptimizer, DynaTOGTPlan
 
 __all__ = [
-    "DynamicGate",
-    "GateShape",
-    "RaceTrack",
-    "demo_track",
-    "DynamicTOGTPlanner",
-    "PlannerConfig",
-    "PlannedTrajectory",
+    "DEFAULT_ORDER",
+    "DynamicWindow",
+    "MotionProfile",
+    "WindowTrack",
+    "canonical_track",
+    "make_scenario",
+    "DynaTOGTConfig",
+    "DynaTOGTOptimizer",
+    "DynaTOGTPlan",
 ]

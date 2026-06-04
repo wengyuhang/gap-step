@@ -134,9 +134,10 @@ docs/TOGT_REPRODUCTION_AUDIT.md                需求到证据的完成度审计
 ```bash
 python 复现/TOGT-Planner-reproduction/check_reproduction.py
 python 复现/TOGT-Planner-reproduction/analyze_trajectory.py
-python -m togt_timevarying_window.demo
-python -m togt_timevarying_window.export_demo
+python -m togt_timevarying_window.demo --scenario canonical --mode ordered_dynamic
+python -m togt_timevarying_window.export_demo --scenario canonical --mode ordered_dynamic
+python -m togt_timevarying_window.experiments --suite smoke --outdir togt_timevarying_window/results
 pytest -q togt_timevarying_window/tests
 ```
 
-TOGT C++ 原生构建已通过本地 vendored Eigen 完成；源码树、CMake/build/ctest、结果级复现均已验证。动态门改进项目已升级为复杂 12-gate 3D 任务，动态任务约 31.4s，并通过测试、导出 CSV/PNG/GIF。
+TOGT C++ 原生构建已通过本地 vendored Eigen 完成；源码树、CMake/build/ctest、结果级复现均已验证。动态门改进项目已重构为 DynaTOGT：在原论文 gate 几何约束思想基础上，将静态 `p(t_i) in G_i` 扩展为动态可变形窗口 `p(t_i) in G_i(t_i)`。默认固定顺序为 `G1 -> G6 -> G3 -> G2 -> G5 -> G4`；实验对比 `WaypointCenter`、`StaticTOGT`、`DiscreteDynamic` 和 `DynaTOGT`，输出 `togt_timevarying_window/results/<suite>/summary.csv` 以及 trajectory CSV / PNG / GIF。

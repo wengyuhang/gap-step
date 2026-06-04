@@ -2,215 +2,185 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Iterable
 
 import numpy as np
 
-from .geometry import rectangle, regular_polygon, sample_convex_polygon, point_in_convex_polygon
+from .geometry import Shape2D, ShapeKind, convex_margin, local_from_unconstrained, rotation_matrix, sample_polygon
 
-MotionFn = Callable[[float], np.ndarray]
-ScalarFn = Callable[[float], float]
-VectorFn = Callable[[float], np.ndarray]
-ShapeKind = Literal["rectangle", "triangle", "pentagon", "hexagon", "ball"]
+DEFAULT_ORDER = (0, 5, 2, 1, 4, 3)
 
 
 @dataclass(frozen=True)
-class GateShape:
-    kind: ShapeKind
-    size: tuple[float, float] = (2.4, 1.5)
-    radius: float = 1.0
+class MotionProfile:
+    translation_amp: np.ndarray
+    rotation_amp: np.ndarray
+    scale_amp: np.ndarray
+    period: float = 7.0
+    phase: float = 0.0
+    enabled_translation: bool = True
+    enabled_rotation: bool = True
+    enabled_scale: bool = True
 
-    def local_polygon(self, resolution: int = 20) -> np.ndarray:
-        if self.kind == "rectangle":
-            return rectangle(self.size[0], self.size[1])
-        if self.kind == "triangle":
-            return regular_polygon(3, self.radius)
-        if self.kind == "pentagon":
-            return regular_polygon(5, self.radius)
-        if self.kind == "hexagon":
-            return regular_polygon(6, self.radius)
-        if self.kind == "ball":
-            return regular_polygon(max(12, resolution), self.radius)
-        raise ValueError(f"Unsupported gate shape: {self.kind}")
+    def translation(self, t: float) -> np.ndarray:
+        if not self.enabled_translation:
+            return np.zeros(3, dtype=np.float64)
+        return self.translation_amp * math.sin(2.0 * math.pi * t / self.period + self.phase)
+
+    def rotation(self, t: float) -> np.ndarray:
+        if not self.enabled_rotation:
+            return np.zeros(3, dtype=np.float64)
+        angle = 2.0 * math.pi * t / (self.period * 0.91) + self.phase
+        return self.rotation_amp * np.asarray([math.sin(angle), math.cos(angle * 0.83), math.sin(angle * 1.21)], dtype=np.float64)
+
+    def scale(self, t: float) -> np.ndarray:
+        if not self.enabled_scale:
+            return np.ones(2, dtype=np.float64)
+        angle = 2.0 * math.pi * t / (self.period * 1.13) + self.phase
+        return np.asarray([1.0 + self.scale_amp[0] * math.sin(angle), 1.0 + self.scale_amp[1] * math.cos(angle)], dtype=np.float64)
 
 
 @dataclass
-class DynamicGate:
+class DynamicWindow:
     name: str
-    shape: GateShape
+    shape: Shape2D
     center0: np.ndarray
-    yaw0: float = 0.0
-    pitch0: float = 0.0
-    roll0: float = 0.0
-    scale0: np.ndarray | None = None
-    center_motion: MotionFn | None = None
-    yaw_motion: ScalarFn | None = None
-    pitch_motion: ScalarFn | None = None
-    roll_motion: ScalarFn | None = None
-    scale_motion: VectorFn | None = None
+    yaw0: float
+    pitch0: float
+    roll0: float
+    motion: MotionProfile
 
-    def center_at(self, t: float) -> np.ndarray:
-        base = np.asarray(self.center0, dtype=np.float64)
-        return base if self.center_motion is None else base + np.asarray(self.center_motion(t), dtype=np.float64)
+    def center_at(self, t: float, dynamic: bool = True) -> np.ndarray:
+        return self.center0 + (self.motion.translation(t) if dynamic else 0.0)
 
-    def yaw_at(self, t: float) -> float:
-        return float(self.yaw0 if self.yaw_motion is None else self.yaw0 + self.yaw_motion(t))
+    def angles_at(self, t: float, dynamic: bool = True) -> np.ndarray:
+        base = np.asarray([self.yaw0, self.pitch0, self.roll0], dtype=np.float64)
+        return base + (self.motion.rotation(t) if dynamic else 0.0)
 
-    def pitch_at(self, t: float) -> float:
-        return float(self.pitch0 if self.pitch_motion is None else self.pitch0 + self.pitch_motion(t))
+    def scale_at(self, t: float, dynamic: bool = True) -> np.ndarray:
+        return self.motion.scale(t) if dynamic else np.ones(2, dtype=np.float64)
 
-    def roll_at(self, t: float) -> float:
-        return float(self.roll0 if self.roll_motion is None else self.roll0 + self.roll_motion(t))
+    def local_polygon_at(self, t: float, dynamic: bool = True) -> np.ndarray:
+        return self.shape.polygon() * self.scale_at(t, dynamic=dynamic)[None, :]
 
-    def scale_at(self, t: float) -> np.ndarray:
-        base = np.ones(2, dtype=np.float64) if self.scale0 is None else np.asarray(self.scale0, dtype=np.float64)
-        return base if self.scale_motion is None else base * np.asarray(self.scale_motion(t), dtype=np.float64)
-
-    def basis_at(self, t: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        # Gate normal points roughly along the race direction; u/v span the gate opening plane.
-        yaw = self.yaw_at(t)
-        pitch = self.pitch_at(t)
-        roll = self.roll_at(t)
-        cy, sy = math.cos(yaw), math.sin(yaw)
-        cp, sp = math.cos(pitch), math.sin(pitch)
-        cr, sr = math.cos(roll), math.sin(roll)
-        rz = np.asarray([[cy, -sy, 0.0], [sy, cy, 0.0], [0.0, 0.0, 1.0]])
-        ry = np.asarray([[cp, 0.0, sp], [0.0, 1.0, 0.0], [-sp, 0.0, cp]])
-        rx = np.asarray([[1.0, 0.0, 0.0], [0.0, cr, -sr], [0.0, sr, cr]])
-        rot = rz @ ry @ rx
+    def basis_at(self, t: float, dynamic: bool = True) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        yaw, pitch, roll = self.angles_at(t, dynamic=dynamic)
+        rot = rotation_matrix(float(yaw), float(pitch), float(roll))
         normal = rot @ np.asarray([1.0, 0.0, 0.0])
         u_axis = rot @ np.asarray([0.0, 1.0, 0.0])
         v_axis = rot @ np.asarray([0.0, 0.0, 1.0])
         return normal, u_axis, v_axis
 
-    def polygon_at(self, t: float) -> np.ndarray:
-        local = self.shape.local_polygon() * self.scale_at(t)[None, :]
-        center = self.center_at(t)
-        _, u_axis, v_axis = self.basis_at(t)
-        return center[None, :] + local[:, 0:1] * u_axis[None, :] + local[:, 1:2] * v_axis[None, :]
+    def point_from_local(self, local: np.ndarray, t: float, dynamic: bool = True) -> np.ndarray:
+        _, u_axis, v_axis = self.basis_at(t, dynamic=dynamic)
+        return self.center_at(t, dynamic=dynamic) + local[0] * u_axis + local[1] * v_axis
 
-    def contains(self, point: np.ndarray, t: float, plane_tol: float = 1e-5) -> bool:
-        center = self.center_at(t)
-        normal, u_axis, v_axis = self.basis_at(t)
-        rel = np.asarray(point, dtype=np.float64) - center
-        if abs(float(np.dot(rel, normal))) > plane_tol:
+    def point_from_unconstrained(self, z: np.ndarray, t: float, dynamic: bool = True) -> tuple[np.ndarray, np.ndarray]:
+        poly = self.local_polygon_at(t, dynamic=dynamic)
+        local = local_from_unconstrained(z, poly)
+        return self.point_from_local(local, t, dynamic=dynamic), local
+
+    def polygon_at(self, t: float, dynamic: bool = True) -> np.ndarray:
+        local = self.local_polygon_at(t, dynamic=dynamic)
+        return np.asarray([self.point_from_local(p, t, dynamic=dynamic) for p in local], dtype=np.float64)
+
+    def candidates(self, t: float, samples_per_axis: int = 3, dynamic: bool = True) -> list[tuple[np.ndarray, np.ndarray]]:
+        poly = self.local_polygon_at(t, dynamic=dynamic)
+        locals_ = sample_polygon(poly, samples_per_axis=samples_per_axis)
+        return [(self.point_from_local(local, t, dynamic=dynamic), local) for local in locals_]
+
+    def contains(self, point: np.ndarray, t: float, dynamic: bool = True, plane_tol: float = 1e-4) -> bool:
+        local, plane_error = self.point_to_local(point, t, dynamic=dynamic)
+        if plane_error > plane_tol:
             return False
-        local = np.asarray([np.dot(rel, u_axis), np.dot(rel, v_axis)], dtype=np.float64)
-        scaled_poly = self.shape.local_polygon() * self.scale_at(t)[None, :]
-        return point_in_convex_polygon(local, scaled_poly, margin=1e-7)
+        return self.local_margin(local, t, dynamic=dynamic) >= -1e-7
 
-    def candidates(self, t: float, samples_per_axis: int = 3) -> np.ndarray:
-        center = self.center_at(t)
-        if samples_per_axis <= 1:
-            return center[None, :]
-        local_candidates = sample_convex_polygon(self.shape.local_polygon() * self.scale_at(t)[None, :], samples_per_axis)
-        _, u_axis, v_axis = self.basis_at(t)
-        return center[None, :] + local_candidates[:, 0:1] * u_axis[None, :] + local_candidates[:, 1:2] * v_axis[None, :]
+    def point_to_local(self, point: np.ndarray, t: float, dynamic: bool = True) -> tuple[np.ndarray, float]:
+        center = self.center_at(t, dynamic=dynamic)
+        normal, u_axis, v_axis = self.basis_at(t, dynamic=dynamic)
+        rel = np.asarray(point, dtype=np.float64) - center
+        local = np.asarray([np.dot(rel, u_axis), np.dot(rel, v_axis)], dtype=np.float64)
+        return local, abs(float(np.dot(rel, normal)))
+
+    def local_margin(self, local: np.ndarray, t: float, dynamic: bool = True) -> float:
+        return convex_margin(local, self.local_polygon_at(t, dynamic=dynamic))
 
 
 @dataclass
-class RaceTrack:
+class WindowTrack:
+    name: str
     start: np.ndarray
     goal: np.ndarray
-    gates: list[DynamicGate]
-    name: str = "dynamic_3d_gate_track"
+    windows: list[DynamicWindow]
+    order: tuple[int, ...] = DEFAULT_ORDER
 
-    def validate_gate_order(self, timed_points: list[tuple[int, float, np.ndarray]]) -> bool:
-        for gate_idx, t, point in timed_points:
-            if gate_idx < 0 or gate_idx >= len(self.gates):
-                return False
-            if not self.gates[gate_idx].contains(point, t):
-                return False
-        return True
+    def ordered_windows(self, order: Iterable[int] | None = None) -> list[DynamicWindow]:
+        idxs = self.order if order is None else tuple(order)
+        return [self.windows[i] for i in idxs]
 
 
-def sinusoid(amplitude: tuple[float, float, float], period: float, phase: float = 0.0) -> MotionFn:
-    amp = np.asarray(amplitude, dtype=np.float64)
-
-    def fn(t: float) -> np.ndarray:
-        return amp * math.sin(2.0 * math.pi * t / period + phase)
-
-    return fn
-
-
-def scale_wave(u_amp: float, v_amp: float, period: float, phase: float = 0.0) -> VectorFn:
-    def fn(t: float) -> np.ndarray:
-        angle = 2.0 * math.pi * t / period + phase
-        return np.asarray([1.0 + u_amp * math.sin(angle), 1.0 + v_amp * math.cos(angle)], dtype=np.float64)
-
-    return fn
-
-
-def angle_wave(amplitude: float, period: float, phase: float = 0.0) -> ScalarFn:
-    def fn(t: float) -> float:
-        return amplitude * math.sin(2.0 * math.pi * t / period + phase)
-
-    return fn
-
-
-def demo_track(dynamic: bool = True) -> RaceTrack:
-    centers = [
-        (2.0, 0.0, 1.2),
-        (4.2, 2.8, 2.4),
-        (6.5, -1.8, 1.0),
-        (8.8, 3.2, 3.0),
-        (11.5, -3.0, 1.4),
-        (14.5, 2.6, 2.8),
-        (17.0, -2.4, 1.1),
-        (19.8, 3.4, 3.2),
-        (22.4, -1.2, 1.6),
-        (25.2, 2.2, 2.7),
-        (27.8, -2.8, 1.3),
-        (30.5, 0.6, 2.1),
-    ]
-    kinds: list[ShapeKind] = [
-        "triangle",
-        "rectangle",
-        "pentagon",
-        "hexagon",
-        "rectangle",
-        "ball",
-        "pentagon",
-        "rectangle",
-        "hexagon",
-        "triangle",
-        "rectangle",
-        "ball",
-    ]
-    gates: list[DynamicGate] = []
-    for idx, (center, kind) in enumerate(zip(centers, kinds)):
-        motion = (
-            sinusoid(
-                (0.12 * math.sin(idx), 0.65 + 0.04 * (idx % 4), 0.46 + 0.03 * (idx % 3)),
-                period=8.0 + 0.45 * idx,
-                phase=0.55 * idx,
-            )
-            if dynamic
-            else None
-        )
-        scale = scale_wave(0.24, -0.22, period=9.0 + 0.35 * idx, phase=0.8 * idx) if dynamic else None
-        yaw = angle_wave(0.42, period=8.5 + 0.2 * idx, phase=0.4 * idx) if dynamic else None
-        pitch = angle_wave(0.32, period=7.5 + 0.25 * idx, phase=0.35 * idx) if dynamic else None
-        roll = angle_wave(0.55, period=6.8 + 0.3 * idx, phase=0.65 * idx) if dynamic else None
-        shape = GateShape(kind=kind, size=(1.85, 1.25), radius=0.98)
-        gates.append(
-            DynamicGate(
-                f"G{idx + 1}",
-                shape,
-                np.asarray(center, dtype=np.float64),
-                yaw0=0.08 * math.sin(idx * 0.7),
-                pitch0=0.05 * math.cos(idx * 0.5),
-                roll0=0.04 * math.sin(idx * 0.4),
-                center_motion=motion,
-                yaw_motion=yaw,
-                pitch_motion=pitch,
-                roll_motion=roll,
-                scale_motion=scale,
-            )
-        )
-    return RaceTrack(
-        start=np.asarray([0.0, -0.8, 1.2], dtype=np.float64),
-        goal=np.asarray([33.0, 0.0, 1.8], dtype=np.float64),
-        gates=gates,
-        name="paper_style_complex_dynamic_3d_gates",
+def make_window(idx: int, center: tuple[float, float, float], kind: ShapeKind, motion_scale: float = 1.0, motion_flags: tuple[bool, bool, bool] = (True, True, True)) -> DynamicWindow:
+    amp_t = motion_scale * np.asarray([0.22 * math.sin(idx + 0.7), 0.45 + 0.06 * (idx % 3), 0.28 + 0.04 * (idx % 2)], dtype=np.float64)
+    amp_r = motion_scale * np.asarray([0.28, 0.18, 0.34], dtype=np.float64)
+    amp_s = motion_scale * np.asarray([0.18, -0.16], dtype=np.float64)
+    return DynamicWindow(
+        name=f"G{idx + 1}",
+        shape=Shape2D(kind=kind, size=(1.65, 1.12), radius=0.86),
+        center0=np.asarray(center, dtype=np.float64),
+        yaw0=0.28 * math.sin(idx * 0.9),
+        pitch0=0.10 * math.cos(idx * 0.6),
+        roll0=0.16 * math.sin(idx * 0.5),
+        motion=MotionProfile(
+            translation_amp=amp_t,
+            rotation_amp=amp_r,
+            scale_amp=amp_s,
+            period=6.0 + 0.45 * idx,
+            phase=0.55 * idx,
+            enabled_translation=motion_flags[0],
+            enabled_rotation=motion_flags[1],
+            enabled_scale=motion_flags[2],
+        ),
     )
+
+
+def canonical_track(motion_scale: float = 1.45, motion_flags: tuple[bool, bool, bool] = (True, True, True), name: str = "canonical_6") -> WindowTrack:
+    centers = [
+        (2.0, -0.3, 1.3),
+        (8.4, 3.3, 2.7),
+        (6.0, -3.0, 1.1),
+        (12.4, -2.2, 3.2),
+        (10.3, 2.0, 1.0),
+        (4.4, 3.6, 2.5),
+    ]
+    kinds: list[ShapeKind] = ["rectangle", "circle", "pentagon", "slanted_quadrilateral", "hexagon", "triangle"]
+    windows = [make_window(i, c, k, motion_scale=motion_scale, motion_flags=motion_flags) for i, (c, k) in enumerate(zip(centers, kinds))]
+    return WindowTrack(name=name, start=np.asarray([0.0, -1.4, 1.2]), goal=np.asarray([14.4, 1.4, 1.9]), windows=windows)
+
+
+def random_track(seed: int, count: int = 6) -> WindowTrack:
+    rng = np.random.default_rng(seed)
+    kinds: list[ShapeKind] = ["rectangle", "circle", "triangle", "pentagon", "hexagon", "slanted_quadrilateral"]
+    centers = []
+    for i in range(count):
+        centers.append((2.0 + 2.0 * i + rng.uniform(-0.6, 0.6), rng.uniform(-3.5, 3.5), rng.uniform(0.9, 3.2)))
+    windows = [make_window(i, centers[i], kinds[i % len(kinds)], motion_scale=float(rng.uniform(0.6, 1.3))) for i in range(count)]
+    order = tuple(rng.permutation(count).tolist())
+    return WindowTrack(name=f"random_{seed}", start=np.asarray([0.0, -1.0, 1.2]), goal=np.asarray([2.0 + 2.0 * count, 0.8, 1.8]), windows=windows, order=order)
+
+
+def make_scenario(name: str) -> WindowTrack:
+    if name == "canonical":
+        return canonical_track()
+    if name == "translation_only":
+        return canonical_track(motion_flags=(True, False, False), name=name)
+    if name == "rotation_only":
+        return canonical_track(motion_flags=(False, True, False), name=name)
+    if name == "scale_only":
+        return canonical_track(motion_flags=(False, False, True), name=name)
+    if name == "slow_dynamic":
+        return canonical_track(motion_scale=0.45, name=name)
+    if name == "fast_dynamic":
+        return canonical_track(motion_scale=1.55, name=name)
+    if name.startswith("random_"):
+        return random_track(int(name.split("_", 1)[1]))
+    raise ValueError(f"unknown scenario: {name}")
