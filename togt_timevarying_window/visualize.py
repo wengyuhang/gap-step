@@ -69,13 +69,11 @@ def draw_plan_png(track: WindowTrack, plan: DynaTOGTPlan, path: Path, title: str
             _draw_window_2d(ax, window.polygon_at(max(0.0, float(crossing_t + offset)), dynamic=True), color=color, lw=1.25, alpha=0.30, linestyle="--", fill_alpha=0.0)
         _draw_window_2d(ax, window.polygon_at(float(crossing_t), dynamic=True), color=color, lw=3.0, alpha=1.0, linestyle="-", fill_alpha=0.060)
         point2 = _project(np.asarray(point)[None, :])[0]
-        local, plane_error = window.point_to_local(point, float(crossing_t), dynamic=True)
-        margin = window.local_margin(local, float(crossing_t), dynamic=True)
         ax.scatter([point2[0]], [point2[1]], color="#00a651", s=84, edgecolors="black", linewidths=1.0, zorder=9)
         ax.text(point2[0], point2[1] - 0.40, f"t{rank}", color="black", fontsize=13, fontstyle="italic", ha="center", zorder=9)
         center2 = _project(window.center_at(float(crossing_t), dynamic=True)[None, :])[0]
         ax.text(center2[0], center2[1] + 0.72, window.name, color=color, fontsize=16, fontweight="bold", ha="center", zorder=9)
-        ax.text(point2[0] + 0.30, point2[1] + 0.28, f"穿越成功\n裕度 {margin:.2f}", color="#007a2f", fontsize=8.5, fontweight="bold", zorder=10)
+        ax.text(point2[0] + 0.30, point2[1] + 0.28, "穿越成功", color="#007a2f", fontsize=8.5, fontweight="bold", zorder=10)
 
     _draw_drone_2d(ax, _project(plan.trajectory.positions[-1:])[0], float(plan.trajectory.yaws[-1]))
     ax.set_title(title or "DynaTOGT 动态时变窗口穿越演示", fontsize=20, fontweight="bold", pad=18)
@@ -113,14 +111,12 @@ def draw_plan_gif(track: WindowTrack, plan: DynaTOGTPlan, path: Path, frames: in
             ax.text(center2[0], center2[1] + 0.62, window.name, color=color, fontsize=11, fontweight="bold", ha="center", zorder=8)
             if active_crossing == rank:
                 p = plan.crossing_points[rank]
-                local, plane_error = window.point_to_local(p, float(t), dynamic=True)
-                margin = window.local_margin(local, float(t), dynamic=True)
                 p2 = _project(p[None, :])[0]
                 ax.scatter([p2[0]], [p2[1]], color="#00a651", s=135, marker="o", edgecolors="black", linewidths=1.2, zorder=10)
-                ax.text(p2[0] + 0.32, p2[1] + 0.32, f"{window.name} 穿越成功\n裕度={margin:.3f}\n平面误差={plane_error:.1e}", color="#007a2f", fontsize=9, weight="bold", zorder=11)
+                ax.text(p2[0] + 0.32, p2[1] + 0.32, "穿越成功", color="#007a2f", fontsize=9, weight="bold", zorder=11)
         drone_idx = min(upto - 1, len(traj.positions) - 1)
         _draw_drone_2d(ax, _project(traj.positions[drone_idx : drone_idx + 1])[0], float(traj.yaws[drone_idx]))
-        status = "" if active_crossing is None else f" | {plan.chosen_order[active_crossing]} 穿越成功"
+        status = "" if active_crossing is None else " | 穿越成功"
         ax.set_title(f"t={t:.2f}s{status} | {' -> '.join(plan.chosen_order)}", fontsize=13, fontweight="bold")
         frame_path = frame_dir / f"frame_{frame:03d}.png"
         fig.savefig(frame_path, dpi=110)
