@@ -10,6 +10,7 @@ from .visualize import draw_plan_gif, draw_plan_png, export_plan_csv
 
 
 def _parse_order(text: str) -> tuple[int, ...]:
+    """把 `G1,G6,...` 或 `1,6,...` 格式的命令行顺序解析为 0-based 索引。"""
     order = []
     for item in text.split(","):
         item = item.strip().upper()
@@ -22,6 +23,7 @@ def _parse_order(text: str) -> tuple[int, ...]:
 
 
 def main() -> None:
+    """命令行入口：求解单个场景并导出 CSV、PNG 和 GIF。"""
     parser = argparse.ArgumentParser(description="Export one DynaTOGT dynamic-window demo.")
     parser.add_argument("--scenario", default="canonical")
     parser.add_argument("--mode", choices=["static", "ordered_dynamic", "shuffled_dynamic"], default="ordered_dynamic")

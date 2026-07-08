@@ -13,6 +13,11 @@ BASELINES = ["WaypointCenter", "StaticTOGT", "DiscreteDynamic", "DynaTOGT"]
 
 
 def suite_tracks(suite: str) -> list[WindowTrack]:
+    """返回指定实验套件包含的场景列表。
+
+    smoke 只运行 canonical 场景，适合快速验证；default 包含 canonical、运动类型消融、
+    快慢动态和 10 个随机场景，用于生成较完整的对比结果。
+    """
     if suite == "smoke":
         return [make_scenario("canonical")]
     if suite == "default":
@@ -30,6 +35,11 @@ def suite_tracks(suite: str) -> list[WindowTrack]:
 
 
 def run_suite(suite: str, outdir: Path, frames: int = 18) -> list[dict[str, object]]:
+    """运行一个实验套件并导出所有结果文件。
+
+    每个场景会运行多个基线，导出轨迹 CSV；DynaTOGT 和 smoke 套件额外导出 PNG/GIF。
+    函数最后写入 `summary.csv`，并把所有指标行返回给调用者。
+    """
     root = outdir / suite
     summary_path = root / "summary.csv"
     trajectory_dir = root / "trajectories"
@@ -54,6 +64,7 @@ def run_suite(suite: str, outdir: Path, frames: int = 18) -> list[dict[str, obje
 
 
 def write_summary(path: Path, rows: list[dict[str, object]]) -> None:
+    """把实验指标行写成固定字段顺序的 CSV 汇总表。"""
     path.parent.mkdir(parents=True, exist_ok=True)
     fields = [
         "scenario",
@@ -78,6 +89,7 @@ def write_summary(path: Path, rows: list[dict[str, object]]) -> None:
 
 
 def main() -> None:
+    """命令行入口：解析参数、运行实验套件并打印简要统计。"""
     parser = argparse.ArgumentParser(description="Run DynaTOGT experiment suites.")
     parser.add_argument("--suite", choices=["smoke", "default"], default="smoke")
     parser.add_argument("--outdir", default="togt_timevarying_window/results")

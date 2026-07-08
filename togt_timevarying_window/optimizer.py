@@ -18,6 +18,12 @@ PlannerMode = Literal["static", "ordered_dynamic", "shuffled_dynamic"]
 
 @dataclass(frozen=True)
 class DynaTOGTConfig:
+    """DynaTOGT 优化器的超参数集合。
+
+    这些参数同时控制离散 warm start、连续 L-BFGS-B 优化和轨迹可飞性惩罚。
+    默认值偏向演示稳定性：先找到可穿越解，再用速度/加速度/jerk 指标约束轨迹质量。
+    """
+
     max_speed: float = 2.0
     max_acceleration: float = 4.5
     max_jerk: float = 45.0
@@ -38,6 +44,12 @@ class DynaTOGTConfig:
 
 @dataclass
 class DynaTOGTPlan:
+    """优化完成后返回的完整计划结果。
+
+    计划中同时保存穿越序列、每次穿越的时间/世界点/局部点、Hermite 轨迹、总代价和
+    验证状态。可视化、CSV 导出和实验统计都直接消费这个对象。
+    """
+
     mode: PlannerMode
     order: tuple[int, ...]
     success: bool
@@ -53,22 +65,38 @@ class DynaTOGTPlan:
 
     @property
     def chosen_order(self) -> list[str]:
+        """把内部 0-based 窗口索引转换成展示用的 `G1/G2/...` 名称列表。"""
         return [f"G{i + 1}" for i in self.order]
 
     @property
     def path_length(self) -> float:
+        """返回连续轨迹采样得到的路径长度。"""
         return self.trajectory.path_length
 
     @property
     def duration(self) -> float:
+        """返回整条轨迹总时长。"""
         return self.trajectory.duration
 
 
 class DynaTOGTOptimizer:
+    """DynaTOGT 求解器。
+
+    求解流程是：选择穿越顺序 -> 离散搜索 warm start -> L-BFGS-B 连续优化 ->
+    解码为 Hermite 轨迹 -> 验证每个穿越点是否位于对应动态窗口 `G_i(t_i)` 内。
+    """
+
     def __init__(self, config: DynaTOGTConfig | None = None):
+        """创建优化器，并在未传入配置时使用默认超参数。"""
         self.config = DynaTOGTConfig() if config is None else config
 
     def solve(self, track: WindowTrack, mode: PlannerMode = "ordered_dynamic", order: tuple[int, ...] | None = None, optimize: bool = True) -> DynaTOGTPlan:
+        """求解一个窗口穿越任务。
+
+        `mode="static"` 会冻结窗口运动，用作静态 TOGT 对照；`ordered_dynamic` 按给定顺序
+        穿越动态窗口；`shuffled_dynamic` 会先用 beam search 找一个一次性 permutation。
+        `optimize=False` 时只返回离散 warm start，作为 DiscreteDynamic 基线。
+        """
         start_time = time.perf_counter()
         dynamic = mode != "static"
         chosen_order = self._select_order(track, mode, order)
@@ -88,6 +116,11 @@ class DynaTOGTOptimizer:
         return self._decode(track, chosen_order, x, dynamic=dynamic, mode=mode, optimization_time=time.perf_counter() - start_time, message=str(result.message))
 
     def _select_order(self, track: WindowTrack, mode: PlannerMode, order: tuple[int, ...] | None) -> tuple[int, ...]:
+        """根据模式选择实际使用的窗口索引序列。
+
+        ordered/static 模式保留用户指定顺序，并允许重复窗口；shuffled_dynamic 模式用于
+        一次性排列搜索对照，因此会忽略固定顺序并调用 `_beam_order`。
+        """
         fixed = tuple(track.order if order is None else order)
         self._validate_order(track, fixed)
         if mode != "shuffled_dynamic":
@@ -95,6 +128,7 @@ class DynaTOGTOptimizer:
         return self._beam_order(track)
 
     def _validate_order(self, track: WindowTrack, order: tuple[int, ...]) -> None:
+        """检查穿越序列是否非空且索引都在窗口列表范围内。"""
         if not order:
             raise ValueError("order must contain at least one window")
         invalid = [idx for idx in order if idx < 0 or idx >= len(track.windows)]
@@ -102,6 +136,11 @@ class DynaTOGTOptimizer:
             raise ValueError(f"order contains invalid window indices {invalid}; valid range is 0..{len(track.windows) - 1}")
 
     def _beam_order(self, track: WindowTrack) -> tuple[int, ...]:
+        """为 shuffled_dynamic 基线搜索一个窗口 permutation。
+
+        该搜索只允许每个窗口出现一次，使用近似旅行时间作为代价，并用 beam width 控制
+        队列规模。它是对照实验，不代表 ordered_dynamic 的主要任务语义。
+        """
         count = len(track.windows)
         start = (0.0, 0, -1, tuple(), 0.0, track.start)
         queue = [start]
@@ -126,6 +165,12 @@ class DynaTOGTOptimizer:
         return best[1] if best is not None else tuple(range(count))
 
     def _warm_start(self, track: WindowTrack, order: tuple[int, ...], dynamic: bool) -> np.ndarray:
+        """构造连续优化的初始变量向量。
+
+        变量格式为 `[每段持续时间..., 每个窗口的局部 z_u/z_v...]`。本函数先按离散时间
+        步枚举未来若干候选穿越时刻和窗口内采样点，选择局部最短的可行候选，再把局部点
+        近似反变换成优化变量 `z`。
+        """
         durations = []
         locals_ = []
         point = track.start
@@ -159,6 +204,10 @@ class DynaTOGTOptimizer:
         return np.asarray(durations + z_values, dtype=np.float64)
 
     def _bounds(self, gate_count: int) -> list[tuple[float, float]]:
+        """生成 L-BFGS-B 的变量上下界。
+
+        前 `gate_count + 1` 个变量是段时长，后续变量是每个窗口穿越点的局部无约束坐标。
+        """
         duration_bounds = [(self.config.min_segment_time, self.config.max_segment_time)] * (gate_count + 1)
         z_bounds = [(-2.2, 2.2)] * (2 * gate_count)
         return duration_bounds + z_bounds
@@ -173,6 +222,11 @@ class DynaTOGTOptimizer:
         optimization_time: float,
         message: str,
     ) -> DynaTOGTPlan:
+        """把优化变量解码为 `DynaTOGTPlan`。
+
+        解码会根据累计持续时间得到每次穿越时刻，再用窗口的动态局部映射生成穿越点，
+        最后把起点、穿越点、终点拼成关键点并构造 Hermite 连续轨迹。
+        """
         durations = np.asarray(x[: len(order) + 1], dtype=np.float64)
         crossing_times = np.cumsum(durations)[:-1]
         z_values = np.asarray(x[len(order) + 1 :], dtype=np.float64).reshape(len(order), 2)
@@ -203,6 +257,12 @@ class DynaTOGTOptimizer:
         )
 
     def _objective(self, track: WindowTrack, order: tuple[int, ...], x: np.ndarray, dynamic: bool) -> float:
+        """计算连续优化目标函数。
+
+        目标由总时间、路径长度、最大加速度、平均 jerk、速度/加速度/jerk 超限惩罚以及
+        窗口边界裕度惩罚组成。窗口包含性主要通过变量映射保证，目标里的 margin 项用于
+        鼓励穿越点远离边框。
+        """
         durations = np.asarray(x[: len(order) + 1], dtype=np.float64)
         if np.any(durations <= 0.0):
             return 1e9
@@ -225,6 +285,11 @@ class DynaTOGTOptimizer:
         )
 
     def _decode_no_cost(self, track: WindowTrack, order: tuple[int, ...], x: np.ndarray, dynamic: bool) -> tuple[PolynomialTrajectory, np.ndarray, np.ndarray]:
+        """轻量解码优化变量，供目标函数内部反复调用。
+
+        与 `_decode` 相比，这里不递归计算 cost、不做完整验证，也不构造结果 dataclass，
+        以降低 L-BFGS-B 多次评估目标时的开销。
+        """
         durations = np.asarray(x[: len(order) + 1], dtype=np.float64)
         crossing_times = np.cumsum(durations)[:-1]
         z_values = np.asarray(x[len(order) + 1 :], dtype=np.float64).reshape(len(order), 2)
@@ -248,6 +313,11 @@ class DynaTOGTOptimizer:
         trajectory: PolynomialTrajectory,
         dynamic: bool,
     ) -> tuple[bool, str]:
+        """验证计划中每个穿越点是否真正落在对应动态窗口内。
+
+        这里检查的是几何成功条件：点在窗口平面上，并且局部坐标位于当前多边形内部。
+        轨迹动力学质量已经通过目标函数的速度/加速度/jerk 指标体现。
+        """
         del trajectory
         for gate_idx, t, point, local in zip(order, crossing_times, crossing_points, crossing_locals):
             if not track.windows[gate_idx].contains(point, float(t), dynamic=dynamic, plane_tol=1e-4):
@@ -258,6 +328,11 @@ class DynaTOGTOptimizer:
 
 
 def plan_metrics(plan: DynaTOGTPlan, track: WindowTrack, dynamic_eval: bool = True) -> dict[str, float | str | int | bool]:
+    """把计划对象整理成实验汇总表的一行指标。
+
+    `dynamic_eval=True` 表示即使某个计划来自静态规划，也按真实动态窗口重新计算裕度，
+    这样 StaticTOGT、WaypointCenter 和 DynaTOGT 可以在同一标准下比较。
+    """
     margins = [
         track.windows[idx].local_margin(local, float(t), dynamic=dynamic_eval)
         for idx, local, t in zip(plan.order, plan.crossing_locals, plan.crossing_times)

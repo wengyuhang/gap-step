@@ -8,6 +8,7 @@ from .optimizer import DynaTOGTConfig
 
 
 def _parse_order(text: str) -> tuple[int, ...]:
+    """把命令行中的窗口顺序字符串解析为内部使用的 0-based 索引元组。"""
     order = []
     for item in text.split(","):
         item = item.strip().upper()
@@ -20,6 +21,7 @@ def _parse_order(text: str) -> tuple[int, ...]:
 
 
 def main() -> None:
+    """命令行入口：运行一次 DynaTOGT/基线规划并在终端打印关键指标。"""
     parser = argparse.ArgumentParser(description="Run one DynaTOGT dynamic-window TOGT demo.")
     parser.add_argument("--scenario", default="canonical")
     parser.add_argument("--mode", choices=["static", "ordered_dynamic", "shuffled_dynamic"], default="ordered_dynamic")

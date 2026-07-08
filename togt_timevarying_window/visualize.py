@@ -18,6 +18,11 @@ COLORS = ["#e41a1c", "#0b8f28", "#c98900", "#6a1fb0", "#1267d8", "#cc0b72", "#44
 
 
 def _configure_chinese_font() -> None:
+    """为 Matplotlib 配置可用的中文字体。
+
+    导出的 PNG/GIF 需要显示“穿越成功”等中文提示；函数会按常见字体名查找，
+    找到后设置为 sans-serif 首选字体，并修正负号显示。
+    """
     preferred = ["Microsoft YaHei", "Droid Sans Fallback", "Noto Sans CJK SC", "SimHei", "WenQuanYi Micro Hei"]
     available = {font.name for font in font_manager.fontManager.ttflist}
     for name in preferred:
@@ -31,6 +36,11 @@ _configure_chinese_font()
 
 
 def export_plan_csv(plan: DynaTOGTPlan, track: WindowTrack, path: Path) -> None:
+    """把计划导出为包含穿越证据和轨迹采样的 CSV。
+
+    `crossing` 行记录每个窗口穿越时刻的局部坐标、平面误差、窗口裕度和 contains 结果；
+    `sample` 行记录密集轨迹采样，用于后续分析速度、加速度和 yaw。
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     fields = ["section", "index", "name", "t", "x", "y", "z", "vx", "vy", "vz", "ax", "ay", "az", "yaw", "local_u", "local_v", "plane_error", "gate_margin", "contains"]
     with path.open("w", newline="") as f:
@@ -47,6 +57,11 @@ def export_plan_csv(plan: DynaTOGTPlan, track: WindowTrack, path: Path) -> None:
 
 
 def draw_plan_png(track: WindowTrack, plan: DynaTOGTPlan, path: Path, title: str | None = None) -> None:
+    """绘制一张中文组会展示风格的静态结果图。
+
+    图中包含完整轨迹、起终点、每个穿越时刻的窗口姿态、过去/未来虚线姿态以及侧边说明。
+    该图用于快速展示 DynaTOGT 如何利用动态窗口几何完成穿越。
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     fig = plt.figure(figsize=(15.5, 9.2), facecolor="white")
     ax = fig.add_axes([0.04, 0.11, 0.72, 0.80])
@@ -84,6 +99,11 @@ def draw_plan_png(track: WindowTrack, plan: DynaTOGTPlan, path: Path, title: str
 
 
 def draw_plan_gif(track: WindowTrack, plan: DynaTOGTPlan, path: Path, frames: int = 32) -> None:
+    """绘制动态 GIF，展示无人机轨迹和窗口随时间变化的过程。
+
+    帧时间会合并均匀采样时刻和精确穿越时刻，保证 GIF 中一定出现每个“穿越成功”瞬间。
+    临时帧写到隐藏目录，合成后立即清理。
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     frame_dir = path.parent / f".frames_{path.stem}"
     frame_dir.mkdir(parents=True, exist_ok=True)
@@ -129,11 +149,19 @@ def draw_plan_gif(track: WindowTrack, plan: DynaTOGTPlan, path: Path, frames: in
 
 
 def _project(points: np.ndarray) -> np.ndarray:
+    """把三维点投影到二维示意图平面。
+
+    这里使用 x 作为横轴，`y + 0.45 z` 作为纵轴，既保留前进方向，也让高度变化在图中可见。
+    """
     pts = np.asarray(points, dtype=np.float64)
     return np.stack([pts[..., 0], pts[..., 1] + 0.45 * pts[..., 2]], axis=-1)
 
 
 def _setup_schematic_axes(ax, track: WindowTrack, plan: DynaTOGTPlan) -> None:
+    """设置示意图坐标范围、等比例显示和背景网格。
+
+    坐标范围根据轨迹、起终点和窗口在穿越时刻前后的姿态自动计算，避免动态图形被裁切。
+    """
     ax.set_aspect("equal")
     ax.axis("off")
     points = [plan.trajectory.positions, track.start[None, :], track.goal[None, :]]
@@ -149,6 +177,7 @@ def _setup_schematic_axes(ax, track: WindowTrack, plan: DynaTOGTPlan) -> None:
 
 
 def _draw_grid(ax, lo: np.ndarray, hi: np.ndarray) -> None:
+    """绘制倾斜浅色网格背景，增强空间感但不干扰轨迹和窗口主体。"""
     for x in np.linspace(lo[0] - 2.0, hi[0] + 2.0, 24):
         ax.plot([x, x + 3.6], [lo[1], hi[1]], color="#e8edf3", lw=0.65, zorder=0)
     for y in np.linspace(lo[1] - 2.0, hi[1] + 2.0, 18):
@@ -156,6 +185,7 @@ def _draw_grid(ax, lo: np.ndarray, hi: np.ndarray) -> None:
 
 
 def _draw_window_2d(ax, polygon: np.ndarray, color: str, lw: float, alpha: float, linestyle: str, fill_alpha: float) -> None:
+    """把三维窗口多边形投影后绘制到二维示意图中。"""
     poly = _project(polygon)
     closed = np.vstack([poly, poly[0]])
     if fill_alpha > 0.0:
@@ -164,6 +194,7 @@ def _draw_window_2d(ax, polygon: np.ndarray, color: str, lw: float, alpha: float
 
 
 def _draw_drone_2d(ax, center: np.ndarray, yaw: float) -> None:
+    """在示意图中绘制一个按 yaw 朝向旋转的简化无人机图标。"""
     body = np.asarray([[0.36, 0.0], [-0.20, 0.17], [-0.10, 0.0], [-0.20, -0.17]])
     c, s = np.cos(yaw), np.sin(yaw)
     rot = np.asarray([[c, -s], [s, c]])
@@ -176,6 +207,7 @@ def _draw_drone_2d(ax, center: np.ndarray, yaw: float) -> None:
 
 
 def _active_crossing(plan: DynaTOGTPlan, t: float) -> int | None:
+    """判断当前 GIF 帧是否正好对应某个精确穿越时刻。"""
     if not len(plan.crossing_times):
         return None
     nearest = int(np.argmin(np.abs(plan.crossing_times - t)))
@@ -183,6 +215,7 @@ def _active_crossing(plan: DynaTOGTPlan, t: float) -> int | None:
 
 
 def _draw_side_panel(ax, plan: DynaTOGTPlan) -> None:
+    """绘制静态 PNG 右侧的信息面板。"""
     ax.axis("off")
     ax.text(0.5, 0.96, "DynaTOGT", ha="center", va="top", fontsize=18, fontweight="bold", color="#0649c9", transform=ax.transAxes)
     items = [("动态窗口约束", r"$p(t_i)\in G_i(t_i)$"), ("穿越顺序", _format_order(plan.chosen_order)), ("验证方式", "绿色点 + CSV 裕度")]
@@ -198,4 +231,5 @@ def _draw_side_panel(ax, plan: DynaTOGTPlan) -> None:
 
 
 def _format_order(order: list[str], per_line: int = 4) -> str:
+    """把窗口顺序格式化成多行文本，避免侧边栏过长溢出。"""
     return "\n".join(" -> ".join(order[i : i + per_line]) for i in range(0, len(order), per_line))

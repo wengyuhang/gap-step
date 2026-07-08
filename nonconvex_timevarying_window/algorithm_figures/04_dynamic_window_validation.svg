@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1186.2pt" height="679.68pt" viewBox="0 0 1186.2 679.68" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-07-08T18:48:06.655862</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.8.0, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 679.68 
+L 1186.2 679.68 
+L 1186.2 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 67.992984 220.169434 
+L 368.255016 220.169434 
+Q 382.316616 220.169434 382.316616 212.186074 
+L 382.316616 114.895526 
+Q 382.316616 106.912166 368.255016 106.912166 
+L 67.992984 106.912166 
+Q 53.931384 106.912166 53.931384 114.895526 
+L 53.931384 212.186074 
+Q 53.931384 220.169434 67.992984 220.169434 
+z
+" clip-path="url(#p6d04718514)" style="fill: #faf5ff; stroke: #6b46c1; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 454.686984 220.169434 
+L 754.949016 220.169434 
+Q 769.010616 220.169434 769.010616 212.186074 
+L 769.010616 114.895526 
+Q 769.010616 106.912166 754.949016 106.912166 
+L 454.686984 106.912166 
+Q 440.625384 106.912166 440.625384 114.895526 
+L 440.625384 212.186074 
+Q 440.625384 220.169434 454.686984 220.169434 
+z
+" clip-path="url(#p6d04718514)" style="fill: #ebf4ff; stroke: #2b6cb0; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 841.380984 220.169434 
+L 1118.207016 220.169434 
+Q 1132.268616 220.169434 1132.268616 212.186074 
+L 1132.268616 114.895526 
+Q 1132.268616 106.912166 1118.207016 106.912166 
+L 841.380984 106.912166 
+Q 827.319384 106.912166 827.319384 114.895526 
+L 827.319384 212.186074 
+Q 827.319384 220.169434 841.380984 220.169434 
+z
+" clip-path="url(#p6d04718514)" style="fill: #f0fff4; stroke: #2f855a; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 384.175012 163.5408 
+Q 411.470561 163.5408 436.530043 163.5408 
+" clip-path="url(#p6d04718514)" style="fill: none; stroke: #4a5568; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 430.530043 160.5408 
+L 436.530043 163.5408 
+L 430.530043 166.5408 
+z
+" clip-path="url(#p6d04718514)" style="fill: #4a5568; stroke: #4a5568; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 770.869012 163.5408 
+Q 798.164561 163.5408 823.224043 163.5408 
+" clip-path="url(#p6d04718514)" style="fill: none; stroke: #4a5568; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 817.224043 160.5408 
+L 823.224043 163.5408 
+L 817.224043 166.5408 
+z
+" clip-path="url(#p6d04718514)" style="fill: #4a5568; stroke: #4a5568; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 303.171514 429.917796 
+L 316.656871 421.140952 
+L 318.525399 409.798973 
+L 310.103886 399.456209 
+L 297.599667 391.384901 
+L 285.81806 383.893345 
+L 273.939958 374.964145 
+L 257.526661 365.42444 
+L 234.578677 359.264058 
+L 209.343147 360.546449 
+L 189.791029 369.800072 
+L 181.048814 383.384264 
+L 181.196878 396.466176 
+L 183.588681 406.752418 
+L 183.432032 415.454079 
+L 182.191732 424.769569 
+L 185.585728 434.631451 
+L 197.335901 442.125904 
+L 215.019492 444.214261 
+L 232.18322 440.972832 
+L 244.539375 435.962228 
+L 253.929179 433.167543 
+L 265.96393 433.395082 
+L 283.617527 433.619296 
+z
+" clip-path="url(#p6d04718514)" style="fill: #c05621; fill-opacity: 0.094118; stroke: #c05621; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="mc5582979ec" d="M 0 3.535534 
+C 0.937635 3.535534 1.836992 3.163008 2.5 2.5 
+C 3.163008 1.836992 3.535534 0.937635 3.535534 0 
+C 3.535534 -0.937635 3.163008 -1.836992 2.5 -2.5 
+C 1.836992 -3.163008 0.937635 -3.535534 0 -3.535534 
+C -0.937635 -3.535534 -1.836992 -3.163008 -2.5 -2.5 
+C -3.163008 -1.836992 -3.535534 -0.937635 -3.535534 0 
+C -3.535534 0.937635 -3.163008 1.836992 -2.5 2.5 
+C -1.836992 3.163008 -0.937635 3.535534 0 3.535534 
+z
+" style="stroke: #c05621"/>
+    </defs>
+    <g clip-path="url(#p6d04718514)">
+     <use xlink:href="#mc5582979ec" x="241.56" y="413.0208" style="fill: #c05621; stroke: #c05621"/>
+    </g>
+   </g>
+   <g id="patch_8">
+    <path d="M 666.997106 419.6736 
+L 672.849222 407.54167 
+L 665.281718 396.013446 
+L 648.534099 388.201337 
+L 629.695574 383.687054 
+L 612.039477 379.543846 
+L 593.1 374.028289 
+L 569.244978 369.128583 
+L 541.831215 369.258036 
+L 518.351174 377.235557 
+L 506.993734 391.449175 
+L 509.731955 406.991153 
+L 520.70022 419.6736 
+L 531.537281 429.03889 
+L 538.584898 437.542885 
+L 545.086579 446.932833 
+L 556.547131 455.618152 
+L 574.175056 459.772561 
+L 593.1 457.087167 
+L 607.109398 449.357298 
+L 614.979658 441.189134 
+L 621.798694 435.967052 
+L 633.690554 432.978614 
+L 651.043896 428.488373 
+z
+" clip-path="url(#p6d04718514)" style="fill: #c53030; fill-opacity: 0.094118; stroke: #c53030; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_2">
+    <defs>
+     <path id="m1f7732d528" d="M 0 3.535534 
+C 0.937635 3.535534 1.836992 3.163008 2.5 2.5 
+C 3.163008 1.836992 3.535534 0.937635 3.535534 0 
+C 3.535534 -0.937635 3.163008 -1.836992 2.5 -2.5 
+C 1.836992 -3.163008 0.937635 -3.535534 0 -3.535534 
+C -0.937635 -3.535534 -1.836992 -3.163008 -2.5 -2.5 
+C -3.163008 -1.836992 -3.535534 -0.937635 -3.535534 0 
+C -3.535534 0.937635 -3.163008 1.836992 -2.5 2.5 
+C -1.836992 3.163008 -0.937635 3.535534 0 3.535534 
+z
+" style="stroke: #c53030"/>
+    </defs>
+    <g clip-path="url(#p6d04718514)">
+     <use xlink:href="#m1f7732d528" x="593.1" y="419.6736" style="fill: #c53030; stroke: #c53030"/>
+    </g>
+   </g>
+   <g id="patch_9">
+    <path d="M 1016.109356 393.420285 
+L 1011.786053 380.134708 
+L 994.980785 370.992432 
+L 972.354926 367.879124 
+L 950.420578 368.509891 
+L 929.935162 369.185915 
+L 907.079248 368.87508 
+L 879.976052 370.463665 
+L 853.569442 377.860109 
+L 837.42536 391.803404 
+L 838.137193 408.562516 
+L 853.574685 422.867604 
+L 874.618778 432.224163 
+L 892.806346 438.407345 
+L 906.62022 444.762644 
+L 920.635129 452.119592 
+L 938.866168 457.479768 
+L 959.333554 456.822049 
+L 975.426989 449.205215 
+L 982.615357 438.013434 
+L 983.505611 428.026108 
+L 985.803458 421.166902 
+L 994.845499 415.122438 
+L 1007.933785 406.176904 
+z
+" clip-path="url(#p6d04718514)" style="fill: #2f855a; fill-opacity: 0.094118; stroke: #2f855a; stroke-width: 2; stroke-linejoin: miter"/>
+   </g>
+   <g id="PathCollection_3">
+    <defs>
+     <path id="m8909acfd10" d="M 0 3.535534 
+C 0.937635 3.535534 1.836992 3.163008 2.5 2.5 
+C 3.163008 1.836992 3.535534 0.937635 3.535534 0 
+C 3.535534 -0.937635 3.163008 -1.836992 2.5 -2.5 
+C 1.836992 -3.163008 0.937635 -3.535534 0 -3.535534 
+C -0.937635 -3.535534 -1.836992 -3.163008 -2.5 -2.5 
+C -3.163008 -1.836992 -3.535534 -0.937635 -3.535534 0 
+C -3.535534 0.937635 -3.163008 1.836992 -2.5 2.5 
+C -1.836992 3.163008 -0.937635 3.535534 0 3.535534 
+z
+" style="stroke: #2f855a"/>
+    </defs>
+    <g clip-path="url(#p6d04718514)">
+     <use xlink:href="#m8909acfd10" x="944.64" y="413.0208" style="fill: #2f855a; stroke: #2f855a"/>
+    </g>
+   </g>
+   <g id="patch_10">
+    <path d="M 360.739012 413.088895 
+Q 417.329476 415.016622 471.685168 416.868222 
+" clip-path="url(#p6d04718514)" style="fill: none; stroke: #4a5568; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 465.79078 413.665693 
+L 471.685168 416.868222 
+L 465.586512 419.662215 
+z
+" clip-path="url(#p6d04718514)" style="fill: #4a5568; stroke: #4a5568; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 712.279012 416.944385 
+Q 768.869476 415.016658 823.225168 413.165058 
+" clip-path="url(#p6d04718514)" style="fill: none; stroke: #4a5568; stroke-width: 2; stroke-linecap: round"/>
+    <path d="M 817.126512 410.371065 
+L 823.225168 413.165058 
+L 817.33078 416.367587 
+z
+" clip-path="url(#p6d04718514)" style="fill: #4a5568; stroke: #4a5568; stroke-width: 2; stroke-linecap: round"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 67.992984 625.990234 
+L 1118.207016 625.990234 
+Q 1132.268616 625.990234 1132.268616 618.006874 
+L 1132.268616 514.063526 
+Q 1132.268616 506.080166 1118.207016 506.080166 
+L 67.992984 506.080166 
+Q 53.931384 506.080166 53.931384 514.063526 
+L 53.931384 618.006874 
+Q 53.931384 625.990234 67.992984 625.990234 
+z
+" clip-path="url(#p6d04718514)" style="fill: #f7fafc; stroke: #1a202c; stroke-width: 1.8; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 124.38 459.5904 
+L 358.74 366.4512 
+" clip-path="url(#p6d04718514)" style="fill: none; stroke-dasharray: 4.44,1.92; stroke-dashoffset: 0; stroke: #a0aec0; stroke-width: 1.2"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 475.92 466.2432 
+L 710.28 373.104 
+" clip-path="url(#p6d04718514)" style="fill: none; stroke-dasharray: 4.44,1.92; stroke-dashoffset: 0; stroke: #a0aec0; stroke-width: 1.2"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 827.46 459.5904 
+L 1061.82 366.4512 
+" clip-path="url(#p6d04718514)" style="fill: none; stroke-dasharray: 4.44,1.92; stroke-dashoffset: 0; stroke: #a0aec0; stroke-width: 1.2"/>
+   </g>
+   <g id="text_1">
+    <text style="fill: #1a202c; font: 700 22px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="593.1" y="39.869794" transform="rotate(-0 593.1 39.869794)">图解 3：动态窗口、世界坐标和最终验证</text>
+   </g>
+   <g id="text_2">
+    <text style="fill: #4a5568; font: 13px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="593.1" y="64.002478" transform="rotate(-0 593.1 64.002478)">局部窗口 Ω(t) 先缩放，再由窗口姿态旋转到 3D 世界，最后平移到 center(t)。</text>
+   </g>
+   <g id="text_3">
+    <text style="fill: #6b46c1; font: 700 14px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="218.124" y="139.47221" transform="rotate(-0 218.124 139.47221)">局部坐标 local=(u,v)</text>
+   </g>
+   <g id="text_4">
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(79.8516 169.007525)">二维窗口平面内的点</text>
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(79.8516 183.612775)">先在非凸区域 Ω(t) 内选点</text>
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(79.8516 198.218025)">这一步由 chart atlas 保证</text>
+   </g>
+   <g id="text_5">
+    <text style="fill: #2b6cb0; font: 700 14px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="604.818" y="139.47221" transform="rotate(-0 604.818 139.47221)">动态变换 P(t,local)</text>
+   </g>
+   <g id="text_6">
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(466.5456 169.007525)">scale(t)：局部形状变大/变小</text>
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(466.5456 183.612775)">rotation(t)：窗口平面转动</text>
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(466.5456 198.218025)">center(t)：窗口中心平移</text>
+   </g>
+   <g id="text_7">
+    <text style="fill: #2f855a; font: 700 14px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="979.794" y="139.90971" transform="rotate(-0 979.794 139.90971)">世界坐标 point</text>
+   </g>
+   <g id="text_8">
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(853.2396 169.007525)">3D 轨迹真正经过的位置</text>
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(853.2396 183.612775)">用于画 PNG/GIF</text>
+    <text style="fill: #1a202c; font: 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(853.2396 198.218025)">也用于导出 CSV 验证</text>
+   </g>
+   <g id="text_9">
+    <text style="fill: #4a5568; font: 700 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="411.471" y="139.958897" transform="rotate(-0 411.471 139.958897)">代入 t</text>
+   </g>
+   <g id="text_10">
+    <text style="fill: #4a5568; font: 700 11px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="798.165" y="139.958897" transform="rotate(-0 798.165 139.958897)">得到 3D 点</text>
+   </g>
+   <g id="text_11">
+    <text style="fill: #2b6cb0; font: 700 15px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="593.1" y="264.378666" transform="rotate(-0 593.1 264.378666)">公式：point = center(t) + local_u · u_axis(t) + local_v · v_axis(t)</text>
+   </g>
+   <g id="text_12">
+    <text style="fill: #c05621; font: 700 13px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="241.56" y="316.808878" transform="rotate(-0 241.56 316.808878)">t = 早一点</text>
+   </g>
+   <g id="text_13">
+    <text style="fill: #c53030; font: 700 13px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="593.1" y="323.461678" transform="rotate(-0 593.1 323.461678)">t = 穿越时刻</text>
+   </g>
+   <g id="text_14">
+    <text style="fill: #2f855a; font: 700 13px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="944.64" y="316.808878" transform="rotate(-0 944.64 316.808878)">t = 晚一点</text>
+   </g>
+   <g id="text_15">
+    <text style="fill: #e53e3e; font: 700 12px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="593.1" y="469.547888" transform="rotate(-0 593.1 469.547888)">优化出的穿越点</text>
+   </g>
+   <g id="text_16">
+    <text style="fill: #1a202c; font: 700 15px 'Microsoft YaHei', 'DejaVu Sans', sans-serif; text-anchor: middle" x="593.1" y="539.439585" transform="rotate(-0 593.1 539.439585)">最终验证清单：每个窗口穿越点都要过这几关</text>
+   </g>
+   <g id="text_17">
+    <text style="fill: #1a202c; font: 11.5px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(79.8516 568.575213)">contains=True：世界点投回局部后，必须在真实动态非凸区域 Ω_i(t_i) 内。</text>
+    <text style="fill: #1a202c; font: 11.5px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(79.8516 584.525982)">plane_error 小：点必须在当前窗口平面上，不能只是从旁边擦过去。</text>
+    <text style="fill: #1a202c; font: 11.5px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(79.8516 600.416107)">boundary_margin &gt; 0：点到非凸边界有正距离，说明在内部而不是边外。</text>
+    <text style="fill: #1a202c; font: 11.5px 'Microsoft YaHei', 'DejaVu Sans', sans-serif" transform="translate(79.8516 615.751716)">chart_contains=True：局部点仍在它声明的三角 chart 内，说明 atlas 选择合法。</text>
+   </g>
+   <g id="PathCollection_4">
+    <defs>
+     <path id="m6a0848ed25" d="M 0 6.708204 
+C 1.779036 6.708204 3.485448 6.001385 4.743416 4.743416 
+C 6.001385 3.485448 6.708204 1.779036 6.708204 0 
+C 6.708204 -1.779036 6.001385 -3.485448 4.743416 -4.743416 
+C 3.485448 -6.001385 1.779036 -6.708204 0 -6.708204 
+C -1.779036 -6.708204 -3.485448 -6.001385 -4.743416 -4.743416 
+C -6.001385 -3.485448 -6.708204 -1.779036 -6.708204 0 
+C -6.708204 1.779036 -6.001385 3.485448 -4.743416 4.743416 
+C -3.485448 6.001385 -1.779036 6.708204 0 6.708204 
+z
+" style="stroke: #ffffff; stroke-width: 2"/>
+    </defs>
+    <g clip-path="url(#p6d04718514)">
+     <use xlink:href="#m6a0848ed25" x="593.1" y="419.6736" style="fill: #e53e3e; stroke: #ffffff; stroke-width: 2"/>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p6d04718514">
+   <rect x="7.2" y="7.2" width="1171.8" height="665.28"/>
+  </clipPath>
+ </defs>
+</svg>
