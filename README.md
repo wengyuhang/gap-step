@@ -1,8 +1,8 @@
 # GAP-Step
 
-GAP-Step 是一个连续二维时变窗口迷宫项目。当前目标是训练 PPO 特权教师：教师看到完整拓扑图和窗口动力学，直接输出二维连续加速度动作。
+GAP-Step 主线是一个连续二维时变窗口迷宫项目。主线目标是训练 PPO 特权教师：教师看到完整拓扑图和窗口动力学，直接输出二维连续加速度动作。仓库同时包含独立的 TOGT 论文复现、凸时变窗口实验和非凸时变窗口多方法研究。
 
-当前不做视觉学生、行为克隆、专家演示、A*/MPC、世界模型、主动感知、三维仿真或四旋翼动力学。
+`gap_step/` 主线当前不做视觉学生、行为克隆、专家演示、A*/MPC、世界模型、主动感知、三维仿真或四旋翼动力学。这些限制不适用于独立的 TOGT 窗口研究子项目。
 
 ## 代码结构
 
@@ -119,13 +119,14 @@ GraphObs(
 生成目录 `data/`、`checkpoints/`、`logs/`、`runs/`、`results/` 被 Git 忽略。
 
 
-## TOGT 论文复现与动态门改进
+## TOGT 论文复现与窗口扩展
 
 本仓库还包含一个独立的新项目，用于复现和扩展论文 `复现/论文/2309.06837v3.pdf` / TOGT-Planner。该部分不属于 `gap_step/` 旧迷宫训练主线。
 
 ```text
 复现/TOGT-Planner-reproduction/                TOGT-Planner 源码级复现、结果级复现脚本和记录
 togt_timevarying_window/                       独立论文式动态 gate/window 改进项目
+nonconvex_timevarying_window/                  非凸时变窗口多方法研究总目录
 docs/TOGT_REPRODUCTION_AUDIT.md                需求到证据的完成度审计
 ```
 
@@ -138,6 +139,10 @@ python -m togt_timevarying_window.demo --scenario canonical --mode ordered_dynam
 python -m togt_timevarying_window.export_demo --scenario canonical --mode ordered_dynamic
 python -m togt_timevarying_window.experiments --suite smoke --outdir togt_timevarying_window/results
 pytest -q togt_timevarying_window/tests
+python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/atlas_dynatogt/results
+pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
 ```
 
 TOGT C++ 原生构建已通过本地 vendored Eigen 完成；源码树、CMake/build/ctest、结果级复现均已验证。动态门改进项目已重构为 DynaTOGT：在原论文 gate 几何约束思想基础上，将静态 `p(t_i) in G_i` 扩展为动态可变形窗口 `p(t_i) in G_i(t_i)`。默认固定顺序为 `G1 -> G6 -> G3 -> G2 -> G5 -> G4`；实验对比 `WaypointCenter`、`StaticTOGT`、`DiscreteDynamic` 和 `DynaTOGT`，输出 `togt_timevarying_window/results/<suite>/summary.csv` 以及 trajectory CSV / PNG / GIF。
+
+非凸时变窗口研究在 `nonconvex_timevarying_window/` 中独立组织。总目录根部的 `PROBLEM_DEFINITION.md` 定义通用问题；已有方法 `AtlasDynaTOGT` 放在 `atlas_dynatogt/` 中，使用非凸区域三角剖分、softmax 重心 chart 和多初值 L-BFGS-B。后续其他解法以算法名称建立并列子目录。

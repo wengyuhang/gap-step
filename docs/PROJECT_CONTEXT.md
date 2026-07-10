@@ -2,13 +2,16 @@
 
 ## Current Focus
 
-The active project line is a generated family of continuous 2D time-varying window mazes trained with a pure privileged PPO teacher.
+The repository mainline remains a generated family of continuous 2D time-varying window mazes trained with a pure privileged PPO teacher. The current active research extension is the multi-method non-convex time-varying window traversal project under `nonconvex_timevarying_window/`.
 
 ```text
 gap_step/window_maze_env.py
 gap_step/train_window.py
 gap_step/evaluate_window.py
 gap_step/visualize_window.py
+
+nonconvex_timevarying_window/PROBLEM_DEFINITION.md
+nonconvex_timevarying_window/atlas_dynatogt/
 ```
 
 ## Environment Contract
@@ -54,3 +57,37 @@ Current DynaTOGT facts:
 - repeated demo example uses `G1 -> G6 -> G1 -> G3 -> G2 -> G5 -> G4 -> G2`;
 - exports Chinese presentation-style PNG/GIF plus trajectory CSV under `togt_timevarying_window/results/`;
 - traversal evidence is recorded per crossing with `contains`, `plane_error`, and `gate_margin`.
+
+## Non-Convex Time-Varying Window Research Context
+
+`nonconvex_timevarying_window/` 是一个独立的非凸时变窗口研究总目录，不属于 `gap_step/` PPO 主线，也不替代已有的凸窗口 `togt_timevarying_window/` 子项目。
+
+研究目标是在论文 *Time-Optimal Gate-Traversing Planner for Autonomous Drone Racing*（`arXiv:2309.06837v3`）的 TOGT 问题上，将原有静态凸窗口扩展为非凸且随时间平移、旋转和缩放的窗口。
+
+当前通用问题范围：
+
+- 窗口是无洞、无自交的简单闭合非凸区域；
+- 折线、光滑曲线和混合边界都可以通过有序边界点表示；
+- 无人机按给定顺序穿越窗口，当前任务不要求重复穿越同一窗口；
+- 穿越点必须位于穿越时刻的真实非凸区域内，不能用凸包代替真实窗口验证；
+- 目标是在窗口几何、时变运动、指定顺序和轨迹动力学约束下尽量减小总飞行时间。
+
+总目录和方法目录的边界为：
+
+```text
+nonconvex_timevarying_window/
+  README.md                 总任务与方法索引
+  PROBLEM_DEFINITION.md     与具体算法无关的问题定义
+  atlas_dynatogt/           已实现的 AtlasDynaTOGT 方法
+  <algorithm_name>/        后续方法的并列目录
+```
+
+当前唯一已整理的方法是 `AtlasDynaTOGT`：将非凸区域用 ear clipping 剖分成三角 chart atlas，使用 softmax 重心坐标生成 chart 内穿越点，再用多初值 L-BFGS-B 联合优化分段时间和穿越点。该方法不再进行基线对比，也没有单独 demo 入口，所有运行统一从 `experiments.py` 进入。
+
+当前验证状态：
+
+```text
+default suite: 14 scenarios, 14 successes
+pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
+7 passed
+```

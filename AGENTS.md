@@ -1,13 +1,14 @@
 # AGENTS.md
 
-GAP-Step / DynaTOGT 仓库给代码代理使用的本地约定。详细背景放在 `docs/` 和各子项目 README 中；本文件只保留必须遵守的规则。
+GAP-Step / TOGT 窗口研究仓库给代码代理使用的本地约定。详细背景放在 `docs/` 和各子项目 README 中；本文件只保留必须遵守的规则。
 
 ## 项目边界
 
 - `gap_step/` 是主线：连续二维时变窗口迷宫 + 纯 PPO 特权教师。
 - `togt_timevarying_window/` 是独立 DynaTOGT 子项目：基于 TOGT 论文思想的 3D 动态时变窗口穿越实验。
+- `nonconvex_timevarying_window/` 是非凸时变窗口研究的总目录：根目录保存通用问题定义，每种算法放在以算法名称命名的独立子目录中。
 - `复现/` 是 TOGT 论文复现包；不要把其中代码并入主线。
-- 重要改动前先读相关 `docs/`；TOGT/DynaTOGT 细节见 `docs/ARCHITECTURE.md`、`docs/PROJECT_CONTEXT.md` 和 `togt_timevarying_window/README.md`。
+- 重要改动前先读相关 `docs/`；TOGT 窗口研究细节见 `docs/ARCHITECTURE.md`、`docs/PROJECT_CONTEXT.md` 和对应子项目 README。
 
 ## 主线 PPO 规则
 
@@ -38,6 +39,19 @@ python -m togt_timevarying_window.export_demo --scenario canonical --mode ordere
 python -m togt_timevarying_window.export_demo --scenario canonical --mode ordered_dynamic --order G1,G6,G1,G3,G2,G5,G4,G2 --outdir togt_timevarying_window/results/repeated_demo
 python -m togt_timevarying_window.experiments --suite smoke --outdir togt_timevarying_window/results
 pytest -q togt_timevarying_window/tests
+```
+
+## 非凸时变窗口研究规则
+
+- 通用问题定义固定放在 `nonconvex_timevarying_window/PROBLEM_DEFINITION.md`，不要移入某个具体算法目录。
+- 当前已实现的方法是 `nonconvex_timevarying_window/atlas_dynatogt/`；源码、算法文档、测试、图解和结果均保存在该方法目录内。
+- 后续方法必须新建与 `atlas_dynatogt/` 并列的独立目录，不要把具体算法源码放回总目录根部。
+- 当前研究范围是无洞、无自交的非凸窗口，按指定顺序每个窗口穿越一次；暂不要把重复穿越或基线对比作为必要任务。
+
+```bash
+python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/atlas_dynatogt/results
+python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite default --outdir nonconvex_timevarying_window/atlas_dynatogt/results
+pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
 ```
 
 ## 文件与镜像规则

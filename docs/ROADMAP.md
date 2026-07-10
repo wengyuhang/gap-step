@@ -33,3 +33,12 @@ ood_maze_test   74.5%
   - add stronger quadrotor thrust/angular-rate feasibility metrics;
   - add collision/obstacle constraints beyond window traversal;
   - add publication-style result tables comparing `WaypointCenter`, `StaticTOGT`, `DiscreteDynamic`, and `DynaTOGT`.
+
+## Non-Convex Time-Varying Window Track
+
+- Keep `nonconvex_timevarying_window/` as the umbrella for the research problem, with the common problem definition at its root.
+- Keep every solution in a sibling directory named after the algorithm; do not place method-specific source files at the umbrella root.
+- `atlas_dynatogt/` is the first implemented method: boundary sampling, ear-clipping triangulation, softmax barycentric charts, chart multi-start, and L-BFGS-B refinement.
+- The current task covers simple closed non-convex windows without holes or self-intersections, dynamic translation/rotation/scale, and one traversal of each window in the specified order.
+- Baseline comparison and repeated traversal are not current requirements.
+- Future work can add other methods as new sibling directories and evaluate them independently under their own `results/` directories.

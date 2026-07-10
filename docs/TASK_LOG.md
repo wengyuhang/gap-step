@@ -119,3 +119,31 @@ togt_timevarying_window/results/repeated_demo/gifs/canonical_6_DynaTOGT.gif
 ```
 
 Traversal evidence is recorded in CSV crossing rows via `contains=True`, near-zero `plane_error`, and positive `gate_margin`.
+
+## 2026-07-10 Non-Convex Time-Varying Window Research Organization
+
+Implemented:
+
+- defined the TOGT extension problem with non-convex, time-varying windows in `nonconvex_timevarying_window/PROBLEM_DEFINITION.md`;
+- scoped the current task to simple closed regions without holes or self-intersections and one traversal of each window in the specified order;
+- changed `nonconvex_timevarying_window/` into the umbrella directory for multiple future solution methods;
+- moved the existing triangulation chart-atlas method into `nonconvex_timevarying_window/atlas_dynatogt/`;
+- kept the method's source, algorithm document, figures, tests, and experiment results together under the algorithm directory;
+- removed baseline comparison and demo entry points from the AtlasDynaTOGT experiment flow;
+- updated package imports, CLI paths, documentation, and result paths for the nested method package.
+
+Current commands:
+
+```bash
+python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/atlas_dynatogt/results
+python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite default --outdir nonconvex_timevarying_window/atlas_dynatogt/results
+python -m py_compile nonconvex_timevarying_window/atlas_dynatogt/*.py
+pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
+```
+
+Current validation:
+
+```text
+default suite: 14 scenarios, 14 successes
+pytest: 7 passed
+```

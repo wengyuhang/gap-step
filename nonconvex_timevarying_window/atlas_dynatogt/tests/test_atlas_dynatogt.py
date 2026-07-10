@@ -5,9 +5,9 @@ import sys
 
 import numpy as np
 
-from nonconvex_timevarying_window.environment import DEFAULT_ORDER, canonical_track
-from nonconvex_timevarying_window.geometry import ChartAtlas, make_region, triangle_area
-from nonconvex_timevarying_window.optimizer import AtlasDynaTOGTConfig, AtlasDynaTOGTOptimizer
+from nonconvex_timevarying_window.atlas_dynatogt.environment import DEFAULT_ORDER, canonical_track
+from nonconvex_timevarying_window.atlas_dynatogt.geometry import ChartAtlas, make_region, triangle_area
+from nonconvex_timevarying_window.atlas_dynatogt.optimizer import AtlasDynaTOGTConfig, AtlasDynaTOGTOptimizer
 
 
 def test_nonconvex_point_contains_rejects_notch():
@@ -80,7 +80,7 @@ def test_experiment_smoke_cli_outputs_files(tmp_path):
     """验证唯一 CLI 入口 experiments 可运行并产出结果文件。"""
     result_dir = tmp_path / "results"
     subprocess.run(
-        [sys.executable, "-m", "nonconvex_timevarying_window.experiments", "--suite", "smoke", "--outdir", str(result_dir), "--frames", "2"],
+        [sys.executable, "-m", "nonconvex_timevarying_window.atlas_dynatogt.experiments", "--suite", "smoke", "--outdir", str(result_dir), "--frames", "2"],
         check=True,
         capture_output=True,
         text=True,

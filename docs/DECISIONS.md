@@ -35,3 +35,9 @@ Reason: `ood_window_test` remains materially weaker than ID, so it must be visib
 Decision: TOGT reproduction lives under `复现/TOGT-Planner-reproduction/`, and the time-varying window adaptation lives under `togt_timevarying_window/`.
 
 Reason: the requested reproduction/improvement should use the paper environment abstraction. The extension therefore models ordered gates `G_i(t)` with dynamic position and shape rather than reusing the earlier maze environment.
+
+## 2026-07-10: Organize Non-Convex Research As A Multi-Method Project
+
+Decision: use `nonconvex_timevarying_window/` as the umbrella directory for the non-convex time-varying window problem. Keep `PROBLEM_DEFINITION.md` at the umbrella root and place each solution in a separately named algorithm directory. The existing triangulation-chart method is stored under `atlas_dynatogt/`.
+
+Reason: the non-convex problem will be studied with multiple methods. Separating the shared problem statement from method-specific code, tests, documentation, figures, and results prevents the first implementation from being mistaken for the whole research task.

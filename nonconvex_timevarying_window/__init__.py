@@ -1,6 +1,4 @@
-"""Non-convex DynaTOGT: dynamic traversal through arbitrary simply connected windows."""
+"""非凸时变窗口穿越研究的总包。
 
-from .environment import DEFAULT_ORDER, MotionProfile, NonConvexDynamicWindow, NonConvexWindowTrack, canonical_track, make_scenario
-from .optimizer import AtlasDynaTOGTConfig, AtlasDynaTOGTOptimizer, AtlasDynaTOGTPlan
-
-__all__ = ["DEFAULT_ORDER", "MotionProfile", "NonConvexDynamicWindow", "NonConvexWindowTrack", "canonical_track", "make_scenario", "AtlasDynaTOGTConfig", "AtlasDynaTOGTOptimizer", "AtlasDynaTOGTPlan"]
+每种解决方法使用独立子包，避免算法之间的实现和实验结果相互混淆。
+"""

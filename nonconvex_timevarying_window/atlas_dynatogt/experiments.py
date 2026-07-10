@@ -79,7 +79,7 @@ def main() -> None:
     """命令行入口：运行 smoke/default 实验套件。"""
     parser = argparse.ArgumentParser(description="Run non-convex DynaTOGT experiment suites.")
     parser.add_argument("--suite", choices=["smoke", "default"], default="smoke")
-    parser.add_argument("--outdir", default="nonconvex_timevarying_window/results")
+    parser.add_argument("--outdir", default="nonconvex_timevarying_window/atlas_dynatogt/results")
     parser.add_argument("--frames", type=int, default=20)
     parser.add_argument("--playback-speed", type=float, default=1.0)
     args = parser.parse_args()
