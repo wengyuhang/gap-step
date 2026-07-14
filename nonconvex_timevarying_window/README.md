@@ -9,6 +9,7 @@
 | 方法 | 状态 | 主要思路 |
 |---|---|---|
 | [AtlasDynaTOGT](atlas_dynatogt/README.md) | 已实现 | 将非凸窗口三角剖分为 chart atlas，联合优化穿越时间和穿越点 |
+| [SC-DynaTOGT](sc_dynatogt/README.md) | 已实现并通过 smoke | Chang 仅做边界均匀采样，SC 圆盘映射负责内部点，接入原 TOGT/MINCO 联合优化；结果见 [TEST_RESULTS.md](sc_dynatogt/TEST_RESULTS.md) |
 
 ## 目录结构
 
@@ -17,6 +18,7 @@ nonconvex_timevarying_window/
   README.md                 总任务和方法索引
   PROBLEM_DEFINITION.md     与具体算法无关的问题定义
   atlas_dynatogt/           AtlasDynaTOGT 方法的完整实现
+  sc_dynatogt/              Schwarz–Christoffel DynaTOGT 方法的完整实现
   <algorithm_name>/        后续新增的其他方法
 ```
 

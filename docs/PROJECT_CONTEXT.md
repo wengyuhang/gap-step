@@ -12,6 +12,7 @@ gap_step/visualize_window.py
 
 nonconvex_timevarying_window/PROBLEM_DEFINITION.md
 nonconvex_timevarying_window/atlas_dynatogt/
+nonconvex_timevarying_window/sc_dynatogt/
 ```
 
 ## Environment Contract
@@ -79,15 +80,23 @@ nonconvex_timevarying_window/
   README.md                 总任务与方法索引
   PROBLEM_DEFINITION.md     与具体算法无关的问题定义
   atlas_dynatogt/           已实现的 AtlasDynaTOGT 方法
+  sc_dynatogt/              已实现的 SC-DynaTOGT 方法
   <algorithm_name>/        后续方法的并列目录
 ```
 
-当前唯一已整理的方法是 `AtlasDynaTOGT`：将非凸区域用 ear clipping 剖分成三角 chart atlas，使用 softmax 重心坐标生成 chart 内穿越点，再用多初值 L-BFGS-B 联合优化分段时间和穿越点。该方法不再进行基线对比，也没有单独 demo 入口，所有运行统一从 `experiments.py` 进入。
+当前有两个相互独立的方法：
+
+- `AtlasDynaTOGT`：将非凸区域用 ear clipping 剖分成三角 chart atlas，使用 softmax 重心坐标生成 chart 内穿越点；
+- `SC-DynaTOGT`：Chang 等人的工作只用于边界均匀重采样和角点保留，内部取点严格使用圆盘 Schwarz--Christoffel 映射，并接入原 TOGT 的时间变量、degree-7 MINCO 和动力学代价。
+
+两种方法不共享内部参数化代码，各自从本目录的 `experiments.py` 进入。
 
 当前验证状态：
 
 ```text
 default suite: 14 scenarios, 14 successes
-pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
-7 passed
+pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests  # 7 passed
+SC-DynaTOGT smoke: E0--E5 all passed
+SC-DynaTOGT mapping: 1,000,000 / 1,000,000 legal, no NaN/Inf/degenerate Jacobian
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests  # 85 passed (2026-07-14)
 ```

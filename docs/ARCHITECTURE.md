@@ -83,6 +83,19 @@ nonconvex_timevarying_window/
     tests/                      方法单元测试和 CLI 测试
     algorithm_figures/          方法图解
     results/                    方法实验结果
+  sc_dynatogt/
+    boundary.py                 Chang 边界均匀采样和角点保留
+    offset.py                   Clipper2 安全偏置
+    sc_mapping.py               Schwarz--Christoffel 圆盘映射
+    preprocessing.py            离线预处理和持久化
+    environment.py              动态窗口及空间/时间梯度
+    minco.py, dynamics.py       原 TOGT 轨迹与动力学代价
+    optimizer.py                [K,D] 联合 L-BFGS-B
+    experiments.py              E0--E5 实验入口
+    validation.py               映射合法性和数值梯度检查
+    visualization.py            PNG / CSV / GIF
+    explain_figures.py          中文算法、组件和实验结果图解
+    tests/                      方法测试
 ```
 
 依赖关系为：
@@ -90,6 +103,10 @@ nonconvex_timevarying_window/
 ```text
 geometry -> environment -> optimizer -> experiments
                          -> visualize
+
+boundary -> offset -> sc_mapping -> preprocessing
+                              \-> environment -> optimizer -> experiments
+                                  minco/dynamics -/
 ```
 
 根目录不保存任何具体算法实现。后续算法应建立与 `atlas_dynatogt/` 并列的子目录，并各自管理源码、测试、文档和试验产物。

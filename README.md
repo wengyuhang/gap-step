@@ -141,8 +141,10 @@ python -m togt_timevarying_window.experiments --suite smoke --outdir togt_timeva
 pytest -q togt_timevarying_window/tests
 python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/atlas_dynatogt/results
 pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
+python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/sc_dynatogt/results/smoke
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
 ```
 
 TOGT C++ 原生构建已通过本地 vendored Eigen 完成；源码树、CMake/build/ctest、结果级复现均已验证。动态门改进项目已重构为 DynaTOGT：在原论文 gate 几何约束思想基础上，将静态 `p(t_i) in G_i` 扩展为动态可变形窗口 `p(t_i) in G_i(t_i)`。默认固定顺序为 `G1 -> G6 -> G3 -> G2 -> G5 -> G4`；实验对比 `WaypointCenter`、`StaticTOGT`、`DiscreteDynamic` 和 `DynaTOGT`，输出 `togt_timevarying_window/results/<suite>/summary.csv` 以及 trajectory CSV / PNG / GIF。
 
-非凸时变窗口研究在 `nonconvex_timevarying_window/` 中独立组织。总目录根部的 `PROBLEM_DEFINITION.md` 定义通用问题；已有方法 `AtlasDynaTOGT` 放在 `atlas_dynatogt/` 中，使用非凸区域三角剖分、softmax 重心 chart 和多初值 L-BFGS-B。后续其他解法以算法名称建立并列子目录。
+非凸时变窗口研究在 `nonconvex_timevarying_window/` 中独立组织。总目录根部的 `PROBLEM_DEFINITION.md` 定义通用问题；`AtlasDynaTOGT` 使用非凸区域三角剖分和 softmax 重心 chart；`SC-DynaTOGT` 仅用 Chang 方法重采样边界，再以 Schwarz–Christoffel 圆盘映射生成内部穿越点并接入 TOGT。各方法保持并列、互不混用源码。
