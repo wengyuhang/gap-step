@@ -12,6 +12,8 @@
 
 如果公式和源码较抽象，先看 [FIGURE_GUIDE.md](FIGURE_GUIDE.md)。它用 5 幅中文图依次解释整个算法、文件分工、动态梯度、现有预处理/轨迹图以及 E0–E5 结果。
 
+如果需要从头理解 E0–E5、空间梯度、窗口时间梯度、MINCO、收敛与合法性等名词，请读 [EXPERIMENTS_AND_TERMS.md](EXPERIMENTS_AND_TERMS.md)。
+
 ## 安装
 
 在仓库根目录执行：
@@ -105,10 +107,19 @@ python -m nonconvex_timevarying_window.sc_dynatogt.experiments \
 ```bash
 python -m nonconvex_timevarying_window.sc_dynatogt.experiments \
   --suite default \
+  --gif \
   --outdir nonconvex_timevarying_window/sc_dynatogt/results/default
 ```
 
 完整套件执行：E1 的全部 6×5 个采样组合、E2 的 30 个种子、动态组的 155 次运行，以及每个被验证 SC map 的 `10^6` 个 `d ~ N(0,4I)` 样本。它是长时间实验，不是 CI 命令。
+
+`smoke` 中 E3/E4/E5 只使用 1 个 L 形窗口和 1 次运行，用于验证调用链。`default` 中动态组使用 L、U、五角星 3 个窗口，并按指定顺序各穿越一次。如果只想先生成一份三窗口可视化样例，可以显式覆盖正式统计次数：
+
+```bash
+python -m nonconvex_timevarying_window.sc_dynatogt.experiments \
+  --suite default --experiment E4 --replicates 1 --mapping-samples 1000 --gif \
+  --outdir nonconvex_timevarying_window/sc_dynatogt/results/multiwindow_demo
+```
 
 单独运行一组：
 
@@ -125,6 +136,28 @@ python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite default -
 - E3：仅平移窗口；
 - E4：平移、旋转和均匀缩放；
 - E5：完整窗口时间梯度与令 `dp_i/dt_i=0` 的消融。
+
+## 多形状、多窗口演示
+
+E3–E5 的正式统计场景固定为 L、U、五角星 3 个窗口。E1 中的光滑和混合边界原先只做边界误差实验。独立的六窗口演示把下列形状接入同一条全动态轨迹：
+
+```text
+L -> U -> 五角星 -> limaçon -> 光滑波浪 -> 直线–Bézier 混合边界
+```
+
+```bash
+python -m nonconvex_timevarying_window.sc_dynatogt.diverse_demo \
+  --mode full --quality smoke --layout spacious --motion-scale 2.5 \
+  --validation-samples 1000 \
+  --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_demo
+```
+
+`spacious` 是当前默认布局。六个初始中心在三维空间内覆盖
+`x=[-10.0,10.2] m`、`y=[-3.5,3.6] m`、`z=[1.5,5.8] m`，同时使用不同初始姿态，不再沿一条直线紧密排列。`motion-scale=2.5` 将平移、旋转和均匀缩放振幅统一放大至正式 E3–E5 场景的 2.5 倍；缩放系数范围为 `[0.7,1.3]`，第六个窗口的最大平移振幅为 `[0.42,0.98,0.70] m`。如需复现旧的共线布局，可使用 `--layout compact --motion-scale 1.0`。
+
+输出包含六份预处理产物、`trajectory.png|csv`、`dynamic_windows.gif` 和 `summary.json`。`summary.json` 还记录每个窗口的中心、RPY 初始姿态和三类运动振幅。`smoke/default` 在这里只控制求积与轨迹优化精度；这是功能与可视化演示，不混入 E0–E5 统计。
+
+Python 端不限于上述六种预置。`build_boundary_scenario(definitions, centers=..., angles=..., motion_scale=...)` 可接收任意数量的有序 `DenseBoundary` 列表，并为每个窗口指定三维中心和 RPY 姿态；未给出 `centers` 时才使用旧的 x 轴等距排布。折线、光滑曲线、直线–曲线混合边界和 CSV 稠密边界都使用相同的 Chang 采样、Clipper2 偏置、SC 取点和动态窗口链。仍然要求边界无洞、无自交，且安全偏置后保持单连通。
 
 ## 数值验证
 
@@ -155,9 +188,9 @@ python -m compileall -q nonconvex_timevarying_window/sc_dynatogt
 
 - `preprocessed_gates/<index>_<name>/manifest.json|geometry.npz|sc_map.npz`：每个窗口的可重载离线产物；
 - `preprocessed_gates/<index>_<name>/preprocessing.png`：稠密边界、Chang 采样、角点、安全偏置和 SC 网格；
-- `trajectory.png`：三维 MINCO 轨迹和穿越时刻窗口；
+- `trajectory.png`：三维 MINCO 轨迹和穿越时刻窗口；黑色虚线是原始物理边界，彩色半透明区是内缩安全区，橙色菱形的中心是真实穿越点；
 - `trajectory.csv`：位置、速度、加速度、jerk、snap、crackle；
-- `dynamic_windows.gif`：传入 `--gif` 时生成的动态窗口动画。
+- `dynamic_windows.gif`：传入 `--gif` 时生成的动态窗口动画；原始边界和安全区使用同一时刻的平移、旋转和缩放。
 
 `algorithm_figures/` 中另外保存 5 幅面向阅读的中文算法、组件、梯度和实验结果图，具体说明见 [FIGURE_GUIDE.md](FIGURE_GUIDE.md)。
 

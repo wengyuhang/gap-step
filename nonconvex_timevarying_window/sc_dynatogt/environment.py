@@ -166,6 +166,7 @@ class SCDynamicWindow:
     center0: np.ndarray
     angles0: np.ndarray
     motion: MotionProfile
+    physical_boundary: np.ndarray | None = None
 
     def __post_init__(self) -> None:
         self.safe_polygon = np.asarray(self.safe_polygon, dtype=float)
@@ -177,6 +178,15 @@ class SCDynamicWindow:
             raise ValueError("center0 and angles0 must have shape (3,)")
         if not np.all(np.isfinite(self.safe_polygon)) or not np.all(np.isfinite(self.center0)) or not np.all(np.isfinite(self.angles0)):
             raise ValueError("window geometry and pose must be finite")
+        if self.physical_boundary is not None:
+            self.physical_boundary = np.asarray(self.physical_boundary, dtype=float)
+            if (
+                self.physical_boundary.ndim != 2
+                or self.physical_boundary.shape[1] != 2
+                or len(self.physical_boundary) < 3
+                or not np.all(np.isfinite(self.physical_boundary))
+            ):
+                raise ValueError("physical_boundary must be finite with shape (n, 2), n >= 3")
         if self.safe_polygon.shape != self.sc_map.vertices.shape or not np.allclose(
             self.safe_polygon, self.sc_map.vertices, rtol=0.0, atol=1.0e-12
         ):
@@ -225,9 +235,21 @@ class SCDynamicWindow:
         upstream = np.asarray(grad_point, dtype=float)
         return jac_d.T @ upstream, float(upstream @ derivative_t)
 
-    def polygon_at(self, t: float) -> np.ndarray:
+    def _boundary_at(self, boundary: np.ndarray, t: float) -> np.ndarray:
         center, basis, scale, *_ = self.state_at(t)
-        return center[None, :] + (basis @ (scale * self.safe_polygon).T).T
+        return center[None, :] + (basis @ (scale * boundary).T).T
+
+    def polygon_at(self, t: float) -> np.ndarray:
+        """Return the inset safe polygon in its world pose at time ``t``."""
+
+        return self._boundary_at(self.safe_polygon, t)
+
+    def physical_boundary_at(self, t: float) -> np.ndarray | None:
+        """Return the original physical aperture boundary at time ``t`` when available."""
+
+        if self.physical_boundary is None:
+            return None
+        return self._boundary_at(self.physical_boundary, t)
 
     def world_to_local(self, point: np.ndarray, t: float) -> tuple[np.ndarray, float]:
         center, basis, scale, *_ = self.state_at(t)

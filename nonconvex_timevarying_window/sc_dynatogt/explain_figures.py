@@ -377,7 +377,7 @@ def plot_reading_guide(results_root: str | Path, output_path: str | Path) -> Pat
     trajectory_path = root / "E4" / "trajectory.png"
     if not preprocessing_path.is_file() or not trajectory_path.is_file():
         raise FileNotFoundError(
-            "E4 preprocessing/trajectory PNG is missing; run the smoke suite first"
+            "E4 preprocessing/trajectory PNG is missing; run an experiment suite first"
         )
     preprocessing = plt.imread(preprocessing_path)
     trajectory = plt.imread(trajectory_path)
@@ -392,7 +392,7 @@ def plot_reading_guide(results_root: str | Path, output_path: str | Path) -> Pat
     top.set_title("预处理图：左=边界与安全区，中=圆盘坐标，右=SC 把网格弯成非凸形状", fontsize=14, fontweight="bold")
     left.imshow(trajectory)
     left.axis("off")
-    left.set_title("轨迹图：窗口显示的是“穿越时刻”的位姿", fontsize=14, fontweight="bold")
+    left.set_title("轨迹图：原始边界和安全区都是“穿越时刻”的位姿", fontsize=14, fontweight="bold")
     right.axis("off")
     right.add_patch(FancyBboxPatch((0.02, 0.04), 0.96, 0.92, boxstyle="round,pad=0.02", facecolor=COLORS["paper"], edgecolor=COLORS["line"]))
     notes = [
@@ -400,13 +400,14 @@ def plot_reading_guide(results_root: str | Path, output_path: str | Path) -> Pat
         ("② 橙色内轮廓", "向内缩 0.315 m 后的安全区。优化点使用这个区域，不使用原边界。"),
         ("③ 圆盘网格 → 弯曲网格", "每条蓝线的对应关系由 SC 映射给出；网格不穿出黑色安全边界。"),
         ("④ 蓝色三维线", "MINCO 生成的平滑轨迹；绿点是起点，红叉是终点。"),
-        ("⑤ 橙色菱形", "规定穿越时刻的轨迹点，它必须在当时紫色窗口的真安全区内。"),
+        ("⑤ 黑色虚线 / 彩色安全区", "虚线是原始物理窗口；彩色半透明区是内缩 0.315 m 后的优化可用区。"),
+        ("⑥ 橙色菱形中心", "规定穿越时刻的轨迹点；判定的是标记中心，它必须在当时安全区内。"),
     ]
-    y = 0.88
+    y = 0.91
     for title, detail in notes:
-        right.text(0.07, y, title, fontsize=13, fontweight="bold", color=COLORS["blue"], va="top")
-        right.text(0.07, y - 0.065, detail, fontsize=11, color=COLORS["ink"], va="top", wrap=True, linespacing=1.35)
-        y -= 0.175
+        right.text(0.07, y, title, fontsize=12.5, fontweight="bold", color=COLORS["blue"], va="top")
+        right.text(0.07, y - 0.052, detail, fontsize=10.5, color=COLORS["ink"], va="top", wrap=True, linespacing=1.3)
+        y -= 0.145
     return _save(figure, output_path)
 
 
@@ -428,13 +429,16 @@ def _e1_max_errors(rows: list[dict[str, Any]]) -> tuple[list[str], np.ndarray]:
 
 
 def plot_experiment_results(results_root: str | Path, output_path: str | Path) -> Path:
-    """Turn smoke JSON into a plain-language E0--E5 dashboard."""
+    """Turn smoke or default JSON into a plain-language E0--E5 dashboard."""
 
     _configure_chinese_font()
     root = Path(results_root)
     groups = {name: _load_json(root / name / "summary.json") for name in ("E0", "E1", "E2", "E3", "E4", "E5")}
+    suite_summary = _load_json(root / "summary.json") if (root / "summary.json").is_file() else {}
+    suite = str(suite_summary.get("settings", {}).get("suite", "smoke"))
+    suite_label = "default 完整实验" if suite == "default" else "smoke 烟测"
     figure, axes = plt.subplots(2, 3, figsize=(17, 10.5), constrained_layout=True)
-    figure.suptitle("E0–E5 到底在验证什么？（当前 smoke 结果）", fontsize=22, fontweight="bold")
+    figure.suptitle(f"E0–E5 到底在验证什么？（{suite_label}）", fontsize=22, fontweight="bold")
 
     ax = axes[0, 0]
     e0_percent = 100.0 * float(groups["E0"]["relative_total_time_error"])
@@ -461,12 +465,21 @@ def plot_experiment_results(results_root: str | Path, output_path: str | Path) -
     ax = axes[0, 2]
     e2_rows = groups["E2"]["rows"]
     method_names = {"fixed_center": "固定中心", "convex_hull": "凸包", "sc": "SC 非凸"}
-    times = [float(next(row for row in e2_rows if row["method"] == method)["total_time"]) for method in method_names]
+    times = [
+        float(np.mean([row["total_time"] for row in e2_rows if row["method"] == method]))
+        for method in method_names
+    ]
     ax.bar(list(method_names.values()), times, color=[COLORS["muted"], COLORS["orange"], COLORS["blue"]])
     ax.set_ylabel("总飞行时间 [s]")
     ax.set_title("E2：静态非凸窗口的三种取点方法", fontweight="bold")
     ax.tick_params(axis="x", rotation=12)
-    ax.text(0.02, 0.96, "smoke 仅 1 个种子，只看调用链，不下统计结论", transform=ax.transAxes, va="top", fontsize=9, color=COLORS["muted"])
+    e2_repetitions = sum(row["method"] == "sc" for row in e2_rows)
+    note = (
+        "smoke 仅 1 个种子，只看调用链，不下统计结论"
+        if suite == "smoke"
+        else f"default：{e2_repetitions} 个种子的平均总时间"
+    )
+    ax.text(0.02, 0.96, note, transform=ax.transAxes, va="top", fontsize=9, color=COLORS["muted"])
 
     ax = axes[1, 0]
     labels_rate = ["E2 SC", "E3 平移", "E4 全动态", "E5 完整梯度", "E5 去掉时间梯度"]
@@ -496,9 +509,9 @@ def plot_experiment_results(results_root: str | Path, output_path: str | Path) -
     ax = axes[1, 1]
     gradient_labels = ["E3 窗口", "E3 联合", "E4 窗口", "E4 联合"]
     gradient_values = [
-        float(groups["E3"]["gradient_reports"][0]["p99_relative_error"]),
+        max(float(report["p99_relative_error"]) for report in groups["E3"]["gradient_reports"]),
         float(groups["E3"]["joint_objective_gradient_report"]["p99_relative_error"]),
-        float(groups["E4"]["gradient_reports"][0]["p99_relative_error"]),
+        max(float(report["p99_relative_error"]) for report in groups["E4"]["gradient_reports"]),
         float(groups["E4"]["joint_objective_gradient_report"]["p99_relative_error"]),
     ]
     ax.barh(gradient_labels[::-1], gradient_values[::-1], color=[COLORS["green"]] * 4)
@@ -516,8 +529,8 @@ def plot_experiment_results(results_root: str | Path, output_path: str | Path) -
     else:
         candidate = groups["E4"]["mapping_validation"]
         mapping = candidate[0] if isinstance(candidate, list) else candidate
-    max_rotor_e3 = float(groups["E3"]["rows"][0]["sampled_max_rotor_thrust"])
-    max_rotor_e4 = float(groups["E4"]["rows"][0]["sampled_max_rotor_thrust"])
+    max_rotor_e3 = max(float(row["sampled_max_rotor_thrust"]) for row in groups["E3"]["rows"])
+    max_rotor_e4 = max(float(row["sampled_max_rotor_thrust"]) for row in groups["E4"]["rows"])
     ax.add_patch(FancyBboxPatch((0.03, 0.53), 0.94, 0.42, boxstyle="round,pad=0.02", facecolor="#eefaf5", edgecolor="#b7e0cd"))
     ax.text(0.07, 0.88, "映射合法性", fontsize=14, fontweight="bold", color=COLORS["green"])
     ax.text(0.07, 0.77, f"{int(mapping['inside_count']):,} / {int(mapping['sample_count']):,} 点位于真安全多边形内", fontsize=12)

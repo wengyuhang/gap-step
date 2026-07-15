@@ -192,6 +192,26 @@ def _add_window_polygon(axis: object, polygon: FloatArray, *, color: str, label:
     axis.plot(closed[:, 0], closed[:, 1], closed[:, 2], color=color, linewidth=1.2)  # type: ignore[attr-defined]
 
 
+def _add_physical_boundary(
+    axis: object,
+    boundary: FloatArray,
+    *,
+    label: str | None,
+) -> None:
+    """Draw the original aperture boundary without obscuring the inset safe set."""
+
+    closed = _closed(boundary)
+    axis.plot(  # type: ignore[attr-defined]
+        closed[:, 0],
+        closed[:, 1],
+        closed[:, 2],
+        color="0.18",
+        linewidth=1.6,
+        linestyle="--",
+        label=label,
+    )
+
+
 def _axis_limits(points: Sequence[FloatArray]) -> tuple[FloatArray, FloatArray]:
     nonempty = [np.asarray(point, dtype=float).reshape(-1, 3) for point in points if np.size(point)]
     if not nonempty:
@@ -228,31 +248,50 @@ def plot_trajectory(
     crossings = _crossing_times(trajectory_or_result, trajectory, len(track.order))
     samples = trajectory.sample(num_samples=num_samples)
     positions = np.asarray(np.real(samples.position), dtype=float)
-    gate_polygons = [
+    safe_polygons = [
         track.windows[window_index].polygon_at(float(crossings[crossing_index]))
         for crossing_index, window_index in enumerate(track.order)
     ]
-    lower, upper = _axis_limits([positions, *gate_polygons])
+    physical_boundaries = [
+        track.windows[window_index].physical_boundary_at(float(crossings[crossing_index]))
+        for crossing_index, window_index in enumerate(track.order)
+    ]
+    limit_geometry = [boundary for boundary in physical_boundaries if boundary is not None]
+    lower, upper = _axis_limits([positions, *safe_polygons, *limit_geometry])
 
-    figure = plt.figure(figsize=(8.0, 6.4), constrained_layout=True)
+    many_gates = len(safe_polygons) > 3
+    figure = plt.figure(figsize=(10.4 if many_gates else 8.0, 6.4), constrained_layout=True)
     try:
         axis = figure.add_subplot(111, projection="3d")
         axis.plot(positions[:, 0], positions[:, 1], positions[:, 2], color="#0072bd", linewidth=2.1, label="MINCO")
         axis.scatter(*track.start, color="#2ca02c", s=42, marker="o", label="start")
         axis.scatter(*track.goal, color="#d62728", s=48, marker="X", label="goal")
+        colors = plt.cm.viridis(np.linspace(0.12, 0.88, max(1, len(safe_polygons))))
+        for index, (safe_polygon, physical_boundary) in enumerate(
+            zip(safe_polygons, physical_boundaries)
+        ):
+            if physical_boundary is not None:
+                _add_physical_boundary(
+                    axis,
+                    physical_boundary,
+                    label="physical boundary" if index == 0 else None,
+                )
+            window = track.windows[track.order[index]]
+            _add_window_polygon(
+                axis,
+                safe_polygon,
+                color=matplotlib.colors.to_hex(colors[index]),
+                label=(
+                    f"gate {index + 1} {window.name} safe at "
+                    f"t={crossings[index]:.2f}s"
+                ),
+            )
         crossing_points = np.asarray(trajectory.evaluate(crossings), dtype=float)
         if len(crossing_points):
             axis.scatter(
                 crossing_points[:, 0], crossing_points[:, 1], crossing_points[:, 2],
-                color="#ff7f0e", s=35, marker="D", label="crossing",
-            )
-        colors = plt.cm.viridis(np.linspace(0.12, 0.88, max(1, len(gate_polygons))))
-        for index, polygon in enumerate(gate_polygons):
-            _add_window_polygon(
-                axis,
-                polygon,
-                color=matplotlib.colors.to_hex(colors[index]),
-                label=f"gate {index + 1} at t={crossings[index]:.2f}s",
+                color="#ff7f0e", edgecolors="0.15", linewidths=0.6,
+                s=28, marker="D", label="crossing center",
             )
         _set_3d_limits(axis, lower, upper)
         axis.set_xlabel("x [m]")
@@ -260,7 +299,16 @@ def plot_trajectory(
         axis.set_zlabel("z [m]")
         axis.set_title(f"{track.name}: ordered dynamic-window traversal")
         axis.view_init(elev=24.0, azim=-61.0)
-        axis.legend(fontsize=8, loc="best")
+        if many_gates:
+            axis.legend(
+                fontsize=7.2,
+                loc="center left",
+                bbox_to_anchor=(1.01, 0.5),
+                framealpha=1.0,
+                facecolor="white",
+            )
+        else:
+            axis.legend(fontsize=8, loc="best")
         figure.savefig(output, dpi=dpi, bbox_inches="tight")
     finally:
         plt.close(figure)
@@ -324,12 +372,22 @@ def export_dynamic_window_gif(
     frame_times = np.linspace(0.0, total_time, num_frames)
     path_times = np.linspace(0.0, total_time, trajectory_samples)
     path_positions = np.asarray(np.real(trajectory.evaluate(path_times)), dtype=float)
-    polygons_by_frame = [
+    safe_polygons_by_frame = [
         [window.polygon_at(float(time)) for window in track.windows]
         for time in frame_times
     ]
+    physical_boundaries_by_frame = [
+        [window.physical_boundary_at(float(time)) for window in track.windows]
+        for time in frame_times
+    ]
     limit_points: list[FloatArray] = [path_positions]
-    limit_points.extend(polygon for frame in polygons_by_frame for polygon in frame)
+    limit_points.extend(polygon for frame in safe_polygons_by_frame for polygon in frame)
+    limit_points.extend(
+        boundary
+        for frame in physical_boundaries_by_frame
+        for boundary in frame
+        if boundary is not None
+    )
     lower, upper = _axis_limits(limit_points)
 
     frames: list[NDArray[np.uint8]] = []
@@ -352,10 +410,17 @@ def export_dynamic_window_gif(
             axis.scatter(*current, color="#ff7f0e", s=38, marker="o")
             axis.scatter(*track.start, color="#2ca02c", s=28, marker="o")
             axis.scatter(*track.goal, color="#d62728", s=34, marker="X")
-            for window_index, polygon in enumerate(polygons_by_frame[frame_index]):
+            for window_index, (safe_polygon, physical_boundary) in enumerate(
+                zip(
+                    safe_polygons_by_frame[frame_index],
+                    physical_boundaries_by_frame[frame_index],
+                )
+            ):
+                if physical_boundary is not None:
+                    _add_physical_boundary(axis, physical_boundary, label=None)
                 _add_window_polygon(
                     axis,
-                    polygon,
+                    safe_polygon,
                     color=matplotlib.colors.to_hex(colors[window_index]),
                     label=None,
                 )

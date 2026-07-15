@@ -62,6 +62,7 @@ def visualization_case() -> tuple[PreprocessedGate, SCWindowTrack, MincoSnap, Op
             rotation_period=5.0,
             scale_period=6.0,
         ),
+        physical_boundary=gate.dense_boundary.vertices,
     )
     start = np.asarray((-1.4, 0.0, 0.8))
     goal = np.asarray((1.4, 0.0, 0.8))
@@ -161,6 +162,29 @@ def test_trajectory_png_accepts_optimization_result_and_closes_figure(
     assert output.stat().st_size > 2_000
     assert output.read_bytes().startswith(b"\x89PNG")
     assert tuple(plt.get_fignums()) == figures_before
+
+
+def test_window_exposes_physical_and_safe_boundaries_at_the_same_pose(
+    visualization_case,
+) -> None:
+    gate, track, _, result = visualization_case
+    window = track.windows[0]
+    time = float(result.traversal_times[0])
+    physical = window.physical_boundary_at(time)
+    safe = window.polygon_at(time)
+    assert physical is not None
+    assert physical.shape == (len(gate.dense_boundary.vertices), 3)
+    assert safe.shape == (len(gate.safe_polygon), 3)
+
+    center, basis, scale, *_ = window.state_at(time)
+    np.testing.assert_allclose(
+        physical,
+        center[None, :] + (basis @ (scale * gate.dense_boundary.vertices).T).T,
+    )
+    np.testing.assert_allclose(
+        safe,
+        center[None, :] + (basis @ (scale * gate.safe_polygon).T).T,
+    )
 
 
 def test_trajectory_csv_accepts_minco_and_has_derivative_columns(

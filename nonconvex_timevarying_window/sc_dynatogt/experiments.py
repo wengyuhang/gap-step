@@ -232,7 +232,10 @@ def run_e0(output: Path, settings: ExperimentSettings) -> dict[str, Any]:
     center = np.array([0.0, 0.0, 1.4])
     rpy = np.array([0.0, np.pi / 2.0, 0.0])
     start, goal = np.array([-3.0, 0.0, 1.4]), np.array([3.0, 0.0, 1.4])
-    sc_window = SCDynamicWindow("rectangle_sc", mapping, polygon, center, rpy, MotionProfile.static())
+    sc_window = SCDynamicWindow(
+        "rectangle_sc", mapping, polygon, center, rpy, MotionProfile.static(),
+        physical_boundary=polygon,
+    )
     sc_track = SCWindowTrack("E0_SC", start, goal, (sc_window,), (0,))
     baseline_window = StaticBaselineWindow("rectangle_original", polygon, center, rpy, kind="original_convex")
     baseline_track = BaselineTrack("E0_original", start, goal, (baseline_window,))

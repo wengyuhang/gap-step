@@ -1,5 +1,7 @@
 # Project Context
 
+Last updated: 2026-07-15 (Asia/Shanghai).
+
 ## Current Focus
 
 The repository mainline remains a generated family of continuous 2D time-varying window mazes trained with a pure privileged PPO teacher. The current active research extension is the multi-method non-convex time-varying window traversal project under `nonconvex_timevarying_window/`.
@@ -91,12 +93,56 @@ nonconvex_timevarying_window/
 
 两种方法不共享内部参数化代码，各自从本目录的 `experiments.py` 进入。
 
+SC-DynaTOGT 当前必须保持的技术语义：
+
+- *Real-Time Conformal Maps and Parameterizations* 中 Chang 等人的方法只用于边界均匀重采样和角点保留；
+- 非凸区域内部穿越点使用圆盘 Schwarz--Christoffel 映射 `q(d)=Psi(B(d))`，不使用 Chang 的 harmonic measure / Poisson kernel，也不复用 AtlasDynaTOGT 的三角 chart；
+- 边界支持非凸多边形、光滑闭曲线、直线–曲线混合边界和 CSV 稠密边界，但仍限于无洞、无自交的简单闭区域；
+- 窗口位姿由三维中心、RPY 旋转和均匀缩放定义，空间梯度与窗口时间梯度均使用解析链式法则；
+- 黑色虚线是原始物理窗口边界，彩色半透明区是内缩安全区；穿越点必须通过真实非凸区域验证；
+- E0--E5 正式统计场景和 `diverse_demo` 功能演示互相独立，不得用演示结果改写正式实验定义。
+
+SC-DynaTOGT 完整 default 实验已于 2026-07-14 完成：
+
+```text
+E0  SC/原凸 TOGT 总时间相对差 0.4942% < 1%
+E1  6 类边界 x 5 个顶点数，30/30 通过，最大边界误差 1.9699 mm < 5 mm
+E2  SC 30/30 收敛且真非凸区域合法；凸包映射仅 1/30 在真安全区内
+E3  151/155 收敛，155/155 穿越合法
+E4  153/155 收敛，155/155 穿越合法
+E5  完整/去时间梯度均 153/155 收敛，155/155 穿越合法
+SC mapping 1,000,000/1,000,000 legal, no NaN/Inf/degenerate Jacobian
+```
+
+`diverse_demo.py` 是独立的六形状六窗口全动态演示，顺序为 `L -> U -> star -> limacon -> wavy -> line_bezier`。当前默认配置是：
+
+- `layout=spacious`：中心覆盖 `x=[-10.0,10.2] m`、`y=[-3.5,3.6] m`、`z=[1.5,5.8] m`，六个窗口有不同初始 RPY；
+- `motion_scale=2.5`：平移、旋转、均匀缩放振幅均为正式 E3--E5 场景的 2.5 倍，缩放系数范围 `[0.7,1.3]`；
+- 实跑结果为 6/6 指定顺序穿越合法，六个映射各 `1000/1000` 合法，总时间 `4.70937 s`，1060 次迭代；
+- 该强运动长距离演示的 `sampled_dynamic_limits_satisfied=false`：窗口合法性已通过，但不应把 TOGT 软惩罚收敛表述为全部动力学硬上限可行；
+- 旧的 x 轴共线小幅布局可用 `--layout compact --motion-scale 1.0` 复现。
+
+当前入口和产物：
+
+```text
+python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/sc_dynatogt/results/smoke
+python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite default --outdir nonconvex_timevarying_window/sc_dynatogt/results/default
+python -m nonconvex_timevarying_window.sc_dynatogt.diverse_demo --mode full --quality smoke --layout spacious --motion-scale 2.5 --validation-samples 1000 --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_demo
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
+
+formal results: nonconvex_timevarying_window/sc_dynatogt/results/default/E0..E5/
+diverse PNG/CSV/GIF/summary: nonconvex_timevarying_window/sc_dynatogt/results/diverse_demo/
+detailed record: nonconvex_timevarying_window/sc_dynatogt/TEST_RESULTS.md
+```
+
 当前验证状态：
 
 ```text
 default suite: 14 scenarios, 14 successes
 pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests  # 7 passed
 SC-DynaTOGT smoke: E0--E5 all passed
+SC-DynaTOGT default: E0--E5 complete; all traversal legality rates 100%
 SC-DynaTOGT mapping: 1,000,000 / 1,000,000 legal, no NaN/Inf/degenerate Jacobian
-pytest -q nonconvex_timevarying_window/sc_dynatogt/tests  # 85 passed (2026-07-14)
+SC-DynaTOGT diverse demo: spacious 3D layout, 6/6 legal crossings
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests  # 90 passed (2026-07-15)
 ```

@@ -92,6 +92,7 @@ nonconvex_timevarying_window/
     minco.py, dynamics.py       原 TOGT 轨迹与动力学代价
     optimizer.py                [K,D] 联合 L-BFGS-B
     experiments.py              E0--E5 实验入口
+    diverse_demo.py             任意边界列表与六形状多窗口 PNG/GIF 演示
     validation.py               映射合法性和数值梯度检查
     visualization.py            PNG / CSV / GIF
     explain_figures.py          中文算法、组件和实验结果图解
