@@ -239,3 +239,28 @@ Diagnosed without changing source code or experiment artifacts:
 - measured traversal-time scales `L=1.419`, `U=0.874`, `star=0.716`, `limacon=1.378`, `wavy=1.153`, and `line_bezier=0.611`;
 - identified chase-camera distance, perspective, simultaneous rotation, and different native gate shapes/sizes as the reasons the scale change is difficult to compare visually;
 - retained fixed-distance `GATE CAM` and a live `SCALE ×` readout as an unimplemented follow-up, not as current output behavior.
+
+## 2026-07-17 SC-DynaTOGT Lossless Result Organization
+
+Implemented:
+
+- added `results_manager.py` with dry-run-by-default migration, resumable journals, per-file byte counts/SHA-256, run manifests, `current_demo.json`, a machine-readable catalog, Markdown index, and Chinese HTML result homepage;
+- moved 543 existing files (60,079,505 bytes) into `experiments/`, `demos/`, `diagnostics/`, and `work/` without copying, deleting, or overwriting any historical artifact;
+- merged the selected paper-irregular closed loop into one run while retaining its original plots, physical-scene render, and old OpenGL output under `legacy/`;
+- added a low-clutter route overview with one representative quadrotor, a 2-by-3 fixed-world-scale crossing grid, and a full six-gate scale profile;
+- changed future experiment/demo defaults to timestamped categorized directories while preserving explicit `--outdir` support;
+- changed the OpenGL default to follow `current_demo.json`, write into the selected run's `opengl/`, and refresh the run manifest/result homepage after rendering;
+- renamed current OpenGL outputs to `opengl_overview.png`, `opengl_chase.png`, and `opengl_chase.mp4`, leaving the previous files intact below `legacy/original_opengl/`;
+- muted environment materials in the OpenGL overview so the route and physical gates carry more visual weight.
+
+Validation:
+
+```text
+migration dry-run: 543 files, 60,079,505 bytes, no destination conflicts
+migration verify:  543/543 sizes and SHA-256 hashes matched
+catalog:            9 runs, featured=20260717_paper_irregular_closed
+OpenGL MP4:         H.264/yuv420p, 960 x 540, 144 frames, 12 fps, 12.0 s
+MP4 decode check:   frames 0, 72, and 143 valid
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
+111 passed in 31.49s
+```

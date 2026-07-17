@@ -29,6 +29,7 @@ from .preprocessing import (
     e1_boundaries,
     preprocess_boundary,
 )
+from .results_manager import RESULTS_ROOT, timestamped_run_directory, write_run_manifest
 from .sc_mapping import SCDiskMap
 from .scenarios import build_canonical_scenario
 from .validation import check_joint_objective_gradient, check_window_gradients, validate_sc_mapping
@@ -549,7 +550,10 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run SC-DynaTOGT experiments E0--E5")
     parser.add_argument("--suite", choices=("smoke", "default"), default="smoke")
     parser.add_argument("--experiment", choices=("all", *RUNNERS), default="all")
-    parser.add_argument("--outdir", type=Path, default=Path("nonconvex_timevarying_window/sc_dynatogt/results"))
+    parser.add_argument(
+        "--outdir", type=Path,
+        help="exact run directory; omitted paths are timestamped below results/experiments",
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--replicates", type=int)
     parser.add_argument("--mapping-samples", type=int)
@@ -559,15 +563,24 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--replicates must be positive")
     if args.mapping_samples is not None and args.mapping_samples < 1:
         parser.error("--mapping-samples must be positive")
+    category = "experiments/smoke" if args.suite == "smoke" else "experiments/formal"
+    label = args.suite if args.experiment == "all" else f"{args.suite}_{args.experiment.lower()}"
+    output = args.outdir or timestamped_run_directory(RESULTS_ROOT, category, label)
     settings = ExperimentSettings(
         args.suite, args.seed, args.replicates, args.mapping_samples, args.gif
     )
     selected: Iterable[str] = RUNNERS if args.experiment == "all" else (args.experiment,)
     summaries = {}
     for name in selected:
-        summaries[name] = RUNNERS[name](args.outdir / name, settings)
-    _write_json(args.outdir / "summary.json", {"settings": settings, "experiments": summaries})
-    print(json.dumps(_jsonable({"outdir": args.outdir, "experiments": tuple(selected)}), ensure_ascii=False))
+        summaries[name] = RUNNERS[name](output / name, settings)
+    _write_json(output / "summary.json", {"settings": settings, "experiments": summaries})
+    write_run_manifest(
+        output,
+        run_id=output.name,
+        kind="experiment",
+        role="smoke" if args.suite == "smoke" else "formal",
+    )
+    print(json.dumps(_jsonable({"outdir": output, "experiments": tuple(selected)}), ensure_ascii=False))
     return 0 if all(bool(summary.get("passed", False)) for summary in summaries.values()) else 2
 
 

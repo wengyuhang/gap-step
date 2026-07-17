@@ -25,10 +25,15 @@ from nonconvex_timevarying_window.sc_dynatogt.preprocessing import (
 )
 from nonconvex_timevarying_window.sc_dynatogt.visualization import (
     _quadrotor_basis,
+    crossing_scale_data,
     export_dynamic_window_gif,
     export_trajectory_csv,
+    plot_crossing_grid,
     plot_preprocessing,
+    plot_route_overview,
+    plot_scale_profile,
     plot_trajectory,
+    scale_profile_data,
 )
 
 
@@ -265,4 +270,66 @@ def test_dynamic_window_gif_is_nonempty_and_closes_every_frame(
     assert output.stat().st_size > 2_000
     assert output.read_bytes().startswith((b"GIF87a", b"GIF89a"))
     assert len(imageio.mimread(output)) == 4
+    assert tuple(plt.get_fignums()) == figures_before
+
+
+def test_clean_six_gate_figures_and_scale_data(
+    tmp_path, visualization_case
+) -> None:
+    gate, _, _, _ = visualization_case
+    windows = tuple(
+        SCDynamicWindow(
+            name=f"gate_{index + 1}",
+            sc_map=gate.sc_map,
+            safe_polygon=gate.safe_polygon,
+            center0=np.asarray((float(index), 0.25 * (-1) ** index, 1.0)),
+            angles0=np.asarray((0.02 * index, -0.03 * index, 0.08 * index)),
+            motion=MotionProfile(
+                translation_amplitude=np.zeros(3),
+                rotation_amplitude=np.zeros(3),
+                scale_amplitude=0.42,
+                scale_period=2.0,
+                phase=0.2 * index,
+            ),
+            physical_boundary=gate.dense_boundary.vertices,
+        )
+        for index in range(6)
+    )
+    start = np.asarray((-1.0, 0.0, 1.0))
+    goal = np.asarray((6.0, 0.0, 1.0))
+    waypoints = np.asarray([window.center0 for window in windows])
+    trajectory = MincoSnap(
+        BoundaryState(start),
+        BoundaryState(goal),
+        waypoints,
+        np.ones(7),
+    )
+    track = SCWindowTrack(
+        "six_gate_visualization",
+        start=start,
+        goal=goal,
+        windows=windows,
+        order=tuple(range(6)),
+    )
+
+    crossing_times, crossing_scales = crossing_scale_data(track, trajectory)
+    assert crossing_times.shape == crossing_scales.shape == (6,)
+    profile_times, profile_scales = scale_profile_data(track, trajectory, num_samples=701)
+    assert profile_times.shape == (701,)
+    assert profile_scales.shape == (6, 701)
+    assert profile_scales.min() == pytest.approx(0.58, abs=2.0e-4)
+    assert profile_scales.max() == pytest.approx(1.42, abs=2.0e-4)
+
+    figures_before = tuple(plt.get_fignums())
+    outputs = (
+        plot_route_overview(track, trajectory, tmp_path / "route.png", dpi=60),
+        plot_crossing_grid(track, trajectory, tmp_path / "crossings.png", dpi=60),
+        plot_scale_profile(
+            track, trajectory, tmp_path / "scale.png", num_samples=101, dpi=60
+        ),
+    )
+    for output in outputs:
+        assert output.is_file()
+        assert output.stat().st_size > 2_000
+        assert output.read_bytes().startswith(b"\x89PNG")
     assert tuple(plt.get_fignums()) == figures_before

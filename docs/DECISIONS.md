@@ -53,3 +53,9 @@ Reason: the renderer is intended to communicate the already-solved experiment mo
 Decision: document that the OpenGL window transform applies the true `s(t)R(t)` on every frame and that the current diverse demo uses `s(t) in [0.58,1.42]`.  Also report that chase-camera perspective makes this change hard to see.  A fixed-distance `GATE CAM` with a live `SCALE ×` readout is a future visualization improvement, not a completed feature.
 
 Reason: geometric correctness and ease of visual comparison are different claims.  Keeping them separate avoids both falsely diagnosing a missing scale transform and overstating what the current video communicates.
+
+## 2026-07-17: Organize Results Without Deleting History
+
+Decision: categorize SC-DynaTOGT results into experiments, demos, diagnostics, and work areas. Every migration must be dry-run first, journal every file's old/new path, size, and SHA-256, and preserve old visual variants under `legacy/`. New runs use timestamped directories and manifests; the result homepage is generated from saved summaries rather than hand-maintained values.
+
+Reason: formal experiments, intermediate chunks, historical demos, and presentation renders have different roles. Separating them makes the current result easy to find without sacrificing reproducibility or prior data.

@@ -43,10 +43,11 @@
 最简单的判断方法是：
 
 - 预处理图是算法诊断层：同时显示稠密/采样边界、角点、内缩安全区和 SC 网格；SC 网格不应跑出安全边界。
-- `trajectory.png` 是物理场景层：橙黑实体线是真实门框，四旋翼位于穿越点，数字表示穿越顺序；此图不画安全区。
+- `figures/route_overview.png` 是低干扰物理总览：橙黑实体线是真实门框，只保留一个代表性四旋翼，数字表示穿越顺序；此图不画安全区。
+- `figures/crossings_grid.png` 用相同坐标尺度并排展示六次穿越，`figures/scale_profile.png` 给出六扇门的完整缩放曲线和穿越时刻。
 - 图中每个窗口是自己穿越时刻的位置、角度和尺寸，不是同一全局时刻的快照。穿越合法性应查 `summary.json` 和预处理/数值验证，不应只凭场景图判断。
 
-OpenGL 输出是第三层可视化：`airsim_overview.png` 显示完整场地和航线，`airsim_chase.png|mp4` 使用追踪相机。它们使用真实动态门框和 MINCO 轨迹，但只是离线渲染，不是 AirSim 仿真。门框缩放范围虽为 `[0.58,1.42]`，追踪视角缺少固定尺寸参照，因此视频中不一定容易看出缩放。
+OpenGL 输出是第三层可视化：`opengl_overview.png` 显示完整场地和航线，`opengl_chase.png|mp4` 使用追踪相机。它们使用真实动态门框和 MINCO 轨迹，但只是离线渲染，不是 AirSim 仿真。追踪视频缺少固定尺寸参照时，应结合上述局部图和缩放曲线阅读。
 
 ## 5. E0–E5 实验结果是什么意思
 
@@ -61,7 +62,7 @@ OpenGL 输出是第三层可视化：`airsim_overview.png` 显示完整场地和
 | E4 | 窗口同时平移、旋转和缩放时，完整链条是否可用？ |
 | E5 | 把窗口时间梯度关掉后，优化行为有什么变化？ |
 
-使用 `results/smoke` 生成时，每个动态组只有 1 次单窗口运行，只证明调用链能跑通。使用 `results/default` 生成时，面板会标明完整样本数，动态代表轨迹包含 L、U、五角星 3 个窗口。右下角的黄色框仍会提醒：原 TOGT 是动力学软惩罚，所以“轨迹优化收敛”不等于“所有时刻都已获得硬约束证书”。
+使用 `results/experiments/smoke/20260714_smoke` 生成时，每个动态组只有 1 次单窗口运行，只证明调用链能跑通。使用 `results/experiments/formal/20260714_default` 生成时，面板会标明完整样本数，动态代表轨迹包含 L、U、五角星 3 个窗口。右下角的黄色框仍会提醒：原 TOGT 是动力学软惩罚，所以“轨迹优化收敛”不等于“所有时刻都已获得硬约束证书”。
 
 ## 重新生成
 
@@ -69,22 +70,19 @@ OpenGL 输出是第三层可视化：`airsim_overview.png` 显示完整场地和
 
 ```bash
 python -m nonconvex_timevarying_window.sc_dynatogt.experiments \
-  --suite smoke \
-  --outdir nonconvex_timevarying_window/sc_dynatogt/results/smoke
+  --suite smoke
 
 python -m nonconvex_timevarying_window.sc_dynatogt.explain_figures \
-  --results nonconvex_timevarying_window/sc_dynatogt/results/smoke \
+  --results nonconvex_timevarying_window/sc_dynatogt/results/experiments/smoke/20260714_smoke \
   --outdir nonconvex_timevarying_window/sc_dynatogt/algorithm_figures
 ```
 
-完整实验结束后，把 `--results` 换成 `nonconvex_timevarying_window/sc_dynatogt/results/default` 即可生成正式结果图解。
+完整实验结束后，把 `--results` 换成 `nonconvex_timevarying_window/sc_dynatogt/results/experiments/formal/20260714_default` 即可生成正式结果图解。
 
 如果要另行生成 OpenGL 场景，先安装 `requirements-render.txt`，再运行：
 
 ```bash
-PYOPENGL_PLATFORM=egl python -m nonconvex_timevarying_window.sc_dynatogt.simulation_render \
-  --summary nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed/summary.json \
-  --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_airsim_style
+PYOPENGL_PLATFORM=egl python -m nonconvex_timevarying_window.sc_dynatogt.simulation_render
 ```
 
-当前命令不会生成固定距离 `GATE CAM` 或 `SCALE ×` 面板。
+该命令读取 `results/current_demo.json` 并写入当前运行的 `opengl/`。固定尺度 Matplotlib 局部图和缩放曲线已经生成；当前命令不会生成 OpenGL `GATE CAM` 视频或实时 `SCALE ×` 面板。

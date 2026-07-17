@@ -510,6 +510,270 @@ def plot_trajectory(
     return output
 
 
+def crossing_scale_data(
+    track: SCWindowTrack,
+    trajectory_or_result: TrajectoryInput,
+) -> tuple[FloatArray, FloatArray]:
+    """Return designated crossing times and the corresponding gate scales."""
+
+    trajectory = _trajectory(trajectory_or_result)
+    times = _crossing_times(trajectory_or_result, trajectory, len(track.order))
+    scales = np.asarray(
+        [
+            track.windows[window_index].motion.scale(float(times[index]))[0]
+            for index, window_index in enumerate(track.order)
+        ],
+        dtype=float,
+    )
+    return times, scales
+
+
+def scale_profile_data(
+    track: SCWindowTrack,
+    trajectory_or_result: TrajectoryInput,
+    *,
+    num_samples: int = 501,
+) -> tuple[FloatArray, FloatArray]:
+    """Return common time samples and one scale row per designated gate."""
+
+    if num_samples < 2:
+        raise ValueError("num_samples must be at least two")
+    trajectory = _trajectory(trajectory_or_result)
+    total_time = float(np.real(trajectory.total_time))
+    times = np.linspace(0.0, total_time, num_samples)
+    scales = np.vstack(
+        [
+            [track.windows[window_index].motion.scale(float(time))[0] for time in times]
+            for window_index in track.order
+        ]
+    )
+    return times, np.asarray(scales, dtype=float)
+
+
+def plot_route_overview(
+    track: SCWindowTrack,
+    trajectory_or_result: TrajectoryInput,
+    output_path: str | Path,
+    *,
+    num_samples: int = 401,
+    representative_fraction: float = 0.48,
+    dpi: int = 160,
+) -> Path:
+    """Create a low-clutter route figure with one representative quadrotor."""
+
+    if num_samples < 2:
+        raise ValueError("num_samples must be at least two")
+    if not (0.0 <= representative_fraction <= 1.0):
+        raise ValueError("representative_fraction must lie in [0, 1]")
+    output = _output_path(output_path)
+    trajectory = _trajectory(trajectory_or_result)
+    crossings = _crossing_times(trajectory_or_result, trajectory, len(track.order))
+    positions = np.asarray(
+        np.real(trajectory.sample(num_samples=num_samples).position), dtype=float
+    )
+    boundaries = [
+        _display_boundary(track.windows[window_index], float(crossings[index]))
+        for index, window_index in enumerate(track.order)
+    ]
+    lower, upper = _axis_limits([positions, *boundaries])
+    if lower[2] > 0.0:
+        lower[2] = 0.0
+
+    figure = plt.figure(figsize=(10.2, 6.2), constrained_layout=True)
+    try:
+        axis = figure.add_subplot(111, projection="3d")
+        axis.plot(
+            positions[:, 0], positions[:, 1], positions[:, 2],
+            color=_TRAJECTORY_COLOR, linewidth=2.4,
+        )
+        if np.allclose(track.start, track.goal):
+            axis.scatter(
+                *track.start, facecolor="white", edgecolor="#2a9d8f",
+                linewidth=1.8, s=64, marker="o",
+            )
+            axis.text(*track.start, "  START / FINISH", color="#1f6f65", fontsize=7.5)
+        else:
+            axis.scatter(*track.start, color="#2ca02c", s=42, marker="o")
+            axis.scatter(*track.goal, color="#d62728", s=48, marker="X")
+        for index, boundary in enumerate(boundaries):
+            _add_window_frame(axis, boundary, label=None, annotation=str(index + 1))
+
+        representative_time = representative_fraction * float(np.real(trajectory.total_time))
+        representative = trajectory.sample(times=np.asarray((representative_time,)))
+        _add_quadrotor(
+            axis,
+            np.asarray(np.real(representative.position[0]), dtype=float),
+            np.asarray(np.real(representative.velocity[0]), dtype=float),
+            np.asarray(np.real(representative.acceleration[0]), dtype=float),
+            arm_length=_drone_arm_length(boundaries),
+        )
+        _add_ground_plane(axis, lower, upper)
+        _set_3d_limits(axis, lower, upper)
+        axis.set_xlabel("x [m]")
+        axis.set_ylabel("y [m]")
+        axis.set_zlabel("z [m]")
+        axis.set_title(f"SC-DynaTOGT closed-loop route · {len(track.order)} ordered gates")
+        axis.set_facecolor("#fbfcfd")
+        axis.grid(True, color="#cbd5df", alpha=0.28, linewidth=0.45)
+        axis.view_init(elev=24.0, azim=-61.0)
+        figure.savefig(output, dpi=dpi, bbox_inches="tight")
+    finally:
+        plt.close(figure)
+    return output
+
+
+def _project_to_gate_plane(points: FloatArray, center: FloatArray, basis: FloatArray) -> FloatArray:
+    return (np.asarray(points, dtype=float) - center[None, :]) @ basis
+
+
+def plot_crossing_grid(
+    track: SCWindowTrack,
+    trajectory_or_result: TrajectoryInput,
+    output_path: str | Path,
+    *,
+    columns: int = 3,
+    dpi: int = 160,
+) -> Path:
+    """Plot fixed-world-scale front views of all designated crossings."""
+
+    if columns < 1:
+        raise ValueError("columns must be positive")
+    output = _output_path(output_path)
+    trajectory = _trajectory(trajectory_or_result)
+    crossing_times, crossing_scales = crossing_scale_data(track, trajectory_or_result)
+    samples = trajectory.sample(times=crossing_times)
+    positions = np.asarray(np.real(samples.position), dtype=float)
+    velocities = np.asarray(np.real(samples.velocity), dtype=float)
+    accelerations = np.asarray(np.real(samples.acceleration), dtype=float)
+
+    projections: list[tuple[FloatArray, FloatArray, FloatArray, FloatArray]] = []
+    arm_length = _drone_arm_length(
+        [
+            _display_boundary(track.windows[window_index], float(crossing_times[index]))
+            for index, window_index in enumerate(track.order)
+        ]
+    )
+    maximum_extent = 0.0
+    for index, window_index in enumerate(track.order):
+        window = track.windows[window_index]
+        center, basis, *_ = window.state_at(float(crossing_times[index]))
+        boundary = _display_boundary(window, float(crossing_times[index]))
+        boundary_local = _project_to_gate_plane(boundary, center, basis)
+        body_basis = _quadrotor_basis(velocities[index], accelerations[index])
+        diagonal = arm_length / np.sqrt(2.0)
+        offsets = np.asarray(
+            ((diagonal, diagonal), (diagonal, -diagonal), (-diagonal, -diagonal), (-diagonal, diagonal))
+        )
+        rotor_global = (
+            positions[index][None, :]
+            + offsets[:, :1] * body_basis[:, 0]
+            + offsets[:, 1:] * body_basis[:, 1]
+        )
+        rotor_local = _project_to_gate_plane(rotor_global, center, basis)
+        center_local = _project_to_gate_plane(positions[index][None, :], center, basis)[0]
+        projections.append((boundary_local, rotor_local, center_local, center))
+        maximum_extent = max(
+            maximum_extent,
+            float(np.max(np.abs(boundary_local))),
+            float(np.max(np.abs(rotor_local))),
+        )
+    limit = max(1.0, 1.15 * maximum_extent)
+    rows = int(np.ceil(len(track.order) / columns))
+    figure, axes = plt.subplots(
+        rows, columns, figsize=(4.1 * columns, 3.75 * rows), squeeze=False,
+        constrained_layout=True,
+    )
+    try:
+        for index, axis in enumerate(axes.flat):
+            if index >= len(track.order):
+                axis.set_visible(False)
+                continue
+            window_index = track.order[index]
+            window = track.windows[window_index]
+            boundary, rotors, center_local, _ = projections[index]
+            closed = _closed(boundary)
+            axis.plot(
+                closed[:, 0], closed[:, 1], color=_WINDOW_FRAME_SHADOW,
+                linewidth=7.0, solid_capstyle="round", solid_joinstyle="round",
+            )
+            axis.plot(
+                closed[:, 0], closed[:, 1], color=_WINDOW_FRAME_COLOR,
+                linewidth=4.1, solid_capstyle="round", solid_joinstyle="round",
+            )
+            for first, second in ((0, 2), (1, 3)):
+                axis.plot(
+                    rotors[[first, second], 0], rotors[[first, second], 1],
+                    color="#20262e", linewidth=4.0, solid_capstyle="round",
+                )
+            axis.scatter(
+                rotors[:, 0], rotors[:, 1], s=58,
+                facecolors=("#ffb703", "#ffb703", "#8ecae6", "#8ecae6"),
+                edgecolors="#20262e", linewidths=0.8, zorder=4,
+            )
+            axis.scatter(*center_local, s=20, color="#e63946", zorder=5)
+            axis.set_xlim(-limit, limit)
+            axis.set_ylim(-limit, limit)
+            axis.set_aspect("equal", adjustable="box")
+            axis.grid(True, color="#dce3e8", linewidth=0.5)
+            axis.set_xlabel("gate-local x [m]")
+            axis.set_ylabel("gate-local y [m]")
+            axis.set_title(
+                f"Gate {index + 1} · {window.name}\n"
+                f"t = {crossing_times[index]:.2f} s   scale = {crossing_scales[index]:.3f}",
+                fontsize=10,
+            )
+        figure.suptitle("Fixed-scale views at designated crossings", fontsize=14)
+        figure.savefig(output, dpi=dpi, bbox_inches="tight")
+    finally:
+        plt.close(figure)
+    return output
+
+
+def plot_scale_profile(
+    track: SCWindowTrack,
+    trajectory_or_result: TrajectoryInput,
+    output_path: str | Path,
+    *,
+    num_samples: int = 501,
+    dpi: int = 160,
+) -> Path:
+    """Plot every gate scale and highlight its designated crossing."""
+
+    output = _output_path(output_path)
+    trajectory = _trajectory(trajectory_or_result)
+    crossing_times, crossing_scales = crossing_scale_data(track, trajectory_or_result)
+    times, profile_scales = scale_profile_data(
+        track, trajectory_or_result, num_samples=num_samples
+    )
+    total_time = float(np.real(trajectory.total_time))
+    colors = plt.get_cmap("tab10")(np.linspace(0.0, 0.8, len(track.order)))
+    figure, axis = plt.subplots(figsize=(10.4, 5.0), constrained_layout=True)
+    try:
+        for index, window_index in enumerate(track.order):
+            window = track.windows[window_index]
+            scales = profile_scales[index]
+            axis.plot(times, scales, color=colors[index], linewidth=1.8, label=f"{index + 1} {window.name}")
+            axis.scatter(
+                [crossing_times[index]], [crossing_scales[index]],
+                color=colors[index], edgecolor="white", linewidth=0.8, s=46, zorder=4,
+            )
+            axis.axvline(crossing_times[index], color=colors[index], alpha=0.14, linewidth=0.8)
+        lower, upper = float(profile_scales.min()), float(profile_scales.max())
+        padding = max(0.04, 0.08 * (upper - lower))
+        axis.set_ylim(lower - padding, upper + padding)
+        axis.set_xlim(0.0, total_time)
+        axis.axhline(1.0, color="#495057", linewidth=0.9, linestyle="--", alpha=0.65)
+        axis.set_xlabel("global trajectory time [s]")
+        axis.set_ylabel("uniform gate scale s(t)")
+        axis.set_title("Dynamic-window scale profiles and designated crossings")
+        axis.grid(True, color="#dce3e8", linewidth=0.5)
+        axis.legend(ncol=3, fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.16))
+        figure.savefig(output, dpi=dpi, bbox_inches="tight")
+    finally:
+        plt.close(figure)
+    return output
+
+
 def export_trajectory_csv(
     trajectory_or_result: TrajectoryInput,
     output_path: str | Path,
@@ -658,8 +922,13 @@ def export_dynamic_window_gif(
 
 
 __all__ = [
+    "crossing_scale_data",
     "export_dynamic_window_gif",
     "export_trajectory_csv",
+    "plot_crossing_grid",
     "plot_preprocessing",
+    "plot_route_overview",
+    "plot_scale_profile",
     "plot_trajectory",
+    "scale_profile_data",
 ]

@@ -96,6 +96,7 @@ nonconvex_timevarying_window/
     validation.py               映射合法性和数值梯度检查
     visualization.py            PNG / CSV / GIF
     simulation_render.py        可选 EGL/OpenGL 实体场景、追踪相机和 MP4
+    results_manager.py          无损迁移、run manifest、结果索引和中文主页
     explain_figures.py          中文算法、组件和实验结果图解
     tests/                      方法测试
 ```
@@ -117,8 +118,11 @@ SC-DynaTOGT 的可视化是独立于求解器的三层输出：
 PreprocessedGate -> preprocessing.png              边界/安全区/SC 诊断
 SCWindowTrack + MINCO -> visualization.py           真实门框 PNG/GIF
 saved summary + same track/MINCO -> simulation_render.py  EGL/OpenGL PNG/MP4
+run manifests + summaries -> results_manager.py           catalog/Markdown/HTML
 ```
 
-OpenGL 层不重新求解轨迹，也不提供新的动力学或传感器模型。它在每帧的窗口节点变换中使用 `s(t)R(t)`；追踪相机下的缩放不明显是视觉参照问题，不是几何状态缺失。
+OpenGL 层不重新求解轨迹，也不提供新的动力学或传感器模型。它在每帧的窗口节点变换中使用 `s(t)R(t)`；追踪相机下的缩放不明显是视觉参照问题，不是几何状态缺失。固定世界尺度的六窗口局部图和缩放曲线由 Matplotlib 层单独提供。
+
+SC-DynaTOGT 结果根目录只平铺 `experiments/`、`demos/`、`diagnostics/`、`work/` 和索引文件。新运行带时间戳与 `run_manifest.json`；`current_demo.json` 指向最近一次成功演示。历史结果的移动由 `migration_manifest.json` 逐文件记录大小和 SHA-256，不删除或覆盖原始字节。
 
 根目录不保存任何具体算法实现。后续算法应建立与 `atlas_dynatogt/` 并列的子目录，并各自管理源码、测试、文档和试验产物。

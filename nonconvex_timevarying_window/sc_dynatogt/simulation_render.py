@@ -1,4 +1,4 @@
-"""AirSim-style offline rendering for SC-DynaTOGT trajectories.
+"""OpenGL offline rendering for SC-DynaTOGT trajectories.
 
 This module is deliberately separate from the optimizer and the Matplotlib
 diagnostic plots.  It consumes the same physical window poses and degree-7
@@ -23,7 +23,7 @@ from numpy.typing import ArrayLike, NDArray
 from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
 from .environment import SCDynamicWindow, SCWindowTrack
-from .minco import BoundaryState, MincoSnap
+from .minco import MincoSnap
 from .optimizer import OptimizationResult
 from .visualization import _quadrotor_basis, _trajectory
 
@@ -77,7 +77,7 @@ def _renderer_modules() -> tuple[Any, Any]:
         import trimesh
     except ImportError as exc:  # pragma: no cover - depends on optional extras
         raise ImportError(
-            "AirSim-style rendering requires the optional packages in "
+            "OpenGL scene rendering requires the optional packages in "
             "requirements-render.txt"
         ) from exc
     return pyrender, trimesh
@@ -337,7 +337,7 @@ def _add_landscape(scene: Any, pyrender: Any, trimesh: Any, points: FloatArray) 
     scene.add(
         pyrender.Mesh.from_trimesh(
             ground,
-            material=_material(pyrender, (0.20, 0.33, 0.18, 1.0), metallic=0.0, roughness=0.94),
+            material=_material(pyrender, (0.28, 0.37, 0.27, 1.0), metallic=0.0, roughness=0.94),
         )
     )
 
@@ -351,7 +351,7 @@ def _add_landscape(scene: Any, pyrender: Any, trimesh: Any, points: FloatArray) 
     scene.add(
         pyrender.Mesh.from_trimesh(
             trimesh.util.concatenate(road_parts),
-            material=_material(pyrender, (0.075, 0.085, 0.09, 1.0), metallic=0.0, roughness=0.82),
+            material=_material(pyrender, (0.13, 0.15, 0.17, 1.0), metallic=0.0, roughness=0.82),
         )
     )
 
@@ -404,9 +404,9 @@ def _add_landscape(scene: Any, pyrender: Any, trimesh: Any, points: FloatArray) 
         canopy_parts.append(canopy)
 
     building_colors = (
-        (0.46, 0.50, 0.53, 1.0),
-        (0.53, 0.49, 0.43, 1.0),
-        (0.38, 0.43, 0.48, 1.0),
+        (0.56, 0.59, 0.61, 1.0),
+        (0.60, 0.58, 0.54, 1.0),
+        (0.51, 0.55, 0.58, 1.0),
     )
     for group, color in zip(building_groups, building_colors):
         scene.add(
@@ -418,7 +418,7 @@ def _add_landscape(scene: Any, pyrender: Any, trimesh: Any, points: FloatArray) 
     scene.add(
         pyrender.Mesh.from_trimesh(
             trimesh.util.concatenate(roof_parts),
-            material=_material(pyrender, (0.16, 0.18, 0.20, 1.0), metallic=0.20, roughness=0.58),
+            material=_material(pyrender, (0.28, 0.30, 0.32, 1.0), metallic=0.16, roughness=0.64),
         )
     )
     scene.add(
@@ -442,7 +442,7 @@ def _add_landscape(scene: Any, pyrender: Any, trimesh: Any, points: FloatArray) 
     scene.add(
         pyrender.Mesh.from_trimesh(
             trimesh.util.concatenate(canopy_parts),
-            material=_material(pyrender, (0.09, 0.30, 0.11, 1.0), metallic=0.0, roughness=0.88),
+            material=_material(pyrender, (0.18, 0.34, 0.19, 1.0), metallic=0.0, roughness=0.88),
             smooth=True,
         )
     )
@@ -657,7 +657,7 @@ def render_simulation_scene(
             next_gate=_next_gate_label(crossings, still_time),
             mode="OVERVIEW CAM",
         )
-        overview_path = root / "airsim_overview.png"
+        overview_path = root / "opengl_overview.png"
         imageio.imwrite(overview_path, overview)
         output["overview_png"] = str(overview_path)
 
@@ -675,12 +675,12 @@ def render_simulation_scene(
             next_gate=_next_gate_label(crossings, still_time),
             mode="CHASE CAM",
         )
-        chase_path = root / "airsim_chase.png"
+        chase_path = root / "opengl_chase.png"
         imageio.imwrite(chase_path, chase)
         output["chase_png"] = str(chase_path)
 
         if config.render_video:
-            video_path = root / "airsim_chase.mp4"
+            video_path = root / "opengl_chase.mp4"
             try:
                 writer = imageio.get_writer(
                     video_path,
@@ -744,28 +744,11 @@ def render_diverse_summary(
 ) -> dict[str, str]:
     """Reconstruct and render a saved ``diverse_demo`` optimization result."""
 
-    from .experiments import ExperimentSettings, _preprocessing_config
-    from .scenarios import build_diverse_scenario
+    from .diverse_demo import load_diverse_demo
 
-    source = Path(summary_path).expanduser()
-    payload = json.loads(source.read_text(encoding="utf-8"))
-    result = payload["result"]
-    scenario = build_diverse_scenario(
-        mode=str(payload["mode"]),
-        preprocessing_config=_preprocessing_config(
-            ExperimentSettings(suite=str(payload["quality"]))
-        ),
-        layout=str(payload["layout"]),
-        motion_scale=float(payload["motion_scale"]),
-    )
-    trajectory = MincoSnap(
-        BoundaryState(scenario.track.start),
-        BoundaryState(scenario.track.goal),
-        np.asarray(result["waypoints"], dtype=float),
-        np.asarray(result["durations"], dtype=float),
-    )
+    track, trajectory = load_diverse_demo(summary_path)
     return render_simulation_scene(
-        scenario.track,
+        track,
         trajectory,
         output_dir,
         config=config,
@@ -774,23 +757,17 @@ def render_diverse_summary(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Render an AirSim-style offline scene from a saved diverse demo"
+        description="Render an OpenGL offline scene from a saved diverse demo"
     )
     parser.add_argument(
         "--summary",
         type=Path,
-        default=Path(
-            "nonconvex_timevarying_window/sc_dynatogt/results/"
-            "diverse_paper_irregular_closed/summary.json"
-        ),
+        help="saved diverse-demo summary; omitted values use results/current_demo.json",
     )
     parser.add_argument(
         "--outdir",
         type=Path,
-        default=Path(
-            "nonconvex_timevarying_window/sc_dynatogt/results/"
-            "diverse_paper_irregular_closed_airsim_style"
-        ),
+        help="output directory; omitted values use <run>/opengl",
     )
     parser.add_argument("--width", type=int, default=960)
     parser.add_argument("--height", type=int, default=540)
@@ -798,9 +775,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--fps", type=float, default=12.0)
     parser.add_argument("--no-video", action="store_true")
     args = parser.parse_args(argv)
+    if args.summary is None:
+        from .results_manager import resolve_current_demo_summary
+
+        summary = resolve_current_demo_summary()
+    else:
+        summary = args.summary
+    output_dir = args.outdir or summary.parent / "opengl"
     output = render_diverse_summary(
-        args.summary,
-        args.outdir,
+        summary,
+        output_dir,
         config=SimulationRenderConfig(
             width=args.width,
             height=args.height,
@@ -809,6 +793,17 @@ def main(argv: list[str] | None = None) -> int:
             render_video=not args.no_video,
         ),
     )
+    manifest = summary.parent / "run_manifest.json"
+    if manifest.is_file():
+        from .results_manager import RESULTS_ROOT, build_catalog, refresh_run_manifest
+
+        refresh_run_manifest(summary.parent)
+        try:
+            summary.parent.resolve().relative_to(RESULTS_ROOT.resolve())
+        except ValueError:
+            pass
+        else:
+            build_catalog(RESULTS_ROOT)
     print(json.dumps(output, ensure_ascii=False))
     return 0
 

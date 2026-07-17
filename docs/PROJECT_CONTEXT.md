@@ -121,24 +121,25 @@ SC mapping 1,000,000/1,000,000 legal, no NaN/Inf/degenerate Jacobian
 - `motion_scale=3.5`：平移、旋转、均匀缩放振幅均为正式 E3--E5 场景的 3.5 倍，缩放系数范围 `[0.58,1.42]`；
 - 实跑结果为 6/6 指定顺序穿越合法，六个映射各 `1000/1000` 点合法，总时间 `14.90481 s`，385 次迭代；
 - 该强运动长距离演示的 `sampled_dynamic_limits_satisfied=false`：窗口合法性已通过，但不应把 TOGT 软惩罚收敛表述为全部动力学硬上限可行；
-- 历史产物分别保存在 `results/diverse_demo/`（旧开放 spacious）、`results/diverse_closed_loop_regular_20260717/`（规则闭环）和 `results/diverse_paper_irregular_closed/`（不规则闭环原可视化）；当前真实场景风格输出使用新的 `results/diverse_paper_irregular_closed_physical_scene/`，不覆盖上述数据。
-- 当前场景图在穿越点绘制四旋翼，动画中的四旋翼根据 MINCO 速度确定航向、根据加速度呈现倾斜姿态；六种真实边界使用同一门框材质和序号样式。
-- 可选 `simulation_render.py` 通过 EGL/OpenGL 生成带实体门框、四旋翼网格、建筑、道路、植被、阴影、大气雾、HUD 和追踪相机的 AirSim 风格离线画面；它不替代 AirSim 动力学/传感器仿真。
-- OpenGL 门框在每帧的三维变换中实际应用 `s(t)R(t)`，当前缩放范围为 `[0.58,1.42]`。追踪相机的距离变化、透视、窗口旋转和六种不同原始尺寸会掩盖视觉上的缩放；固定距离 `GATE CAM` 和实时 `SCALE ×` 只是后续改进建议，尚未实现。
+- 结果已无损整理为 `results/experiments/`、`results/demos/`、`results/diagnostics/` 和 `results/work/`；543 个原文件共 60,079,505 字节均在 `migration_manifest.json` 中记录原/新路径、大小和 SHA-256，旧结果没有删除或覆盖。
+- 当前精选运行是 `results/demos/runs/20260717_paper_irregular_closed/`。全局图只画一个代表性四旋翼，另有六窗口固定尺度局部图、缩放曲线和统一时间轴 GIF；旧图及旧 OpenGL 成片保存在该运行的 `legacy/`。
+- 可选 `simulation_render.py` 通过 EGL/OpenGL 生成带实体门框、四旋翼网格、低干扰建筑/植被、阴影、大气雾、HUD 和追踪相机的离线画面；它不替代 AirSim 动力学/传感器仿真。
+- OpenGL 门框在每帧的三维变换中实际应用 `s(t)R(t)`，当前缩放范围为 `[0.58,1.42]`。追踪相机下仍不易直接比较，因此 `figures/crossings_grid.png` 和 `figures/scale_profile.png` 提供固定尺度与数值证据；OpenGL `GATE CAM` 视频和实时 `SCALE ×` 仍未实现。
 
 当前入口和产物：
 
 ```text
-python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/sc_dynatogt/results/smoke
-python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite default --outdir nonconvex_timevarying_window/sc_dynatogt/results/default
-python -m nonconvex_timevarying_window.sc_dynatogt.diverse_demo --mode full --quality smoke --layout paper_irregular --motion-scale 3.5 --validation-samples 1000 --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_physical_scene
-PYOPENGL_PLATFORM=egl python -m nonconvex_timevarying_window.sc_dynatogt.simulation_render --summary nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed/summary.json --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_airsim_style
+python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke
+python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite default
+python -m nonconvex_timevarying_window.sc_dynatogt.diverse_demo --mode full --quality smoke --layout paper_irregular --motion-scale 3.5 --validation-samples 1000
+PYOPENGL_PLATFORM=egl python -m nonconvex_timevarying_window.sc_dynatogt.simulation_render
+python -m nonconvex_timevarying_window.sc_dynatogt.results_manager verify
 pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
 
-formal results: nonconvex_timevarying_window/sc_dynatogt/results/default/E0..E5/
-current diverse physical-scene PNG/GIF preview: nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_physical_scene/
-current AirSim-style overview/chase PNG and MP4: nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_airsim_style/
-legacy diverse results: nonconvex_timevarying_window/sc_dynatogt/results/diverse_demo/, results/diverse_closed_loop_regular_20260717/, and results/diverse_paper_irregular_closed/
+results homepage: nonconvex_timevarying_window/sc_dynatogt/results/index.html
+formal results: nonconvex_timevarying_window/sc_dynatogt/results/experiments/formal/20260714_default/E0..E5/
+featured demo: nonconvex_timevarying_window/sc_dynatogt/results/demos/runs/20260717_paper_irregular_closed/
+legacy demos: nonconvex_timevarying_window/sc_dynatogt/results/demos/archive/ and featured-run legacy/
 detailed record: nonconvex_timevarying_window/sc_dynatogt/TEST_RESULTS.md
 ```
 
@@ -151,5 +152,5 @@ SC-DynaTOGT smoke: E0--E5 all passed
 SC-DynaTOGT default: E0--E5 complete; all traversal legality rates 100%
 SC-DynaTOGT mapping: 1,000,000 / 1,000,000 legal, no NaN/Inf/degenerate Jacobian
 SC-DynaTOGT diverse demo: paper-inspired irregular closed-loop 3D layout, start=goal, 6/6 legal crossings
-pytest -q nonconvex_timevarying_window/sc_dynatogt/tests  # 104 passed (2026-07-17)
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests  # 111 passed (2026-07-17)
 ```

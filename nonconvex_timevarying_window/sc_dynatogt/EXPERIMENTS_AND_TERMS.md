@@ -22,7 +22,7 @@
 
 ### 2.1 原始物理边界
 
-原始物理边界是窗口真实开口的边缘。当前 `trajectory.png` 和 `dynamic_windows.gif` 将它画成统一橙黑实体门框，OpenGL 层则沿这条同样的真实边界建立三维管状网格。
+原始物理边界是窗口真实开口的边缘。当前 `figures/route_overview.png`、`figures/crossings_grid.png` 和 `media/dynamic_windows.gif` 将它画成统一橙黑实体门框，OpenGL 层则沿这条同样的真实边界建立三维管状网格。
 
 如果只要求无人机中心在原始区域内，机体或旋翼仍可能碰到边缘。因此算法不直接在原始区域中选点。
 
@@ -420,25 +420,33 @@ E5 中的两种方法是：
 
 代表轨迹的时间、位置、速度、加速度、jerk、snap 和 crackle。
 
-### `trajectory.png`
+### `figures/route_overview.png`
 
 - 蓝线：MINCO 轨迹；
 - 橙黑管状边界：每个窗口在自己穿越时刻的真实物理门框；
-- 四旋翼模型：轨迹在对应窗口的真实穿越点；
+- 四旋翼模型：轨迹上的一个代表性飞行姿态；
 - 窗口数字：指定穿越顺序；
 - `start / finish`：闭环演示的共同起终点。
 
-图中不画内缩安全区。安全区仍然参与优化和数值合法性检查，并在 `preprocessing.png` 中显示。因此 `trajectory.png` 是物理场景图，不是安全区证明图。每个窗口显示的是自己穿越时刻的位姿，不是同一全局时刻的快照。
+图中不画内缩安全区。安全区仍然参与优化和数值合法性检查，并在 `preprocessing.png` 中显示。因此 `route_overview.png` 是物理场景图，不是安全区证明图。每个窗口显示的是自己穿越时刻的位姿，不是同一全局时刻的快照。
 
-### `dynamic_windows.gif`
+### `figures/crossings_grid.png` / `figures/scale_profile.png`
+
+`crossings_grid.png` 用相同的局部坐标范围绘制 2×3 个窗口正视图，并标注穿越时刻和缩放系数，避免相机透视干扰尺寸比较。`scale_profile.png` 显示六扇门在整条轨迹时间轴上的 `s(t)`，圆点标出指定穿越时刻。
+
+### `media/dynamic_windows.gif`
 
 GIF 才是统一时间轴上的 Matplotlib 动画：每一帧同时更新无人机和所有真实物理门框的位置、角度和大小，不画安全区。
 
-### `airsim_overview.png` / `airsim_chase.png` / `airsim_chase.mp4`
+### `opengl/opengl_overview.png` / `opengl_chase.png` / `opengl_chase.mp4`
 
 这三个文件由可选 `simulation_render.py` 生成。它们重建同一个动态轨道和同一条 MINCO 轨迹，只增加实体网格、环境、光照、HUD 和相机；不重新优化，也不提供 AirSim 动力学或传感器模型。
 
-OpenGL 门框的每帧变换为 `s(t)R(t)` 加上当前中心位置。六窗口闭环中 `s(t) in [0.58,1.42]`，但追踪相机的距离变化、透视、同时旋转和不同原始尺寸会让缩放难以直接比较。固定距离 `GATE CAM` 和实时 `SCALE ×` 尚未实现。
+OpenGL 门框的每帧变换为 `s(t)R(t)` 加上当前中心位置。六窗口闭环中 `s(t) in [0.58,1.42]`，但追踪相机的距离变化、透视、同时旋转和不同原始尺寸会让缩放难以直接比较；应结合固定尺度局部图和缩放曲线阅读。固定距离 OpenGL `GATE CAM` 视频和实时 `SCALE ×` 尚未实现。
+
+### `run_manifest.json` 与结果主页
+
+每个整理后的运行都有 manifest，列出运行身份、类别和相对产物路径。`results/index.html` 汇总精选演示、E0–E5 状态、图像/视频链接，并明确突出 `sampled_dynamic_limits_satisfied=false`；`catalog.json` 提供相同信息的机器可读版本。
 
 ## 17. 与代码的对应关系
 
@@ -456,6 +464,7 @@ OpenGL 门框的每帧变换为 `s(t)R(t)` 加上当前中心位置。六窗口�
 | 梯度和百万点验证 | `validation.py` |
 | PNG/CSV/GIF | `visualization.py` |
 | EGL/OpenGL 实体场景和 MP4 | `simulation_render.py` |
+| 结果迁移、manifest 和主页 | `results_manager.py` |
 
 ## 18. 最后用六句话总结
 

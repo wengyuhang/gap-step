@@ -141,7 +141,7 @@ python -m togt_timevarying_window.experiments --suite smoke --outdir togt_timeva
 pytest -q togt_timevarying_window/tests
 python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/atlas_dynatogt/results
 pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
-python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/sc_dynatogt/results/smoke
+python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke
 pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
 ```
 

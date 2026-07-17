@@ -212,8 +212,9 @@ def test_diverse_compact_layout_retains_x_axis_arrangement(monkeypatch):
     assert captured["goal"] is None
 
 
-def test_diverse_demo_defaults_to_a_new_paper_irregular_output_directory(monkeypatch):
+def test_diverse_demo_defaults_to_a_timestamped_paper_irregular_run(monkeypatch, tmp_path):
     captured = {}
+    output = tmp_path / "results/demos/runs/20260717_120000_paper_irregular_full"
 
     def fake_run(output, **kwargs):
         captured["output"] = output
@@ -224,9 +225,11 @@ def test_diverse_demo_defaults_to_a_new_paper_irregular_output_directory(monkeyp
         "nonconvex_timevarying_window.sc_dynatogt.diverse_demo.run_diverse_demo",
         fake_run,
     )
-    assert diverse_demo_main([]) == 0
-    assert str(captured["output"]).endswith(
-        "results/diverse_paper_irregular_closed_physical_scene"
+    monkeypatch.setattr(
+        "nonconvex_timevarying_window.sc_dynatogt.diverse_demo.timestamped_run_directory",
+        lambda *args, **kwargs: output,
     )
+    assert diverse_demo_main([]) == 0
+    assert captured["output"] == output
     assert captured["layout"] == "paper_irregular"
     assert captured["motion_scale"] == 3.5

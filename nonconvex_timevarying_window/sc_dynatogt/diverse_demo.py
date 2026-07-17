@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 
+from .environment import SCWindowTrack
 from .experiments import (
     ExperimentSettings,
     _designated_crossings_valid,
@@ -18,13 +19,22 @@ from .experiments import (
     _write_json,
 )
 from .optimizer import optimize_track
+from .minco import BoundaryState, MincoSnap
+from .results_manager import (
+    RESULTS_ROOT,
+    timestamped_run_directory,
+    update_current_demo,
+    write_run_manifest,
+)
 from .scenarios import PAPER_REFERENCE_GATE_ORDER, build_diverse_scenario
 from .validation import validate_sc_mapping
 from .visualization import (
     export_dynamic_window_gif,
     export_trajectory_csv,
+    plot_crossing_grid,
     plot_preprocessing,
-    plot_trajectory,
+    plot_route_overview,
+    plot_scale_profile,
 )
 
 
@@ -62,16 +72,20 @@ def run_diverse_demo(
     result = optimize_track(scenario.track, config=config)
 
     for index, gate in enumerate(scenario.preprocessed_gates):
-        gate_root = root / "preprocessed_gates" / f"{index:02d}_{gate.name}"
+        gate_root = root / "preprocessing" / f"{index:02d}_{gate.name}"
         gate.save(gate_root)
         plot_preprocessing(gate, gate_root / "preprocessing.png", samples_per_line=40)
-    plot_trajectory(scenario.track, result, root / "trajectory.png", num_samples=401)
-    export_trajectory_csv(result, root / "trajectory.csv", num_samples=501)
+    plot_route_overview(
+        scenario.track, result, root / "figures/route_overview.png", num_samples=401
+    )
+    plot_crossing_grid(scenario.track, result, root / "figures/crossings_grid.png")
+    plot_scale_profile(scenario.track, result, root / "figures/scale_profile.png")
+    export_trajectory_csv(result, root / "data/trajectory.csv", num_samples=501)
     if make_gif:
         export_dynamic_window_gif(
             scenario.track,
             result,
-            root / "dynamic_windows.gif",
+            root / "media/dynamic_windows.gif",
             num_frames=72,
         )
 
@@ -134,17 +148,47 @@ def run_diverse_demo(
         "passed": bool(result.success and legal and all(item["passed"] for item in mapping)),
     }
     _write_json(root / "summary.json", payload)
+    write_run_manifest(
+        root,
+        run_id=root.name,
+        kind="demo",
+        role="run",
+        featured=False,
+    )
     return _jsonable(payload)
+
+
+def load_diverse_demo(summary_path: str | Path) -> tuple[SCWindowTrack, MincoSnap]:
+    """Reconstruct a saved diverse-demo track and MINCO trajectory."""
+
+    source = Path(summary_path).expanduser()
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    result = payload["result"]
+    scenario = build_diverse_scenario(
+        mode=str(payload["mode"]),
+        preprocessing_config=_preprocessing_config(
+            ExperimentSettings(suite=str(payload["quality"]))
+        ),
+        layout=str(payload["layout"]),
+        motion_scale=float(payload["motion_scale"]),
+    )
+    trajectory = MincoSnap(
+        BoundaryState(scenario.track.start),
+        BoundaryState(scenario.track.goal),
+        np.asarray(result["waypoints"], dtype=float),
+        np.asarray(result["durations"], dtype=float),
+    )
+    return scenario.track, trajectory
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Run a six-window polygon/smooth/mixed SC-DynaTOGT closed-loop demo"
     )
-    parser.add_argument("--outdir", type=Path, default=Path(
-        "nonconvex_timevarying_window/sc_dynatogt/results/"
-        "diverse_paper_irregular_closed_physical_scene"
-    ))
+    parser.add_argument(
+        "--outdir", type=Path,
+        help="exact run directory; omitted paths are timestamped below results/demos/runs",
+    )
     parser.add_argument("--mode", choices=("static", "translation", "full"), default="full")
     parser.add_argument("--quality", choices=("smoke", "default"), default="smoke")
     parser.add_argument(
@@ -162,8 +206,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--validation-samples", type=int, default=1_000)
     parser.add_argument("--no-gif", action="store_true")
     args = parser.parse_args(argv)
+    output = args.outdir or timestamped_run_directory(
+        RESULTS_ROOT,
+        "demos/runs",
+        f"{args.layout}_{args.mode}",
+    )
     payload = run_diverse_demo(
-        args.outdir,
+        output,
         mode=args.mode,
         quality=args.quality,
         layout=args.layout,
@@ -171,8 +220,15 @@ def main(argv: list[str] | None = None) -> int:
         validation_samples=args.validation_samples,
         make_gif=not args.no_gif,
     )
+    if payload["passed"]:
+        try:
+            output.resolve().relative_to(RESULTS_ROOT.resolve())
+        except ValueError:
+            pass
+        else:
+            update_current_demo(RESULTS_ROOT, output)
     print(json.dumps(_jsonable({
-        "outdir": args.outdir,
+        "outdir": output,
         "windows": payload["window_names"],
         "passed": payload["passed"],
     }), ensure_ascii=False))
@@ -183,4 +239,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["main", "run_diverse_demo"]
+__all__ = ["load_diverse_demo", "main", "run_diverse_demo"]

@@ -566,7 +566,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--results",
         type=Path,
-        default=Path("nonconvex_timevarying_window/sc_dynatogt/results/smoke"),
+        default=Path(
+            "nonconvex_timevarying_window/sc_dynatogt/results/experiments/"
+            "smoke/20260714_smoke"
+        ),
         help="completed smoke result directory",
     )
     parser.add_argument(

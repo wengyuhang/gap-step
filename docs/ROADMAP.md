@@ -41,6 +41,6 @@ ood_maze_test   74.5%
 - Two independent methods are implemented: `atlas_dynatogt/` uses ear-clipped chart atlases, while `sc_dynatogt/` uses Chang-style boundary resampling, Clipper2 inset geometry, disk Schwarz--Christoffel parameterization, and degree-7 MINCO.
 - The current task covers simple closed non-convex windows without holes or self-intersections, dynamic translation/rotation/scale, and one traversal of each window in the specified order.
 - Baseline comparison and repeated traversal are not current requirements.
-- SC-DynaTOGT's paper-inspired six-window closed loop and E0--E5 default experiments are complete.  Its Matplotlib scene renderer shows only physical frames, and its optional EGL/OpenGL renderer replays the same solved track and trajectory rather than adding a second dynamics model.
-- The next visualization improvement is a fixed-distance next-gate camera with a live scale readout.  This remains planned: the current chase view applies the true `[0.58,1.42]` scale but perspective and camera motion make it difficult to perceive.
+- SC-DynaTOGT's paper-inspired six-window closed loop and E0--E5 default experiments are complete. Its results are losslessly categorized with run manifests and a Chinese result homepage. The Matplotlib layer now provides a low-clutter route overview, fixed-scale crossing grid, and scale profile; the optional EGL/OpenGL renderer replays the same solved trajectory.
+- A fixed-distance OpenGL next-gate video with a live scale readout remains optional future work. Static fixed-scale comparison and numerical scale evidence are already implemented.
 - Future work can add other methods as new sibling directories and evaluate them independently under their own `results/` directories.

@@ -54,16 +54,20 @@ def test_simulation_render_config_rejects_invalid_values(kwargs) -> None:
         SimulationRenderConfig(**kwargs)
 
 
-def test_simulation_render_cli_uses_independent_default_output(monkeypatch) -> None:
+def test_simulation_render_cli_uses_current_run_opengl_directory(monkeypatch, tmp_path) -> None:
     captured = {}
+    summary = tmp_path / "results/demos/runs/current/summary.json"
 
     def fake_render(summary, output, *, config):
         captured.update(summary=summary, output=output, config=config)
         return {"overview_png": "preview.png"}
 
     monkeypatch.setattr(simulation_render, "render_diverse_summary", fake_render)
-    assert simulation_render.main(["--no-video", "--frames", "2"]) == 0
-    assert str(captured["output"]).endswith(
-        "results/diverse_paper_irregular_closed_airsim_style"
+    monkeypatch.setattr(
+        "nonconvex_timevarying_window.sc_dynatogt.results_manager.resolve_current_demo_summary",
+        lambda: summary,
     )
+    assert simulation_render.main(["--no-video", "--frames", "2"]) == 0
+    assert captured["summary"] == summary
+    assert captured["output"] == summary.parent / "opengl"
     assert captured["config"].render_video is False
