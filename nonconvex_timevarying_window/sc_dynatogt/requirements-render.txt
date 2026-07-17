@@ -1,0 +1,9 @@
+-r requirements.txt
+
+# Optional EGL/OpenGL renderer for simulation_render.py.
+pyrender==0.1.45
+trimesh>=4.4,<5
+PyOpenGL==3.1.0
+pyglet>=1.5,<2
+freetype-py>=2.4,<3
+imageio-ffmpeg>=0.5,<1

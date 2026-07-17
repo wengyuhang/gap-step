@@ -24,6 +24,7 @@ from nonconvex_timevarying_window.sc_dynatogt.preprocessing import (
     preprocess_boundary,
 )
 from nonconvex_timevarying_window.sc_dynatogt.visualization import (
+    _quadrotor_basis,
     export_dynamic_window_gif,
     export_trajectory_csv,
     plot_preprocessing,
@@ -162,6 +163,43 @@ def test_trajectory_png_accepts_optimization_result_and_closes_figure(
     assert output.stat().st_size > 2_000
     assert output.read_bytes().startswith(b"\x89PNG")
     assert tuple(plt.get_fignums()) == figures_before
+
+
+def test_scene_visualization_uses_physical_boundary_not_safe_inset(
+    tmp_path, visualization_case, monkeypatch
+) -> None:
+    _, track, _, result = visualization_case
+
+    def reject_safe_polygon(_time: float) -> np.ndarray:
+        raise AssertionError("the scene renderer must not request the safe inset")
+
+    monkeypatch.setattr(track.windows[0], "polygon_at", reject_safe_polygon)
+    output = plot_trajectory(
+        track,
+        result,
+        tmp_path / "physical_only.png",
+        num_samples=21,
+        dpi=50,
+    )
+    assert output.is_file()
+    assert output.stat().st_size > 2_000
+
+
+def test_quadrotor_body_frame_is_orthonormal_and_tilts_with_acceleration() -> None:
+    basis = _quadrotor_basis(
+        np.asarray((3.0, 1.0, 0.2)),
+        np.asarray((2.0, -1.0, 0.5)),
+    )
+    np.testing.assert_allclose(basis.T @ basis, np.eye(3), atol=1.0e-12)
+    assert np.linalg.det(basis) == pytest.approx(1.0)
+    assert not np.allclose(basis[:, 2], np.asarray((0.0, 0.0, 1.0)))
+
+    aligned = _quadrotor_basis(
+        np.asarray((1.0, 0.0, 0.0)),
+        np.asarray((1.0, 0.0, -9.81)),
+    )
+    assert np.all(np.isfinite(aligned))
+    np.testing.assert_allclose(aligned.T @ aligned, np.eye(3), atol=1.0e-12)
 
 
 def test_window_exposes_physical_and_safe_boundaries_at_the_same_pose(

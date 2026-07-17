@@ -22,7 +22,13 @@ from .preprocessing import (
 
 
 MotionMode = Literal["static", "translation", "full"]
-DiverseLayout = Literal["compact", "spacious"]
+DiverseLayout = Literal["compact", "spacious", "paper_irregular"]
+
+# The companion TOGT source defines one lap as Gate1 -> ... -> Gate7 in
+# resources/racetrack/race_uzh_7g_multiprisma.yaml.  The diverse demo has six
+# shapes, so use six spatially distinct gates from that order; Gate5 is omitted
+# because it shares Gate4's x/y position and differs only in height.
+PAPER_REFERENCE_GATE_ORDER = ("Gate1", "Gate2", "Gate3", "Gate4", "Gate6", "Gate7")
 
 
 @dataclass(frozen=True)
@@ -129,6 +135,8 @@ def build_boundary_scenario(
     centers: Sequence[ArrayLike] | None = None,
     angles: Sequence[ArrayLike] | None = None,
     motion_scale: float = 1.0,
+    start: ArrayLike | None = None,
+    goal: ArrayLike | None = None,
     name: str = "custom",
 ) -> Scenario:
     """Build a one-pass dynamic track from any ordered simple-boundary list.
@@ -150,6 +158,8 @@ def build_boundary_scenario(
         raise ValueError("spacing must be positive and finite")
     if mode not in {"static", "translation", "full"}:
         raise ValueError(f"unknown motion mode {mode!r}")
+    if (start is None) != (goal is None):
+        raise ValueError("start and goal must be provided together")
 
     settings = PreprocessingConfig() if preprocessing_config is None else preprocessing_config
     gates = tuple(
@@ -193,20 +203,30 @@ def build_boundary_scenario(
             zip(gates, center_values, angle_values)
         )
     )
-    if centers is None:
+    if start is not None and goal is not None:
+        start_value = np.asarray(start, dtype=float)
+        goal_value = np.asarray(goal, dtype=float)
+        if (
+            start_value.shape != (3,)
+            or goal_value.shape != (3,)
+            or not np.all(np.isfinite(start_value))
+            or not np.all(np.isfinite(goal_value))
+        ):
+            raise ValueError("start and goal must be finite vectors with shape (3,)")
+    elif centers is None:
         extent = max(4.5, float(np.max(np.abs(center_values[:, 0]))) + 2.5)
-        start = np.array([-extent, 0.0, 1.4])
-        goal = np.array([extent, 0.0, 1.4])
+        start_value = np.array([-extent, 0.0, 1.4])
+        goal_value = np.array([extent, 0.0, 1.4])
     else:
         # Keep the endpoints near the first/last gate while leaving enough
         # approach and departure distance to make the crossing visible.
-        start = center_values[0] - np.array([3.5, 0.0, 0.0])
-        goal = center_values[-1] + np.array([3.5, 0.0, 0.0])
+        start_value = center_values[0] - np.array([3.5, 0.0, 0.0])
+        goal_value = center_values[-1] + np.array([3.5, 0.0, 0.0])
     track_name = f"{name}_{mode}_{count}"
     track = SCWindowTrack(
         name=track_name,
-        start=start,
-        goal=goal,
+        start=start_value,
+        goal=goal_value,
         windows=windows,
         order=tuple(range(count)),
     )
@@ -218,19 +238,21 @@ def build_diverse_scenario(
     mode: MotionMode = "full",
     preprocessing_config: PreprocessingConfig | None = None,
     spacing: float = 2.2,
-    layout: DiverseLayout = "spacious",
-    motion_scale: float = 2.5,
+    layout: DiverseLayout = "paper_irregular",
+    motion_scale: float = 3.5,
 ) -> Scenario:
     """Build the six-window polygon/smooth/mixed visualization scenario.
 
-    ``spacious`` is the visualization default: centres span all three axes,
-    initial attitudes differ visibly, and motion amplitudes are larger than in
-    the controlled E3--E5 experiments.  ``compact`` retains the original
-    straight x-axis arrangement for reproducibility.
+    ``paper_irregular`` is the visualization default.  It follows the position,
+    attitude, and order pattern of the original paper's seven-gate companion
+    track, scaled up and closed at a common endpoint.  ``spacious`` retains the
+    previous open 3D demo, while ``compact`` retains the original open, straight
+    x-axis arrangement.  Both legacy layouts remain available so their result
+    directories can be reproduced without changing the new default.
     """
 
-    if layout not in {"compact", "spacious"}:
-        raise ValueError("layout must be compact or spacious")
+    if layout not in {"compact", "spacious", "paper_irregular"}:
+        raise ValueError("layout must be compact, spacious, or paper_irregular")
 
     catalog = e1_boundaries()
     definitions = (
@@ -243,6 +265,9 @@ def build_diverse_scenario(
     )
     centers = None
     angles = None
+    start = None
+    goal = None
+    scenario_name = "diverse"
     if layout == "spacious":
         centers = np.array(
             [
@@ -264,6 +289,36 @@ def build_diverse_scenario(
                 [0.14, np.pi / 2.0 + 0.12, 0.18],
             ]
         )
+    elif layout == "paper_irregular":
+        # Positions and RPY values follow Gate1,2,3,4,6,7 from the original
+        # race_uzh_7g_multiprisma track.  An anisotropic scale preserves its
+        # irregular zig-zag order while creating the requested larger space.
+        paper_positions = np.array(
+            [
+                [-1.1, -1.6, 3.6],
+                [9.2, 6.6, 1.0],
+                [9.2, -4.0, 1.2],
+                [-4.5, -6.0, 3.5],
+                [4.75, -0.9, 1.2],
+                [-2.8, 6.8, 1.2],
+            ]
+        )
+        centers = paper_positions * np.array([2.2, 2.2, 1.8])
+        angles = np.deg2rad(
+            np.array(
+                [
+                    [0.0, -90.0, 0.0],
+                    [0.0, -90.0, -20.0],
+                    [0.0, -90.0, -130.0],
+                    [0.0, -90.0, 180.0],
+                    [0.0, -90.0, 70.0],
+                    [0.0, -90.0, 200.0],
+                ]
+            )
+        )
+        start = np.array([-16.0, 4.0, 3.2])
+        goal = start.copy()
+        scenario_name = "diverse_paper_irregular_closed"
     return build_boundary_scenario(
         definitions,
         mode=mode,
@@ -272,13 +327,16 @@ def build_diverse_scenario(
         centers=centers,
         angles=angles,
         motion_scale=motion_scale,
-        name="diverse",
+        start=start,
+        goal=goal,
+        name=scenario_name,
     )
 
 
 __all__ = [
     "DiverseLayout",
     "MotionMode",
+    "PAPER_REFERENCE_GATE_ORDER",
     "Scenario",
     "build_boundary_scenario",
     "build_canonical_scenario",

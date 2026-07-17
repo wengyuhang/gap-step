@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-07-15 (Asia/Shanghai).
+Last updated: 2026-07-17 (Asia/Shanghai).
 
 ## Current Focus
 
@@ -99,7 +99,7 @@ SC-DynaTOGT 当前必须保持的技术语义：
 - 非凸区域内部穿越点使用圆盘 Schwarz--Christoffel 映射 `q(d)=Psi(B(d))`，不使用 Chang 的 harmonic measure / Poisson kernel，也不复用 AtlasDynaTOGT 的三角 chart；
 - 边界支持非凸多边形、光滑闭曲线、直线–曲线混合边界和 CSV 稠密边界，但仍限于无洞、无自交的简单闭区域；
 - 窗口位姿由三维中心、RPY 旋转和均匀缩放定义，空间梯度与窗口时间梯度均使用解析链式法则；
-- 黑色虚线是原始物理窗口边界，彩色半透明区是内缩安全区；穿越点必须通过真实非凸区域验证；
+- 场景可视化只画统一橙黑实体门框表示原始物理窗口，不显示内缩安全区；安全区仍用于优化、预处理诊断图和真实非凸区域合法性验证；
 - E0--E5 正式统计场景和 `diverse_demo` 功能演示互相独立，不得用演示结果改写正式实验定义。
 
 SC-DynaTOGT 完整 default 实验已于 2026-07-14 完成：
@@ -116,22 +116,29 @@ SC mapping 1,000,000/1,000,000 legal, no NaN/Inf/degenerate Jacobian
 
 `diverse_demo.py` 是独立的六形状六窗口全动态演示，顺序为 `L -> U -> star -> limacon -> wavy -> line_bezier`。当前默认配置是：
 
-- `layout=spacious`：中心覆盖 `x=[-10.0,10.2] m`、`y=[-3.5,3.6] m`、`z=[1.5,5.8] m`，六个窗口有不同初始 RPY；
-- `motion_scale=2.5`：平移、旋转、均匀缩放振幅均为正式 E3--E5 场景的 2.5 倍，缩放系数范围 `[0.7,1.3]`；
-- 实跑结果为 6/6 指定顺序穿越合法，六个映射各 `1000/1000` 合法，总时间 `4.70937 s`，1060 次迭代；
+- `layout=paper_irregular`：参考原论文配套 `race_uzh_7g_multiprisma.yaml` 的 Gate1--Gate7 位置、RPY 和穿越顺序，六种形状对应 Gate1、2、3、4、6、7；
+- 起点与终点同为 `[-16,4,3.2] m`；中心覆盖 `x=[-9.9,20.24] m`、`y=[-13.2,14.96] m`、`z=[1.8,6.48] m`，七段闭环航程为不等长的 `14.77--30.74 m`；
+- `motion_scale=3.5`：平移、旋转、均匀缩放振幅均为正式 E3--E5 场景的 3.5 倍，缩放系数范围 `[0.58,1.42]`；
+- 实跑结果为 6/6 指定顺序穿越合法，六个映射各 `1000/1000` 点合法，总时间 `14.90481 s`，385 次迭代；
 - 该强运动长距离演示的 `sampled_dynamic_limits_satisfied=false`：窗口合法性已通过，但不应把 TOGT 软惩罚收敛表述为全部动力学硬上限可行；
-- 旧的 x 轴共线小幅布局可用 `--layout compact --motion-scale 1.0` 复现。
+- 历史产物分别保存在 `results/diverse_demo/`（旧开放 spacious）、`results/diverse_closed_loop_regular_20260717/`（规则闭环）和 `results/diverse_paper_irregular_closed/`（不规则闭环原可视化）；当前真实场景风格输出使用新的 `results/diverse_paper_irregular_closed_physical_scene/`，不覆盖上述数据。
+- 当前场景图在穿越点绘制四旋翼，动画中的四旋翼根据 MINCO 速度确定航向、根据加速度呈现倾斜姿态；六种真实边界使用同一门框材质和序号样式。
+- 可选 `simulation_render.py` 通过 EGL/OpenGL 生成带实体门框、四旋翼网格、建筑、道路、植被、阴影、大气雾、HUD 和追踪相机的 AirSim 风格离线画面；它不替代 AirSim 动力学/传感器仿真。
+- OpenGL 门框在每帧的三维变换中实际应用 `s(t)R(t)`，当前缩放范围为 `[0.58,1.42]`。追踪相机的距离变化、透视、窗口旋转和六种不同原始尺寸会掩盖视觉上的缩放；固定距离 `GATE CAM` 和实时 `SCALE ×` 只是后续改进建议，尚未实现。
 
 当前入口和产物：
 
 ```text
 python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke --outdir nonconvex_timevarying_window/sc_dynatogt/results/smoke
 python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite default --outdir nonconvex_timevarying_window/sc_dynatogt/results/default
-python -m nonconvex_timevarying_window.sc_dynatogt.diverse_demo --mode full --quality smoke --layout spacious --motion-scale 2.5 --validation-samples 1000 --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_demo
+python -m nonconvex_timevarying_window.sc_dynatogt.diverse_demo --mode full --quality smoke --layout paper_irregular --motion-scale 3.5 --validation-samples 1000 --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_physical_scene
+PYOPENGL_PLATFORM=egl python -m nonconvex_timevarying_window.sc_dynatogt.simulation_render --summary nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed/summary.json --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_airsim_style
 pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
 
 formal results: nonconvex_timevarying_window/sc_dynatogt/results/default/E0..E5/
-diverse PNG/CSV/GIF/summary: nonconvex_timevarying_window/sc_dynatogt/results/diverse_demo/
+current diverse physical-scene PNG/GIF preview: nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_physical_scene/
+current AirSim-style overview/chase PNG and MP4: nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_airsim_style/
+legacy diverse results: nonconvex_timevarying_window/sc_dynatogt/results/diverse_demo/, results/diverse_closed_loop_regular_20260717/, and results/diverse_paper_irregular_closed/
 detailed record: nonconvex_timevarying_window/sc_dynatogt/TEST_RESULTS.md
 ```
 
@@ -143,6 +150,6 @@ pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests  # 7 passed
 SC-DynaTOGT smoke: E0--E5 all passed
 SC-DynaTOGT default: E0--E5 complete; all traversal legality rates 100%
 SC-DynaTOGT mapping: 1,000,000 / 1,000,000 legal, no NaN/Inf/degenerate Jacobian
-SC-DynaTOGT diverse demo: spacious 3D layout, 6/6 legal crossings
-pytest -q nonconvex_timevarying_window/sc_dynatogt/tests  # 90 passed (2026-07-15)
+SC-DynaTOGT diverse demo: paper-inspired irregular closed-loop 3D layout, start=goal, 6/6 legal crossings
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests  # 104 passed (2026-07-17)
 ```

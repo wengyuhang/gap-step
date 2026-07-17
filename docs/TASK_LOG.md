@@ -147,3 +147,95 @@ Current validation:
 default suite: 14 scenarios, 14 successes
 pytest: 7 passed
 ```
+
+## 2026-07-17 SC-DynaTOGT Paper-Inspired Irregular Closed-Loop Demo
+
+Implemented:
+
+- based the new default `paper_irregular` layout on Gate1,2,3,4,6,7 from the original companion track `race_uzh_7g_multiprisma.yaml`, including its irregular positions, RPY values, and traversal pattern;
+- scaled the layout to centre bounds `x=[-9.9,20.24] m`, `y=[-13.2,14.96] m`, and `z=[1.8,6.48] m`, with unequal route legs of `14.77--30.74 m`;
+- set identical start and goal `[-16,4,3.2] m` while retaining the paper-style zig-zag order rather than a regular geometric loop;
+- increased the default motion amplitude multiplier from `2.5` to `3.5`, giving a uniform scale range of `[0.58,1.42]`;
+- added explicit `start`/`goal` overrides to the general boundary-scenario builder and closed-loop metadata to `summary.json`;
+- updated static/GIF visualization to use one `start = goal` marker;
+- retained `spacious` and `compact` as legacy layouts and separated all output directories so new runs do not overwrite prior experiments;
+- preserved the regular closed-loop intermediate result under `results/diverse_closed_loop_regular_20260717/` and restored the prior open result under `results/diverse_demo/`.
+
+Validation:
+
+```text
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
+93 passed in 30.83s
+
+python -m nonconvex_timevarying_window.sc_dynatogt.diverse_demo \
+  --mode full --quality smoke --layout paper_irregular --motion-scale 3.5 \
+  --validation-samples 1000 \
+  --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed
+passed=true, closed_loop=true, 6/6 legal crossings
+six SC maps: 1000/1000 legal each
+total_time=14.9048121206 s, iterations=385, invalid_trial_count=0
+sampled_dynamic_limits_satisfied=false
+```
+
+## 2026-07-17 SC-DynaTOGT Physical-Scene Visualization
+
+Implemented:
+
+- removed inset safe polygons from `trajectory.png` and `dynamic_windows.gif`; preprocessing diagnostics still show them;
+- render every original time-varying boundary with one orange/graphite tubular racing-gate style, while preserving each actual non-convex outline;
+- replaced point/diamond vehicle markers with an X-frame quadrotor, four rotor disks, a body, and a nose direction;
+- derive quadrotor heading from MINCO velocity and tilt from acceleration plus gravity;
+- draw quadrotors at all traversal instants in the static figure and animate one vehicle along the trajectory;
+- added gate-order badges and a subtle ground reference while removing per-shape color differences and dense diagnostic labels;
+- changed the default demo output to `results/diverse_paper_irregular_closed_physical_scene/` so the earlier irregular-loop artifacts remain untouched.
+
+Preview artifacts:
+
+```text
+nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_physical_scene/trajectory.png
+nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_physical_scene/dynamic_windows.gif
+```
+
+Validation:
+
+```text
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
+95 passed in 31.24s
+python -m compileall -q nonconvex_timevarying_window/sc_dynatogt
+passed
+```
+
+## 2026-07-17 SC-DynaTOGT AirSim-Style Offline Renderer
+
+Implemented:
+
+- added the optional `simulation_render.py` EGL/OpenGL path without changing the optimizer or Matplotlib diagnostics;
+- construct physical tube meshes from the actual non-convex boundaries and update their translation, rotation, and uniform scale at every frame;
+- added a volumetric quadrotor with frame, motors, propellers, canopy, nose, and navigation lights;
+- map MINCO velocity/acceleration to vehicle heading and tilt, and use a smoothed third-person chase camera;
+- added roads, grass, varied buildings with glass facades, trees, direct-light shadows, gradient sky, sun glow, atmospheric distance fog, and telemetry HUD;
+- added `requirements-render.txt`, a saved-summary CLI, dense-boundary display reduction with sharp-corner retention, and an independent output directory;
+- documented explicitly that this is trajectory-accurate offline rendering rather than AirSim physics/sensor simulation.
+
+Artifacts and validation:
+
+```text
+airsim_overview.png: 960 x 540
+airsim_chase.png:    960 x 540
+airsim_chase.mp4:    H.264/yuv420p, 960 x 540, 144 frames, 12 fps, 12.0 s
+MP4 decode check:    frames 0, 72, and 143 valid
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
+104 passed in 31.18s
+python -m compileall -q nonconvex_timevarying_window/sc_dynatogt
+passed
+```
+
+## 2026-07-17 SC-DynaTOGT Window-Scale Visibility Diagnosis
+
+Diagnosed without changing source code or experiment artifacts:
+
+- confirmed that `simulation_render._window_pose` places `s(t)R(t)` in each gate node's three-dimensional transform and that every video frame updates this pose;
+- confirmed the six-window demo uses scale amplitude `0.42`, so every window spans `[0.58,1.42]` over its motion cycle;
+- measured traversal-time scales `L=1.419`, `U=0.874`, `star=0.716`, `limacon=1.378`, `wavy=1.153`, and `line_bezier=0.611`;
+- identified chase-camera distance, perspective, simultaneous rotation, and different native gate shapes/sizes as the reasons the scale change is difficult to compare visually;
+- retained fixed-distance `GATE CAM` and a live `SCALE ×` readout as an unimplemented follow-up, not as current output behavior.

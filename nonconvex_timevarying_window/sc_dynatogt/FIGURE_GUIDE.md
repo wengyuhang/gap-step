@@ -38,12 +38,15 @@
 
 ![输出图阅读方法](algorithm_figures/04_how_to_read_outputs.png)
 
+上图是为早期“物理边界与安全区叠加”样式制作的概念图；安全区语义仍然有效，但当前场景渲染已将它与物理画面分层。以下文字为当前输出语义。
+
 最简单的判断方法是：
 
-- 预处理图里，SC 弯曲后的蓝色网格不应跑出黑色安全边界。
-- 轨迹图里，黑色虚线是原始物理窗口，彩色半透明区是向内缩 `0.315 m` 后的安全区。
-- 橙色菱形的中心是规定穿越时刻的轨迹点，它应在当时彩色安全区内；标记本身的边缘可以跨过线条，不代表点中心越界。
-- 两层窗口都不是初始时刻的固定形状，而是轨迹穿过它时的位置、角度和尺寸。
+- 预处理图是算法诊断层：同时显示稠密/采样边界、角点、内缩安全区和 SC 网格；SC 网格不应跑出安全边界。
+- `trajectory.png` 是物理场景层：橙黑实体线是真实门框，四旋翼位于穿越点，数字表示穿越顺序；此图不画安全区。
+- 图中每个窗口是自己穿越时刻的位置、角度和尺寸，不是同一全局时刻的快照。穿越合法性应查 `summary.json` 和预处理/数值验证，不应只凭场景图判断。
+
+OpenGL 输出是第三层可视化：`airsim_overview.png` 显示完整场地和航线，`airsim_chase.png|mp4` 使用追踪相机。它们使用真实动态门框和 MINCO 轨迹，但只是离线渲染，不是 AirSim 仿真。门框缩放范围虽为 `[0.58,1.42]`，追踪视角缺少固定尺寸参照，因此视频中不一定容易看出缩放。
 
 ## 5. E0–E5 实验结果是什么意思
 
@@ -75,3 +78,13 @@ python -m nonconvex_timevarying_window.sc_dynatogt.explain_figures \
 ```
 
 完整实验结束后，把 `--results` 换成 `nonconvex_timevarying_window/sc_dynatogt/results/default` 即可生成正式结果图解。
+
+如果要另行生成 OpenGL 场景，先安装 `requirements-render.txt`，再运行：
+
+```bash
+PYOPENGL_PLATFORM=egl python -m nonconvex_timevarying_window.sc_dynatogt.simulation_render \
+  --summary nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed/summary.json \
+  --outdir nonconvex_timevarying_window/sc_dynatogt/results/diverse_paper_irregular_closed_airsim_style
+```
+
+当前命令不会生成固定距离 `GATE CAM` 或 `SCALE ×` 面板。

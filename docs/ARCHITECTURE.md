@@ -95,6 +95,7 @@ nonconvex_timevarying_window/
     diverse_demo.py             任意边界列表与六形状多窗口 PNG/GIF 演示
     validation.py               映射合法性和数值梯度检查
     visualization.py            PNG / CSV / GIF
+    simulation_render.py        可选 EGL/OpenGL 实体场景、追踪相机和 MP4
     explain_figures.py          中文算法、组件和实验结果图解
     tests/                      方法测试
 ```
@@ -109,5 +110,15 @@ boundary -> offset -> sc_mapping -> preprocessing
                               \-> environment -> optimizer -> experiments
                                   minco/dynamics -/
 ```
+
+SC-DynaTOGT 的可视化是独立于求解器的三层输出：
+
+```text
+PreprocessedGate -> preprocessing.png              边界/安全区/SC 诊断
+SCWindowTrack + MINCO -> visualization.py           真实门框 PNG/GIF
+saved summary + same track/MINCO -> simulation_render.py  EGL/OpenGL PNG/MP4
+```
+
+OpenGL 层不重新求解轨迹，也不提供新的动力学或传感器模型。它在每帧的窗口节点变换中使用 `s(t)R(t)`；追踪相机下的缩放不明显是视觉参照问题，不是几何状态缺失。
 
 根目录不保存任何具体算法实现。后续算法应建立与 `atlas_dynatogt/` 并列的子目录，并各自管理源码、测试、文档和试验产物。

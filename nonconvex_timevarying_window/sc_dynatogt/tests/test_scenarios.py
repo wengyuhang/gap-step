@@ -1,8 +1,10 @@
 import numpy as np
 
 from nonconvex_timevarying_window.sc_dynatogt.boundary import DenseBoundary
+from nonconvex_timevarying_window.sc_dynatogt.diverse_demo import main as diverse_demo_main
 from nonconvex_timevarying_window.sc_dynatogt.preprocessing import PreprocessingConfig
 from nonconvex_timevarying_window.sc_dynatogt.scenarios import (
+    PAPER_REFERENCE_GATE_ORDER,
     build_boundary_scenario,
     build_canonical_scenario,
     build_diverse_scenario,
@@ -108,6 +110,26 @@ def test_general_boundary_scenario_accepts_explicit_3d_poses_and_motion_scale():
     assert scenario.track.windows[0].motion.scale_amplitude == 0.3
 
 
+def test_general_boundary_scenario_accepts_a_closed_endpoint_override():
+    square = np.array([[-1.0, -1.0], [1.0, -1.0], [1.0, 1.0], [-1.0, 1.0]])
+    endpoint = np.array([-6.0, 0.0, 2.0])
+    scenario = build_boundary_scenario(
+        (("square", DenseBoundary(square, square, (0, 1, 2, 3))),),
+        mode="static",
+        preprocessing_config=PreprocessingConfig(
+            vertex_counts=(4,),
+            offset_distance=0.1,
+            min_safe_area=0.1,
+            sc_fit_options={"quadrature_order": 32, "max_nfev": 300},
+        ),
+        centers=np.array([[3.0, 4.0, 2.0]]),
+        start=endpoint,
+        goal=endpoint,
+    )
+    np.testing.assert_allclose(scenario.track.start, endpoint)
+    np.testing.assert_allclose(scenario.track.goal, endpoint)
+
+
 def test_diverse_scenario_uses_polygon_smooth_and_mixed_catalog(monkeypatch):
     captured = {}
 
@@ -125,12 +147,50 @@ def test_diverse_scenario_uses_polygon_smooth_and_mixed_catalog(monkeypatch):
     assert captured["names"] == ["L", "U", "star", "limacon", "wavy", "line_bezier"]
     assert captured["kwargs"]["mode"] == "translation"
     assert captured["kwargs"]["spacing"] == 2.7
-    assert captured["kwargs"]["motion_scale"] == 2.5
+    assert captured["kwargs"]["motion_scale"] == 3.5
     centers = captured["kwargs"]["centers"]
+    start = captured["kwargs"]["start"]
+    goal = captured["kwargs"]["goal"]
     assert centers.shape == (6, 3)
-    assert np.ptp(centers[:, 0]) > 15.0
-    assert np.ptp(centers[:, 1]) > 5.0
-    assert np.ptp(centers[:, 2]) > 4.0
+    np.testing.assert_allclose(start, goal)
+    np.testing.assert_allclose(start, [-16.0, 4.0, 3.2])
+    assert np.ptp(centers[:, 0]) > 30.0
+    assert np.ptp(centers[:, 1]) > 28.0
+    assert np.ptp(centers[:, 2]) > 4.5
+    route = np.vstack((start, centers, goal))
+    assert np.min(np.linalg.norm(np.diff(route, axis=0), axis=1)) > 14.0
+    assert captured["kwargs"]["name"] == "diverse_paper_irregular_closed"
+    assert PAPER_REFERENCE_GATE_ORDER == (
+        "Gate1", "Gate2", "Gate3", "Gate4", "Gate6", "Gate7"
+    )
+
+
+def test_diverse_spacious_layout_retains_previous_open_3d_arrangement(monkeypatch):
+    captured = {}
+
+    def record(_definitions, **kwargs):
+        captured.update(kwargs)
+        return "spacious"
+
+    monkeypatch.setattr(
+        "nonconvex_timevarying_window.sc_dynatogt.scenarios.build_boundary_scenario",
+        record,
+    )
+    assert build_diverse_scenario(layout="spacious", motion_scale=2.5) == "spacious"
+    np.testing.assert_allclose(
+        captured["centers"],
+        [
+            [-10.0, -3.5, 1.5],
+            [-6.2, 0.5, 4.8],
+            [-2.2, 3.6, 2.5],
+            [2.0, 1.2, 5.8],
+            [6.0, -3.3, 3.7],
+            [10.2, 0.8, 1.8],
+        ],
+    )
+    assert captured["start"] is None
+    assert captured["goal"] is None
+    assert captured["motion_scale"] == 2.5
 
 
 def test_diverse_compact_layout_retains_x_axis_arrangement(monkeypatch):
@@ -148,3 +208,25 @@ def test_diverse_compact_layout_retains_x_axis_arrangement(monkeypatch):
     assert captured["centers"] is None
     assert captured["angles"] is None
     assert captured["motion_scale"] == 1.3
+    assert captured["start"] is None
+    assert captured["goal"] is None
+
+
+def test_diverse_demo_defaults_to_a_new_paper_irregular_output_directory(monkeypatch):
+    captured = {}
+
+    def fake_run(output, **kwargs):
+        captured["output"] = output
+        captured.update(kwargs)
+        return {"window_names": [], "passed": True}
+
+    monkeypatch.setattr(
+        "nonconvex_timevarying_window.sc_dynatogt.diverse_demo.run_diverse_demo",
+        fake_run,
+    )
+    assert diverse_demo_main([]) == 0
+    assert str(captured["output"]).endswith(
+        "results/diverse_paper_irregular_closed_physical_scene"
+    )
+    assert captured["layout"] == "paper_irregular"
+    assert captured["motion_scale"] == 3.5

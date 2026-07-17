@@ -182,33 +182,204 @@ def plot_preprocessing(
     return output
 
 
-def _add_window_polygon(axis: object, polygon: FloatArray, *, color: str, label: str | None) -> None:
-    collection = Poly3DCollection(
-        [polygon], facecolor=color, edgecolor=color, linewidth=1.1, alpha=0.20,
-        label=label,
-    )
-    axis.add_collection3d(collection)  # type: ignore[attr-defined]
-    closed = _closed(polygon)
-    axis.plot(closed[:, 0], closed[:, 1], closed[:, 2], color=color, linewidth=1.2)  # type: ignore[attr-defined]
+_WINDOW_FRAME_COLOR = "#f28e2b"
+_WINDOW_FRAME_SHADOW = "#343a40"
+_TRAJECTORY_COLOR = "#0072bd"
 
 
-def _add_physical_boundary(
+def _display_boundary(window: object, time: float) -> FloatArray:
+    """Return real aperture geometry, falling back only for legacy windows."""
+
+    physical = window.physical_boundary_at(time)  # type: ignore[attr-defined]
+    if physical is not None:
+        return np.asarray(physical, dtype=float)
+    return np.asarray(window.polygon_at(time), dtype=float)  # type: ignore[attr-defined]
+
+
+def _add_window_frame(
     axis: object,
     boundary: FloatArray,
     *,
     label: str | None,
+    annotation: str | None = None,
 ) -> None:
-    """Draw the original aperture boundary without obscuring the inset safe set."""
+    """Draw one physical aperture as a common two-tone tubular frame."""
 
     closed = _closed(boundary)
+    # A dark under-stroke and a narrower orange highlight read as a solid
+    # racing-gate tube while keeping the aperture itself fully transparent.
     axis.plot(  # type: ignore[attr-defined]
         closed[:, 0],
         closed[:, 1],
         closed[:, 2],
-        color="0.18",
-        linewidth=1.6,
-        linestyle="--",
+        color=_WINDOW_FRAME_SHADOW,
+        linewidth=5.6,
+        solid_capstyle="round",
+        solid_joinstyle="round",
+        alpha=0.98,
+    )
+    axis.plot(  # type: ignore[attr-defined]
+        closed[:, 0],
+        closed[:, 1],
+        closed[:, 2],
+        color=_WINDOW_FRAME_COLOR,
+        linewidth=3.2,
+        solid_capstyle="round",
+        solid_joinstyle="round",
         label=label,
+    )
+    if annotation:
+        center = np.mean(boundary, axis=0)
+        axis.text(  # type: ignore[attr-defined]
+            float(center[0]),
+            float(center[1]),
+            float(center[2]),
+            annotation,
+            color="white",
+            fontsize=7.2,
+            fontweight="bold",
+            horizontalalignment="center",
+            verticalalignment="center",
+            bbox={
+                "boxstyle": "circle,pad=0.22",
+                "facecolor": _WINDOW_FRAME_SHADOW,
+                "edgecolor": _WINDOW_FRAME_COLOR,
+                "linewidth": 0.8,
+                "alpha": 0.92,
+            },
+        )
+
+
+def _quadrotor_basis(velocity: ArrayLike, acceleration: ArrayLike) -> FloatArray:
+    """Build a physically motivated body frame from flat-output derivatives."""
+
+    velocity_array = np.asarray(velocity, dtype=float)
+    acceleration_array = np.asarray(acceleration, dtype=float)
+    if velocity_array.shape != (3,) or acceleration_array.shape != (3,):
+        raise ValueError("velocity and acceleration must have shape (3,)")
+
+    thrust = acceleration_array + np.asarray((0.0, 0.0, 9.81))
+    thrust_norm = float(np.linalg.norm(thrust))
+    body_z = thrust / thrust_norm if thrust_norm > 1.0e-9 else np.asarray((0.0, 0.0, 1.0))
+    heading = np.asarray((velocity_array[0], velocity_array[1], 0.0))
+    if float(np.linalg.norm(heading)) <= 1.0e-9:
+        heading = np.asarray((1.0, 0.0, 0.0))
+    else:
+        heading = heading / np.linalg.norm(heading)
+    body_y = np.cross(body_z, heading)
+    if float(np.linalg.norm(body_y)) <= 1.0e-9:
+        axes = np.eye(3)
+        fallback = axes[int(np.argmin(np.abs(axes @ body_z)))]
+        body_y = np.cross(body_z, fallback)
+    body_y = body_y / np.linalg.norm(body_y)
+    body_x = np.cross(body_y, body_z)
+    body_x = body_x / np.linalg.norm(body_x)
+    return np.column_stack((body_x, body_y, body_z))
+
+
+def _drone_arm_length(boundaries: Sequence[FloatArray]) -> float:
+    """Choose a visible but metre-scale drone size from the gate geometry."""
+
+    diagonals = [
+        float(np.linalg.norm(np.ptp(np.asarray(boundary, dtype=float), axis=0)))
+        for boundary in boundaries
+        if len(boundary)
+    ]
+    reference = float(np.median(diagonals)) if diagonals else 3.0
+    return float(np.clip(0.13 * reference, 0.38, 0.72))
+
+
+def _add_quadrotor(
+    axis: object,
+    position: ArrayLike,
+    velocity: ArrayLike,
+    acceleration: ArrayLike,
+    *,
+    arm_length: float,
+    label: str | None = None,
+) -> None:
+    """Draw a compact X-frame quadrotor with four translucent rotor disks."""
+
+    if arm_length <= 0.0:
+        raise ValueError("arm_length must be positive")
+    center = np.asarray(position, dtype=float)
+    if center.shape != (3,):
+        raise ValueError("position must have shape (3,)")
+    basis = _quadrotor_basis(velocity, acceleration)
+    body_x, body_y = basis[:, 0], basis[:, 1]
+    diagonal = arm_length / np.sqrt(2.0)
+    offsets = np.asarray(
+        ((diagonal, diagonal), (diagonal, -diagonal), (-diagonal, -diagonal), (-diagonal, diagonal))
+    )
+    rotor_centers = center[None, :] + offsets[:, :1] * body_x + offsets[:, 1:] * body_y
+
+    for rotor_index in ((0, 2), (1, 3)):
+        endpoints = rotor_centers[list(rotor_index)]
+        axis.plot(  # type: ignore[attr-defined]
+            endpoints[:, 0], endpoints[:, 1], endpoints[:, 2],
+            color="#20262e", linewidth=4.2, solid_capstyle="round",
+            label=label if rotor_index == (0, 2) else None,
+        )
+        axis.plot(  # type: ignore[attr-defined]
+            endpoints[:, 0], endpoints[:, 1], endpoints[:, 2],
+            color="#adb5bd", linewidth=1.2, solid_capstyle="round",
+        )
+
+    rotor_radius = 0.29 * arm_length
+    theta = np.linspace(0.0, 2.0 * np.pi, 20)
+    circle = np.column_stack((np.cos(theta), np.sin(theta)))
+    for index, rotor_center in enumerate(rotor_centers):
+        disk = (
+            rotor_center[None, :]
+            + rotor_radius * circle[:, :1] * body_x
+            + rotor_radius * circle[:, 1:] * body_y
+        )
+        rotor_color = "#ffb703" if index < 2 else "#8ecae6"
+        axis.add_collection3d(  # type: ignore[attr-defined]
+            Poly3DCollection(
+                [disk],
+                facecolor=rotor_color,
+                edgecolor="#20262e",
+                linewidth=0.7,
+                alpha=0.48,
+            )
+        )
+
+    body_radius = 0.27 * arm_length
+    body = np.asarray(
+        [
+            center + body_radius * body_x,
+            center + 0.72 * body_radius * body_y,
+            center - body_radius * body_x,
+            center - 0.72 * body_radius * body_y,
+        ]
+    )
+    axis.add_collection3d(  # type: ignore[attr-defined]
+        Poly3DCollection(
+            [body], facecolor="#1f2933", edgecolor="#f8f9fa", linewidth=0.6, alpha=1.0
+        )
+    )
+    nose = np.vstack((center, center + 0.62 * arm_length * body_x))
+    axis.plot(  # type: ignore[attr-defined]
+        nose[:, 0], nose[:, 1], nose[:, 2], color="#e63946", linewidth=2.2
+    )
+
+
+def _add_ground_plane(axis: object, lower: FloatArray, upper: FloatArray) -> None:
+    """Add a subtle z=0 reference plane when the scene lies above ground."""
+
+    if lower[2] > 1.0e-9 or upper[2] < -1.0e-9:
+        return
+    ground = np.asarray(
+        [
+            (lower[0], lower[1], 0.0),
+            (upper[0], lower[1], 0.0),
+            (upper[0], upper[1], 0.0),
+            (lower[0], upper[1], 0.0),
+        ]
+    )
+    axis.add_collection3d(  # type: ignore[attr-defined]
+        Poly3DCollection([ground], facecolor="#dfe7ec", edgecolor="none", alpha=0.20)
     )
 
 
@@ -228,7 +399,9 @@ def _set_3d_limits(axis: object, lower: FloatArray, upper: FloatArray) -> None:
     axis.set_xlim(float(lower[0]), float(upper[0]))  # type: ignore[attr-defined]
     axis.set_ylim(float(lower[1]), float(upper[1]))  # type: ignore[attr-defined]
     axis.set_zlim(float(lower[2]), float(upper[2]))  # type: ignore[attr-defined]
-    axis.set_box_aspect(np.maximum(upper - lower, 1.0e-3))  # type: ignore[attr-defined]
+    axis.set_box_aspect(  # type: ignore[attr-defined]
+        np.maximum(upper - lower, 1.0e-3), zoom=1.12
+    )
 
 
 def plot_trajectory(
@@ -239,7 +412,11 @@ def plot_trajectory(
     num_samples: int = 401,
     dpi: int = 160,
 ) -> Path:
-    """Plot a 3D MINCO path and every gate at its traversal time."""
+    """Plot a 3D MINCO path, physical gate frames, and crossing drones.
+
+    The inset polygons remain part of optimization and validation but are
+    intentionally absent from this scene-level visualization.
+    """
 
     if num_samples < 2:
         raise ValueError("num_samples must be at least two")
@@ -248,56 +425,74 @@ def plot_trajectory(
     crossings = _crossing_times(trajectory_or_result, trajectory, len(track.order))
     samples = trajectory.sample(num_samples=num_samples)
     positions = np.asarray(np.real(samples.position), dtype=float)
-    safe_polygons = [
-        track.windows[window_index].polygon_at(float(crossings[crossing_index]))
+    display_boundaries = [
+        _display_boundary(
+            track.windows[window_index], float(crossings[crossing_index])
+        )
         for crossing_index, window_index in enumerate(track.order)
     ]
-    physical_boundaries = [
-        track.windows[window_index].physical_boundary_at(float(crossings[crossing_index]))
-        for crossing_index, window_index in enumerate(track.order)
-    ]
-    limit_geometry = [boundary for boundary in physical_boundaries if boundary is not None]
-    lower, upper = _axis_limits([positions, *safe_polygons, *limit_geometry])
+    lower, upper = _axis_limits([positions, *display_boundaries])
+    if lower[2] > 0.0:
+        lower[2] = 0.0
 
-    many_gates = len(safe_polygons) > 3
+    many_gates = len(display_boundaries) > 3
     figure = plt.figure(figsize=(10.4 if many_gates else 8.0, 6.4), constrained_layout=True)
     try:
         axis = figure.add_subplot(111, projection="3d")
-        axis.plot(positions[:, 0], positions[:, 1], positions[:, 2], color="#0072bd", linewidth=2.1, label="MINCO")
-        axis.scatter(*track.start, color="#2ca02c", s=42, marker="o", label="start")
-        axis.scatter(*track.goal, color="#d62728", s=48, marker="X", label="goal")
-        colors = plt.cm.viridis(np.linspace(0.12, 0.88, max(1, len(safe_polygons))))
-        for index, (safe_polygon, physical_boundary) in enumerate(
-            zip(safe_polygons, physical_boundaries)
-        ):
-            if physical_boundary is not None:
-                _add_physical_boundary(
-                    axis,
-                    physical_boundary,
-                    label="physical boundary" if index == 0 else None,
-                )
-            window = track.windows[track.order[index]]
-            _add_window_polygon(
-                axis,
-                safe_polygon,
-                color=matplotlib.colors.to_hex(colors[index]),
-                label=(
-                    f"gate {index + 1} {window.name} safe at "
-                    f"t={crossings[index]:.2f}s"
-                ),
-            )
-        crossing_points = np.asarray(trajectory.evaluate(crossings), dtype=float)
-        if len(crossing_points):
+        axis.plot(
+            positions[:, 0], positions[:, 1], positions[:, 2],
+            color=_TRAJECTORY_COLOR, linewidth=2.1, label="MINCO trajectory",
+        )
+        if np.allclose(track.start, track.goal):
             axis.scatter(
-                crossing_points[:, 0], crossing_points[:, 1], crossing_points[:, 2],
-                color="#ff7f0e", edgecolors="0.15", linewidths=0.6,
-                s=28, marker="D", label="crossing center",
+                *track.start,
+                facecolor="white",
+                edgecolor="#2a9d8f",
+                linewidth=1.8,
+                s=58,
+                marker="o",
+                label="start / finish",
             )
+            axis.text(*track.start, "  S/F", color="#1f6f65", fontsize=8, fontweight="bold")
+        else:
+            axis.scatter(*track.start, color="#2ca02c", s=42, marker="o", label="start")
+            axis.scatter(*track.goal, color="#d62728", s=48, marker="X", label="goal")
+        for index, boundary in enumerate(display_boundaries):
+            _add_window_frame(
+                axis,
+                boundary,
+                label="physical window frame" if index == 0 else None,
+                annotation=str(index + 1),
+            )
+        crossing_samples = trajectory.sample(times=crossings)
+        crossing_points = np.asarray(np.real(crossing_samples.position), dtype=float)
+        arm_length = _drone_arm_length(display_boundaries)
+        if len(crossing_points):
+            crossing_velocities = np.asarray(np.real(crossing_samples.velocity), dtype=float)
+            crossing_accelerations = np.asarray(
+                np.real(crossing_samples.acceleration), dtype=float
+            )
+            for index, (point, velocity, acceleration) in enumerate(
+                zip(crossing_points, crossing_velocities, crossing_accelerations)
+            ):
+                _add_quadrotor(
+                    axis,
+                    point,
+                    velocity,
+                    acceleration,
+                    arm_length=arm_length,
+                    label="quadrotor at crossing" if index == 0 else None,
+                )
+        _add_ground_plane(axis, lower, upper)
         _set_3d_limits(axis, lower, upper)
         axis.set_xlabel("x [m]")
         axis.set_ylabel("y [m]")
         axis.set_zlabel("z [m]")
-        axis.set_title(f"{track.name}: ordered dynamic-window traversal")
+        axis.set_title(
+            f"Physical dynamic-window traversal ({len(track.order)} ordered windows)"
+        )
+        axis.set_facecolor("#f7f9fb")
+        axis.grid(True, alpha=0.28, linewidth=0.5)
         axis.view_init(elev=24.0, azim=-61.0)
         if many_gates:
             axis.legend(
@@ -361,7 +556,11 @@ def export_dynamic_window_gif(
     fps: float = 12.0,
     dpi: int = 90,
 ) -> Path:
-    """Animate the trajectory together with every window's current pose."""
+    """Animate a quadrotor and every physical window's current pose.
+
+    Safe inset polygons are not rendered; they remain numerical planning
+    geometry rather than physical objects in the scene.
+    """
 
     if num_frames < 2 or trajectory_samples < 2:
         raise ValueError("num_frames and trajectory_samples must be at least two")
@@ -371,27 +570,22 @@ def export_dynamic_window_gif(
     total_time = float(np.real(trajectory.total_time))
     frame_times = np.linspace(0.0, total_time, num_frames)
     path_times = np.linspace(0.0, total_time, trajectory_samples)
-    path_positions = np.asarray(np.real(trajectory.evaluate(path_times)), dtype=float)
-    safe_polygons_by_frame = [
-        [window.polygon_at(float(time)) for window in track.windows]
-        for time in frame_times
-    ]
-    physical_boundaries_by_frame = [
-        [window.physical_boundary_at(float(time)) for window in track.windows]
+    path_samples = trajectory.sample(times=path_times)
+    path_positions = np.asarray(np.real(path_samples.position), dtype=float)
+    display_boundaries_by_frame = [
+        [_display_boundary(window, float(time)) for window in track.windows]
         for time in frame_times
     ]
     limit_points: list[FloatArray] = [path_positions]
-    limit_points.extend(polygon for frame in safe_polygons_by_frame for polygon in frame)
     limit_points.extend(
-        boundary
-        for frame in physical_boundaries_by_frame
-        for boundary in frame
-        if boundary is not None
+        boundary for frame in display_boundaries_by_frame for boundary in frame
     )
     lower, upper = _axis_limits(limit_points)
+    if lower[2] > 0.0:
+        lower[2] = 0.0
+    arm_length = _drone_arm_length(display_boundaries_by_frame[0])
 
     frames: list[NDArray[np.uint8]] = []
-    colors = plt.cm.viridis(np.linspace(0.12, 0.88, max(1, len(track.windows))))
     for frame_index, time in enumerate(frame_times):
         figure = plt.figure(figsize=(6.4, 5.2), constrained_layout=True)
         try:
@@ -404,31 +598,54 @@ def export_dynamic_window_gif(
             )
             axis.plot(
                 path_positions[:elapsed, 0], path_positions[:elapsed, 1], path_positions[:elapsed, 2],
-                color="#0072bd", linewidth=2.2,
+                color=_TRAJECTORY_COLOR, linewidth=2.2,
             )
             current = np.asarray(np.real(trajectory.evaluate(float(time))), dtype=float)
-            axis.scatter(*current, color="#ff7f0e", s=38, marker="o")
-            axis.scatter(*track.start, color="#2ca02c", s=28, marker="o")
-            axis.scatter(*track.goal, color="#d62728", s=34, marker="X")
-            for window_index, (safe_polygon, physical_boundary) in enumerate(
-                zip(
-                    safe_polygons_by_frame[frame_index],
-                    physical_boundaries_by_frame[frame_index],
+            velocity = np.asarray(
+                np.real(trajectory.evaluate(float(time), derivative=1)), dtype=float
+            )
+            acceleration = np.asarray(
+                np.real(trajectory.evaluate(float(time), derivative=2)), dtype=float
+            )
+            _add_quadrotor(
+                axis,
+                current,
+                velocity,
+                acceleration,
+                arm_length=arm_length,
+            )
+            if np.allclose(track.start, track.goal):
+                axis.scatter(
+                    *track.start,
+                    facecolor="white",
+                    edgecolor="#2a9d8f",
+                    linewidth=1.5,
+                    s=38,
+                    marker="o",
                 )
+                axis.text(*track.start, "  S/F", color="#1f6f65", fontsize=7, fontweight="bold")
+            else:
+                axis.scatter(*track.start, color="#2ca02c", s=28, marker="o")
+                axis.scatter(*track.goal, color="#d62728", s=34, marker="X")
+            for window_index, boundary in enumerate(
+                display_boundaries_by_frame[frame_index]
             ):
-                if physical_boundary is not None:
-                    _add_physical_boundary(axis, physical_boundary, label=None)
-                _add_window_polygon(
+                _add_window_frame(
                     axis,
-                    safe_polygon,
-                    color=matplotlib.colors.to_hex(colors[window_index]),
+                    boundary,
                     label=None,
+                    annotation=str(window_index + 1),
                 )
+            _add_ground_plane(axis, lower, upper)
             _set_3d_limits(axis, lower, upper)
             axis.set_xlabel("x [m]")
             axis.set_ylabel("y [m]")
             axis.set_zlabel("z [m]")
-            axis.set_title(f"{track.name}  |  t = {time:.2f} s")
+            axis.set_title(
+                f"Physical dynamic-window scene  |  t = {time:.2f} s"
+            )
+            axis.set_facecolor("#f7f9fb")
+            axis.grid(True, alpha=0.28, linewidth=0.5)
             axis.view_init(elev=24.0, azim=-61.0)
             figure.canvas.draw()
             frames.append(np.asarray(figure.canvas.buffer_rgba(), dtype=np.uint8)[..., :3].copy())

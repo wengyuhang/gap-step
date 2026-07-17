@@ -41,3 +41,15 @@ Reason: the requested reproduction/improvement should use the paper environment 
 Decision: use `nonconvex_timevarying_window/` as the umbrella directory for the non-convex time-varying window problem. Keep `PROBLEM_DEFINITION.md` at the umbrella root and place each solution in a separately named algorithm directory. The existing triangulation-chart method is stored under `atlas_dynatogt/`.
 
 Reason: the non-convex problem will be studied with multiple methods. Separating the shared problem statement from method-specific code, tests, documentation, figures, and results prevents the first implementation from being mistaken for the whole research task.
+
+## 2026-07-17: Keep Cinematic Rendering Separate From Planning
+
+Decision: keep SC-DynaTOGT's EGL/OpenGL renderer optional and downstream of the saved scenario and degree-7 MINCO trajectory.  It may add physical meshes, lighting, environment assets, HUD, and cameras, but it must not change optimization geometry or be described as AirSim dynamics/sensor simulation.
+
+Reason: the renderer is intended to communicate the already-solved experiment more realistically.  A separate layer preserves numerical reproducibility and prevents presentation effects from being mistaken for planning or feasibility logic.
+
+## 2026-07-17: Report Scale State Separately From Its Visual Salience
+
+Decision: document that the OpenGL window transform applies the true `s(t)R(t)` on every frame and that the current diverse demo uses `s(t) in [0.58,1.42]`.  Also report that chase-camera perspective makes this change hard to see.  A fixed-distance `GATE CAM` with a live `SCALE ×` readout is a future visualization improvement, not a completed feature.
+
+Reason: geometric correctness and ease of visual comparison are different claims.  Keeping them separate avoids both falsely diagnosing a missing scale transform and overstating what the current video communicates.

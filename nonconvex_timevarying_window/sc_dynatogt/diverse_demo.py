@@ -1,10 +1,12 @@
-"""Six-window polygon/smooth/mixed SC-DynaTOGT visualization demo."""
+"""Six-window polygon/smooth/mixed SC-DynaTOGT closed-loop demo."""
 
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
+
+import numpy as np
 
 from .experiments import (
     ExperimentSettings,
@@ -16,7 +18,7 @@ from .experiments import (
     _write_json,
 )
 from .optimizer import optimize_track
-from .scenarios import build_diverse_scenario
+from .scenarios import PAPER_REFERENCE_GATE_ORDER, build_diverse_scenario
 from .validation import validate_sc_mapping
 from .visualization import (
     export_dynamic_window_gif,
@@ -31,8 +33,8 @@ def run_diverse_demo(
     *,
     mode: str = "full",
     quality: str = "smoke",
-    layout: str = "spacious",
-    motion_scale: float = 2.5,
+    layout: str = "paper_irregular",
+    motion_scale: float = 3.5,
     validation_samples: int = 1_000,
     make_gif: bool = True,
 ) -> dict[str, object]:
@@ -42,8 +44,8 @@ def run_diverse_demo(
         raise ValueError("mode must be static, translation, or full")
     if quality not in {"smoke", "default"}:
         raise ValueError("quality must be smoke or default")
-    if layout not in {"compact", "spacious"}:
-        raise ValueError("layout must be compact or spacious")
+    if layout not in {"compact", "spacious", "paper_irregular"}:
+        raise ValueError("layout must be compact, spacious, or paper_irregular")
     if validation_samples < 1:
         raise ValueError("validation_samples must be positive")
 
@@ -85,17 +87,28 @@ def run_diverse_demo(
         for index, window in enumerate(scenario.track.windows)
     ]
     legal = _designated_crossings_valid(scenario.track, result)
+    centers = np.asarray([window.center0 for window in scenario.track.windows])
+    route_points = np.vstack((scenario.track.start, centers, scenario.track.goal))
     payload: dict[str, object] = {
         "demo": "diverse_six_window",
         "mode": mode,
         "quality": quality,
         "layout": layout,
+        "paper_reference_gate_order": (
+            list(PAPER_REFERENCE_GATE_ORDER) if layout == "paper_irregular" else None
+        ),
         "motion_scale": motion_scale,
         "window_names": [window.name for window in scenario.track.windows],
         "window_count": len(scenario.track.windows),
         "order": list(scenario.track.order),
         "start": scenario.track.start.tolist(),
         "goal": scenario.track.goal.tolist(),
+        "closed_loop": bool(np.allclose(scenario.track.start, scenario.track.goal)),
+        "window_center_bounds": {
+            "minimum": centers.min(axis=0).tolist(),
+            "maximum": centers.max(axis=0).tolist(),
+        },
+        "route_leg_distances": np.linalg.norm(np.diff(route_points, axis=0), axis=1).tolist(),
         "initial_window_poses": [
             {
                 "name": window.name,
@@ -126,23 +139,24 @@ def run_diverse_demo(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Run a six-window polygon/smooth/mixed SC-DynaTOGT demo"
+        description="Run a six-window polygon/smooth/mixed SC-DynaTOGT closed-loop demo"
     )
     parser.add_argument("--outdir", type=Path, default=Path(
-        "nonconvex_timevarying_window/sc_dynatogt/results/diverse_demo"
+        "nonconvex_timevarying_window/sc_dynatogt/results/"
+        "diverse_paper_irregular_closed_physical_scene"
     ))
     parser.add_argument("--mode", choices=("static", "translation", "full"), default="full")
     parser.add_argument("--quality", choices=("smoke", "default"), default="smoke")
     parser.add_argument(
         "--layout",
-        choices=("compact", "spacious"),
-        default="spacious",
-        help="spacious distributes centres over x/y/z; compact uses the old x-axis layout",
+        choices=("compact", "spacious", "paper_irregular"),
+        default="paper_irregular",
+        help="paper_irregular is the new closed-loop default; spacious and compact preserve old layouts",
     )
     parser.add_argument(
         "--motion-scale",
         type=float,
-        default=2.5,
+        default=3.5,
         help="multiplier for translation, rotation, and scale amplitudes",
     )
     parser.add_argument("--validation-samples", type=int, default=1_000)
