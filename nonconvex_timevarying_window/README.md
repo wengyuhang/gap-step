@@ -10,6 +10,7 @@
 |---|---|---|
 | [AtlasDynaTOGT](atlas_dynatogt/README.md) | 已实现 | 将非凸窗口三角剖分为 chart atlas，联合优化穿越时间和穿越点 |
 | [SC-DynaTOGT](sc_dynatogt/README.md) | 已实现，default 实验完成 | Chang 仅做边界均匀采样，SC 圆盘映射负责内部点，接入原 TOGT/MINCO 联合优化；支持真实物理门框、分类结果目录、中文结果主页和可选 EGL/OpenGL 离线渲染，记录见 [TEST_RESULTS.md](sc_dynatogt/TEST_RESULTS.md) |
+| [MSR-DynaTOGT](msr_dynatogt/README.md) | 已实现，smoke/formal 完成 | 在 SC-DynaTOGT 外增加可复现多初值候选池、高密度采样动力学检查、uniform/local 时间修复、二分缩放和联合再优化；可行性优先于总时间，记录见 [TEST_RESULTS.md](msr_dynatogt/TEST_RESULTS.md) |
 
 ## 目录结构
 
@@ -19,6 +20,7 @@ nonconvex_timevarying_window/
   PROBLEM_DEFINITION.md     与具体算法无关的问题定义
   atlas_dynatogt/           AtlasDynaTOGT 方法的完整实现
   sc_dynatogt/              Schwarz–Christoffel DynaTOGT 方法的完整实现
+  msr_dynatogt/             Multi-Start and Repair DynaTOGT 的完整实现
   <algorithm_name>/        后续新增的其他方法
 ```
 
@@ -27,3 +29,7 @@ nonconvex_timevarying_window/
 SC-DynaTOGT 的可视化分为三层：预处理诊断图用于检查真实边界、内缩安全区和 SC 网格；Matplotlib 场景图只显示真实门框和四旋翼；可选 OpenGL 渲染器输出实体环境、追踪相机和 MP4。OpenGL 输出是已求解轨迹的离线渲染，不是 AirSim 动力学或传感器仿真。
 
 SC-DynaTOGT 的本地结果按 `experiments/`、`demos/`、`diagnostics/` 和 `work/` 分类；`results/index.html` 是统一浏览入口。历史结果通过带 SHA-256 的迁移清单无损保留，不与新时间戳运行混放。
+
+MSR-DynaTOGT 只在自己的 `results/<timestamp>_<suite>/` 下写入结果，不覆盖历史运行。它与 SC 共用 SC 映射、动态窗口、degree-7 MINCO 和四旋翼模型，但把优化后诊断提升为候选排序和时间修复环节。输出中的“可行”仅指高密度采样可行，不是连续时间严格证明；`optimizer_success` 与动力学可行性分别记录。
+
+2026-07-22 完成的 formal 套件覆盖 5 个场景、每场景 155 个种子（共 775 个任务、9,300 行比较记录）。A2/A3 的高密度采样动力学可行率均为 100%，A0 为 0%，A1 为 0.1%；A3 平均墙钟代价为 A0 的 10.05 倍。逐图解释与完整数值保存在 formal 结果目录和 MSR 的 `TEST_RESULTS.md`。

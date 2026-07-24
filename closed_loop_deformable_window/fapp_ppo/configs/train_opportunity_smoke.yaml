@@ -1,0 +1,56 @@
+environment:
+  dt: 0.04
+  episode_seconds: 12.0
+  max_windows: 6
+  full_windows: 4
+  route_radius: 5.2
+  workspace_radius: 14.0
+  preview_horizons: [0.0, 0.4, 0.8, 1.2, 1.8]
+  preview_gate_count: 2
+  safe_margin: 0.16
+  residual_scale: 0.20
+  reward_missed_opportunity: -6.0
+  motion_amplitude_multiplier: 1.8
+  deformation_amplitude_multiplier: 2.0
+  opportunity_mode: irregular_repeated
+  opportunity_features: true
+  opportunity_aware_nominal: true
+  opportunity_width: 1.4
+  opportunity_transition: 0.32
+  opportunity_closed_scale: 0.16
+  opportunity_open_scale: 1.05
+  opportunity_schedule_jitter: 0.22
+  opportunity_crossing_overshoot: 0.55
+
+model:
+  hidden_dim: 64
+  layers: 2
+  log_std_init: -1.2
+
+ppo:
+  learning_rate: 0.00025
+  rollout_steps: 32
+  num_envs: 2
+  update_epochs: 2
+  minibatch_size: 32
+  residual_prior_coef: 0.08
+  target_kl: 0.025
+
+train:
+  seed: 17
+  device: cpu
+  output_dir: closed_loop_deformable_window/fapp_ppo/runs/independent_smoke
+  curriculum:
+    - name: static
+      updates: 1
+      opportunity_mode: irregular_repeated
+      opportunity_width: 2.0
+      motion_amplitude_multiplier: 0.8
+      deformation_amplitude_multiplier: 0.8
+    - name: full
+      updates: 1
+      opportunity_mode: irregular_repeated
+      opportunity_width: 1.4
+      motion_amplitude_multiplier: 1.8
+      deformation_amplitude_multiplier: 2.0
+  save_every: 10

@@ -1,0 +1,8 @@
+numpy
+scipy
+shapely
+torch
+pyyaml
+matplotlib
+imageio-ffmpeg
+pytest

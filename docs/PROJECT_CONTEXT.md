@@ -1,10 +1,10 @@
 # Project Context
 
-Last updated: 2026-07-17 (Asia/Shanghai).
+Last updated: 2026-07-24 (Asia/Shanghai).
 
 ## Current Focus
 
-The repository mainline remains a generated family of continuous 2D time-varying window mazes trained with a pure privileged PPO teacher. The current active research extension is the multi-method non-convex time-varying window traversal project under `nonconvex_timevarying_window/`.
+The repository mainline remains a generated family of continuous 2D time-varying window mazes trained with a pure privileged PPO teacher. The active independent research extensions are the multi-method non-convex time-varying window project under `nonconvex_timevarying_window/` and the closed-loop continuously deformable-window reinforcement-learning project under `closed_loop_deformable_window/`.
 
 ```text
 gap_step/window_maze_env.py
@@ -15,6 +15,9 @@ gap_step/visualize_window.py
 nonconvex_timevarying_window/PROBLEM_DEFINITION.md
 nonconvex_timevarying_window/atlas_dynatogt/
 nonconvex_timevarying_window/sc_dynatogt/
+
+closed_loop_deformable_window/PROBLEM_DEFINITION.md
+closed_loop_deformable_window/fapp_ppo/
 ```
 
 ## Environment Contract
@@ -60,6 +63,111 @@ Current DynaTOGT facts:
 - repeated demo example uses `G1 -> G6 -> G1 -> G3 -> G2 -> G5 -> G4 -> G2`;
 - exports Chinese presentation-style PNG/GIF plus trajectory CSV under `togt_timevarying_window/results/`;
 - traversal evidence is recorded per crossing with `contains`, `plane_error`, and `gate_margin`.
+
+## Closed-Loop Deformable Window RL Context
+
+`closed_loop_deformable_window/` is an independent simulation-only research project. Its first algorithm is `fapp_ppo/`: Future-Aware Privileged-Preview PPO with a schedule-aware nominal CTBR controller and a bounded learned residual.
+
+The task is to traverse four windows exactly once in the specified order and then recover the complete initial state \((p,v,R,\omega)\). The current time-critical ID setting uses a 26 s episode, 1.40 s mean fully-open opportunities, 3.80 s mean recurrence, motion multiplier 1.8, and deformation multiplier 2.0.
+
+### Window process and independence
+
+Every episode fixes the complete future at reset. Window \(i\) uses three independent component streams derived from `(scenario_seed, window_index, component_id)`:
+
+```text
+component 0: opening schedule
+component 1: center translation and rotation
+component 2: overall size and local boundary shape
+```
+
+Different windows also use disjoint streams. The generator never reads route length, cruise speed, UAV position/velocity/action, or estimated arrival time. Openings therefore cannot be triggered by UAV arrival.
+
+The opening schedule is an independent non-periodic renewal process. Each window samples its own initial phase, opportunity width, and recurrence interval. A 1,000-seed audit measured pairwise first-opening correlations of only `-0.034..0.014`; each window had 6--8 opportunities and first openings covered `0.321..4.118 s`.
+
+### Pose and boundary deformation model
+
+Time-critical windows use keyframes spaced at approximately 0.30 s. Center \(c_i(t)\), rotation vector \(\rho_i(t)\), and every ordered local boundary point \(b_{i,k}(t)\) are queried through natural cubic splines. The world-plane pose is
+
+\[
+x^{world}_{i,k}(t)=c_i(t)+R(\rho_i(t))
+\begin{bmatrix}b_{i,k}(t)\\0\end{bmatrix}.
+\]
+
+At each keyframe, the 64-point local boundary is a positive radial graph. With
+\(\theta_k=2\pi k/64\),
+
+\[
+\begin{aligned}
+q_i(\theta,t)=1
+&+\alpha_{i,1}(t)\cos 2\theta
++\alpha_{i,2}(t)\sin 3\theta\\
+&+\alpha_{i,3}(t)\cos 5\theta
++\alpha_{i,4}(t)\sin \theta
++\alpha_{i,5}(t)\sin 4\theta ,
+\end{aligned}
+\]
+
+\[
+b_i(\theta,t)=
+\begin{bmatrix}
+r_{i,x}(t)q_i(\theta,t)\cos\theta\\
+r_{i,y}(t)q_i(\theta,t)\sin\theta
+\end{bmatrix}.
+\]
+
+The five \(\alpha\) coefficients are smooth random walks clipped to `[-0.22,0.22]`. They independently change lobe depth, concavity location, asymmetry, and boundary curvature; they are not per-frame independent vertex noise. The keyframe generator additionally enforces \(q_i>0.28\), preserving a star-shaped, connected, hole-free physical opening at keyframes.
+
+The two axis radii combine three effects:
+
+\[
+r_{i,x}(t)=1.05\,[1+\delta_{i,x}(t)]\,\sigma_i(t),\qquad
+r_{i,y}(t)=0.88\,[1+\delta_{i,y}(t)]\,\sigma_i(t).
+\]
+
+- \(\delta_{i,x},\delta_{i,y}\) are independent smooth size walks clipped to `[-0.20,0.20]`, so aspect ratio and overall size change continuously;
+- \(\sigma_i(t)\) is the opening/closing envelope, ranging from `0.16` to `1.05`;
+- every rise and fall of \(\sigma_i(t)\) uses smoothstep over 0.32 s, so there is no instantaneous geometry switch.
+
+The resulting ordered boundary points are spline-interpolated between keyframes. Interpolation is validated on dense times: the physical polygon must remain valid, simple, connected, hole-free, and have positive area. Thus the implemented intermediate shape is the spline of boundary points, not a claim that the five harmonic coefficients themselves have a closed-form continuous trajectory at every instant.
+
+The physical opening is \(\Omega_i(t)\). The safe traversal region is the true non-convex inward offset
+
+\[
+\Omega_i^{safe}(t)=\Omega_i(t)\ominus B(0,0.16\ {\rm m}).
+\]
+
+When \(\sigma_i(t)\) approaches 0.16, the physical polygon still has nonzero area but the inward offset becomes empty. The window is then physically present yet impossible for the UAV to traverse safely. In the current ID audit, safe passability occupied `45.86%..56.35%` of time and complete non-passability occupied `43.65%..54.14%`.
+
+Translation, rotation, opening scale, axis-scale drift, and local harmonic deformation occur simultaneously but come from isolated random streams. Their amplitudes are limited and every scenario also passes a sampled inter-window envelope separation check.
+
+### Current FAPP-PPO status
+
+The validation run used 100 PPO updates and 102,400 environment steps:
+
+```text
+closed_loop_deformable_window/fapp_ppo/runs/independent_validation_v3/
+```
+
+The final checkpoint achieved `0/10` on the paired ID pilot, versus `1/10` for each nominal baseline. Update 25 achieved `3/10` on an independent development slice, while updates 50/75/100 achieved `0/10`, demonstrating late policy collapse. The Chinese MP4 at
+`fapp_ppo_early_checkpoint_independent_seed53017_zh.mp4` is an explicitly labeled early-checkpoint mechanism demonstration, not the main performance result.
+
+The primary reward defect is now diagnosed: after a legal crossing, the potential target immediately switches to the next distant window. This creates a `-6.5..-9.8` shaping jump that nearly cancels the `+10` gate reward. Persistent action standard deviation near 0.30 and insufficient residual-prior strength then let the learned residual drift away from the nominal controller. Maximum PPO approximate KL remained 0.0108 below the 0.02 target, so this is not evidence of a KL update explosion.
+
+Current validation:
+
+```text
+pytest -q closed_loop_deformable_window/fapp_ppo/tests  # 12 passed
+pytest -q                                                # 46 passed
+```
+
+Detailed model, figures, experiment protocol, and negative-result record:
+
+```text
+closed_loop_deformable_window/fapp_ppo/ALGORITHM.md
+closed_loop_deformable_window/fapp_ppo/FIGURE_GUIDE.md
+closed_loop_deformable_window/fapp_ppo/ACADEMIC_EXPERIMENTS.md
+closed_loop_deformable_window/fapp_ppo/TEST_RESULTS.md
+```
 
 ## Non-Convex Time-Varying Window Research Context
 

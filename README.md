@@ -1,8 +1,8 @@
 # GAP-Step
 
-GAP-Step 主线是一个连续二维时变窗口迷宫项目。主线目标是训练 PPO 特权教师：教师看到完整拓扑图和窗口动力学，直接输出二维连续加速度动作。仓库同时包含独立的 TOGT 论文复现、凸时变窗口实验和非凸时变窗口多方法研究。
+GAP-Step 主线是一个连续二维时变窗口迷宫项目。主线目标是训练 PPO 特权教师：教师看到完整拓扑图和窗口动力学，直接输出二维连续加速度动作。仓库同时包含独立的 TOGT 论文复现、凸时变窗口实验、非凸时变窗口多方法研究和闭环连续形变窗口强化学习研究。
 
-`gap_step/` 主线当前不做视觉学生、行为克隆、专家演示、A*/MPC、世界模型、主动感知、三维仿真或四旋翼动力学。这些限制不适用于独立的 TOGT 窗口研究子项目。
+`gap_step/` 主线当前不做视觉学生、行为克隆、专家演示、A*/MPC、世界模型、主动感知、三维仿真或四旋翼动力学。这些限制不适用于独立的 TOGT 窗口研究子项目和闭环连续形变窗口研究。
 
 ## 代码结构
 
@@ -127,6 +127,7 @@ GraphObs(
 复现/TOGT-Planner-reproduction/                TOGT-Planner 源码级复现、结果级复现脚本和记录
 togt_timevarying_window/                       独立论文式动态 gate/window 改进项目
 nonconvex_timevarying_window/                  非凸时变窗口多方法研究总目录
+closed_loop_deformable_window/                 闭环连续形变非凸窗口多方法研究总目录
 docs/TOGT_REPRODUCTION_AUDIT.md                需求到证据的完成度审计
 ```
 
@@ -143,8 +144,12 @@ python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite smoke 
 pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
 python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke
 pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
+pytest -q closed_loop_deformable_window/fapp_ppo/tests
+python -m closed_loop_deformable_window.fapp_ppo.experiments --suite smoke
 ```
 
 TOGT C++ 原生构建已通过本地 vendored Eigen 完成；源码树、CMake/build/ctest、结果级复现均已验证。动态门改进项目已重构为 DynaTOGT：在原论文 gate 几何约束思想基础上，将静态 `p(t_i) in G_i` 扩展为动态可变形窗口 `p(t_i) in G_i(t_i)`。默认固定顺序为 `G1 -> G6 -> G3 -> G2 -> G5 -> G4`；实验对比 `WaypointCenter`、`StaticTOGT`、`DiscreteDynamic` 和 `DynaTOGT`，输出 `togt_timevarying_window/results/<suite>/summary.csv` 以及 trajectory CSV / PNG / GIF。
 
 非凸时变窗口研究在 `nonconvex_timevarying_window/` 中独立组织。总目录根部的 `PROBLEM_DEFINITION.md` 定义通用问题；`AtlasDynaTOGT` 使用非凸区域三角剖分和 softmax 重心 chart；`SC-DynaTOGT` 仅用 Chang 方法重采样边界，再以 Schwarz–Christoffel 圆盘映射生成内部穿越点并接入 TOGT。各方法保持并列、互不混用源码。
+
+闭环连续形变研究在 `closed_loop_deformable_window/` 中独立组织。首个方法 `FAPP-PPO` 使用未来窗口预览、特权 critic、残差 CTBR PPO、刚体四旋翼动力学和单旋翼推力分配；窗口可大幅连续收缩至安全区暂时为空，无人机必须抢占短暂开放机会，完成全部指定窗口后还必须恢复初始位置、速度、姿态和角速度。

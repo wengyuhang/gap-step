@@ -1,0 +1,60 @@
+quadrotor:
+  mass: 1.0
+  gravity: 9.81
+  inertia: [0.005, 0.005, 0.009]
+  arm_length: 0.15
+  yaw_moment_coefficient: 0.012
+  rotor_thrust_min: 0.0
+  rotor_thrust_max: 5.5
+  max_body_rate: 5.0
+  body_rate_time_constant: 0.07
+  linear_drag: 0.12
+
+environment:
+  dt: 0.04
+  episode_seconds: 18.0
+  max_windows: 6
+  full_windows: 4
+  route_radius: 4.5
+  preview_horizons: [0.0, 0.6, 1.2]
+  preview_gate_count: 2
+  safe_margin: 0.16
+  frame_thickness: 0.08
+  drone_radius: 0.10
+  min_window_separation: 0.8
+  workspace_radius: 12.0
+  cruise_speed: 2.6
+  residual_scale: 0.20
+
+model:
+  hidden_dim: 192
+  layers: 3
+  log_std_init: -1.0
+  min_log_std: -2.5
+  max_log_std: 0.2
+
+ppo:
+  learning_rate: 0.0003
+  rollout_steps: 512
+  num_envs: 8
+  update_epochs: 6
+  minibatch_size: 512
+  gamma: 0.995
+  gae_lambda: 0.95
+  clip_ratio: 0.2
+  value_coef: 0.5
+  entropy_coef: 0.002
+  residual_prior_coef: 0.05
+  max_grad_norm: 0.8
+  target_kl: 0.02
+
+train:
+  seed: 7
+  device: auto
+  output_dir: closed_loop_deformable_window/fapp_ppo/runs/default
+  curriculum:
+    - {name: static, updates: 40}
+    - {name: moving, updates: 60}
+    - {name: deforming, updates: 100}
+    - {name: full, updates: 200}
+  save_every: 25

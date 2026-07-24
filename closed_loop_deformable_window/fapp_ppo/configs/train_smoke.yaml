@@ -1,0 +1,39 @@
+quadrotor:
+  mass: 1.0
+  gravity: 9.81
+  inertia: [0.005, 0.005, 0.009]
+  rotor_thrust_max: 5.5
+
+environment:
+  dt: 0.04
+  episode_seconds: 8.0
+  max_windows: 6
+  full_windows: 4
+  route_radius: 4.5
+  preview_horizons: [0.0, 0.6, 1.2]
+  preview_gate_count: 2
+  safe_margin: 0.16
+  residual_scale: 0.20
+
+model:
+  hidden_dim: 64
+  layers: 2
+  log_std_init: -1.2
+
+ppo:
+  learning_rate: 0.0003
+  rollout_steps: 32
+  num_envs: 2
+  update_epochs: 2
+  minibatch_size: 32
+  residual_prior_coef: 0.05
+  target_kl: 0.03
+
+train:
+  seed: 7
+  device: cpu
+  output_dir: closed_loop_deformable_window/fapp_ppo/runs/smoke
+  curriculum:
+    - {name: static, updates: 1}
+    - {name: full, updates: 1}
+  save_every: 10

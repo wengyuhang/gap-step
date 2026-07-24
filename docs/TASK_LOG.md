@@ -264,3 +264,119 @@ MP4 decode check:   frames 0, 72, and 143 valid
 pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
 111 passed in 31.49s
 ```
+
+## 2026-07-21 MSR-DynaTOGT Multi-Start And Feasibility Repair
+
+Implemented a new independent sibling method under `nonconvex_timevarying_window/msr_dynatogt/` without modifying SC-DynaTOGT, AtlasDynaTOGT, or their historical results:
+
+- added reproducible SC-center, random spatial/temporal, turn-aware, and dispersed-region initializations;
+- ran the stable SC-DynaTOGT `x=[K,D]` degree-7 MINCO optimizer for every start and retained a deduplicated candidate pool;
+- enforced candidate ordering by designated-window legality, then high-density sampled dynamics, then total flight time, so shorter rotor-limit violations never outrank feasible candidates;
+- sampled velocity, collective thrust, body rates, all four rotor thrusts, prescribed crossing order, true non-convex containment, and boundary margin;
+- added uniform and local time dilation, iterative expansion, binary search, `T -> K` conversion, complete joint reoptimization, revalidation, and feasible-incumbent preservation;
+- separated overall sampled-feasibility `success`, raw/reoptimization convergence, and final-result source;
+- implemented A0 original SC, A1 SC + multistart, A2 SC + repair, and A3 full MSR, plus matched-start-count and measured matched-wall-time comparisons;
+- added five prescribed scenes, timestamp-only result directories, complete CSV/JSON candidate records, Chinese `REPORT.md`, five trajectory comparisons, and aggregate time/runtime/feasibility/thrust figures;
+- documented AtlasDynaTOGT only as an auxiliary structural comparison because its Hermite trajectory, anisotropic scale, dynamics, and metrics are not directly comparable.
+
+Validation:
+
+```text
+python -m compileall -q nonconvex_timevarying_window/msr_dynatogt
+passed
+pytest -q nonconvex_timevarying_window/msr_dynatogt/tests
+8 passed in 34.75s
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
+111 passed in 31.89s
+python -m nonconvex_timevarying_window.msr_dynatogt.experiments --suite smoke
+completed: 5 scenes, 1 seed, 60 A0--A3/protocol rows, 378.643 s
+result: nonconvex_timevarying_window/msr_dynatogt/results/20260721_132527_458246_smoke/
+```
+
+Native smoke summary:
+
+```text
+method  window legal  sampled dynamics feasible  mean total time  mean wall time
+A0      5/5           0/5                        6.161245 s       7.161 s
+A1      5/5           1/5                        5.970820 s      31.954 s
+A2      5/5           5/5                        6.226261 s      18.864 s
+A3      5/5           5/5                        6.023721 s      75.148 s
+```
+
+A3 improved sampled-dynamics feasibility by 100 percentage points over A0 and used 10.49x mean wall time. A0 was dynamically infeasible in every smoke scene, so its shorter/longer time differences are not feasible-solution superiority claims. All feasibility statements are high-density sampled only, not continuous-time certificates. The smoke optimizer cap is 24 iterations; final repaired incumbents were retained after the required reoptimization was run and rechecked, and no optimizer success was fabricated.
+
+## 2026-07-22 MSR-DynaTOGT Full Formal Experiment
+
+Completed the full prescribed suite without reducing seeds, starts, sampling density, or optimizer stopping criteria:
+
+- ran 5 scenes x 155 seeds = 775 independent tasks with 7 starts and 129 high-density samples per segment;
+- saved 775 candidate JSON files and 9,300 A0--A3 rows spanning native, matched-start, and matched-time protocols;
+- used non-overwriting task checkpoints and resumed the same configuration after correcting worker CPU affinity; completed tasks were neither rerun nor overwritten;
+- recorded 100% window legality for all methods and sampled-dynamics feasibility of 0.0%/0.1%/100%/100% for A0/A1/A2/A3;
+- measured mean flight times of 5.377927/5.351334/5.389145/5.366490 s and mean per-run wall times of 237.436/1482.787/303.535/2385.702 s;
+- reduced A3 mean peak rotor thrust from 5.017345 N before repair to 4.999816 N after repair with mean time scale 1.002526;
+- generated five representative trajectory comparisons, four aggregate figures, a concise Chinese report, and a separate Chinese explanation for every figure;
+- grouped failed seed ranges in the report while retaining every individual failure row in summary.json and runs.csv;
+- kept AtlasDynaTOGT as a structural auxiliary note only because its trajectory and dynamics interfaces are not directly comparable.
+
+Formal result:
+
+```text
+nonconvex_timevarying_window/msr_dynatogt/results/20260721_135308_842525_formal/
+775/775 tasks, 9,300 rows, 93,509.732 s active final-session wall time
+A0/A1/A2/A3 sampled feasible: 0/1/775/775
+```
+
+Interpretation: repair is responsible for the robust feasibility gain. A3 is 0.022655 s faster on average than feasible A2, with the clearest gains on the six-window loop and thrust-stressing scene, but costs 7.86x A2 wall time. Matched-start and matched-time comparisons select identical A2/A3 results, so the multistart gain is conditional on extra compute budget. All feasibility claims remain high-density sampled rather than continuous-time certificates.
+
+## 2026-07-24 Closed-Loop Deformable Window FAPP-PPO
+
+Implemented the first reinforcement-learning algorithm in the independent
+`closed_loop_deformable_window/fapp_ppo/` method directory:
+
+- generated every window's opening schedule, pose motion, and local deformation from independent per-window random streams fixed at reset;
+- removed the old arrival-aligned opening construction, so route length, cruise speed, UAV state, and actions cannot trigger a window opening;
+- modeled the local shape with a 64-point positive radial graph, five harmonic deformation coefficients, two independent axis scales, and a smooth opening envelope;
+- interpolated centers, rotation vectors, and ordered boundary points with natural cubic splines and validated nonzero, simple, connected, hole-free physical polygons;
+- allowed the true non-convex safe inward offset to become empty while the physical opening remains nonzero;
+- used independent non-periodic renewal schedules with smoothstep opening/closing transitions;
+- added Chinese training-reward, algorithm, window-model, experiment-protocol, and pilot-result figures;
+- exported and frame-checked a Chinese H.264 MP4 demonstrating a completely closed target, UAV waiting, four legal crossings, and complete-state return;
+- ran a 100-update/102,400-step validation training and paired 10-seed ID/tight pilot.
+
+Independent-window audit:
+
+```text
+1,000 seeds, pairwise first-opening correlation: -0.034..0.014
+first-opening range: 0.321..4.118 s
+opportunities per window: 6..8
+ID passable fraction: 45.86%..56.35%
+ID non-passable fraction: 43.65%..54.14%
+```
+
+Training result and diagnosis:
+
+```text
+final FAPP-PPO ID:             0/10
+Nominal-Reactive ID:           1/10
+Nominal-Schedule ID:           1/10
+update 25 development success: 3/10
+updates 50/75/100:             0/10
+maximum approximate KL:        0.0108 < target 0.02
+```
+
+The main non-convergence cause is a reward-credit defect: crossing a gate switches
+the potential target to the next distant gate, introducing a `-6.5..-9.8` shaping
+jump that nearly cancels the `+10` gate bonus. Persistent exploration standard
+deviation near 0.30 and weak residual anchoring then cause late residual-policy
+collapse. The early-checkpoint success MP4 is documented as a mechanism
+demonstration only and is not substituted for the final-checkpoint result.
+
+Validation:
+
+```text
+pytest -q closed_loop_deformable_window/fapp_ppo/tests
+12 passed
+pytest -q
+46 passed
+```

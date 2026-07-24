@@ -1,0 +1,49 @@
+# 30-update reproducibility configuration used by TEST_RESULTS.md.
+# This is a short diagnostic run, not the default/formal training budget.
+environment:
+  dt: 0.04
+  episode_seconds: 18.0
+  max_windows: 6
+  full_windows: 4
+  route_radius: 4.5
+  preview_horizons: [0.0, 0.6, 1.2]
+  preview_gate_count: 2
+  safe_margin: 0.16
+  min_window_separation: 0.8
+  workspace_radius: 12.0
+  cruise_speed: 2.6
+  residual_scale: 0.20
+
+model:
+  hidden_dim: 128
+  layers: 2
+  log_std_init: -1.0
+  min_log_std: -2.5
+  max_log_std: 0.2
+
+ppo:
+  learning_rate: 0.0003
+  rollout_steps: 256
+  num_envs: 4
+  update_epochs: 4
+  minibatch_size: 256
+  gamma: 0.995
+  gae_lambda: 0.95
+  clip_ratio: 0.2
+  value_coef: 0.5
+  entropy_coef: 0.002
+  residual_prior_coef: 0.05
+  max_grad_norm: 0.8
+  target_kl: 0.02
+
+train:
+  seed: 7
+  device: cpu
+  output_dir: closed_loop_deformable_window/fapp_ppo/runs/validation
+  curriculum:
+    - {name: static, updates: 5}
+    - {name: moving, updates: 5}
+    - {name: deforming, updates: 10}
+    - {name: full, updates: 10}
+  save_every: 100
+

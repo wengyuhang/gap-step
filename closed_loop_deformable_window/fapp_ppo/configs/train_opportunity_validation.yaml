@@ -1,0 +1,97 @@
+# Moderate academic-pipeline validation budget: 102,400 environment steps.
+environment:
+  dt: 0.04
+  episode_seconds: 26.0
+  max_windows: 6
+  full_windows: 4
+  route_radius: 5.2
+  workspace_radius: 14.0
+  preview_horizons: [0.0, 0.4, 0.8, 1.2, 1.8]
+  preview_gate_count: 2
+  safe_margin: 0.16
+  frame_thickness: 0.08
+  drone_radius: 0.10
+  min_window_separation: 0.8
+  cruise_speed: 3.0
+  residual_scale: 0.20
+  reward_time: 1.0
+  reward_progress: 1.5
+  reward_gate: 10.0
+  reward_success: 30.0
+  reward_collision: -20.0
+  reward_order_violation: -22.0
+  reward_timeout: -12.0
+  reward_smoothness: 0.025
+  reward_energy: 0.003
+  reward_missed_opportunity: -8.0
+  motion_amplitude_multiplier: 1.8
+  deformation_amplitude_multiplier: 2.0
+  opportunity_mode: irregular_repeated
+  opportunity_features: true
+  opportunity_aware_nominal: true
+  opportunity_width: 1.4
+  opportunity_transition: 0.32
+  opportunity_closed_scale: 0.16
+  opportunity_open_scale: 1.05
+  opportunity_schedule_jitter: 0.22
+  opportunity_rescue_delay: 3.8
+  opportunity_holding_distance: 0.9
+  opportunity_crossing_overshoot: 0.55
+  minimum_safe_area: 0.0001
+
+model:
+  hidden_dim: 128
+  layers: 2
+  log_std_init: -1.2
+  min_log_std: -2.5
+  max_log_std: 0.0
+
+ppo:
+  learning_rate: 0.00025
+  rollout_steps: 256
+  num_envs: 4
+  update_epochs: 4
+  minibatch_size: 256
+  gamma: 0.995
+  gae_lambda: 0.95
+  clip_ratio: 0.2
+  value_coef: 0.5
+  entropy_coef: 0.001
+  residual_prior_coef: 0.08
+  max_grad_norm: 0.8
+  target_kl: 0.02
+
+train:
+  seed: 17
+  device: cpu
+  output_dir: closed_loop_deformable_window/fapp_ppo/runs/independent_validation_v3
+  curriculum:
+    - name: static
+      updates: 10
+      opportunity_mode: irregular_repeated
+      opportunity_width: 2.2
+      motion_amplitude_multiplier: 0.8
+      deformation_amplitude_multiplier: 0.8
+      opportunity_schedule_jitter: 0.10
+    - name: moving
+      updates: 15
+      opportunity_mode: irregular_repeated
+      opportunity_width: 1.8
+      motion_amplitude_multiplier: 1.2
+      deformation_amplitude_multiplier: 1.2
+      opportunity_schedule_jitter: 0.15
+    - name: deforming
+      updates: 20
+      opportunity_mode: irregular_repeated
+      opportunity_width: 1.6
+      motion_amplitude_multiplier: 1.5
+      deformation_amplitude_multiplier: 1.6
+      opportunity_schedule_jitter: 0.20
+    - name: full
+      updates: 55
+      opportunity_mode: irregular_repeated
+      opportunity_width: 1.4
+      motion_amplitude_multiplier: 1.8
+      deformation_amplitude_multiplier: 2.0
+      opportunity_schedule_jitter: 0.22
+  save_every: 25
