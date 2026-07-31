@@ -1,0 +1,24 @@
+disks:
+  grid_resolution: 0.10
+  max_disks_per_gate: 3
+tracking:
+  gate_sample_dt: 0.20
+  validation_dt: 0.05
+graph:
+  dt_coarse: 0.20
+  dt_fine: 0.05
+  refine_competing_tracks: 1
+scenario:
+  planning_horizon: 30.0
+  curve_boundary_samples: 96
+backend:
+  max_iterations: 8
+  samples_per_segment: 17
+  validation_samples_per_segment: 33
+  max_lazy_repairs: 1
+runtime:
+  workers: 1
+  overwrite: true
+  save_video: false
+  video_fps: 8
+  video_duration: 2.0

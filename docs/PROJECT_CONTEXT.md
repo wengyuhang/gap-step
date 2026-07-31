@@ -1,10 +1,10 @@
 # Project Context
 
-Last updated: 2026-07-24 (Asia/Shanghai).
+Last updated: 2026-07-29 (Asia/Shanghai).
 
 ## Current Focus
 
-The repository mainline remains a generated family of continuous 2D time-varying window mazes trained with a pure privileged PPO teacher. The active independent research extensions are the multi-method non-convex time-varying window project under `nonconvex_timevarying_window/` and the closed-loop continuously deformable-window reinforcement-learning project under `closed_loop_deformable_window/`.
+The repository mainline remains a generated family of continuous 2D time-varying window mazes trained with a pure privileged PPO teacher. The active independent research extensions are the multi-method non-convex time-varying window project under `nonconvex_timevarying_window/` and the multi-method closed-loop continuously deformable-window project under `closed_loop_deformable_window/`.
 
 ```text
 gap_step/window_maze_env.py
@@ -18,6 +18,7 @@ nonconvex_timevarying_window/sc_dynatogt/
 
 closed_loop_deformable_window/PROBLEM_DEFINITION.md
 closed_loop_deformable_window/fapp_ppo/
+closed_loop_deformable_window/mdg/
 ```
 
 ## Environment Contract
@@ -64,9 +65,12 @@ Current DynaTOGT facts:
 - exports Chinese presentation-style PNG/GIF plus trajectory CSV under `togt_timevarying_window/results/`;
 - traversal evidence is recorded per crossing with `contains`, `plane_error`, and `gate_margin`.
 
-## Closed-Loop Deformable Window RL Context
+## Closed-Loop Deformable Window Research Context
 
-`closed_loop_deformable_window/` is an independent simulation-only research project. Its first algorithm is `fapp_ppo/`: Future-Aware Privileged-Preview PPO with a schedule-aware nominal CTBR controller and a bounded learned residual.
+`closed_loop_deformable_window/` is an independent simulation-only research project with two sibling methods under one problem definition:
+
+- `fapp_ppo/`: Future-Aware Privileged-Preview PPO with a schedule-aware nominal CTBR controller and a bounded learned residual;
+- `mdg/`: a deterministic offline Moving-Disc Graph planner that selects safe-disc tracks and traversal times before reusing the MINCO/TOGT backend.
 
 The task is to traverse four windows exactly once in the specified order and then recover the complete initial state \((p,v,R,\omega)\). The current time-critical ID setting uses a 26 s episode, 1.40 s mean fully-open opportunities, 3.80 s mean recurrence, motion multiplier 1.8, and deformation multiplier 2.0.
 
@@ -164,10 +168,29 @@ Detailed model, figures, experiment protocol, and negative-result record:
 
 ```text
 closed_loop_deformable_window/fapp_ppo/ALGORITHM.md
+closed_loop_deformable_window/fapp_ppo/WINDOW_MODEL.md
 closed_loop_deformable_window/fapp_ppo/FIGURE_GUIDE.md
 closed_loop_deformable_window/fapp_ppo/ACADEMIC_EXPERIMENTS.md
 closed_loop_deformable_window/fapp_ppo/TEST_RESULTS.md
 ```
+
+### Current MDG status
+
+MDG represents the true inward-offset safe region with tracked moving discs. Empty safe regions
+produce no disc and no traversal node, so the layered graph searches only open times. Its
+transition checks couple those opportunities with fixed order and optimistic flight-time bounds;
+an empty layer or disconnected opportunity sequence is reported as infeasible rather than
+replaced by a closed-time or convex-hull crossing.
+
+```text
+closed_loop_deformable_window/mdg/README.md
+closed_loop_deformable_window/mdg/docs/METHOD.md
+closed_loop_deformable_window/mdg/docs/EXPERIMENTS.md
+closed_loop_deformable_window/mdg/docs/TEST_RESULTS.md
+```
+
+The implementation and E1--E6 smoke suite are complete; the 2,090-run formal matrix remains
+pending acceptance.
 
 ## Non-Convex Time-Varying Window Research Context
 

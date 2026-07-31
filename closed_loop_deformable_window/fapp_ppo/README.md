@@ -17,7 +17,9 @@ FAPP-PPO（Future-Aware Privileged-Preview PPO，未来感知特权预览 PPO）
 - **时间关键机会**：窗口可连续收缩到安全内缩区为空，actor 读取开放状态和开放/关闭倒计时，策略必须等待并抢占短暂可通行区间；
 - **闭环成功条件**：四个窗口全部按序合法穿越，且 \(p,v,R,\omega\) 同时回到初始容差内。
 
-算法公式、奖励和约束判定见 [ALGORITHM.md](ALGORITHM.md)，2026 顶会论文依据见 [PAPER_NOTES.md](PAPER_NOTES.md)。
+窗口平移、旋转、开合、长宽变化和局部轮廓形变的完整模型见
+[WINDOW_MODEL.md](WINDOW_MODEL.md)。算法公式、奖励和约束判定见
+[ALGORITHM.md](ALGORITHM.md)，2026 顶会论文依据见 [PAPER_NOTES.md](PAPER_NOTES.md)。
 当前自动化测试、负结果诊断和 60 个未见实例的短训练预实验见 [TEST_RESULTS.md](TEST_RESULTS.md)。
 大幅形变、暂时不可通行、配对基线、消融、统计检验和论文图表的预注册方案见 [ACADEMIC_EXPERIMENTS.md](ACADEMIC_EXPERIMENTS.md)。
 

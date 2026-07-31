@@ -1,0 +1,64 @@
+safety:
+  drone_collision_radius: 0.15
+  tracking_margin: 0.05
+  geometry_discretization_margin: 0.02
+  safety_radius: 0.22
+disks:
+  grid_resolution: 0.04
+  nms_ratio: 0.8
+  min_radius: 0.05
+  max_disks_per_gate: 5
+tracking:
+  gate_sample_dt: 0.10
+  match_distance_scale: 0.5
+  match_radius_scale: 0.3
+  match_radius_weight: 0.5
+  match_cost_max: 2.0
+  max_gap_steps: 1
+  min_length_steps: 3
+  validation_dt: 0.02
+  shrink_margin: 0.01
+  enable_validation_shrink: true
+graph:
+  dt_coarse: 0.10
+  dt_fine: 0.02
+  v_max_fallback: 8.0
+  a_max: 12.0
+  feasibility_ratio: 0.8
+  refine_time_radius: 0.30
+  refine_competing_tracks: 2
+  enable_refine: true
+scenario:
+  planning_horizon: 60.0
+  world_size: [20.0, 20.0, 4.0]
+  gate_height_range: [1.0, 2.8]
+  gate_spacing_range: [2.5, 4.0]
+  curve_boundary_samples: 256
+  motion_control_point_dt: 2.0
+  envelope_validation_dt: 0.05
+  max_resamples: 100
+backend:
+  max_iterations: 32
+  samples_per_segment: 17
+  validation_samples_per_segment: 129
+  initial_speed: 4.0
+  interval_penalty: 100000.0
+  max_lazy_repairs: 5
+  time_weight: 1.0
+  snap_weight: 0.0
+validation:
+  gate_plane_error_max: 0.001
+  closed_loop_position_error_max: 0.01
+  closed_loop_velocity_error_max: 0.02
+  closed_loop_attitude_error_deg_max: 1.0
+  closed_loop_body_rate_error_max: 0.05
+  minimum_clearance_tolerance: -0.002
+  waypoint_tolerance: 0.000002
+  interval_time_tolerance: 0.001
+  dynamic_relative_tolerance: 0.001
+runtime:
+  workers: 8
+  overwrite: false
+  save_video: true
+  video_fps: 20
+  video_duration: 12.0

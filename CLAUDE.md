@@ -7,6 +7,7 @@ GAP-Step / TOGT 窗口研究仓库给代码代理使用的本地约定。详细�
 - `gap_step/` 是主线：连续二维时变窗口迷宫 + 纯 PPO 特权教师。
 - `togt_timevarying_window/` 是独立 DynaTOGT 子项目：基于 TOGT 论文思想的 3D 动态时变窗口穿越实验。
 - `nonconvex_timevarying_window/` 是非凸时变窗口研究的总目录：根目录保存通用问题定义，每种算法放在以算法名称命名的独立子目录中。
+- `closed_loop_deformable_window/` 是闭环连续形变窗口研究的总目录：`fapp_ppo/` 与 `mdg/` 是共享同一问题定义的并列方法。
 - `复现/` 是 TOGT 论文复现包；不要把其中代码并入主线。
 - 重要改动前先读相关 `docs/`；TOGT 窗口研究细节见 `docs/ARCHITECTURE.md`、`docs/PROJECT_CONTEXT.md` 和对应子项目 README。
 
@@ -53,6 +54,13 @@ python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite smoke 
 python -m nonconvex_timevarying_window.atlas_dynatogt.experiments --suite default --outdir nonconvex_timevarying_window/atlas_dynatogt/results
 pytest -q nonconvex_timevarying_window/atlas_dynatogt/tests
 ```
+
+## 闭环连续形变窗口研究规则
+
+- 通用问题定义固定放在 `closed_loop_deformable_window/PROBLEM_DEFINITION.md`。
+- `fapp_ppo/` 与 `mdg/` 必须作为同一总目录下的并列方法维护，不要把 `mdg/` 放回 `nonconvex_timevarying_window/`。
+- 物理开口非空不代表安全可通行：考虑无人机尺寸和安全裕度后，安全区允许暂时为空。
+- 穿越时刻必须落在窗口开放时间集合内，并与指定顺序、飞行时间和动力学联合考虑；没有可达开放机会时应报告不可行。
 
 ## 文件与镜像规则
 

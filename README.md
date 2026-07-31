@@ -146,10 +146,19 @@ python -m nonconvex_timevarying_window.sc_dynatogt.experiments --suite smoke
 pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
 pytest -q closed_loop_deformable_window/fapp_ppo/tests
 python -m closed_loop_deformable_window.fapp_ppo.experiments --suite smoke
+pytest -q closed_loop_deformable_window/mdg/tests
+cd closed_loop_deformable_window/mdg
+python scripts/run_benchmark.py --config configs/smoke.yaml --suite smoke
 ```
 
 TOGT C++ 原生构建已通过本地 vendored Eigen 完成；源码树、CMake/build/ctest、结果级复现均已验证。动态门改进项目已重构为 DynaTOGT：在原论文 gate 几何约束思想基础上，将静态 `p(t_i) in G_i` 扩展为动态可变形窗口 `p(t_i) in G_i(t_i)`。默认固定顺序为 `G1 -> G6 -> G3 -> G2 -> G5 -> G4`；实验对比 `WaypointCenter`、`StaticTOGT`、`DiscreteDynamic` 和 `DynaTOGT`，输出 `togt_timevarying_window/results/<suite>/summary.csv` 以及 trajectory CSV / PNG / GIF。
 
 非凸时变窗口研究在 `nonconvex_timevarying_window/` 中独立组织。总目录根部的 `PROBLEM_DEFINITION.md` 定义通用问题；`AtlasDynaTOGT` 使用非凸区域三角剖分和 softmax 重心 chart；`SC-DynaTOGT` 仅用 Chang 方法重采样边界，再以 Schwarz–Christoffel 圆盘映射生成内部穿越点并接入 TOGT。各方法保持并列、互不混用源码。
 
-闭环连续形变研究在 `closed_loop_deformable_window/` 中独立组织。首个方法 `FAPP-PPO` 使用未来窗口预览、特权 critic、残差 CTBR PPO、刚体四旋翼动力学和单旋翼推力分配；窗口可大幅连续收缩至安全区暂时为空，无人机必须抢占短暂开放机会，完成全部指定窗口后还必须恢复初始位置、速度、姿态和角速度。
+闭环连续形变研究在 `closed_loop_deformable_window/` 中独立组织。`FAPP-PPO` 与
+`MDG` 共享总目录的问题定义并作为并列方法维护：前者使用未来窗口预览、特权
+critic、残差 CTBR PPO、刚体四旋翼动力学和单旋翼推力分配；后者把真实非凸安全区
+转换为移动圆盘轨迹，用粗细时空图选择圆盘和穿越时刻，再接入 MINCO/TOGT 后端。
+窗口可大幅连续收缩至安全区暂时为空，两种方法都必须选择满足指定顺序和动力学的
+开放机会；不存在可达开放机会序列时应报告不可行。完成全部指定窗口后还必须恢复
+初始位置、速度、姿态和角速度。

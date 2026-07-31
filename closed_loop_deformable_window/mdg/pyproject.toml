@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mdg-planner"
+version = "0.1.0"
+description = "Moving-Disc Graph planner for continuously deforming non-convex gates"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy>=1.24,<3",
+  "scipy>=1.10,<2",
+  "shapely>=2,<3",
+  "PyYAML>=6,<7",
+  "matplotlib>=3.7,<4",
+  "pandas>=2,<3",
+  "imageio>=2.31,<3",
+  "imageio-ffmpeg>=0.4,<1",
+  "torch>=2.1,<3",
+]
+
+[project.scripts]
+mdg-run-single = "mdg.experiments:single_main"
+mdg-run-benchmark = "mdg.experiments:benchmark_main"
+mdg-run-ablation = "mdg.experiments:ablation_main"
+mdg-plot-results = "mdg.experiments:plot_main"
+mdg-make-video = "mdg.experiments:video_main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "../.."]
+testpaths = ["tests"]
+addopts = "-ra"
+

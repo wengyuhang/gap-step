@@ -65,6 +65,35 @@ visualize.py     中文组会展示风格 PNG/GIF
 - `shuffled_dynamic` 保留为一次性 permutation 搜索对照。
 - 导出 CSV 中 `contains=True`、`plane_error≈0`、`gate_margin>0` 是穿越成功的数值证据。
 
+## Closed-Loop Continuously Deformable Window Research
+
+`closed_loop_deformable_window/` 按共同问题定义组织两种并列方法：
+
+```text
+closed_loop_deformable_window/
+  PROBLEM_DEFINITION.md         闭环、连续形变、开放机会与不可行性定义
+  README.md                     方法索引
+  fapp_ppo/
+    geometry.py                 真实非凸安全区与可通行状态
+    scenario.py                 独立外生开放日程、位姿和边界形变
+    environment.py              闭环四旋翼环境与按序穿越判定
+    model.py, ppo.py            特权预览 actor-critic 与 PPO
+    configs/, tests/            训练配置和方法测试
+  mdg/
+    src/mdg/dynamic_gate.py     PCHIP 连续形变窗口统一接口
+    src/mdg/safe_disks.py       真实非凸安全区的网格多圆盘内部近似
+    src/mdg/disk_tracking.py    Hungarian 匹配、PCHIP 轨迹和安全收缩
+    src/mdg/time_graph.py       开放时机上的粗细时空分层图
+    src/mdg/backend_adapter.py  移动圆盘自由点到 MINCO/TOGT 的适配
+    src/mdg/planner.py          DP、后端和 Lazy Repair 总编排
+    scripts/                    单实例、E1--E6、汇总和视频入口
+    tests/                      几何、图、梯度、后端和端到端测试
+```
+
+物理开口始终拓扑有效，但安全内缩区允许暂时为空。FAPP-PPO 通过预览特征和控制
+策略抢占开放机会；MDG 仅在安全区非空的时刻建立图节点，并联合选择动力学可达的
+开放时机。两种方法都不得把闭合时刻、凸包或仅非空的物理开口视为合法穿越。
+
 ## Non-Convex Time-Varying Window Research
 
 `nonconvex_timevarying_window/` 是支持多种解法并列研究的总目录。问题定义与算法实现分离：
