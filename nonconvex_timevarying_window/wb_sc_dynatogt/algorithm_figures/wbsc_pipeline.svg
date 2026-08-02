@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="320" viewBox="0 0 1120 320">
+  <defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3z" fill="#355070"/></marker><style>.b{fill:#f7f9fc;stroke:#355070;stroke-width:2}.t{font:700 18px sans-serif;fill:#1d3557}.p{font:14px sans-serif;fill:#334}.l{stroke:#355070;stroke-width:2;marker-end:url(#a)}</style></defs>
+  <rect x="25" y="55" width="220" height="180" rx="14" class="b"/><text x="135" y="92" text-anchor="middle" class="t">联合规划变量</text><text x="135" y="130" text-anchor="middle" class="p">物理窗口，无固定内缩</text><text x="135" y="160" text-anchor="middle" class="p">x = [K,D,Y]</text><text x="135" y="190" text-anchor="middle" class="p">位置 + yaw MINCO</text>
+  <line x1="245" y1="145" x2="295" y2="145" class="l"/>
+  <rect x="300" y="55" width="220" height="180" rx="14" class="b"/><text x="410" y="92" text-anchor="middle" class="t">迭代内恢复姿态</text><text x="410" y="130" text-anchor="middle" class="p">yaw 由 Y 直接优化</text><text x="410" y="160" text-anchor="middle" class="p">roll/pitch 来自加速度</text><text x="410" y="190" text-anchor="middle" class="p">每次迭代重算 R(t)</text>
+  <line x1="520" y1="145" x2="570" y2="145" class="l"/>
+  <rect x="575" y="55" width="220" height="180" rx="14" class="b"/><text x="685" y="92" text-anchor="middle" class="t">姿态长方体</text><text x="685" y="130" text-anchor="middle" class="p">8 个机体系角点</text><text x="685" y="160" text-anchor="middle" class="p">变换到窗口局部平面</text><text x="685" y="190" text-anchor="middle" class="p">取投影凸包</text>
+  <line x1="795" y1="145" x2="845" y2="145" class="l"/>
+  <rect x="850" y="55" width="240" height="180" rx="14" class="b"/><text x="970" y="92" text-anchor="middle" class="t">规划中的硬约束</text><text x="970" y="130" text-anchor="middle" class="p">间隙约束反馈到 K,D,Y</text><text x="970" y="160" text-anchor="middle" class="p">收敛后凸包复核</text><text x="970" y="190" text-anchor="middle" class="p">安全裕度 0.015 m</text>
+  <text x="560" y="285" text-anchor="middle" class="p">姿态在每次优化迭代中参与约束，不是轨迹完成后的事后检查</text>
+</svg>
