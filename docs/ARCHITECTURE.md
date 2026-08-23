@@ -128,7 +128,20 @@ nonconvex_timevarying_window/
     results_manager.py          无损迁移、run manifest、结果索引和中文主页
     explain_figures.py          中文算法、组件和实验结果图解
     tests/                      方法测试
+  cwb_sc_dynatogt/
+    body_model.py               固定顶点顺序的姿态长方体
+    gate_frame.py               完整窗口 frame 只读适配器
+    plane_section.py            xi3、正式相交连通分量和截面拓扑
+    sc_inverse.py               带回溯的 SC Newton 逆映射
+    whole_body_safety.py        V1 时间×截面边自适应数值验证
+    constraint_generation.py   [K,D] 活动 witness 目标和外层修复
+    experiments.py, tests/      独立 smoke 入口和方法测试
 ```
+
+`CWB-SC-DynaTOGT` 与已有联合 yaw 的 `WBSC-DynaTOGT` 是并列方法。前者保持原
+`x=[K,D]` 和 constant yaw，只检查包含每个规划 `t_i` 的机体/窗口平面相交连通分量；
+在该区间内构造完整截面多边形并检查全部截面边。当前 V1 的运动量与 SC 逆雅可比上界来自
+自适应数值估计，因此只能输出 `NUMERICALLY_VERIFIED`，不得输出 `CERTIFIED`。
 
 依赖关系为：
 

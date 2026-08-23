@@ -380,3 +380,41 @@ pytest -q closed_loop_deformable_window/fapp_ppo/tests
 pytest -q
 46 passed
 ```
+
+## 2026-08-02 CWB-SC-DynaTOGT Continuous Whole-Body Safety V1
+
+Implemented a new independent sibling method under
+`nonconvex_timevarying_window/cwb_sc_dynatogt/` without modifying any existing
+algorithm directory:
+
+- retained the original SC-DynaTOGT decision vector `x=[K,D]` and constant yaw;
+- modeled the vehicle as an attitude-aware cuboid whose roll/pitch are recovered
+  from the current MINCO trajectory by the existing differential-flatness code;
+- computed all eight vertex `xi3` plane coordinates with the required extrema
+  contact/section logic rather than a multi-input XOR;
+- selected only the cuboid/plane intersection component containing each planned
+  traversal time and represented section topology by source body-edge IDs;
+- constructed the complete 3--6 vertex plane section and checked every section
+  edge over adaptive time/lambda cells with the SC radial margin;
+- separated numerical verification, explicit unsafe witnesses, uncertified cells,
+  and numerical failures, and prevented V1 from emitting `CERTIFIED`;
+- added segment-relative witnesses, stale-witness handling, finite active safety
+  penalties, warm-started outer optimization, diagnostics, and a smoke CLI;
+- documented two deliberate V1 limitations: sampled rather than interval-rigorous
+  bounds, and a discrete auxiliary SC preimage pool/finite-difference gradient
+  instead of the planned continuous `[K,D,U]` augmented-Lagrangian/autodiff V2.
+
+Validation:
+
+```text
+pytest -q nonconvex_timevarying_window/cwb_sc_dynatogt/tests
+12 passed in 0.78s
+pytest -q nonconvex_timevarying_window/sc_dynatogt/tests
+111 passed in 31.17s
+python -m compileall -q nonconvex_timevarying_window/cwb_sc_dynatogt
+passed
+pytest -q
+46 passed in 3.04s
+python -m nonconvex_timevarying_window.cwb_sc_dynatogt.experiments --suite smoke --outdir /tmp/cwb_sc_smoke
+completed; explicit UNSAFE after the configured three-round outer budget, certified=false
+```

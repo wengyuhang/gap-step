@@ -15,6 +15,7 @@ gap_step/visualize_window.py
 nonconvex_timevarying_window/PROBLEM_DEFINITION.md
 nonconvex_timevarying_window/atlas_dynatogt/
 nonconvex_timevarying_window/sc_dynatogt/
+nonconvex_timevarying_window/cwb_sc_dynatogt/
 
 closed_loop_deformable_window/PROBLEM_DEFINITION.md
 closed_loop_deformable_window/fapp_ppo/
@@ -217,12 +218,21 @@ nonconvex_timevarying_window/
   <algorithm_name>/        后续方法的并列目录
 ```
 
-当前有两个相互独立的方法：
+当前方法均放在相互独立的并列目录中。新增的 `cwb_sc_dynatogt/` 保持 `[K,D]` 与
+constant yaw，并实现连续整机截面安全 V1：
+
+- 用姿态长方体 8 个顶点的 `xi3` 极值确定包含规划 `t_i` 的正式相交连通分量；
+- 在区间内构造完整平面截面并验证每条截面边，而非只检查质心、顶点或单一时刻；
+- 用 SC 径向裕度产生明确 witness，通过有限活动集温启动重新优化；
+- 数值验证、明确不安全、无法验证和数值失败分别记录；V2 未完成前不声称 `CERTIFIED`。
+
+基础的两个内部参数化方法为：
 
 - `AtlasDynaTOGT`：将非凸区域用 ear clipping 剖分成三角 chart atlas，使用 softmax 重心坐标生成 chart 内穿越点；
 - `SC-DynaTOGT`：Chang 等人的工作只用于边界均匀重采样和角点保留，内部取点严格使用圆盘 Schwarz--Christoffel 映射，并接入原 TOGT 的时间变量、degree-7 MINCO 和动力学代价。
 
-两种方法不共享内部参数化代码，各自从本目录的 `experiments.py` 进入。
+两种基础方法不共享内部参数化代码，各自从本目录的 `experiments.py` 进入；其余并列方法
+通过只读接口复用所需基础能力，不修改这些方法的源码。
 
 SC-DynaTOGT 当前必须保持的技术语义：
 

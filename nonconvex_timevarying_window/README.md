@@ -12,6 +12,8 @@
 | [SC-DynaTOGT](sc_dynatogt/README.md) | 已实现，default 实验完成 | Chang 仅做边界均匀采样，SC 圆盘映射负责内部点，接入原 TOGT/MINCO 联合优化；支持真实物理门框、分类结果目录、中文结果主页和可选 EGL/OpenGL 离线渲染，记录见 [TEST_RESULTS.md](sc_dynatogt/TEST_RESULTS.md) |
 | [MSR-DynaTOGT](msr_dynatogt/README.md) | 已实现，smoke/formal 完成 | 在 SC-DynaTOGT 外增加可复现多初值候选池、高密度采样动力学检查、uniform/local 时间修复、二分缩放和联合再优化；可行性优先于总时间，记录见 [TEST_RESULTS.md](msr_dynatogt/TEST_RESULTS.md) |
 | [WBSC-DynaTOGT](wb_sc_dynatogt/README.md) | 已实现 | 保留原 MINCO 和动力学软罚，联合优化 `[K,D,Y]`；每次迭代由当前轨迹恢复 roll/pitch/yaw 并施加姿态长方体穿窗约束，记录见 [TEST_RESULTS.md](wb_sc_dynatogt/TEST_RESULTS.md) |
+| [CWB-SC-DynaTOGT](cwb_sc_dynatogt/README.md) | V1 已实现 | 保持 `[K,D]` 和 constant yaw；在包含规划 `t_i` 的完整相交区间内验证姿态长方体的全部平面截面边，并用活动 witness 温启动修复；当前仅称数值验证，不称严格证书 |
+| [Exact-Area Whole-Body SC-DynaTOGT](exact_area_sc_dynatogt/README.md) | 实验 B 已完成 | 使用固定世界 0.315 m 名义裕度，精确计算姿态长方体截面与动态非凸窗口的多连通交集面积；当前展示名义中心穿越安全、但完整动态相交区间提前碰撞的反例，A/C/D/E/F 仅保留协议位置 |
 
 ## 目录结构
 
@@ -23,6 +25,8 @@ nonconvex_timevarying_window/
   sc_dynatogt/              Schwarz–Christoffel DynaTOGT 方法的完整实现
   msr_dynatogt/             Multi-Start and Repair DynaTOGT 的完整实现
   wb_sc_dynatogt/           姿态感知全机体 SC-DynaTOGT 的完整实现
+  cwb_sc_dynatogt/          constant-yaw 连续截面整机安全方法（V1）
+  exact_area_sc_dynatogt/   精确交集面积整机安全方法（当前实验 B）
   <algorithm_name>/        后续新增的其他方法
 ```
 
