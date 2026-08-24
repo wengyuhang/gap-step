@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from nonconvex_timevarying_window.sc_dynatogt.boundary import DenseBoundary
 from nonconvex_timevarying_window.sc_dynatogt.diverse_demo import main as diverse_demo_main
@@ -108,6 +109,11 @@ def test_general_boundary_scenario_accepts_explicit_3d_poses_and_motion_scale():
         2.5 * np.array([0.12, 0.28, 0.20]),
     )
     assert scenario.track.windows[0].motion.scale_amplitude == 0.3
+    # The requested 0.1 m is a world-space lower bound.  With scale in
+    # [0.7, 1.3], preprocessing must use a 0.1 / 0.7 local inset.
+    assert scenario.preprocessed_gates[0].safe_region.distance == pytest.approx(0.1 / 0.7)
+    assert scenario.track.windows[0].required_world_clearance == pytest.approx(0.1)
+    assert scenario.track.windows[0].world_clearance_lower_bound(0.0) >= 0.1
 
 
 def test_general_boundary_scenario_accepts_a_closed_endpoint_override():

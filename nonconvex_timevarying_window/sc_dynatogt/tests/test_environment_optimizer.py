@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from nonconvex_timevarying_window.sc_dynatogt.dynamics import (
     DynamicLimits,
@@ -100,6 +101,22 @@ def test_rotation_derivative_matches_centered_difference():
     minus, _ = rotation_and_derivative(angles - h * rates, rates)
     np.testing.assert_allclose(derivative, (plus - minus) / (2.0 * h), rtol=2e-9, atol=2e-10)
     np.testing.assert_allclose(rotation.T @ rotation, np.eye(3), atol=1e-12)
+
+
+def test_dynamic_scale_converts_fixed_world_clearance_to_conservative_local_inset():
+    motion = MotionProfile(
+        translation_amplitude=np.zeros(3),
+        rotation_amplitude=np.zeros(3),
+        scale_amplitude=0.4,
+        scale_period=2.0,
+    )
+    assert motion.minimum_scale == pytest.approx(0.6)
+    assert motion.maximum_scale == pytest.approx(1.4)
+    local = motion.local_offset_for_world_clearance(0.315)
+    assert local == pytest.approx(0.525)
+    times = np.linspace(0.0, motion.scale_period, 1001)
+    world_offsets = np.asarray([motion.scale(float(t))[0] * local for t in times])
+    assert world_offsets.min() == pytest.approx(0.315, abs=1.0e-12)
 
 
 def test_dynamic_window_space_and_time_jacobians():

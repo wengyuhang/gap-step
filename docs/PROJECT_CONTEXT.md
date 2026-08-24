@@ -1,6 +1,6 @@
 # Project Context
 
-Last updated: 2026-07-29 (Asia/Shanghai).
+Last updated: 2026-08-23.
 
 ## Current Focus
 
@@ -15,7 +15,8 @@ gap_step/visualize_window.py
 nonconvex_timevarying_window/PROBLEM_DEFINITION.md
 nonconvex_timevarying_window/atlas_dynatogt/
 nonconvex_timevarying_window/sc_dynatogt/
-nonconvex_timevarying_window/cwb_sc_dynatogt/
+nonconvex_timevarying_window/msr_dynatogt/
+nonconvex_timevarying_window/sip_dynatogt/
 
 closed_loop_deformable_window/PROBLEM_DEFINITION.md
 closed_loop_deformable_window/fapp_ppo/
@@ -215,6 +216,9 @@ nonconvex_timevarying_window/
   PROBLEM_DEFINITION.md     与具体算法无关的问题定义
   atlas_dynatogt/           已实现的 AtlasDynaTOGT 方法
   sc_dynatogt/              已实现的 SC-DynaTOGT 方法
+  msr_dynatogt/             已实现的多初值和采样修复方法
+  sip_dynatogt/             半无限约束生成和 Arb 连续域安全认证
+  废案/                      旧整机数值验证与反例
   <algorithm_name>/        后续方法的并列目录
 ```
 

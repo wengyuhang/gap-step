@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Literal, Sequence
 
 import numpy as np
@@ -37,6 +37,20 @@ class Scenario:
     mode: MotionMode
     track: SCWindowTrack
     preprocessed_gates: tuple[PreprocessedGate, ...]
+
+
+def preprocess_for_fixed_world_clearance(
+    boundary: DenseBoundary,
+    *,
+    name: str,
+    settings: PreprocessingConfig,
+    motion: MotionProfile,
+) -> PreprocessedGate:
+    """Inset in local coordinates enough to preserve a world-space margin."""
+
+    local_offset = motion.local_offset_for_world_clearance(settings.offset_distance)
+    local_settings = replace(settings, offset_distance=local_offset)
+    return preprocess_boundary(boundary, name=name, config=local_settings)
 
 
 def _motion(
@@ -95,13 +109,16 @@ def build_canonical_scenario(
         ("U", u_shape_boundary()),
         ("star", five_point_star_boundary()),
     )[:gate_count]
+    motions = tuple(_motion(mode, index) for index in range(len(definitions)))
     gates = tuple(
-        preprocess_boundary(boundary, name=name, config=settings)
-        for name, boundary in definitions
+        preprocess_for_fixed_world_clearance(
+            boundary, name=name, settings=settings, motion=motion
+        )
+        for (name, boundary), motion in zip(definitions, motions)
     )
     x_positions = np.linspace(-2.2, 2.2, gate_count) if gate_count > 1 else np.array([0.0])
     windows: list[SCDynamicWindow] = []
-    for index, (x_position, gate) in enumerate(zip(x_positions, gates)):
+    for index, (x_position, gate, motion) in enumerate(zip(x_positions, gates, motions)):
         windows.append(
             SCDynamicWindow(
                 name=gate.name,
@@ -111,8 +128,10 @@ def build_canonical_scenario(
                 # RPY: pitch=pi/2 turns TOGT's local x-y gate plane vertical,
                 # with its normal approximately aligned to the track x-axis.
                 angles0=np.array([0.02 * index, np.pi / 2.0 - 0.025 * index, 0.04 * index]),
-                motion=_motion(mode, index),
+                motion=motion,
                 physical_boundary=gate.dense_boundary.vertices,
+                required_world_clearance=settings.offset_distance,
+                reference_local_clearance=gate.safe_region.distance,
             )
         )
     extent = max(4.5, float(np.max(np.abs(x_positions))) + 2.3)
@@ -162,11 +181,16 @@ def build_boundary_scenario(
         raise ValueError("start and goal must be provided together")
 
     settings = PreprocessingConfig() if preprocessing_config is None else preprocessing_config
-    gates = tuple(
-        preprocess_boundary(boundary, name=label, config=settings)
-        for label, boundary in items
+    count = len(items)
+    motions = tuple(
+        _motion(mode, index, amplitude_scale=motion_scale) for index in range(count)
     )
-    count = len(gates)
+    gates = tuple(
+        preprocess_for_fixed_world_clearance(
+            boundary, name=label, settings=settings, motion=motion
+        )
+        for (label, boundary), motion in zip(items, motions)
+    )
     if centers is None:
         x_positions = distance * (np.arange(count, dtype=float) - 0.5 * (count - 1))
         center_values = np.column_stack(
@@ -196,8 +220,10 @@ def build_boundary_scenario(
             safe_polygon=gate.safe_polygon,
             center0=center.copy(),
             angles0=angle.copy(),
-            motion=_motion(mode, index, amplitude_scale=motion_scale),
+            motion=motions[index],
             physical_boundary=gate.dense_boundary.vertices,
+            required_world_clearance=settings.offset_distance,
+            reference_local_clearance=gate.safe_region.distance,
         )
         for index, (gate, center, angle) in enumerate(
             zip(gates, center_values, angle_values)
@@ -341,4 +367,5 @@ __all__ = [
     "build_boundary_scenario",
     "build_canonical_scenario",
     "build_diverse_scenario",
+    "preprocess_for_fixed_world_clearance",
 ]

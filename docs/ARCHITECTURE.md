@@ -128,20 +128,16 @@ nonconvex_timevarying_window/
     results_manager.py          无损迁移、run manifest、结果索引和中文主页
     explain_figures.py          中文算法、组件和实验结果图解
     tests/                      方法测试
-  cwb_sc_dynatogt/
-    body_model.py               固定顶点顺序的姿态长方体
-    gate_frame.py               完整窗口 frame 只读适配器
-    plane_section.py            xi3、正式相交连通分量和截面拓扑
-    sc_inverse.py               带回溯的 SC Newton 逆映射
-    whole_body_safety.py        V1 时间×截面边自适应数值验证
-    constraint_generation.py   [K,D] 活动 witness 目标和外层修复
-    experiments.py, tests/      独立 smoke 入口和方法测试
+  sip_dynatogt/
+    model.py, constraints.py    真实边界、整机与有限 witness 约束
+    intervals.py                Arb 边界/窗口/MINCO/平坦性区间扩展
+    certificate.py              连续时间×边界参数分支定界
+    solver.py                   [K,D] SLSQP—分离—witness 回填循环
+    io.py, verify.py, tests/     可重放证书和反例/端到端测试
+  废案/cwb_sc_dynatogt/        旧整机数值验证和 Exact-Area 反例
 ```
 
-`CWB-SC-DynaTOGT` 与已有联合 yaw 的 `WBSC-DynaTOGT` 是并列方法。前者保持原
-`x=[K,D]` 和 constant yaw，只检查包含每个规划 `t_i` 的机体/窗口平面相交连通分量；
-在该区间内构造完整截面多边形并检查全部截面边。当前 V1 的运动量与 SC 逆雅可比上界来自
-自适应数值估计，因此只能输出 `NUMERICALLY_VERIFIED`，不得输出 `CERTIFIED`。
+`SIP-DynaTOGT` 保持原 `x=[K,D]` 和 constant yaw，但将整机边框距离及全部动力学限制作为连续域硬约束。SLSQP 只产生局部候选；最终成功状态由 Arb 区间有限覆盖决定。旧 `CWB/WBSC/Exact-Area` 代码保留在 `废案/`，其数值验证状态不得升级为严格证书。
 
 依赖关系为：
 

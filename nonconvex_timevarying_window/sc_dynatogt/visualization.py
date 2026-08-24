@@ -557,6 +557,7 @@ def plot_route_overview(
     *,
     num_samples: int = 401,
     representative_fraction: float = 0.48,
+    method_label: str = "SC-DynaTOGT",
     dpi: int = 160,
 ) -> Path:
     """Create a low-clutter route figure with one representative quadrotor."""
@@ -612,7 +613,7 @@ def plot_route_overview(
         axis.set_xlabel("x [m]")
         axis.set_ylabel("y [m]")
         axis.set_zlabel("z [m]")
-        axis.set_title(f"SC-DynaTOGT closed-loop route · {len(track.order)} ordered gates")
+        axis.set_title(f"{method_label} closed-loop route · {len(track.order)} ordered gates")
         axis.set_facecolor("#fbfcfd")
         axis.grid(True, color="#cbd5df", alpha=0.28, linewidth=0.45)
         axis.view_init(elev=24.0, azim=-61.0)
@@ -632,6 +633,7 @@ def plot_crossing_grid(
     output_path: str | Path,
     *,
     columns: int = 3,
+    method_label: str | None = None,
     dpi: int = 160,
 ) -> Path:
     """Plot fixed-world-scale front views of all designated crossings."""
@@ -722,7 +724,8 @@ def plot_crossing_grid(
                 f"t = {crossing_times[index]:.2f} s   scale = {crossing_scales[index]:.3f}",
                 fontsize=10,
             )
-        figure.suptitle("Fixed-scale views at designated crossings", fontsize=14)
+        prefix = "" if method_label is None else f"{method_label} · "
+        figure.suptitle(f"{prefix}fixed-scale views at designated crossings", fontsize=14)
         figure.savefig(output, dpi=dpi, bbox_inches="tight")
     finally:
         plt.close(figure)
@@ -735,6 +738,7 @@ def plot_scale_profile(
     output_path: str | Path,
     *,
     num_samples: int = 501,
+    method_label: str | None = None,
     dpi: int = 160,
 ) -> Path:
     """Plot every gate scale and highlight its designated crossing."""
@@ -765,7 +769,8 @@ def plot_scale_profile(
         axis.axhline(1.0, color="#495057", linewidth=0.9, linestyle="--", alpha=0.65)
         axis.set_xlabel("global trajectory time [s]")
         axis.set_ylabel("uniform gate scale s(t)")
-        axis.set_title("Dynamic-window scale profiles and designated crossings")
+        prefix = "" if method_label is None else f"{method_label} · "
+        axis.set_title(f"{prefix}dynamic-window scale profiles and designated crossings")
         axis.grid(True, color="#dce3e8", linewidth=0.5)
         axis.legend(ncol=3, fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.16))
         figure.savefig(output, dpi=dpi, bbox_inches="tight")

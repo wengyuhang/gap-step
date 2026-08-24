@@ -120,6 +120,34 @@ class MotionProfile:
         angle = omega * float(t) + self.phase
         return 1.0 + self.scale_amplitude * math.sin(angle), self.scale_amplitude * omega * math.cos(angle)
 
+    @property
+    def minimum_scale(self) -> float:
+        """Smallest uniform scale over the complete periodic motion."""
+
+        return 1.0 if not self.scale_enabled else 1.0 - abs(float(self.scale_amplitude))
+
+    @property
+    def maximum_scale(self) -> float:
+        """Largest uniform scale over the complete periodic motion."""
+
+        return 1.0 if not self.scale_enabled else 1.0 + abs(float(self.scale_amplitude))
+
+    def local_offset_for_world_clearance(self, clearance: float) -> float:
+        """Return a time-independent local inset guaranteeing ``clearance``.
+
+        Both the physical aperture and its preprocessed safe polygon undergo
+        the same uniform scale.  A local inset ``d_local`` therefore becomes
+        ``s(t) * d_local`` in world coordinates.  Choosing
+        ``d_local = clearance / min_t s(t)`` guarantees a fixed lower bound
+        for the complete periodic motion, including times outside one
+        particular optimized flight.
+        """
+
+        value = float(clearance)
+        if not math.isfinite(value) or value <= 0.0:
+            raise ValueError("world clearance must be finite and positive")
+        return value / self.minimum_scale
+
 
 def _xy(value: object) -> np.ndarray:
     """Normalize either a complex SC value or a length-two vector."""
@@ -167,6 +195,8 @@ class SCDynamicWindow:
     angles0: np.ndarray
     motion: MotionProfile
     physical_boundary: np.ndarray | None = None
+    required_world_clearance: float | None = None
+    reference_local_clearance: float | None = None
 
     def __post_init__(self) -> None:
         self.safe_polygon = np.asarray(self.safe_polygon, dtype=float)
@@ -187,6 +217,22 @@ class SCDynamicWindow:
                 or not np.all(np.isfinite(self.physical_boundary))
             ):
                 raise ValueError("physical_boundary must be finite with shape (n, 2), n >= 3")
+        for label, value in (
+            ("required_world_clearance", self.required_world_clearance),
+            ("reference_local_clearance", self.reference_local_clearance),
+        ):
+            if value is not None and (not np.isfinite(value) or value <= 0.0):
+                raise ValueError(f"{label} must be finite and positive when supplied")
+        if (self.required_world_clearance is None) != (self.reference_local_clearance is None):
+            raise ValueError(
+                "required_world_clearance and reference_local_clearance must be supplied together"
+            )
+        if self.required_world_clearance is not None:
+            guaranteed = self.motion.minimum_scale * float(self.reference_local_clearance)
+            if guaranteed + 1.0e-12 < float(self.required_world_clearance):
+                raise ValueError(
+                    "reference local clearance does not guarantee the requested world clearance"
+                )
         if self.safe_polygon.shape != self.sc_map.vertices.shape or not np.allclose(
             self.safe_polygon, self.sc_map.vertices, rtol=0.0, atol=1.0e-12
         ):
@@ -250,6 +296,14 @@ class SCDynamicWindow:
         if self.physical_boundary is None:
             return None
         return self._boundary_at(self.physical_boundary, t)
+
+    def world_clearance_lower_bound(self, t: float) -> float | None:
+        """Return the constructed physical inset at ``t`` when metadata exists."""
+
+        if self.reference_local_clearance is None:
+            return None
+        scale, _ = self.motion.scale(float(t))
+        return float(scale * self.reference_local_clearance)
 
     def world_to_local(self, point: np.ndarray, t: float) -> tuple[np.ndarray, float]:
         center, basis, scale, *_ = self.state_at(t)

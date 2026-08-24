@@ -7,6 +7,11 @@ optimization.
 """
 
 from .environment import MotionProfile, SCDynamicWindow, SCWindowTrack
+from .collision import (
+    CuboidBody,
+    point_to_oriented_cuboid_distance_squared,
+    whole_body_clearance_residual,
+)
 from .optimizer import OptimizationConfig, OptimizationResult, optimize_track
 
 __all__ = [
@@ -14,7 +19,9 @@ __all__ = [
     "OptimizationConfig",
     "OptimizationResult",
     "SCDynamicWindow",
+    "CuboidBody",
+    "point_to_oriented_cuboid_distance_squared",
+    "whole_body_clearance_residual",
     "SCWindowTrack",
     "optimize_track",
 ]
-

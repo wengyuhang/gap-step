@@ -33,7 +33,7 @@ Line / CircularArc / Bezier / BSpline / CSV
   -> 1 mm 弦误差、1 cm 最大弦长的稠密边界
   -> Chang 累计弧长均匀采样，m = 256/512/1024/2048/3200
   -> 角点原样保留、5 mm 全局误差、3 mm 凹陷误差
-  -> Clipper2 向内偏置 0.315 m
+  -> Clipper2 向内偏置 d_local = d_world / min_t s(t)
   -> SC 圆盘预顶点离线求解、polylabel 归一化
   -> q_i = Psi_i(B(d_i))
   -> p_i = c_i(t_i) + E_i(t_i) s_i(t_i) q_i
@@ -232,7 +232,8 @@ python -m compileall -q nonconvex_timevarying_window/sc_dynatogt
 
 ```text
 boundary.py       边界类型、稠密化、Chang 均匀采样、角点和误差
-offset.py         Clipper2 0.315 m 安全偏置与拓扑检查
+offset.py         Clipper2 可配置安全偏置与拓扑检查
+collision.py      SC/SIP 共享整机长方体距离和保守外接半径
 sc_mapping.py     圆盘 SC 参数、值、导数、逆映射和持久化
 preprocessing.py  完整离线管线与 E1 边界目录
 environment.py    平移/旋转/缩放窗口及空间、时间梯度

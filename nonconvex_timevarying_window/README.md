@@ -11,9 +11,10 @@
 | [AtlasDynaTOGT](atlas_dynatogt/README.md) | 已实现 | 将非凸窗口三角剖分为 chart atlas，联合优化穿越时间和穿越点 |
 | [SC-DynaTOGT](sc_dynatogt/README.md) | 已实现，default 实验完成 | Chang 仅做边界均匀采样，SC 圆盘映射负责内部点，接入原 TOGT/MINCO 联合优化；支持真实物理门框、分类结果目录、中文结果主页和可选 EGL/OpenGL 离线渲染，记录见 [TEST_RESULTS.md](sc_dynatogt/TEST_RESULTS.md) |
 | [MSR-DynaTOGT](msr_dynatogt/README.md) | 已实现，smoke/formal 完成 | 在 SC-DynaTOGT 外增加可复现多初值候选池、高密度采样动力学检查、uniform/local 时间修复、二分缩放和联合再优化；可行性优先于总时间，记录见 [TEST_RESULTS.md](msr_dynatogt/TEST_RESULTS.md) |
-| [WBSC-DynaTOGT](wb_sc_dynatogt/README.md) | 已实现 | 保留原 MINCO 和动力学软罚，联合优化 `[K,D,Y]`；每次迭代由当前轨迹恢复 roll/pitch/yaw 并施加姿态长方体穿窗约束，记录见 [TEST_RESULTS.md](wb_sc_dynatogt/TEST_RESULTS.md) |
-| [CWB-SC-DynaTOGT](cwb_sc_dynatogt/README.md) | V1 已实现 | 保持 `[K,D]` 和 constant yaw；在包含规划 `t_i` 的完整相交区间内验证姿态长方体的全部平面截面边，并用活动 witness 温启动修复；当前仅称数值验证，不称严格证书 |
-| [Exact-Area Whole-Body SC-DynaTOGT](exact_area_sc_dynatogt/README.md) | 实验 B 已完成 | 使用固定世界 0.315 m 名义裕度，精确计算姿态长方体截面与动态非凸窗口的多连通交集面积；当前展示名义中心穿越安全、但完整动态相交区间提前碰撞的反例，A/C/D/E/F 仅保留协议位置 |
+| [SIP-DynaTOGT](sip_dynatogt/README.md) | 已实现 | 保留 `[K,D]` 与 MINCO，使用 SLSQP 活动 witness 和 Arb 区间细分求解整机半无限安全问题；只有完整连续域覆盖通过才返回 `CERTIFIED_FEASIBLE` |
+| [WBSC-DynaTOGT](废案/wb_sc_dynatogt/README.md) | 废案保留 | 联合优化 `[K,D,Y]` 的旧姿态长方体方案；不提供连续时间证书 |
+| [CWB-SC-DynaTOGT](废案/cwb_sc_dynatogt/README.md) | 废案保留 | 自适应数值截面验证；只能返回 `NUMERICALLY_VERIFIED`，不得称严格证书 |
+| [Exact-Area Whole-Body SC-DynaTOGT](废案/cwb_sc_dynatogt/exact_area_sc_dynatogt/README.md) | 废案反例保留 | 保留「名义中心安全但整机提前碰撞」的 Experiment B，作为新方法回归反例 |
 
 ## 目录结构
 
@@ -24,13 +25,18 @@ nonconvex_timevarying_window/
   atlas_dynatogt/           AtlasDynaTOGT 方法的完整实现
   sc_dynatogt/              Schwarz–Christoffel DynaTOGT 方法的完整实现
   msr_dynatogt/             Multi-Start and Repair DynaTOGT 的完整实现
-  wb_sc_dynatogt/           姿态感知全机体 SC-DynaTOGT 的完整实现
-  cwb_sc_dynatogt/          constant-yaw 连续截面整机安全方法（V1）
-  exact_area_sc_dynatogt/   精确交集面积整机安全方法（当前实验 B）
+  sip_dynatogt/             半无限约束生成 + Arb 连续域认证
+  comparisons/              不同方法的同场景压力对比与独立可视化
+  废案/                      旧整机数值验证与反例方案
   <algorithm_name>/        后续新增的其他方法
 ```
 
 每种方法都在以算法名称命名的独立子目录中维护，该目录内放置算法说明、源码、测试、图解和实验结果。
+
+SC/SIP 六窗口宽域压力对比见
+[`comparisons/sc_sip_fast_closed_loop/`](comparisons/sc_sip_fast_closed_loop/README.md)。该场景使用
+`27 x 26 x 10 m` 空间跨度、乱序穿越、快速平移/完整 RPY 旋转/大幅缩放以及直线、圆弧、
+Bézier 和 B-spline 边界。最终结果中 SC 整机碰撞且动力学越界，SIP 通过连续时间整机与动力学认证。
 
 SC-DynaTOGT 的可视化分为三层：预处理诊断图用于检查真实边界、内缩安全区和 SC 网格；Matplotlib 场景图只显示真实门框和四旋翼；可选 OpenGL 渲染器输出实体环境、追踪相机和 MP4。OpenGL 输出是已求解轨迹的离线渲染，不是 AirSim 动力学或传感器仿真。
 
