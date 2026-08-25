@@ -94,6 +94,46 @@ def _witness(problem: SIPProblem, trajectory: PolynomialTrajectory, config: SIPC
     return None
 
 
+def _coarse_witness(problem: SIPProblem, trajectory: PolynomialTrajectory, config: SIPConfig) -> IntersectionWitness | None:
+    """Quickly prove a strict interior point before adaptive subdivision.
+
+    Each trial is still an Arb point interval, so a returned witness is a
+    proof for the stored binary64 model rather than a plotting sample.
+    """
+    nodes = (0.0, 0.5, 1.0)
+    flat_cache: dict[tuple[int, float], Any] = {}
+    state_cache: dict[tuple[int, float, int], tuple[list[Any], list[list[Any]], Any]] = {}
+    for segment in range(trajectory.num_segments):
+        for window_index, window in enumerate(problem.windows):
+            for boundary_index, boundary in enumerate(window.boundary):
+                for lo, hi in boundary_parameter_spans(boundary):
+                    for tau_value in nodes:
+                        for fraction in nodes:
+                            u_value = lo + (hi - lo) * fraction
+                            cell = _Cell(window_index, boundary_index, segment, tau_value, tau_value, u_value, u_value)
+                            try:
+                                tau, u = interval_ball(tau_value, tau_value), interval_ball(u_value, u_value)
+                                flat_key = (segment, tau_value)
+                                if flat_key not in flat_cache:
+                                    flat_cache[flat_key] = flatness_interval(trajectory, segment, tau, config)
+                                flat = flat_cache[flat_key]
+                                state_key = (segment, tau_value, window_index)
+                                if state_key not in state_cache:
+                                    state_cache[state_key] = window_state_interval(window, global_time_interval(trajectory, segment, tau))
+                                center, rotation, scale = state_cache[state_key]
+                                q = boundary_interval(boundary, u)
+                                y = iv_add(center, iv_matvec(rotation, [scale * q[0], scale * q[1], interval_ball(0.0, 0.0)]))
+                                z = iv_matvec(iv_transpose(flat.rotation), [y[i] - flat.position[i] for i in range(3)])
+                                signed = [abs(z[i]) - interval_ball(float(config.body.half_extents[i]), float(config.body.half_extents[i])) for i in range(3)]
+                            except FlatnessIndeterminate:
+                                continue
+                            if all(item < 0 for item in signed):
+                                witness = _witness(problem, trajectory, config, cell)
+                                if witness is not None:
+                                    return witness
+    return None
+
+
 def certify_physical_intersection(problem: SIPProblem, value: Any, config: SIPConfig) -> IntersectionResult:
     """Classify strict frame/cuboid intersection on original continuous curves."""
     try:
@@ -108,6 +148,7 @@ def certify_physical_intersection(problem: SIPProblem, value: Any, config: SIPCo
         old_precision = int(ctx.prec)
         ctx.prec = int(bits)
         checked = depth = 0
+        unresolved_reason: str | None = None
         stack = [
             _Cell(wi, bi, si, 0.0, 1.0, lo, hi)
             for si in reversed(range(trajectory.num_segments))
@@ -116,9 +157,12 @@ def certify_physical_intersection(problem: SIPProblem, value: Any, config: SIPCo
             for lo, hi in reversed(boundary_parameter_spans(boundary))
         ]
         try:
+            witness = _coarse_witness(problem, trajectory, config)
+            if witness is not None:
+                return IntersectionResult(IntersectionStatus.PHYSICAL_INTERSECTION_CONFIRMED, "an Arb-checked original-boundary point is strictly inside the oriented cuboid", int(bits), checked, depth, witness)
             while stack:
                 if checked >= config.max_cells:
-                    last = IntersectionResult(IntersectionStatus.INTERSECTION_UNRESOLVED, "intersection cell budget exhausted", int(bits), checked, depth)
+                    unresolved_reason = unresolved_reason or "intersection cell budget exhausted"
                     break
                 cell = stack.pop()
                 checked += 1
@@ -141,15 +185,20 @@ def certify_physical_intersection(problem: SIPProblem, value: Any, config: SIPCo
                         return IntersectionResult(IntersectionStatus.PHYSICAL_INTERSECTION_CONFIRMED, "an original boundary cell is strictly inside the oriented cuboid", int(bits), checked, depth, witness)
                 if signed is not None and any(item > 0 for item in signed):
                     continue
-                witness = _witness(problem, trajectory, config, cell)
-                if witness is not None:
-                    return IntersectionResult(IntersectionStatus.PHYSICAL_INTERSECTION_CONFIRMED, "direct original-primitive witness is strictly inside the oriented cuboid", int(bits), checked, depth, witness)
+                # Do not evaluate a floating midpoint for every undecidable
+                # cell: strict interior is open, hence continued subdivision
+                # will eventually produce a cell whose interval upper bounds
+                # are all negative.  Direct evaluation is only used then to
+                # serialize the proved witness.
                 if cell.depth >= config.max_depth or ((cell.thi - cell.tlo) <= config.min_time_width and (cell.uhi - cell.ulo) <= config.min_boundary_width):
-                    last = IntersectionResult(IntersectionStatus.INTERSECTION_UNRESOLVED, "intersection sign remains undecidable at subdivision limit", int(bits), checked, depth)
-                    break
+                    unresolved_reason = unresolved_reason or "intersection sign remains undecidable at subdivision limit"
+                    continue
                 stack.extend(reversed(_split(cell)))
             else:
-                return IntersectionResult(IntersectionStatus.NO_INTERSECTION_CERTIFIED, "every original boundary cell is strictly exterior to the oriented cuboid", int(bits), checked, depth)
+                if unresolved_reason is None:
+                    return IntersectionResult(IntersectionStatus.NO_INTERSECTION_CERTIFIED, "every original boundary cell is strictly exterior to the oriented cuboid", int(bits), checked, depth)
+            if unresolved_reason is not None:
+                last = IntersectionResult(IntersectionStatus.INTERSECTION_UNRESOLVED, unresolved_reason, int(bits), checked, depth)
         except Exception as error:
             last = IntersectionResult(IntersectionStatus.NUMERICAL_FAILURE, f"intersection interval evaluation failed: {type(error).__name__}: {error}", int(bits), checked, depth)
         finally:
@@ -161,4 +210,3 @@ def certify_physical_intersection(problem: SIPProblem, value: Any, config: SIPCo
 
 
 __all__ = ["IntersectionResult", "IntersectionStatus", "IntersectionWitness", "certify_physical_intersection"]
-
