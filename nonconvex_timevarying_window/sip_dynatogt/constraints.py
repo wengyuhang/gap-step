@@ -7,7 +7,10 @@ from typing import Iterable
 import numpy as np
 
 from nonconvex_timevarying_window.sc_dynatogt.dynamics import flatness_map
-from nonconvex_timevarying_window.sc_dynatogt.collision import whole_body_clearance_residual
+from nonconvex_timevarying_window.sc_dynatogt.collision import (
+    point_to_oriented_cuboid_signed_distance,
+    whole_body_clearance_residual,
+)
 from .model import PolynomialTrajectory, SIPConfig, SIPProblem, Witness
 
 
@@ -172,21 +175,30 @@ def witness_constraint_values(problem: SIPProblem, trajectory: PolynomialTraject
             if w.kind == "safety":
                 if w.window_index is None or w.boundary_segment is None or w.boundary_parameter is None:
                     raise ValueError("incomplete safety witness")
-                scale=max(config.planning_clearance**2,1e-4)
+                scale=max(config.planning_clearance,1e-2)
                 instant = global_time(trajectory, *key)
                 state_key = (w.window_index, w.trajectory_segment, w.normalized_time)
                 if state_key not in window_cache:
                     window_cache[state_key] = problem.windows[w.window_index].state_at(instant)
-                residual = _safety_residual_from_components(
-                    problem.windows[w.window_index],
-                    w.boundary_segment,
-                    w.boundary_parameter,
-                    flat_cache[key],
-                    window_cache[state_key],
-                    config,
-                    planning=True,
+                center, rotation, window_scale = window_cache[state_key]
+                q = np.asarray(
+                    problem.windows[w.window_index].boundary[w.boundary_segment].evaluate(
+                        w.boundary_parameter
+                    )
                 )
-                values.append(-residual/scale)
+                point = center + rotation @ np.array([window_scale * q[0], window_scale * q[1], 0.0])
+                # Do not optimize the squared unsigned clearance residual here:
+                # it is constant while a boundary point is inside the cuboid,
+                # giving SLSQP a violated constraint with zero finite-difference
+                # gradient.  The signed distance has the same feasible set but
+                # supplies an escape direction from an actual penetration.
+                signed_distance = point_to_oriented_cuboid_signed_distance(
+                    point,
+                    flat_cache[key].position,
+                    flat_cache[key].rotation,
+                    config.body,
+                )
+                values.append((signed_distance-config.planning_clearance)/scale)
                 continue
             if key not in residual_cache:
                 residual_cache[key] = _dynamic_residuals_from_flatness(

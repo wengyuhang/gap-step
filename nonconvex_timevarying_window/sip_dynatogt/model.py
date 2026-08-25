@@ -47,6 +47,9 @@ class SIPConfig:
     max_witnesses_per_iteration: int = 8
     slsqp_max_iterations: int = 250
     slsqp_ftol: float = 1e-9
+    feasibility_max_iterations: int = 960
+    feasibility_tolerance: float = 1e-7
+    feasibility_time_scales: tuple[float, ...] = (1.0, 1.15, 1.35, 1.60)
     precision_bits: tuple[int, ...] = (128, 256)
     max_cells: int = 200_000
     max_depth: int = 24
@@ -57,7 +60,7 @@ class SIPConfig:
     def __post_init__(self) -> None:
         positives = (
             self.clearance, self.flatness_floor, self.initial_speed,
-            self.minimum_initial_duration, self.slsqp_ftol,
+            self.minimum_initial_duration, self.slsqp_ftol, self.feasibility_tolerance,
             self.min_time_width, self.min_boundary_width,
         )
         if any(not np.isfinite(v) or v <= 0 for v in positives):
@@ -76,12 +79,14 @@ class SIPConfig:
             raise ValueError("precision_bits must be >= 64")
         budgets = (
             self.max_exchange_iterations, self.max_witnesses_per_iteration,
-            self.slsqp_max_iterations, self.max_cells, self.max_depth,
+            self.slsqp_max_iterations, self.feasibility_max_iterations, self.max_cells, self.max_depth,
         )
         if any(v < 1 for v in budgets):
             raise ValueError("all iteration and subdivision budgets must be positive")
         if self.violation_tolerance < 0 or not np.isfinite(self.violation_tolerance):
             raise ValueError("violation_tolerance must be finite and nonnegative")
+        if not self.feasibility_time_scales or any(not np.isfinite(v) or v < 1.0 for v in self.feasibility_time_scales):
+            raise ValueError("feasibility_time_scales must be finite and at least one")
 
     @property
     def planning_clearance(self) -> float:
@@ -112,6 +117,9 @@ class SIPConfig:
             "max_witnesses_per_iteration": self.max_witnesses_per_iteration,
             "slsqp_max_iterations": self.slsqp_max_iterations,
             "slsqp_ftol": self.slsqp_ftol,
+            "feasibility_max_iterations": self.feasibility_max_iterations,
+            "feasibility_tolerance": self.feasibility_tolerance,
+            "feasibility_time_scales": list(self.feasibility_time_scales),
             "precision_bits": list(self.precision_bits),
             "max_cells": self.max_cells,
             "max_depth": self.max_depth,

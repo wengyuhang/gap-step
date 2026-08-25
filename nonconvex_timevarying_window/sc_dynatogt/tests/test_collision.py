@@ -4,6 +4,7 @@ import pytest
 from nonconvex_timevarying_window.sc_dynatogt.collision import (
     CuboidBody,
     point_to_oriented_cuboid_distance_squared,
+    point_to_oriented_cuboid_signed_distance,
     whole_body_clearance_residual,
 )
 
@@ -29,3 +30,14 @@ def test_sc_conservative_inset_contains_same_cuboid_for_every_attitude():
     # A frame point at this centre distance is at least ``clearance`` from the
     # cuboid for every attitude by the enclosing-sphere argument.
     assert required > 0.315
+
+
+def test_signed_distance_has_an_interior_escape_gradient():
+    body = CuboidBody((1.0, 1.0, 0.5))
+    point = np.array([0.1, 0.2, 0.45])
+    signed = point_to_oriented_cuboid_signed_distance(point, np.zeros(3), np.eye(3), body)
+    assert signed == pytest.approx(-0.05)
+    # Moving toward the nearest (+z) face changes the finite NLP constraint;
+    # the old squared unsigned distance remained exactly zero on both points.
+    moved = point_to_oriented_cuboid_signed_distance(point + np.array([0.0, 0.0, 1e-4]), np.zeros(3), np.eye(3), body)
+    assert (moved - signed) / 1e-4 == pytest.approx(1.0)

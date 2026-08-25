@@ -79,6 +79,42 @@ def point_to_oriented_cuboid_distance_squared(
     return np.asarray(squared, dtype=float)
 
 
+def point_to_oriented_cuboid_signed_distance(
+    points: ArrayLike,
+    center: ArrayLike,
+    rotation: ArrayLike,
+    body: CuboidBody,
+) -> float | FloatArray:
+    """Return the signed Euclidean distance to an oriented cuboid.
+
+    Values are positive outside, zero on the surface, and negative inside.
+    Unlike the ordinary distance-to-solid function, the interior branch has a
+    nonzero directional derivative away from every non-medial interior point.
+    It is therefore suitable for a finite NLP constraint of the form
+    ``signed_distance >= clearance``.  The rigorous certificate deliberately
+    continues to use the squared unsigned distance representation.
+    """
+
+    values = np.asarray(points, dtype=float)
+    origin = np.asarray(center, dtype=float)
+    attitude = np.asarray(rotation, dtype=float)
+    if values.shape[-1:] != (3,):
+        raise ValueError("points must have trailing dimension 3")
+    if origin.shape != (3,) or attitude.shape != (3, 3):
+        raise ValueError("center and rotation must have shapes (3,) and (3,3)")
+    if not np.all(np.isfinite(values)) or not np.all(np.isfinite(origin)) or not np.all(np.isfinite(attitude)):
+        raise ValueError("cuboid distance inputs must be finite")
+    local = np.einsum("ij,...j->...i", attitude.T, values - origin)
+    face_margin = np.asarray(body.half_extents) - np.abs(local)
+    excess = np.maximum(-face_margin, 0.0)
+    outside = np.linalg.norm(excess, axis=-1)
+    inside = -np.min(face_margin, axis=-1)
+    signed = np.where(np.any(excess > 0.0, axis=-1), outside, inside)
+    if np.ndim(signed) == 0:
+        return float(signed)
+    return np.asarray(signed, dtype=float)
+
+
 def whole_body_clearance_residual(
     points: ArrayLike,
     center: ArrayLike,
@@ -102,5 +138,6 @@ def whole_body_clearance_residual(
 __all__ = [
     "CuboidBody",
     "point_to_oriented_cuboid_distance_squared",
+    "point_to_oriented_cuboid_signed_distance",
     "whole_body_clearance_residual",
 ]
