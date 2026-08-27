@@ -1,0 +1,34 @@
+environment:
+  run_directory: nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/results/wide_scrambled_certified_final/sip_dynatogt/run
+  dt: 0.05
+  max_steps: 390
+  max_acceleration: 32.0
+  shield_horizon_steps: 1
+  shield_substeps: 10
+  boundary_samples: 101
+  numerical_guard: 0.001
+  plane_event_tolerance: 0.018
+  goal_tolerance: 0.55
+  reference_phase_guard: 0.02
+  tracking_tube_radius: 0.03
+  velocity_tube_radius: 0.03
+  frame_recovery_radius: 9.0
+ppo:
+  seed: 17
+  device: auto
+  num_envs: 4
+  rollout_steps: 96
+  updates: 2
+  learning_rate: 0.0007
+  gamma: 0.995
+  gae_lambda: 0.95
+  clip_ratio: 0.20
+  entropy_coef: 0.008
+  value_coef: 0.5
+  max_grad_norm: 0.7
+  update_epochs: 4
+  minibatch_size: 192
+  target_kl: 0.025
+  hidden_size: 128
+  eval_interval: 2
+  eval_episodes: 1

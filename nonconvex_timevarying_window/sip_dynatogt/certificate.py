@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 import numpy as np
 
 from .constraints import dynamic_residual_values, point_singularity_residual_values, safety_residual_value
@@ -102,7 +102,13 @@ def _split_safety(cell:_SafetyCell,*,force_time:bool=False)->tuple[_SafetyCell,_
     mid=(cell.ulo+cell.uhi)/2; return _SafetyCell(cell.window,cell.boundary,cell.segment,cell.tlo,cell.thi,cell.ulo,mid,cell.depth+1),_SafetyCell(cell.window,cell.boundary,cell.segment,cell.tlo,cell.thi,mid,cell.uhi,cell.depth+1)
 
 
-def _at_precision(problem:SIPProblem,traj:PolynomialTrajectory,config:SIPConfig,bits:int)->CertificateResult:
+SafetySpanProvider = Callable[
+    [SIPProblem, PolynomialTrajectory, SIPConfig, int],
+    tuple[dict[tuple[int, int], tuple[tuple[float, float], ...]], int, int, str | None],
+]
+
+
+def _at_precision(problem:SIPProblem,traj:PolynomialTrajectory,config:SIPConfig,bits:int,safety_span_provider:SafetySpanProvider|None=None)->CertificateResult:
     old=int(ctx.prec); ctx.prec=bits; c=_Counters(); unresolved_reason=None
     violations=[]; violation_keys=set(); violation_reason=None
     def record_violation(witness:Witness,reason:str)->bool:
@@ -154,11 +160,19 @@ def _at_precision(problem:SIPProblem,traj:PolynomialTrajectory,config:SIPConfig,
                 stack.extend(reversed(_split_dynamic(cell)))
 
         safety=[]
+        if safety_span_provider is None:
+            safety_spans={(segment,wi):((0.0,1.0),) for segment in range(traj.num_segments) for wi in range(len(problem.windows))}
+        else:
+            safety_spans,plane_checked,plane_depth,plane_error=safety_span_provider(problem,traj,config,max(0,config.max_cells-c.checked))
+            c.checked+=plane_checked; c.depth=max(c.depth,plane_depth)
+            if plane_error is not None:
+                return _result(CertificateStatus.UNRESOLVED,plane_error,bits,c)
         for segment in reversed(range(traj.num_segments)):
             for wi in reversed(range(len(problem.windows))):
                 window=problem.windows[wi]
                 for bi in reversed(range(len(window.boundary))):
-                    for lo,hi in reversed(boundary_parameter_spans(window.boundary[bi])): safety.append(_SafetyCell(wi,bi,segment,0,1,lo,hi))
+                    for tlo,thi in reversed(safety_spans.get((segment,wi),())):
+                        for lo,hi in reversed(boundary_parameter_spans(window.boundary[bi])): safety.append(_SafetyCell(wi,bi,segment,tlo,thi,lo,hi))
         safety_flat_cache={}
         safety_window_cache={}
         while safety:
@@ -207,7 +221,7 @@ def _at_precision(problem:SIPProblem,traj:PolynomialTrajectory,config:SIPConfig,
     finally: ctx.prec=old
 
 
-def certify(problem:SIPProblem,trajectory:Any,config:SIPConfig|None=None)->CertificateResult:
+def certify(problem:SIPProblem,trajectory:Any,config:SIPConfig|None=None,*,_safety_span_provider:SafetySpanProvider|None=None)->CertificateResult:
     settings=config or SIPConfig()
     try:
         require_flint(); traj=_trajectory(trajectory)
@@ -218,7 +232,7 @@ def certify(problem:SIPProblem,trajectory:Any,config:SIPConfig|None=None)->Certi
     if coarse: return CertificateResult(CertificateStatus.VIOLATED,"finite points expose violations; no safety claim is made",0,0,0,None,None,coarse)
     last=None
     for bits in settings.precision_bits:
-        try: last=_at_precision(problem,traj,settings,int(bits))
+        try: last=_at_precision(problem,traj,settings,int(bits),_safety_span_provider)
         except Exception as error: last=CertificateResult(CertificateStatus.NUMERICAL_FAILURE,f"interval evaluation failed closed: {type(error).__name__}: {error}",int(bits),0,0,None,None)
         if last.status in (CertificateStatus.CERTIFIED_FEASIBLE,CertificateStatus.VIOLATED): return last
     assert last is not None; return last

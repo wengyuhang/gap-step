@@ -65,6 +65,9 @@ def _rotation(roll:Any,pitch:Any,yaw:Any)->list[list[Any]]:
 
 
 def window_state_interval(window:SIPWindow,time:Any)->tuple[list[Any],list[list[Any]],Any]:
+    custom = getattr(window, "state_interval", None)
+    if custom is not None:
+        return custom(time)
     m=window.motion; two_pi=exact_ball(2)*arb.pi(); translation=[]; delta=[]
     for i,phase in enumerate((0.0,0.7,1.4)):
         angle=two_pi/exact_ball(m.translation_period)*time+exact_ball(m.phase)+exact_ball(phase)

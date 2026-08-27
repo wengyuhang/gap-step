@@ -1,0 +1,12 @@
+environment:
+  dt: 0.10
+  max_steps: 105
+  gate_count: 3
+  motion_scale: 1.15
+  domain_randomization: 0.30
+shield:
+  backup_horizon_steps: 36
+ppo:
+  seed: 7
+  device: auto
+  hidden_size: 96

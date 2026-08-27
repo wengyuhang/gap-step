@@ -103,12 +103,14 @@ def solve(
     active_witnesses:Iterable[Witness]|None=None,
     certify_initial:bool=True,
     progress:Callable[[ExchangeRecord],None]|None=None,
+    _certifier:Callable[[SIPProblem,PolynomialTrajectory,SIPConfig],CertificateResult]=certify,
+    _initial_witness_provider:Callable[[SIPProblem,int,SIPConfig],tuple[Witness,...]]=initial_witnesses,
 )->SIPResult:
     settings=config or SIPConfig(); objective=_objective(problem,settings); start=objective.initial_guess() if initial_x is None else np.asarray(initial_x,dtype=float); objective.split(start)
-    final_forward=objective.forward(start); final_traj=PolynomialTrajectory.from_minco(final_forward.trajectory); active=list(initial_witnesses(problem,final_traj.num_segments,settings)); history=[]; final_opt:OptimizeResult|None=None; report:CertificateResult|None=None; iterations=0
+    final_forward=objective.forward(start); final_traj=PolynomialTrajectory.from_minco(final_forward.trajectory); active=list(_initial_witness_provider(problem,final_traj.num_segments,settings)); history=[]; final_opt:OptimizeResult|None=None; report:CertificateResult|None=None; iterations=0
     if active_witnesses is not None: _add(active,tuple(active_witnesses))
     initial_report=(
-        certify(problem,final_traj,settings)
+        _certifier(problem,final_traj,settings)
         if certify_initial
         else CertificateResult(
             CertificateStatus.VIOLATED,
@@ -127,7 +129,7 @@ def solve(
             report=CertificateResult(CertificateStatus.NUMERICAL_FAILURE,f"SLSQP failed closed: {type(error).__name__}: {error}",0,0,0,None,None); record=ExchangeRecord(outer,False,float(np.sum(final_forward.durations)),len(active),report.status,0); history.append(record)
             if progress is not None: progress(record)
             break
-        report=certify(problem,final_traj,settings); record=ExchangeRecord(outer,bool(final_opt.success),final_traj.total_time,len(active),report.status,report.checked_cells); history.append(record)
+        report=_certifier(problem,final_traj,settings); record=ExchangeRecord(outer,bool(final_opt.success),final_traj.total_time,len(active),report.status,report.checked_cells); history.append(record)
         if progress is not None: progress(record)
         if bool(final_opt.success) and np.isfinite(final_traj.total_time):
             recovery=(np.asarray(start).copy(),final_forward,final_traj,report,True)
@@ -161,7 +163,7 @@ def solve(
         start,final_forward,final_traj,report,selected_optimizer_success=incumbent
     elif report.status is not CertificateStatus.CERTIFIED_FEASIBLE and not selected_optimizer_success:
         start,final_forward,final_traj,_,selected_optimizer_success=recovery
-        report=certify(problem,final_traj,settings)
+        report=_certifier(problem,final_traj,settings)
     messages={CertificateStatus.CERTIFIED_FEASIBLE:("best certified incumbent retained instead of the final local SLSQP candidate" if retained_incumbent else "locally optimized candidate passed the complete interval certificate"),CertificateStatus.VIOLATED:"no certified candidate: final candidate violates a hard constraint",CertificateStatus.UNRESOLVED:"no certified candidate: interval budget was insufficient",CertificateStatus.NUMERICAL_FAILURE:report.reason}
     return SIPResult(report.status,messages[report.status],np.asarray(start),final_traj,np.asarray(final_forward.durations),np.asarray(final_forward.traversal_times),np.asarray(final_forward.waypoints),report,tuple(history),selected_optimizer_success,iterations,tuple(active))
 

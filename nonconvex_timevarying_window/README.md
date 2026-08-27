@@ -12,6 +12,8 @@
 | [SC-DynaTOGT](sc_dynatogt/README.md) | 已实现，default 实验完成 | Chang 仅做边界均匀采样，SC 圆盘映射负责内部点，接入原 TOGT/MINCO 联合优化；支持真实物理门框、分类结果目录、中文结果主页和可选 EGL/OpenGL 离线渲染，记录见 [TEST_RESULTS.md](sc_dynatogt/TEST_RESULTS.md) |
 | [MSR-DynaTOGT](msr_dynatogt/README.md) | 已实现，smoke/formal 完成 | 在 SC-DynaTOGT 外增加可复现多初值候选池、高密度采样动力学检查、uniform/local 时间修复、二分缩放和联合再优化；可行性优先于总时间，记录见 [TEST_RESULTS.md](msr_dynatogt/TEST_RESULTS.md) |
 | [SIP-DynaTOGT](sip_dynatogt/README.md) | 已实现 | 保留 `[K,D]` 与 MINCO，使用 SLSQP 活动 witness 和 Arb 区间细分求解整机半无限安全问题；只有完整连续域覆盖通过才返回 `CERTIFIED_FEASIBLE` |
+| [Planar-RS-DynaTOGT](planar_rs_dynatogt/README.md) | 原型已实现 | 针对固定中心/固定平面、仅面内旋转与统一缩放；先用整机到平面的 Arb 支撑界排除时间段，再认证剩余原始曲线 |
+| [AVS-PPO](avs_ppo/README.md) | 已实现，正式训练与 ID/OOD 安全审计完成 | Action-masked Viability-Shielded PPO；以真实非凸动态门交点和门前制动备份 rollout 构造安全动作支持集；独立 400 回合 100% 完赛、0 违规 |
 | [WBSC-DynaTOGT](废案/wb_sc_dynatogt/README.md) | 废案保留 | 联合优化 `[K,D,Y]` 的旧姿态长方体方案；不提供连续时间证书 |
 | [CWB-SC-DynaTOGT](废案/cwb_sc_dynatogt/README.md) | 废案保留 | 自适应数值截面验证；只能返回 `NUMERICALLY_VERIFIED`，不得称严格证书 |
 | [Exact-Area Whole-Body SC-DynaTOGT](废案/cwb_sc_dynatogt/exact_area_sc_dynatogt/README.md) | 废案反例保留 | 保留「名义中心安全但整机提前碰撞」的 Experiment B，作为新方法回归反例 |
@@ -26,6 +28,8 @@ nonconvex_timevarying_window/
   sc_dynatogt/              Schwarz–Christoffel DynaTOGT 方法的完整实现
   msr_dynatogt/             Multi-Start and Repair DynaTOGT 的完整实现
   sip_dynatogt/             半无限约束生成 + Arb 连续域认证
+  planar_rs_dynatogt/       固定平面旋转/缩放的平面排除 + 原始曲线认证
+  avs_ppo/                  安全动作掩码 + 可恢复性盾牌 + PPO 闭环竞速
   comparisons/              不同方法的同场景压力对比与独立可视化
   废案/                      旧整机数值验证与反例方案
   <algorithm_name>/        后续新增的其他方法

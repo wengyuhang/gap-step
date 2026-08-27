@@ -134,6 +134,12 @@ nonconvex_timevarying_window/
     certificate.py              连续时间×边界参数分支定界
     solver.py                   [K,D] SLSQP—分离—witness 回填循环
     io.py, verify.py, tests/     可重放证书和反例/端到端测试
+  avs_ppo/
+    geometry.py                  动态简单非凸多边形、精确恒加速度门平面交点
+    environment.py               三维平移动力学、顺序穿越和可恢复动作盾牌
+    model.py, ppo.py              masked categorical actor-critic 与显式旧策略 PPO
+    train.py, evaluate.py         正式训练、独立 ID/OOD 安全审计
+    configs/, tests/              可复现配置和几何/盾牌/PPO 回归测试
   废案/cwb_sc_dynatogt/        旧整机数值验证和 Exact-Area 反例
 ```
 

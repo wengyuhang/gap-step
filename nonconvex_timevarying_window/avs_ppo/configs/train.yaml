@@ -1,0 +1,19 @@
+environment:
+  dt: 0.10
+  max_steps: 105
+  gate_count: 3
+  motion_scale: 1.0
+  domain_randomization: 0.12
+shield:
+  backup_horizon_steps: 36
+ppo:
+  seed: 7
+  device: auto
+  num_envs: 8
+  rollout_steps: 128
+  updates: 60
+  learning_rate: 0.0007
+  update_epochs: 4
+  minibatch_size: 256
+  eval_interval: 10
+  eval_episodes: 40

@@ -17,6 +17,7 @@ nonconvex_timevarying_window/atlas_dynatogt/
 nonconvex_timevarying_window/sc_dynatogt/
 nonconvex_timevarying_window/msr_dynatogt/
 nonconvex_timevarying_window/sip_dynatogt/
+nonconvex_timevarying_window/avs_ppo/
 
 closed_loop_deformable_window/PROBLEM_DEFINITION.md
 closed_loop_deformable_window/fapp_ppo/
@@ -199,6 +200,11 @@ pending acceptance.
 `nonconvex_timevarying_window/` 是一个独立的非凸时变窗口研究总目录，不属于 `gap_step/` PPO 主线，也不替代已有的凸窗口 `togt_timevarying_window/` 子项目。
 
 研究目标是在论文 *Time-Optimal Gate-Traversing Planner for Autonomous Drone Racing*（`arXiv:2309.06837v3`）的 TOGT 问题上，将原有静态凸窗口扩展为非凸且随时间平移、旋转和缩放的窗口。
+
+AVS-PPO 是该总目录下独立的闭环安全强化学习基线。它用状态依赖的可恢复动作掩码限制 PPO 的实际采样支持集，并对恒加速度轨迹与真实动态非凸多边形做精确穿越时刻检查。2026-08-25 的 seed-7 三窗球形模型训练从 0% 收敛到 100%；best checkpoint 在 200 个未见 ID 和 200 个增强运动 OOD 回合中均 100% 完赛、0 安全违规。
+
+AVS-PPO 后续已接入 comparisons 的 `wide_scrambled_fast_closed_loop_6` 原始六窗赛道与
+`(0.26504, 0.26504, 0.05890) m` 姿态长方体。严格盾版用 `16.15 s` 完成闭环，局部细化最小净距离为 `20.5539 mm > 15 mm`。但平均可行动作比例只有 `0.08764`，masked entropy 为零；这是安全盾几乎完全接管的负结果，不是 PPO 学习成功的证据。两项 AVS 结论都不是六自由度真机认证。
 
 当前通用问题范围：
 

@@ -1,0 +1,15 @@
+environment:
+  max_steps: 105
+  gate_count: 3
+  domain_randomization: 0.08
+shield:
+  backup_horizon_steps: 36
+ppo:
+  device: cpu
+  num_envs: 2
+  rollout_steps: 32
+  updates: 2
+  update_epochs: 2
+  minibatch_size: 64
+  eval_interval: 1
+  eval_episodes: 4

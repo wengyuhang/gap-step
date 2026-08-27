@@ -49,6 +49,17 @@ python -m nonconvex_timevarying_window.sip_dynatogt.verify \
   --run nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/results/wide_scrambled_certified_final/sip_dynatogt/run
 ```
 
+按原长方体整机模型重放并导出可视化：
+
+```bash
+python -m nonconvex_timevarying_window.comparisons.sc_sip_fast_closed_loop.cuboid_replay \
+  --run nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/results/wide_scrambled_certified_final/sip_dynatogt/run \
+  --outdir nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/results/wide_scrambled_certified_final/cuboid_replay
+```
+
+输出包含三维全赛道、六次穿窗时的实际机体—窗口平面截面、全局最紧净距离事件和动画。
+距离曲线只用于定位最紧事件；安全结论仍以上述 128-bit Arb 连续域证书为准。
+
 修订后的最终结论：SC 首先被连续域检查确认违反 15 mm 净距；随后的独立
 点—长方体审计进一步找到了原始 Bezier 边界严格位于机体内部的实体相交点。
 将 400 次截停的 SC 候选继续优化至收敛后，实体相交仍然存在，且旋翼推力越界。
