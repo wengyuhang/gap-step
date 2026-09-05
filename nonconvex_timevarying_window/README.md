@@ -15,6 +15,7 @@
 | [SIP-DynaTOGT](sip_dynatogt/README.md) | 已实现 | 保留 `[K,D]` 与 MINCO，使用 SLSQP 活动 witness 和 Arb 区间细分求解整机半无限安全问题；只有完整连续域覆盖通过才返回 `CERTIFIED_FEASIBLE` |
 | [Planar-RS-DynaTOGT](planar_rs_dynatogt/README.md) | 原型已实现 | 针对固定中心/固定平面、仅面内旋转与统一缩放；先用整机到平面的 Arb 支撑界排除时间段，再认证剩余原始曲线 |
 | [AVS-PPO](avs_ppo/README.md) | 已实现，正式训练与 ID/OOD 安全审计完成 | Action-masked Viability-Shielded PPO；以真实非凸动态门交点和门前制动备份 rollout 构造安全动作支持集；独立 400 回合 100% 完赛、0 违规 |
+| [PhaseGuard-RL](phaseguard_rl/README.md) | 精简核心已实现，待正式训练 | PPO 根据整机状态与窗口相位选择非中心穿越点和飞行时间；固定 MINCO/底层控制器执行，只有连续整机与动力学检查通过的轨迹才允许下发 |
 | [WBSC-DynaTOGT](废案/wb_sc_dynatogt/README.md) | 废案保留 | 联合优化 `[K,D,Y]` 的旧姿态长方体方案；不提供连续时间证书 |
 | [CWB-SC-DynaTOGT](废案/cwb_sc_dynatogt/README.md) | 废案保留 | 自适应数值截面验证；只能返回 `NUMERICALLY_VERIFIED`，不得称严格证书 |
 | [Exact-Area Whole-Body SC-DynaTOGT](废案/cwb_sc_dynatogt/exact_area_sc_dynatogt/README.md) | 废案反例保留 | 保留「名义中心安全但整机提前碰撞」的 Experiment B，作为新方法回归反例 |
@@ -32,6 +33,7 @@ nonconvex_timevarying_window/
   sip_dynatogt/             半无限约束生成 + Arb 连续域认证
   planar_rs_dynatogt/       固定平面旋转/缩放的平面排除 + 原始曲线认证
   avs_ppo/                  安全动作掩码 + 可恢复性盾牌 + PPO 闭环竞速
+  phaseguard_rl/            相位条件 PPO + 固定轨迹控制器 + 单一连续安全检查
   comparisons/              不同方法的同场景压力对比与独立可视化
   废案/                      旧整机数值验证与反例方案
   <algorithm_name>/        后续新增的其他方法

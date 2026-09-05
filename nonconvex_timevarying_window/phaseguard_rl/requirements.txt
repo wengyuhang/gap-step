@@ -1,0 +1,4 @@
+numpy
+torch
+python-flint>=0.9,<0.10
+
