@@ -10,6 +10,7 @@
 |---|---|---|
 | [AtlasDynaTOGT](atlas_dynatogt/README.md) | 已实现 | 将非凸窗口三角剖分为 chart atlas，联合优化穿越时间和穿越点 |
 | [SC-DynaTOGT](sc_dynatogt/README.md) | 已实现，default 实验完成 | Chang 仅做边界均匀采样，SC 圆盘映射负责内部点，接入原 TOGT/MINCO 联合优化；支持真实物理门框、分类结果目录、中文结果主页和可选 EGL/OpenGL 离线渲染，记录见 [TEST_RESULTS.md](sc_dynatogt/TEST_RESULTS.md) |
+| [RotSync-SC-TOGT](rot_sync_sc_togt/README.md) | 已实现 | 固定中心/固定平面窗口仅绕法向匀速旋转；SC 选择安全点，解析 Sync 段保持窗口坐标不变，PVAJ 严格连接相邻 degree-7 MINCO；使用扁平方柱整机可视化与碰撞率审计，含单窗口 smoke 和三条起终点相同的 L/U/star 闭合赛道 |
 | [MSR-DynaTOGT](msr_dynatogt/README.md) | 已实现，smoke/formal 完成 | 在 SC-DynaTOGT 外增加可复现多初值候选池、高密度采样动力学检查、uniform/local 时间修复、二分缩放和联合再优化；可行性优先于总时间，记录见 [TEST_RESULTS.md](msr_dynatogt/TEST_RESULTS.md) |
 | [SIP-DynaTOGT](sip_dynatogt/README.md) | 已实现 | 保留 `[K,D]` 与 MINCO，使用 SLSQP 活动 witness 和 Arb 区间细分求解整机半无限安全问题；只有完整连续域覆盖通过才返回 `CERTIFIED_FEASIBLE` |
 | [Planar-RS-DynaTOGT](planar_rs_dynatogt/README.md) | 原型已实现 | 针对固定中心/固定平面、仅面内旋转与统一缩放；先用整机到平面的 Arb 支撑界排除时间段，再认证剩余原始曲线 |
@@ -26,6 +27,7 @@ nonconvex_timevarying_window/
   PROBLEM_DEFINITION.md     与具体算法无关的问题定义
   atlas_dynatogt/           AtlasDynaTOGT 方法的完整实现
   sc_dynatogt/              Schwarz–Christoffel DynaTOGT 方法的完整实现
+  rot_sync_sc_togt/         固定平面自旋窗口的解析同步穿越 + MINCO
   msr_dynatogt/             Multi-Start and Repair DynaTOGT 的完整实现
   sip_dynatogt/             半无限约束生成 + Arb 连续域认证
   planar_rs_dynatogt/       固定平面旋转/缩放的平面排除 + 原始曲线认证

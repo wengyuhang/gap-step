@@ -1,0 +1,1 @@
+-r ../sc_dynatogt/requirements.txt
