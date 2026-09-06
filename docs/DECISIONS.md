@@ -1,61 +1,33 @@
-# Decisions
+# 约定演变与决策依据
 
-## 2026-05-15: Use Generated Aperture-Window Mazes
+更新：2026-09-06。下表是对已有代码、提交和文档的追溯整理；除本次用户要求的记忆重构外，不把推断写成用户新下达的研究任务。当前强制约定以 [AGENTS](../AGENTS.md) 为入口。
 
-Decision: the active task is a generated family of mazes, not a fixed benchmark image.
+## 哪些旧约定已改变
 
-Reason: the target is a class of UAV window-crossing problems.
+| 旧表述 | 当前适用范围/替代说明 | 依据 |
+|---|---|---|
+| 全仓主线只有二维纯 PPO，默认不做 3D/四旋翼/规划器 | 仅保留为 GAP-Step 纯教师实验边界；全仓是多问题族、多方法研究 | 2026-06 至 09 月持续新增 TOGT、MINCO、SIP、控制与 RL 目录 |
+| 非凸目录当前只有 Atlas | 已有 Atlas、SC、MSR、SIP、Planar-RS、RotSync、AVS、PhaseGuard，旧整机方法另归废案 | 当前方法目录和 `40692e8` 前的提交 |
+| 基线比较不是当前要求 | 原 2026-07-10 Atlas 阶段的范围；MSR、SC/SIP、RotSync 和 RL 已有各自比较协议 | `6bdbca5`、`9c7b4ca`、`785f95c`、`8999c18`、`40692e8` |
+| PPO 图观测/二维动作是全项目接口 | 是 GAP-Step 接口；其他方法使用各自状态、动作和轨迹表示 | 各方法 `model.py/environment.py` |
+| CWB 是新增连续安全方法 | WBSC/CWB/Exact-Area 已放 `废案/`；严格连续域认证由 SIP 及其特化承担 | `dfa920a`、`9c7b4ca` 及当前路径 |
+| `pytest -q` 表示整个项目测试通过 | 根配置只收集 GAP-Step；其他目录显式运行 | 根 `pytest.ini` |
+| “非周期随机形变”“整机连续安全”都尚未做 | FAPP 已有外生非周期局部形变；SIP 已有名义整机连续域认证；普适、鲁棒和实时问题仍未全部解决 | FAPP 模型文档、SIP 算法说明 |
 
-## 2026-05-15: Keep Continuous Geometry
+## 形成过程
 
-Decision: use continuous 2D actions and swept-circle collision. Any black wall/window contact is terminal failure.
+- **2026-05：连续二维生成迷宫与纯教师。** 保留真实连续碰撞、`GraphObs`、显式旧策略 PPO、ID/OOD 分开报告。旧文档中的 C5 间隙 0.65→0.72 调整属于该实验的历史参数决策，不是所有三维窗口的统一尺寸。证据：`a93832a`、`da92e95` 和[原决策快照](history/2026-09-06-before-memory-refactor/docs__DECISIONS.md)。
+- **2026-06：TOGT 独立扩展。** 复现包放 `复现/`，动态窗口实验放 `togt_timevarying_window/`；不依赖旧迷宫环境。DynaTOGT 后续支持按序重复穿越。证据：`85d5ffa`、`07da9b9`、`03ccef4`、`cb415e6`。
+- **2026-07-10：问题定义与方法分离。** 非凸总目录保存公共问题定义，Atlas 等算法各用独立目录。此组织约定继续有效。证据：`3b3ea0c`。
+- **2026-07-14 至 17：SC/MINCO 与结果管理。** Chang 只重采样边界，SC 映射选内部点；正式统计和 demo 分开。OpenGL 只回放已求解轨迹。历史结果保留清单、时间戳和 SHA-256；迁移先 dry-run。证据：`132afaa`、`bd69239`、`2ddbc91`。
+- **2026-07：MSR 与连续形变问题族。** MSR 在 SC 外层增加多初值和采样修复；FAPP-PPO 与 MDG 在 `closed_loop_deformable_window/` 并列，共享安全区可为空与完整初态返回的问题定义。证据：`6bdbca5`、`d42589f`。实验实际日期见各自报告，不能用提交日期替代。
+- **2026-08：从数值整机检查到连续域认证。** 旧 WBSC/CWB/Exact-Area 保留反例；SIP 把真实整机边界与动力学作为半无限约束，用区间覆盖决定认证。Planar-RS 在更窄的运动模型下加速。证据：`dfa920a`、`9c7b4ca`、`7b37eb7`、`ae9139e`。
+- **2026-08：比较与学习贡献分离。** SC/SIP 宽域压力案例和速率冻结基准分开；AVS 简化模型学习结果与极难模型盾牌接管分开。不能用净距违规代替实体相交证据，也不能用安全盾成功代替学习贡献。证据：`785f95c`、`ae9139e` 及方法报告。
+- **2026-09：旋转同步与相位规划学习。** RotSync 用解析 Sync 和 PVAJ 接口连接 MINCO；PhaseGuard 保留点/时间 PPO、固定轨迹控制和单一连续认证准入，不重引入被精简掉的 HOCBF/MPC/可达管组合。证据：`8999c18`、`40692e8`。
+- **2026-09-06：重构全局记忆。** 根据用户当前请求，把现行规范、状态、架构、命令、待办、历史记录分开；修正过时全仓定位和不准确摘要，保留历史文件原文。未修改算法、碰撞、成功条件或实验定义。
 
-Reason: discrete cell transitions hid invalid wall/window crossings.
+## 继续有效的原则
 
-## 2026-05-15: Train Pure PPO Only
+真实非凸几何、原始曲线表示、顺序和动力学模型必须明确。认证范围、采样范围和实际执行范围分别报告；没有候选与全局不可行不同。失败与负结果保留来源，不用演示替代正式结论。
 
-Decision: the teacher remains pure privileged PPO with curriculum learning.
-
-Reason: the user explicitly rejected planner/BC/expert assistance for the current mainline.
-
-## 2026-05-15: Calibrate C5 Geometry, Not Topology
-
-Decision: keep C5 at full path length, six dynamic windows, and mixed geometry, but set the minimum nominal gap to `0.72`.
-
-Reason: the previous `0.65` floor produced a stable `62.5%` ID plateau under pure PPO. Raising only the geometric clearance reached `71.5%` while preserving the high-difficulty structure.
-
-## 2026-05-15: Report OOD Honestly
-
-Decision: retain and report both OOD splits after ID acceptance.
-
-Reason: `ood_window_test` remains materially weaker than ID, so it must be visible in the project record.
-
-## 2026-06-01: Make TOGT Extension An Independent Paper-Style Project
-
-Decision: TOGT reproduction lives under `复现/TOGT-Planner-reproduction/`, and the time-varying window adaptation lives under `togt_timevarying_window/`.
-
-Reason: the requested reproduction/improvement should use the paper environment abstraction. The extension therefore models ordered gates `G_i(t)` with dynamic position and shape rather than reusing the earlier maze environment.
-
-## 2026-07-10: Organize Non-Convex Research As A Multi-Method Project
-
-Decision: use `nonconvex_timevarying_window/` as the umbrella directory for the non-convex time-varying window problem. Keep `PROBLEM_DEFINITION.md` at the umbrella root and place each solution in a separately named algorithm directory. The existing triangulation-chart method is stored under `atlas_dynatogt/`.
-
-Reason: the non-convex problem will be studied with multiple methods. Separating the shared problem statement from method-specific code, tests, documentation, figures, and results prevents the first implementation from being mistaken for the whole research task.
-
-## 2026-07-17: Keep Cinematic Rendering Separate From Planning
-
-Decision: keep SC-DynaTOGT's EGL/OpenGL renderer optional and downstream of the saved scenario and degree-7 MINCO trajectory.  It may add physical meshes, lighting, environment assets, HUD, and cameras, but it must not change optimization geometry or be described as AirSim dynamics/sensor simulation.
-
-Reason: the renderer is intended to communicate the already-solved experiment more realistically.  A separate layer preserves numerical reproducibility and prevents presentation effects from being mistaken for planning or feasibility logic.
-
-## 2026-07-17: Report Scale State Separately From Its Visual Salience
-
-Decision: document that the OpenGL window transform applies the true `s(t)R(t)` on every frame and that the current diverse demo uses `s(t) in [0.58,1.42]`.  Also report that chase-camera perspective makes this change hard to see.  A fixed-distance `GATE CAM` with a live `SCALE ×` readout is a future visualization improvement, not a completed feature.
-
-Reason: geometric correctness and ease of visual comparison are different claims.  Keeping them separate avoids both falsely diagnosing a missing scale transform and overstating what the current video communicates.
-
-## 2026-07-17: Organize Results Without Deleting History
-
-Decision: categorize SC-DynaTOGT results into experiments, demos, diagnostics, and work areas. Every migration must be dry-run first, journal every file's old/new path, size, and SHA-256, and preserve old visual variants under `legacy/`. New runs use timestamped directories and manifests; the result homepage is generated from saved summaries rather than hand-maintained values.
-
-Reason: formal experiments, intermediate chunks, historical demos, and presentation renders have different roles. Separating them makes the current result easy to find without sacrificing reproducibility or prior data.
+历史细节见[重构前快照](history/2026-09-06-before-memory-refactor/INDEX.md)。旧固定相机/缩放读数想法是可选显示改进，不因曾列入日志就自动成为当前最高优先级任务。

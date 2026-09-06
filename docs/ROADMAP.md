@@ -1,48 +1,35 @@
-# Roadmap
+# 当前待办与待验收项
 
-## Done
+更新：2026-09-06，依据 `40692e8`、方法报告与本地工作区。以下是现状整理和候选后续工作，不代表本次文档重构同时授权启动训练、全量实验或部署。已完成与历史结果见 [PROJECT_CONTEXT](PROJECT_CONTEXT.md)。
 
-- Replaced the dynamic-cell passage abstraction with generated aperture-window mazes.
-- Added continuous collision-safe window geometry and preview assets.
-- Built pure PPO training/evaluation/visualization flow.
-- Reached the C5 ID target: `71.5%` over 200 unseen episodes.
-- Produced ID/OOD evaluation and GIF artifacts.
+## 近期研究延续
 
-## Current State
+| 方向 | 已有基础 | 下一步/验收缺口 |
+|---|---|---|
+| RotSync 实验论证 | 正式赛道、现实尺度设置、单窗九对比较；本地 ICRA 五项方案 | 按[本地方案](../nonconvex_timevarying_window/实验方案/ICRA_EXPERIMENT_PLAN.md)明确各实验输入和预算后逐项实施；现有九对比较尚未证明 Sync 优势，需保留失败与基线更快案例 |
+| RotSync 动力学 | D1/D2 已有通过记录，D3/D4 超速 | 若继续改进，解决超速后以新运行记录复验；不能为通过而悄悄放宽 7 m/s 正式上限 |
+| PhaseGuard-RL | 核心网络、轨迹生成、认证准入和最小训练函数已实现 | 依据[最小协议](../nonconvex_timevarying_window/phaseguard_rl/EXPERIMENT_PROTOCOL.md)准备静态曲线/完整动态混合曲线场景、冻结种子/预算、训练与三组对照；分别记录学习贡献和认证耗时 |
+| 跟踪与 Gazebo | 本地六窗世界、运动桥接、启动脚本 | [适配层](../nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/gazebo/README.md)尚缺完整缩放复现和飞控闭环；后续执行须分别验证几何运动、轨迹跟踪和实际安全，不能用展示替代证书 |
 
-```text
-id_test         71.5%
-ood_window_test 54.0%
-ood_maze_test   74.5%
-```
+以上顺序反映最近提交和本地方案的延续性，不是新指定的全仓优先级。ICRA 方案和 Gazebo 文件在本轮审计开始时未跟踪，后续工作需先确认其最新状态。
 
-## Next
+## 已实现方法的验收与研究缺口
 
-- Improve `ood_window_test` generalization to unseen aperture timing.
-- Consider curriculum slices focused on timing variation before increasing maze complexity.
-- Keep wall/window collision semantics unchanged while tuning.
+| 方法/方向 | 当前应保留的待办 |
+|---|---|
+| SIP / Planar-RS | 在各自支持的模型内研究认证代价与未决比例；保持原始曲线与名义模型边界，不能承诺任意复杂实例的固定运行时限 |
+| SC/SIP 运动速率比较 | 代码和 36 实例协议已有；检查是否已有完整产物，再确认逐实例证书/实体审计与全量汇总状态，不能因脚本存在标为完成 |
+| AVS-PPO | 简化三窗已验收；极难模型应解释/改善动作支持集坍缩与盾牌接管，并以独立对照验证学习收益 |
+| FAPP-PPO | 保留最终 ID 0/10 的结果；若恢复该线，先处理穿越时势函数奖励跳变与残差退化，再做固定协议复验 |
+| MDG | E1–E6 smoke 已有；正式 2,090 次矩阵仍待全量运行与验收 |
+| MSR | formal 已有，不再列为待启动；后续可研究降低多初值代价或更强验证，但现有 100% 仅为采样动力学可行率 |
 
-## TOGT Extension Track
+## 保留方向与旧清单归位
 
-- Keep `togt_timevarying_window/` as an independent TOGT reproduction extension, not as a wrapper around the old maze environment.
-- DynaTOGT is now implemented: dynamic/deformable windows `G_i(t)`, discrete warm start, L-BFGS-B continuous refinement, Hermite continuous trajectory, and Chinese presentation-style visualization.
-- Ordered/static modes now accept arbitrary traversal task sequences, including repeated windows; `shuffled_dynamic` remains a one-pass permutation baseline.
-- Current experiment outputs live under `togt_timevarying_window/results/`, not the old `outputs/` directory.
-- Next useful extensions:
-  - add a MINCO-style trajectory backend for closer comparison with the original TOGT paper;
-  - add stronger quadrotor thrust/angular-rate feasibility metrics;
-  - add collision/obstacle constraints beyond window traversal;
-  - add publication-style result tables comparing `WaypointCenter`, `StaticTOGT`, `DiscreteDynamic`, and `DynaTOGT`.
+- GAP-Step 的窗口时间 OOD 泛化仍是该二维实验历史缺口；只有任务回到该目录时才继续，不作为全仓默认下一步。
+- “窗口非周期、随机、可形变”已在 FAPP 问题族有实现，不能再笼统写成全仓未做；该能力也没有因此自动扩展到 RotSync/Planar-RS。
+- 连续整机安全已经有 SIP 名义认证，真实扰动、感知误差和跟踪鲁棒性仍未由该证书覆盖。
+- 非凸走廊、部分可观测自主决策与真机部署保留为研究设想；本轮未找到足以标为完成的对应验收证据。
+- 姿态联合选点、替换 MINCO/优化器、显示改进应以具体问题和新协议提出；旧笔记里的疑问不自动升级为必须执行的全仓任务。
 
-## Non-Convex Time-Varying Window Track
-
-- Keep `nonconvex_timevarying_window/` as the umbrella for the research problem, with the common problem definition at its root.
-- Keep every solution in a sibling directory named after the algorithm; do not place method-specific source files at the umbrella root.
-- Three independent methods are implemented: `atlas_dynatogt/` uses ear-clipped chart atlases; `sc_dynatogt/` uses Chang-style boundary resampling, Clipper2 inset geometry, disk Schwarz--Christoffel parameterization, and degree-7 MINCO; `msr_dynatogt/` adds multi-start candidate retention and sampled-feasibility time repair around the stable SC solver.
-- The current task covers simple closed non-convex windows without holes or self-intersections, dynamic translation/rotation/scale, and one traversal of each window in the specified order.
-- Baseline comparison and repeated traversal are not current requirements.
-- SC-DynaTOGT's paper-inspired six-window closed loop and E0--E5 default experiments are complete. Its results are losslessly categorized with run manifests and a Chinese result homepage. The Matplotlib layer now provides a low-clutter route overview, fixed-scale crossing grid, and scale profile; the optional EGL/OpenGL renderer replays the same solved trajectory.
-- MSR-DynaTOGT's A0--A3 smoke experiment is complete over a static single window, three translating windows, three fully dynamic windows, the six-window paper-irregular loop, and a thrust-stressing three-window scene. It records both matched-start and matched-wall-time comparisons. In the 2026-07-21 smoke run, A3 was sampled-dynamics feasible in 5/5 scenes versus A0 in 0/5, at 10.49x mean wall-clock cost; these are high-density sampled results, not continuous-time feasibility certificates.
-- MSR-DynaTOGT's 155-seed-per-scene formal suite is complete (775 scene-seed tasks, 9,300 A0--A3/protocol rows). A0/A1/A2/A3 achieved 0.0%/0.1%/100%/100% high-density sampled dynamics feasibility; A3 used 10.05x A0 and 7.86x A2 mean wall-clock time. Under matched starts and matched time, A2/A3 selected the same feasible results, so repair is the supported source of the feasibility gain while multistart's time gain requires extra compute budget.
-- A fixed-distance OpenGL next-gate video with a live scale readout remains optional future work. Static fixed-scale comparison and numerical scale evidence are already implemented.
-- Future work can increase/adapt feasibility sampling, add continuous-time bounding/verification, or study more efficient start allocation because full A3 is substantially more expensive than repair-only A2. Other methods should remain sibling directories with independent `results/` trees.
+根[工作清单](../工作清单.txt)只指向本页，避免维护两套互相冲突的“未做”。历史清单原文见[快照](history/2026-09-06-before-memory-refactor/工作清单.txt)。

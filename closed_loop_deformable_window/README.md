@@ -4,7 +4,7 @@
 
 与仓库中已有项目的关系：
 
-- 本目录不是 `gap_step/` 二维 PPO 主线的一部分；
+- 本目录不是 `gap_step/` 早期二维 PPO 研究线的一部分；
 - 本目录比 `nonconvex_timevarying_window/` 的既有定义多出闭环全状态返回、局部非刚性连续形变和完整未来动态条件；
 - 通用问题定义固定保存在 [PROBLEM_DEFINITION.md](PROBLEM_DEFINITION.md)；
 - 每种算法必须放在本目录下独立的同级子目录中。
@@ -13,8 +13,10 @@
 
 | 方法 | 状态 | 核心思路 |
 |---|---|---|
-| [FAPP-PPO](fapp_ppo/README.md) | 首个可运行实现 | 未来感知特权预览、非对称 actor–critic、残差 CTBR PPO、短暂可通行机会课程 |
+| [FAPP-PPO](fapp_ppo/README.md) | 已实现，验证训练存在后期退化 | 未来感知特权预览、非对称 actor–critic、残差 CTBR PPO、短暂可通行机会课程 |
 | [MDG](mdg/README.md) | 已实现，实验待验收 | 将连续形变非凸安全区转换为移动多圆盘，以粗细时空图联合选择开放时机、圆盘和穿越位置，再接入 MINCO/TOGT 后端 |
+
+FAPP-PPO 的已有验证训练最终 ID 为 0/10，早期成功视频只说明机制，不代表最终性能，见 [TEST_RESULTS](fapp_ppo/TEST_RESULTS.md)。MDG 已有 E1–E6 smoke，正式 2,090 次矩阵尚未全量运行，见 [实施状态](mdg/docs/IMPLEMENTATION_STATUS.md)。
 
 FAPP-PPO 现已包含窗口安全区暂时完全消失的时间关键模式，以及可执行的[完整学术实验方案](fapp_ppo/ACADEMIC_EXPERIMENTS.md)。
 MDG 是同一问题族的确定性离线规划方法；两种方法实现独立，但共享本目录的问题定义。

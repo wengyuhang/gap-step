@@ -1,36 +1,28 @@
-# TOGT Reproduction Audit
+# TOGT 复现历史审计
 
-## Scope
+整理：2026-09-06。此页保留 2026-06 复现任务的已有证据，并标出此后入口变化。以下“当时完成”来自[原始审计快照](history/2026-09-06-before-memory-refactor/docs__TOGT_REPRODUCTION_AUDIT.md)与[历史任务日志](history/2026-09-06-before-memory-refactor/docs__TASK_LOG.md)，本轮没有重新构建 C++ 或重跑复现实验。
 
-User request: reproduce `复现/论文/2309.06837v3.pdf` / TOGT-Planner, create reproduction work under `复现/`, create the improved algorithm as a new top-level project, record both in Markdown, and sync project documents. The improvement must use the paper-style environment rather than the older maze environment.
+## 原任务与已有记录
 
-## Evidence
+原任务要求在 `复现/` 复现 TOGT-Planner，并在独立顶层项目中扩展论文式动态窗口，避免套用旧二维迷宫环境。
 
-| Requirement | Evidence | Status |
-| --- | --- | --- |
-| Paper/source reproduction folder under `复现/` | `复现/TOGT-Planner-reproduction/source/`, `REPRODUCTION.md` | Done |
-| Source-level reproduction notes | `复现/TOGT-Planner-reproduction/REPRODUCTION.md` | Done |
-| Reproduction dependency check | `check_reproduction.py` reports source tree ok, cmake/c++ present, and local vendored Eigen found; `BUILD_DEPS.md` records build commands | Done |
-| Result-level TOGT reproduction | `analyze_trajectory.py`: `lap_time=8.21`, `path_length=83.189`, `max_speed=19.321`; `plot_togt_traj.py` generated PNG | Done |
-| Improved algorithm in top-level folder | `togt_timevarying_window/` | Done |
-| Improvement uses paper-style environment | `environment.py` defines ordered `RaceTrack` and dynamic `DynamicGate`; no runtime imports from `gap_step` | Done |
-| Window/gate 3D position, pose, and shape vary over time | `DynamicGate.center_at`, `yaw_at`, `pitch_at`, `roll_at`, `scale_at`, `polygon_at`; tests verify geometry changes | Done |
-| Planner for 3D dynamic gates | `planner.py` searches over gate order, arrival time, and gate-interior 3D candidates | Done |
-| Improvement records | `togt_timevarying_window/README.md` | Done |
-| Visual/export artifacts | 12-gate complex 3D `togt_timevarying_window/outputs/*_trajectory.csv/png/gif` | Done |
-| Tests | `pytest -q togt_timevarying_window/tests` -> `3 passed` | Done |
-| Project docs synced | `README.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, `docs/PROJECT_CONTEXT.md`, `docs/ROADMAP.md`, `docs/TASK_LOG.md` | Done |
+| 交付物 | 当时记录的证据 | 当前解释 |
+|---|---|---|
+| 本地源码/论文复现包 | `复现/TOGT-Planner-reproduction/source/`、`REPRODUCTION.md`、`BUILD_DEPS.md` | 本地资源，`复现/` 被 Git 忽略 |
+| 依赖与构建 | vendored Eigen 3.4.0；CMake/build 成功；ctest 3 项通过 | 历史构建验收，不能当作当前机器刚复验 |
+| 结果级复现 | `analyze_trajectory.py`：lap_time=8.21 s、path_length=83.189 m、max_speed=19.321 m/s；有绘图记录 | 原复现轨迹的指标，不是后续动态窗口算法的成绩 |
+| 独立动态窗口扩展 | `togt_timevarying_window/` | 目录仍在，内部已从早期离散 prototype 重构为 DynaTOGT |
+| 早期 3D 原型 | 12-gate `DynamicGate/RaceTrack`、`planner.py`、`outputs/`、3 项 Python 测试 | 都属于旧阶段表述，不能用作现行 CLI/模块清单 |
+| 2026-06-04 DynaTOGT 重构 | 动态 `G_i(t)`、热启动与连续优化、Hermite、任意指定序列/重复穿越、CSV/PNG/GIF；当时记录 6 项测试通过 | 现行说明见该项目 README，测试数量以实际运行报告为准 |
 
-## Native Build Result
+## 当前入口
 
-Full native C++ execution of TOGT-Planner is completed with a local vendored Eigen install. Verified output:
+现行 DynaTOGT 使用 `environment.py` 的动态窗口/轨道、`optimizer.py`、`trajectory.py` 和 `experiments.py`；产物使用 `results/`，不要继续引用旧 `outputs/` 为默认目录。
 
-```text
-source_tree=ok
-cmake=/usr/bin/cmake
-cxx=/usr/bin/c++
-eigen_cmake=复现/TOGT-Planner-reproduction/deps/eigen-install/share/eigen3/cmake/Eigen3Config.cmake
-eigen_header=复现/TOGT-Planner-reproduction/deps/eigen-install/include/eigen3/Eigen/Core
+```bash
+python -m togt_timevarying_window.demo --scenario canonical --mode ordered_dynamic
+python -m togt_timevarying_window.export_demo --scenario canonical --mode ordered_dynamic
+pytest -q togt_timevarying_window/tests
 ```
 
-`ctest --test-dir build --output-on-failure` reports `100% tests passed, 0 tests failed out of 3`.
+源码、算法与实验说明见 [DynaTOGT README](../togt_timevarying_window/README.md)。后续非凸 SC/MINCO、SIP 整机认证、RotSync 与强化学习的状态由 [PROJECT_CONTEXT](PROJECT_CONTEXT.md)维护，不反向计入 2026-06 论文复现完成度。

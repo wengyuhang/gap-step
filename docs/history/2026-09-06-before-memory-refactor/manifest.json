@@ -1,0 +1,66 @@
+{
+  "base_commit": "40692e8",
+  "snapshot_date": "2026-09-06",
+  "files": [
+    {
+      "source": "AGENTS.md",
+      "snapshot": "AGENTS.md.txt",
+      "bytes": 4582,
+      "sha256": "a9c45d4e931a1ff6ed55f1d4c8de496daf0fceb45bad7a537f891e8d232c8444"
+    },
+    {
+      "source": "CLAUDE.md",
+      "snapshot": "CLAUDE.md.txt",
+      "bytes": 4582,
+      "sha256": "a9c45d4e931a1ff6ed55f1d4c8de496daf0fceb45bad7a537f891e8d232c8444"
+    },
+    {
+      "source": "README.md",
+      "snapshot": "README.md",
+      "bytes": 7426,
+      "sha256": "f651b0094b5d05ac9dfb015a739aa3222d3388b31320a81b752481294adf361d"
+    },
+    {
+      "source": "docs/PROJECT_CONTEXT.md",
+      "snapshot": "docs__PROJECT_CONTEXT.md",
+      "bytes": 18484,
+      "sha256": "b30f3a85d1b85a415bf8b96741218ffb2bb15cfc795f0df6bdcb9b70f9180f17"
+    },
+    {
+      "source": "docs/ARCHITECTURE.md",
+      "snapshot": "docs__ARCHITECTURE.md",
+      "bytes": 8459,
+      "sha256": "60711a47efc49b2f11e968889929992709b836c02f84927794b57850310060bd"
+    },
+    {
+      "source": "docs/DECISIONS.md",
+      "snapshot": "docs__DECISIONS.md",
+      "bytes": 4240,
+      "sha256": "3f640d82c6ced13b6508d4a9c437995afb58b63ee2bf32c59674800ab6ac8c77"
+    },
+    {
+      "source": "docs/ROADMAP.md",
+      "snapshot": "docs__ROADMAP.md",
+      "bytes": 4376,
+      "sha256": "5d54d9b43dc2ffb8e71d7456d7f31fe931932c5b37588dc201ff51fd4e06f61c"
+    },
+    {
+      "source": "docs/TASK_LOG.md",
+      "snapshot": "docs__TASK_LOG.md",
+      "bytes": 23638,
+      "sha256": "2dff04c0472fabcfee0f098bdc09f666a201df556d68e10995608db9bc3a5fe6"
+    },
+    {
+      "source": "docs/TOGT_REPRODUCTION_AUDIT.md",
+      "snapshot": "docs__TOGT_REPRODUCTION_AUDIT.md",
+      "bytes": 2447,
+      "sha256": "67bb7d7ef31df4a9f3a715137ffcb531564ada9f1455846be6d67265c5a219ab"
+    },
+    {
+      "source": "工作清单.txt",
+      "snapshot": "工作清单.txt",
+      "bytes": 783,
+      "sha256": "fb2a2c353f2f312b7397cbc69bfc9ae659ce32fc91ff18fdb82ad4f41a54a7dd"
+    }
+  ]
+}
