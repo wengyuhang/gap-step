@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新：2026-09-06；核对 HEAD：`40692e8`。本页来自当前源码、方法报告和 Git 历史；本轮是文档审计，没有重新运行算法实验，以下实验数字均为带来源的已有记录。
+更新：2026-09-07；核对 HEAD：`40692e8`。本页来自当前源码、方法报告、本地正式运行和 Git 历史；实验数字均标明来源与证据等级。
 
 ## 当前重心
 
@@ -29,6 +29,7 @@
 
 - **RotSync 正式赛道**：2026-09-02 报告中 D1/D2 完整通过，D3/D4 虽几何、C3、闭合与采样零碰撞通过，最大速度仍为 7.1894/7.1040 m/s，超过 7 m/s 上限，必须保留失败标记。见[正式结果](../nonconvex_timevarying_window/rot_sync_sc_togt/FORMAL_EXPERIMENTS.md)。
 - **RotSync 单窗口比较**：2026-09-05 的 L/U/star × 三档转速九对案例中，两方法均 9/9 合格，固定点基线全部更快。当前结果未证明 Sync 性能优势；两方法同时改变选点与同步结构，不能单独归因。见[方法 README 的比较记录](../nonconvex_timevarying_window/rot_sync_sc_togt/README.md)。
+- **ICRA 实验三聚焦转速**：2026-09-07 本地正式运行 L/U 两形状、偏轴可行/轴心过窄几何和 0/1.5/3/4.5/6 rad/s，共 10 场景。Fixed-WP 10/10、Optimized-MINCO 9/10、SC+Sync 6/10 通过；U 形 4.5 rad/s 的 Optimized-MINCO 同时碰撞与动力学超限，L/U 的 SC+Sync 都在 4.5/6 rad/s 动力学实质超限。所有超限都大于 5% 敏感性带；证据为最大 1 ms 加密采样，不是连续域证书。见[实验报告](../nonconvex_timevarying_window/rot_sync_sc_togt/icra_experiments/03_sync_single/focused_results/REPORT.md)。
 - **AVS 极难六窗**：严格盾版用 16.15 s 完成闭环，但平均可行动作比例 0.08764、masked entropy 为零。应记录为盾牌几乎接管，不能作为 PPO 学习成功证据。见[极难比较报告](../nonconvex_timevarying_window/avs_ppo/HARDEST_COMPARISON_REPORT.md)。
 - **FAPP-PPO**：100 次更新/102,400 步验证训练的最终 ID 为 0/10，两个 nominal 基线各 1/10。旧记录诊断穿越后切换势函数目标带来负奖励跳变；修复和正式复验不能仅凭诊断标为完成。见[测试记录](../closed_loop_deformable_window/fapp_ppo/TEST_RESULTS.md)。
 
@@ -38,11 +39,11 @@
 
 [运动速率基准](../nonconvex_timevarying_window/comparisons/sc_sip_motion_rate_benchmark/README.md)有 12 种子 × 3 速率、36 实例的冻结输入和独立审计实现。需分别报告实体相交、15 mm 净距违规和未决状态；本页不因入口已提交就声称全量结果已验收。
 
-审计开始时以下两部分为 **Git 未跟踪的用户本地工作**，本轮只读取并纳入状态：
+审计开始时以下两部分为 **Git 未跟踪的用户本地工作**；2026-09-07 已在 ICRA 方案目录下实现并执行收窄后的实验三：
 
 | 本地内容 | 已有内容 | 尚不能宣称 |
 |---|---|---|
-| [ICRA_EXPERIMENT_PLAN.md](../nonconvex_timevarying_window/实验方案/ICRA_EXPERIMENT_PLAN.md) | RotSync 的五项实验设计：空间表示、同轨迹几何处理、窄窗/高速同步、多窗和跟踪；计划输出到方法下 `icra_experiments/` | 五项实验已实现或执行、文中论文已由本次审计重新查证 |
+| [ICRA_EXPERIMENT_PLAN.md](../nonconvex_timevarying_window/实验方案/ICRA_EXPERIMENT_PLAN.md) | RotSync 的五项实验设计；[实验三收窄版](../nonconvex_timevarying_window/rot_sync_sc_togt/icra_experiments/03_sync_single/README.md)已实现并运行 5 个转速场景 | 其余四项实验已实现或执行；聚焦实验也不能证明 Sync 优势 |
 | [Gazebo 适配层](../nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/gazebo/README.md) | 六窗世界导出、运动桥接和启动脚本；说明周期平移/RPY 接入 | 均匀缩放已完整复现、PX4 闭环接通、实物验证或替代 SIP 证书 |
 
 工作区文件可能不随 Git 克隆存在。后续状态更新应重新查看 `git status`，不要永久把它们标成未提交。

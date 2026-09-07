@@ -1,12 +1,12 @@
 # 当前待办与待验收项
 
-更新：2026-09-06，依据 `40692e8`、方法报告与本地工作区。以下是现状整理和候选后续工作，不代表本次文档重构同时授权启动训练、全量实验或部署。已完成与历史结果见 [PROJECT_CONTEXT](PROJECT_CONTEXT.md)。
+更新：2026-09-07，依据 `40692e8`、方法报告与本地工作区。以下是现状整理和候选后续工作，不代表本次文档重构同时授权启动训练、全量实验或部署。已完成与历史结果见 [PROJECT_CONTEXT](PROJECT_CONTEXT.md)。
 
 ## 近期研究延续
 
 | 方向 | 已有基础 | 下一步/验收缺口 |
 |---|---|---|
-| RotSync 实验论证 | 正式赛道、现实尺度设置、单窗九对比较；本地 ICRA 五项方案 | 按[本地方案](../nonconvex_timevarying_window/实验方案/ICRA_EXPERIMENT_PLAN.md)明确各实验输入和预算后逐项实施；现有九对比较尚未证明 Sync 优势，需保留失败与基线更快案例 |
+| RotSync 实验论证 | 正式赛道、现实尺度设置、单窗九对比较；ICRA 实验三 L/U 收窄版已运行 | 聚焦实验中 Fixed-WP 10/10、Optimized-MINCO 9/10、SC+Sync 6/10；若继续论证 Sync 价值，需先重新审视机制假设和高转速动力学代价，不应通过对结果调轴或删除不利场景制造优势 |
 | RotSync 动力学 | D1/D2 已有通过记录，D3/D4 超速 | 若继续改进，解决超速后以新运行记录复验；不能为通过而悄悄放宽 7 m/s 正式上限 |
 | PhaseGuard-RL | 核心网络、轨迹生成、认证准入和最小训练函数已实现 | 依据[最小协议](../nonconvex_timevarying_window/phaseguard_rl/EXPERIMENT_PROTOCOL.md)准备静态曲线/完整动态混合曲线场景、冻结种子/预算、训练与三组对照；分别记录学习贡献和认证耗时 |
 | 跟踪与 Gazebo | 本地六窗世界、运动桥接、启动脚本 | [适配层](../nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/gazebo/README.md)尚缺完整缩放复现和飞控闭环；后续执行须分别验证几何运动、轨迹跟踪和实际安全，不能用展示替代证书 |

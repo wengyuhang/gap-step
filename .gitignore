@@ -20,6 +20,13 @@ logs/
 runs/
 results/
 
+# RotSync ICRA experiment outputs
+/nonconvex_timevarying_window/rot_sync_sc_togt/icra_experiments/03_sync_single/fixed_wp_u_search/
+/nonconvex_timevarying_window/rot_sync_sc_togt/icra_experiments/03_sync_single/focused_results/
+/nonconvex_timevarying_window/rot_sync_sc_togt/icra_experiments/03_sync_single/superseded_81_grid_partial_20260906/
+/nonconvex_timevarying_window/rot_sync_sc_togt/icra_experiments/03_sync_single/superseded_audit_tolerance_20260906/
+/nonconvex_timevarying_window/rot_sync_sc_togt/icra_experiments/03_sync_single/superseded_solver_exception_20260907/
+
 
 # Local/editor files
 .DS_Store
