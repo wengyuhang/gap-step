@@ -1,4 +1,4 @@
-"""Formal closed-track experiment runner with complete research exports."""
+"""Experiment runner for SC-input-interpolated rotation crossings."""
 
 from __future__ import annotations
 
@@ -11,14 +11,15 @@ from typing import Any, Iterable
 
 import numpy as np
 from shapely.geometry import Point, Polygon
+
+from nonconvex_timevarying_window.rot_sync_sc_togt.optimizer import (
+    RotSyncOptimizationConfig,
+    RotSyncOptimizationResult,
+)
 from nonconvex_timevarying_window.sc_dynatogt.dynamics import QuadrotorParameters
 
 from .collision import sample_collision_report
-from .optimizer import (
-    RotSyncOptimizationConfig,
-    RotSyncOptimizationResult,
-    optimize_track,
-)
+from .optimizer import optimize_interpolated_track
 from .scenarios import (
     DEFAULT_RHO,
     REALISTIC_RHO,
@@ -26,6 +27,7 @@ from .scenarios import (
     RotSyncScenario,
     build_formal_scenarios,
     build_multi_scenarios,
+    build_oblique_smoke_scenario,
     build_realistic_extreme_scenario,
     build_smoke_scenario,
     preprocess_shape_catalog,
@@ -57,7 +59,10 @@ def _jsonable(value: Any) -> Any:
 
 def _write_json(path: Path, value: Any) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(_jsonable(value), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(_jsonable(value), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     return path
 
 
@@ -68,7 +73,7 @@ def _scenario_config(
     collision_samples: int,
 ) -> dict[str, Any]:
     return {
-        "method": "rot_sync_sc_togt",
+        "method": "interpolated_rot_sync_sc_togt",
         "scenario": scenario.name,
         "description": scenario.description,
         "difficulty": scenario.difficulty,
@@ -77,7 +82,10 @@ def _scenario_config(
         "closed": scenario.closed,
         "start_state_pvaj": scenario.start_state.matrix,
         "goal_state_pvaj": scenario.goal_state.matrix,
-        "decision_vector": "[K_free(0..N), K_sync(0..N-1), d_0..d_(N-1)]",
+        "decision_vector": (
+            "[K_free(0..N), K_sync(0..N-1), "
+            "d_entry_0..d_entry_(N-1), d_exit_0..d_exit_(N-1)]"
+        ),
         "objective": "T_total + lambda_s * integral_snap_squared + lambda_d * P_dyn",
         "optimization": config,
         "cuboid_body": {
@@ -86,8 +94,12 @@ def _scenario_config(
             "circumscribed_radius_rho": scenario.body.circumscribed_radius,
         },
         "collision_audit": {
-            "samples": collision_samples,
-            "model": "oriented cuboid against rotating aperture boundary extruded through thickness",
+            "minimum_requested_samples": collision_samples,
+            "maximum_step": config.audit_max_step,
+            "model": (
+                "oriented cuboid against rotating aperture boundary extruded "
+                "through thickness"
+            ),
         },
         "windows": [
             {
@@ -118,8 +130,10 @@ def _sampled_dynamic_validation(
     checks = {
         "velocity": bool(extrema["max_velocity"] <= limits.max_velocity + tolerance),
         "collective_thrust": bool(
-            extrema["min_collective_thrust"] >= limits.min_collective_thrust - tolerance
-            and extrema["max_collective_thrust"] <= limits.max_collective_thrust + tolerance
+            extrema["min_collective_thrust"]
+            >= limits.min_collective_thrust - tolerance
+            and extrema["max_collective_thrust"]
+            <= limits.max_collective_thrust + tolerance
         ),
         "body_rate_xy": bool(
             extrema["max_body_rate_xy"] <= limits.max_body_rate_xy + tolerance
@@ -128,11 +142,16 @@ def _sampled_dynamic_validation(
             extrema["max_abs_body_rate_z"] <= limits.max_body_rate_z + tolerance
         ),
         "rotor_thrust": bool(
-            np.min(extrema["min_rotor_thrust"]) >= limits.min_rotor_thrust - tolerance
-            and np.max(extrema["max_rotor_thrust"]) <= limits.max_rotor_thrust + tolerance
+            np.min(extrema["min_rotor_thrust"])
+            >= limits.min_rotor_thrust - tolerance
+            and np.max(extrema["max_rotor_thrust"])
+            <= limits.max_rotor_thrust + tolerance
         ),
     }
-    return {"sampled_dynamic_limits_satisfied": bool(all(checks.values())), "checks": checks}
+    return {
+        "sampled_dynamic_limits_satisfied": bool(all(checks.values())),
+        "checks": checks,
+    }
 
 
 def validate_solution(
@@ -140,62 +159,63 @@ def validate_solution(
     result: RotSyncOptimizationResult,
     config: RotSyncOptimizationConfig,
 ) -> dict[str, Any]:
-    local_lock_errors, safe_margins = [], []
-    safe_path_sample_count = config.audit_samples_per_segment
-    for window, sync in zip(scenario.windows, result.forward.trajectory.sync_segments):
-        local_times = np.linspace(0.0, sync.duration, safe_path_sample_count)
+    tracking_errors, safe_margins = [], []
+    path_samples = config.audit_samples_per_segment
+    for window, sync in zip(
+        scenario.windows, result.forward.trajectory.sync_segments
+    ):
+        local_times = np.linspace(0.0, sync.duration, path_samples)
         positions = sync.evaluate(local_times)
+        expected_local = sync.local_point_at(local_times)
         recovered = []
         for tau, position in zip(local_times, positions):
             absolute = sync.entry_time + float(tau)
-            z = -window.clearance_distance + 2.0 * window.clearance_distance * tau / sync.duration
+            z = (
+                -window.clearance_distance
+                + 2.0 * window.clearance_distance * tau / sync.duration
+            )
             in_plane = position - window.center - window.normal * z
             recovered.append(window.rotated_basis(absolute).T @ in_plane)
         recovered_array = np.asarray(recovered)
-        expected_local = (
-            sync.local_point_at(local_times)
-            if hasattr(sync, "local_point_at")
-            else np.broadcast_to(sync.local_point, recovered_array.shape)
-        )
-        local_lock_errors.append(
+        tracking_errors.append(
             float(np.max(np.linalg.norm(recovered_array - expected_local, axis=1)))
         )
         polygon = Polygon(window.safe_polygon)
         for local_point in expected_local:
             point = Point(local_point)
-            if not polygon.covers(point):
-                safe_margins.append(-float(point.distance(polygon)))
-            else:
-                safe_margins.append(float(point.distance(polygon.boundary)))
-    endpoint_state_error = float(
+            safe_margins.append(
+                float(point.distance(polygon.boundary))
+                if polygon.covers(point)
+                else -float(point.distance(polygon))
+            )
+
+    endpoint_error = float(
         np.max(
             np.abs(
                 np.stack(
-                    [result.forward.trajectory.evaluate(result.total_time, order) for order in range(4)]
+                    [
+                        result.forward.trajectory.evaluate(result.total_time, order)
+                        for order in range(4)
+                    ]
                 )
                 - scenario.goal_state.matrix
             )
         )
     )
-    endpoint_state_satisfied = bool(endpoint_state_error <= 1.0e-8)
     return {
-        "all_q_in_safe_opening": bool(all(margin >= -1.0e-10 for margin in safe_margins)),
         "all_sampled_sync_path_in_safe_opening": bool(
             all(margin >= -1.0e-10 for margin in safe_margins)
         ),
-        "safe_path_samples_per_sync_segment": safe_path_sample_count,
+        "safe_path_samples_per_sync_segment": path_samples,
         "minimum_safe_margin": float(min(safe_margins)),
         "safe_margins": safe_margins,
-        "maximum_sync_local_tracking_error": float(max(local_lock_errors)),
-        "sync_local_tracking_errors": local_lock_errors,
-        # Backward-compatible names for the fixed-input control.
-        "maximum_sync_local_lock_error": float(max(local_lock_errors)),
-        "sync_local_lock_errors": local_lock_errors,
+        "maximum_sync_local_tracking_error": float(max(tracking_errors)),
+        "sync_local_tracking_errors": tracking_errors,
         "maximum_c3_interface_jump": result.max_c3_jump,
         "c3_continuous": bool(result.max_c3_jump <= 1.0e-8),
         "closed_endpoint_state": scenario.closed,
-        "endpoint_state_error": endpoint_state_error,
-        "endpoint_state_satisfied": endpoint_state_satisfied,
+        "endpoint_state_error": endpoint_error,
+        "endpoint_state_satisfied": bool(endpoint_error <= 1.0e-8),
         "dynamic_audit_samples_per_segment": result.audit_samples_per_segment,
         "dynamic_audit_max_step": result.audit_max_step,
         **_sampled_dynamic_validation(result, config),
@@ -216,15 +236,12 @@ def run_scenario(
     root.mkdir(parents=True, exist_ok=True)
     _write_json(
         root / "config.json",
-        _scenario_config(
-            scenario,
-            settings,
-            collision_samples=collision_samples,
-        ),
+        _scenario_config(scenario, settings, collision_samples=collision_samples),
     )
     for window in scenario.windows:
         window.gate.save(root / "preprocessed" / window.name)
-    result = optimize_track(scenario, config=settings)
+
+    result = optimize_interpolated_track(scenario, config=settings)
     validation = validate_solution(scenario, result, settings)
     effective_collision_samples = int(collision_samples)
     if settings.audit_max_step is not None:
@@ -239,8 +256,8 @@ def run_scenario(
         parameters=settings.quadrotor,
     )
     collision_values = collision.to_dict()
-    trajectory_validation_pass = bool(
-        validation["all_q_in_safe_opening"]
+    trajectory_pass = bool(
+        validation["all_sampled_sync_path_in_safe_opening"]
         and validation["c3_continuous"]
         and validation["endpoint_state_satisfied"]
         and validation["sampled_dynamic_limits_satisfied"]
@@ -249,8 +266,8 @@ def run_scenario(
     validation = {
         **validation,
         "collision_free": not collision.any_collision,
-        "trajectory_validation_pass": trajectory_validation_pass,
-        "formal_acceptance_pass": bool(result.success and trajectory_validation_pass),
+        "trajectory_validation_pass": trajectory_pass,
+        "optimizer_and_trajectory_pass": bool(result.success and trajectory_pass),
         "collision": collision_values,
     }
     _write_json(
@@ -259,10 +276,7 @@ def run_scenario(
     )
     export_trajectory_csv(scenario, result, root / "trajectory.csv")
     plot_trajectory(
-        scenario,
-        result,
-        root / "trajectory_3d.png",
-        collision_report=collision,
+        scenario, result, root / "trajectory_3d.png", collision_report=collision
     )
     plot_sync_closeups(scenario, result, root / "sync_closeups.png")
     if make_animation:
@@ -283,55 +297,65 @@ def _summary_row(
 ) -> dict[str, Any]:
     metrics = scenario_difficulty_metrics(scenario)
     return {
-        "method": "original",
         "scenario": result.scenario_name,
         "difficulty": scenario.difficulty,
         "gate_count": metrics["gate_count"],
         "shape_sequence": " -> ".join(metrics["shape_sequence"]),
-        "unique_shape_count": metrics["unique_shape_count"],
-        "nominal_route_length": metrics["nominal_route_length"],
-        "altitude_range": metrics["altitude_range"],
-        "maximum_turn_angle_deg": metrics["maximum_turn_angle_deg"],
-        "maximum_abs_omega": metrics["maximum_abs_omega"],
-        "closed": scenario.closed,
         "optimizer_success": result.success,
         "trajectory_validation_pass": validation["trajectory_validation_pass"],
-        "formal_acceptance_pass": validation["formal_acceptance_pass"],
+        "optimizer_and_trajectory_pass": validation["optimizer_and_trajectory_pass"],
         "total_time": result.total_time,
         "solve_time": result.solve_time,
-        "selected_q": json.dumps(result.forward.local_points.tolist(), ensure_ascii=False),
+        "entry_latent_points": json.dumps(
+            result.forward.latent_entry_points.tolist(), ensure_ascii=False
+        ),
+        "exit_latent_points": json.dumps(
+            result.forward.latent_exit_points.tolist(), ensure_ascii=False
+        ),
+        "entry_local_points": json.dumps(
+            result.forward.local_entry_points.tolist(), ensure_ascii=False
+        ),
+        "exit_local_points": json.dumps(
+            result.forward.local_exit_points.tolist(), ensure_ascii=False
+        ),
         "max_velocity": result.extrema["max_velocity"],
         "max_acceleration": result.max_acceleration,
         "minimum_safe_margin": validation["minimum_safe_margin"],
-        "maximum_sync_local_lock_error": validation["maximum_sync_local_lock_error"],
         "maximum_c3_interface_jump": result.max_c3_jump,
-        "sampled_dynamic_limits_satisfied": validation["sampled_dynamic_limits_satisfied"],
-        "cuboid_collision_rate": validation["collision"]["sampled_collision_rate"],
-        "cuboid_colliding_samples": validation["collision"]["colliding_sample_count"],
+        "sampled_dynamic_limits_satisfied": validation[
+            "sampled_dynamic_limits_satisfied"
+        ],
+        "cuboid_collision_rate": validation["collision"][
+            "sampled_collision_rate"
+        ],
+        "cuboid_colliding_samples": validation["collision"][
+            "colliding_sample_count"
+        ],
     }
 
 
 def _write_summary(path: Path, rows: Iterable[dict[str, Any]]) -> Path:
     records = list(rows)
-    fields = list(records[0])
     with path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer = csv.DictWriter(stream, fieldnames=list(records[0]))
         writer.writeheader()
         writer.writerows(records)
     return path
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Rotation-synchronised SC/MINCO experiments")
+    parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--suite",
-        choices=("smoke", "multi", "formal", "realistic_extreme"),
-        default="formal",
+        choices=("smoke", "oblique_smoke", "multi", "formal", "realistic_extreme"),
+        default="oblique_smoke",
     )
     parser.add_argument(
         "--outdir",
         type=Path,
-        default=Path("nonconvex_timevarying_window/rot_sync_sc_togt/results"),
+        default=Path(
+            "nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/results"
+        ),
     )
     parser.add_argument("--max-iterations", type=int)
     parser.add_argument("--samples-per-segment", type=int)
@@ -340,11 +364,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--quadrature-order", type=int)
     parser.add_argument("--animation-frames", type=int)
     parser.add_argument("--collision-samples", type=int)
-    parser.add_argument(
-        "--audit-dt",
-        type=float,
-        help="maximum time step for the independent post-optimization dynamics audit",
-    )
+    parser.add_argument("--audit-dt", type=float)
     parser.add_argument("--no-animation", action="store_true")
     args = parser.parse_args(argv)
 
@@ -359,10 +379,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.dynamics_weight is not None
         else (0.1 if production else 0.002)
     )
-    animation_frames = args.animation_frames or (220 if realistic else (140 if production else 100))
+    animation_frames = args.animation_frames or (
+        220 if realistic else (140 if production else 100)
+    )
     collision_samples = args.collision_samples or (5001 if production else 2001)
     requested_shapes = {
         "smoke": ("L",),
+        "oblique_smoke": ("L",),
         "multi": ("L", "U", "star"),
         "formal": None,
         "realistic_extreme": None,
@@ -374,15 +397,17 @@ def main(argv: list[str] | None = None) -> int:
         shape_names=requested_shapes,
         shape_scales=REALISTIC_SHAPE_SCALES if realistic else None,
     )
-    scenarios: list[RotSyncScenario] = []
     if args.suite == "smoke":
-        scenarios.append(build_smoke_scenario(catalog))
+        scenarios = [build_smoke_scenario(catalog)]
+    elif args.suite == "oblique_smoke":
+        scenarios = [build_oblique_smoke_scenario(catalog)]
     elif args.suite == "multi":
-        scenarios.extend(build_multi_scenarios(catalog))
+        scenarios = list(build_multi_scenarios(catalog))
     elif realistic:
-        scenarios.append(build_realistic_extreme_scenario(catalog))
+        scenarios = [build_realistic_extreme_scenario(catalog)]
     else:
-        scenarios.extend(build_formal_scenarios(catalog))
+        scenarios = list(build_formal_scenarios(catalog))
+
     config = RotSyncOptimizationConfig(
         max_iterations=max_iterations,
         samples_per_segment=samples_per_segment,
@@ -411,10 +436,7 @@ def main(argv: list[str] | None = None) -> int:
         rows.append(_summary_row(scenario, result, validation))
         print(json.dumps(rows[-1], ensure_ascii=False))
     _write_summary(args.outdir / "summary.csv", rows)
-    _write_json(
-        args.outdir / "summary.json",
-        {"suite": args.suite, "method": "original", "runs": rows},
-    )
+    _write_json(args.outdir / "summary.json", {"suite": args.suite, "runs": rows})
     return 0
 
 

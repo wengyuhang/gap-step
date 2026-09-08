@@ -16,6 +16,7 @@
     sip_dynatogt/               witness 优化 + Arb 连续域认证
     planar_rs_dynatogt/         固定平面旋转/缩放的认证加速
     rot_sync_sc_togt/           自旋窗口的解析同步段 + MINCO
+    interpolated_rot_sync_sc_togt/  双 SC 输入插值同步段 + MINCO
     avs_ppo/                   动作掩码/可恢复盾牌 PPO
     phaseguard_rl/             点/时间 PPO + 认证准入
     comparisons/               SC/SIP 压力场景与速率基准
@@ -42,13 +43,14 @@
 | MSR | `initializations.py/candidate_pool.py` → 复用 SC 求解 → `feasibility_repair.py` → `solver.py`；`comparison.py/experiments.py` 记录匹配预算比较 |
 | SIP | `model.py/constraints.py` 定义真实边界和整机 → `solver.py` 的 SLSQP witness 循环 → `intervals.py/certificate.py` 连续域细分；`io.py/verify.py` 序列化与重放 |
 | Planar-RS | `model.py/scenario.py` 限定运动模型 → `certificate.py` 的平面严格排除与 SIP 原始曲线检查 → `solver.py`；`verify.py` 独立重放 |
-| RotSync | `geometry.py/scenarios.py` 建立自旋门 → `trajectory.py` 的解析 Sync、PVAJ 与 MINCO 拼接 → `optimizer.py`；`collision.py` 密集整机截面审计；`experiments.py` 和 `single_window_comparison.py` 分开 |
+| RotSync | `geometry.py/scenarios.py` 建立自旋门 → `trajectory.py` 的固定点 Sync、PVAJ 与 MINCO 拼接 → `optimizer.py`；`collision.py` 密集整机截面审计；`single_window_comparison.py` 单独维护 |
+| Interpolated-RotSync | 独立目录的 `trajectory.py` 在双 SC 输入间插值并解析到 snap → `optimizer.py` 以入口/出口 PVAJ 连接共享 MINCO/L-BFGS → `experiments.py` 单独导出结果；几何、场景、碰撞和可视化通过明确接口复用 RotSync |
 
-SC 的 Chang 方法只用于边界均匀重采样和角点保留。内部点来自 Schwarz–Christoffel 圆盘映射 `q(d)=Psi(B(d))`，不能写成 Chang harmonic measure 或 Atlas 三角 chart。SC/SIP 基础变量为 `[K,D]`，RotSync 使用 `[K_free,K_sync,d]`，旧 WBSC 的 `[K,D,Y]` 属于废案。
+SC 的 Chang 方法只用于边界均匀重采样和角点保留。内部点来自 Schwarz–Christoffel 圆盘映射 `q(d)=Psi(B(d))`，不能写成 Chang harmonic measure 或 Atlas 三角 chart。SC/SIP 基础变量为 `[K,D]`；RotSync 使用 `[K_free,K_sync,d]`，独立的 Interpolated-RotSync 使用 `[K_free,K_sync,d_entry,d_exit]`；旧 WBSC 的 `[K,D,Y]` 属于废案。
 
 SIP 支持真实 Line/CircularArc/Bézier/非有理 B-spline 边界原语；用于映射的采样多边形和认证的原始曲线是两种数据，不得混用。SLSQP 给候选，Arb 完整有限覆盖给认证状态，优化器成功字段不能替代认证。
 
-Planar-RS 要求固定中心/平面，允许面内旋转和统一缩放；RotSync 仅绕法向匀速自旋。RotSync 的解析同步段保持窗口局部穿越点不变，并以 PVAJ 接入相邻七阶 MINCO，不能把 Sync 写成 MINCO 拟合近似。
+Planar-RS 要求固定中心/平面，允许面内旋转和统一缩放；RotSync 与 Interpolated-RotSync 都仅绕法向匀速自旋。RotSync 保持窗口局部点不变；Interpolated-RotSync 在无约束 SC 输入空间线性插值，再经 `B` 和 `Psi` 得到随时间变化的局部点，不是连接两个实际位置。两者都以 PVAJ 接入相邻七阶 MINCO，不是 MINCO 拟合 Sync。
 
 ## 强化学习路径
 

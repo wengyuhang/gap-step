@@ -27,6 +27,7 @@ pytest -q nonconvex_timevarying_window/msr_dynatogt/tests
 pytest -q nonconvex_timevarying_window/sip_dynatogt/tests
 pytest -q nonconvex_timevarying_window/planar_rs_dynatogt/tests
 pytest -q nonconvex_timevarying_window/rot_sync_sc_togt/tests
+pytest -q nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/tests
 pytest -q nonconvex_timevarying_window/avs_ppo/tests
 pytest -q nonconvex_timevarying_window/phaseguard_rl/tests
 pytest -q nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/tests
@@ -43,6 +44,10 @@ RotSync 的默认 suite 是 `formal`，不是 smoke；快速回归应显式选�
 
 ```bash
 python -m nonconvex_timevarying_window.rot_sync_sc_togt.experiments --suite smoke --no-animation --outdir nonconvex_timevarying_window/rot_sync_sc_togt/results/smoke_new_run
+python -m nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.experiments --suite oblique_smoke --no-animation --audit-dt 0.001 --collision-samples 5001 --outdir nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/results/oblique_new_run
+python -m nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.compare_fixed_wp_counterexample --outdir nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/results/zero_thickness_new_run
+python -m nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.compare_fixed_wp_seeded --outdir nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/results/zero_thickness_fixed_wp_seeded_new_run
+python -m nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.compare_sc_dynatogt_fixed_wp --outdir nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/results/zero_thickness_sc_dynatogt_vs_fixed_wp_new_run
 python -m nonconvex_timevarying_window.rot_sync_sc_togt.experiments --suite formal --outdir nonconvex_timevarying_window/rot_sync_sc_togt/results/formal_new_run
 python -m nonconvex_timevarying_window.rot_sync_sc_togt.single_window_comparison
 ```

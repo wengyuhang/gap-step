@@ -32,6 +32,9 @@ MINCO -> Sync -> MINCO -> ... -> Sync -> MINCO
 T_total + lambda_s * integral(||snap||^2) + lambda_d * P_dyn.
 ```
 
+入口/出口双 SC 输入插值版本已作为独立并列方法维护在
+[`../interpolated_rot_sync_sc_togt/`](../interpolated_rot_sync_sc_togt/README.md)；本目录只保留固定单输入原方法作为对照。
+
 ## 正式赛道
 
 `formal` 是默认实验套件，共四条起点 PVAJ 与终点 PVAJ 完全相同的闭合赛道：

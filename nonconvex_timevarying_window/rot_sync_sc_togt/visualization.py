@@ -331,10 +331,14 @@ def plot_sync_closeups(
             zlim=(center[2] - radius, center[2] + radius),
         )
         ax.set_box_aspect((1.0, 1.0, 1.0))
-        ax.set_title(
-            f"{index + 1}: {window.name}  Δ={sync.duration:.3f}s\n"
-            f"q=({sync.local_point[0]:.3f}, {sync.local_point[1]:.3f}) m"
-        )
+        if hasattr(sync, "local_entry_point"):
+            local_label = (
+                f"q_in=({sync.local_entry_point[0]:.3f}, {sync.local_entry_point[1]:.3f}), "
+                f"q_out=({sync.local_exit_point[0]:.3f}, {sync.local_exit_point[1]:.3f}) m"
+            )
+        else:
+            local_label = f"q=({sync.local_point[0]:.3f}, {sync.local_point[1]:.3f}) m"
+        ax.set_title(f"{index + 1}: {window.name}  Δ={sync.duration:.3f}s\n{local_label}")
         ax.set_xlabel("x [m]")
         ax.set_ylabel("y [m]")
         ax.set_zlabel("z [m]")

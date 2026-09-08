@@ -67,8 +67,8 @@ class RotatingWindow:
             raise ValueError("plane_basis and normal must form a right-handed frame")
         if not np.all(np.isfinite((self.theta0, self.omega, self.thickness, self.rho))):
             raise ValueError("window scalar parameters must be finite")
-        if self.thickness <= 0.0 or self.rho <= 0.0:
-            raise ValueError("thickness and rho must be positive")
+        if self.thickness < 0.0 or self.rho <= 0.0:
+            raise ValueError("thickness must be nonnegative and rho must be positive")
         if not np.isclose(self.gate.safe_region.distance, self.rho, rtol=0.0, atol=1.0e-10):
             raise ValueError("preprocessed gate inset must equal rho")
         object.__setattr__(self, "center", center)

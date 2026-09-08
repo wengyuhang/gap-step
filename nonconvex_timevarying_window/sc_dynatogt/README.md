@@ -94,6 +94,17 @@ from nonconvex_timevarying_window.sc_dynatogt.preprocessing import (
 
 ## 优化与实验
 
+### 零厚度单窗自由选点对比
+
+`interpolated_rot_sync_sc_togt/compare_sc_dynatogt_fixed_wp.py` 在同一个零厚度均衡 U 形旋转窗口上对比两段 MINCO Fixed-WP 与自由一个 SC 穿越点的 SC-DynaTOGT。两者只差二维 SC 变量；自由方法从 Fixed-WP 最终解精确嵌入热启动，运行前目标和 0–4 阶轨迹误差均为零。
+
+```bash
+python -m nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.compare_sc_dynatogt_fixed_wp \
+  --outdir nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/results/zero_thickness_sc_dynatogt_vs_fixed_wp_new_run
+```
+
+2026-09-08 无预算运行中，自由选点将飞行时间从 `2.486309570 s` 降到 `2.340844067 s`，缩短 `5.85066%`；局部点从 `[-0.917408,-1.557064]` 移到 `[-0.714251,-1.313525]`。两个最终解的解析梯度无穷范数为 `2.311e-9`/`3.209e-6`。但两条轨迹的原生 1 ms 动力学审计均失败；自由解还将 SC 输入推到圆盘边界附近，数值回代点超出安全多边形 `5.122 nm`，超过当前 `1 nm` 容差。两者采样碰撞数都为零，但不能因此写成轨迹验收成功或连续域证明。详见[对比报告](../interpolated_rot_sync_sc_togt/results/zero_thickness_sc_dynatogt_vs_fixed_wp_unlimited_20260908/REPORT.md)。
+
 快速烟测 E0–E5：
 
 ```bash

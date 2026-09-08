@@ -27,7 +27,10 @@ from nonconvex_timevarying_window.sc_dynatogt.time_mapping import (
 )
 
 from .scenarios import RotSyncScenario
-from .trajectory import CompositeTrajectory, RotationSyncSegment
+from .trajectory import (
+    CompositeTrajectory,
+    RotationSyncSegment,
+)
 
 
 FloatArray = NDArray[np.float64]
@@ -44,6 +47,8 @@ class RotSyncOptimizationConfig:
     dynamics_weight: float = 2.0e-3
     finite_difference_step: float = 2.0e-5
     samples_per_segment: int = 7
+    audit_samples_per_segment: int = 81
+    audit_max_step: float | None = None
     max_iterations: int = 40
     quadrotor: QuadrotorParameters = field(default_factory=QuadrotorParameters)
     dynamic_limits: DynamicLimits = field(
@@ -75,8 +80,14 @@ class RotSyncOptimizationConfig:
             raise ValueError("initialization and finite-difference settings must be positive")
         if self.smoothness_weight < 0.0 or self.dynamics_weight < 0.0:
             raise ValueError("objective weights must be nonnegative")
-        if self.samples_per_segment < 3 or self.max_iterations < 1:
-            raise ValueError("samples_per_segment >= 3 and max_iterations >= 1 are required")
+        if self.samples_per_segment < 3 or self.audit_samples_per_segment < 3:
+            raise ValueError("objective and audit samples_per_segment must be at least 3")
+        if self.audit_max_step is not None and (
+            not np.isfinite(self.audit_max_step) or self.audit_max_step <= 0.0
+        ):
+            raise ValueError("audit_max_step must be finite and positive when provided")
+        if self.max_iterations < 1:
+            raise ValueError("max_iterations must be positive")
 
     def lbfgs_config(self) -> BaseLBFGSConfig:
         return BaseLBFGSConfig(
@@ -128,12 +139,14 @@ class RotSyncOptimizationResult:
     cost_evaluations: int
     solve_time: float
     x: FloatArray
-    forward: RotSyncForwardPass
+    forward: Any
     breakdown: ObjectiveBreakdown
     extrema: dict[str, Any]
     max_acceleration: float
     max_c3_jump: float
     invalid_trial_count: int
+    audit_samples_per_segment: int
+    audit_max_step: float
 
     @property
     def total_time(self) -> float:
@@ -149,34 +162,44 @@ class RotSyncOptimizationResult:
                 return {key: clean(item) for key, item in value.items()}
             return value
 
-        return clean(
-            {
-                "scenario": self.scenario_name,
-                "success": self.success,
-                "status": self.status,
-                "message": self.message,
-                "objective": self.objective,
-                "iterations": self.iterations,
-                "optimizer_evaluations": self.evaluations,
-                "cost_evaluations": self.cost_evaluations,
-                "solve_time": self.solve_time,
-                "decision_vector_x": self.x,
-                "total_time": self.total_time,
-                "free_durations": self.forward.free_durations,
-                "sync_durations": self.forward.sync_durations,
-                "entry_times": self.forward.entry_times,
-                "crossing_times": self.forward.crossing_times,
-                "exit_times": self.forward.exit_times,
-                "latent_points": self.forward.latent_points,
-                "selected_q": self.forward.local_points,
-                "objective_breakdown": asdict(self.breakdown),
-                "max_velocity": self.extrema["max_velocity"],
-                "max_acceleration": self.max_acceleration,
-                "constraint_extrema": self.extrema,
-                "max_c3_jump": self.max_c3_jump,
-                "invalid_trial_count": self.invalid_trial_count,
-            }
-        )
+        values = {
+            "scenario": self.scenario_name,
+            "success": self.success,
+            "status": self.status,
+            "message": self.message,
+            "objective": self.objective,
+            "iterations": self.iterations,
+            "optimizer_evaluations": self.evaluations,
+            "cost_evaluations": self.cost_evaluations,
+            "solve_time": self.solve_time,
+            "decision_vector_x": self.x,
+            "total_time": self.total_time,
+            "free_durations": self.forward.free_durations,
+            "sync_durations": self.forward.sync_durations,
+            "entry_times": self.forward.entry_times,
+            "crossing_times": self.forward.crossing_times,
+            "exit_times": self.forward.exit_times,
+            "latent_points": self.forward.latent_points,
+            "selected_q": self.forward.local_points,
+            "objective_breakdown": asdict(self.breakdown),
+            "max_velocity": self.extrema["max_velocity"],
+            "max_acceleration": self.max_acceleration,
+            "constraint_extrema": self.extrema,
+            "max_c3_jump": self.max_c3_jump,
+            "invalid_trial_count": self.invalid_trial_count,
+            "dynamic_audit_samples_per_segment": self.audit_samples_per_segment,
+            "dynamic_audit_max_step": self.audit_max_step,
+        }
+        if hasattr(self.forward, "latent_entry_points"):
+            values.update(
+                {
+                    "entry_latent_points": self.forward.latent_entry_points,
+                    "exit_latent_points": self.forward.latent_exit_points,
+                    "entry_local_points": self.forward.local_entry_points,
+                    "exit_local_points": self.forward.local_exit_points,
+                }
+            )
+        return clean(values)
 
 
 class RotSyncObjective:
@@ -311,6 +334,14 @@ def optimize_track(
     """Run the reused TOGT L-BFGS driver and reconstruct the exact composite path."""
 
     objective = RotSyncObjective(scenario, config)
+    return _optimize_objective(objective, scenario, initial_x)
+
+
+def _optimize_objective(
+    objective: RotSyncObjective,
+    scenario: RotSyncScenario,
+    initial_x: ArrayLike | None,
+) -> RotSyncOptimizationResult:
     x0 = objective.initial_guess() if initial_x is None else np.asarray(initial_x, dtype=float)
     objective.split(x0)
     started = time.perf_counter()
@@ -322,12 +353,18 @@ def optimize_track(
     solve_time = time.perf_counter() - started
     forward = objective.forward(scipy_result.x)
     breakdown = objective.breakdown(forward)
+    audit_samples = objective.config.audit_samples_per_segment
+    if objective.config.audit_max_step is not None:
+        audit_samples = max(
+            audit_samples,
+            int(np.ceil(np.max(forward.trajectory.durations) / objective.config.audit_max_step)) + 1,
+        )
     extrema = constraint_extrema(
         forward.trajectory,
         parameters=objective.config.quadrotor,
-        samples_per_segment=max(25, 3 * objective.config.samples_per_segment),
+        samples_per_segment=audit_samples,
     )
-    samples = forward.trajectory.sample(samples_per_segment=41)
+    samples = forward.trajectory.sample(samples_per_segment=audit_samples)
     max_acceleration = float(np.max(np.linalg.norm(samples.acceleration, axis=1)))
     residuals = forward.trajectory.interface_residuals()
     max_jump = float(np.max(residuals)) if residuals.size else 0.0
@@ -348,6 +385,8 @@ def optimize_track(
         max_acceleration=max_acceleration,
         max_c3_jump=max_jump,
         invalid_trial_count=objective.invalid_trial_count,
+        audit_samples_per_segment=audit_samples,
+        audit_max_step=float(np.max(forward.trajectory.durations) / (audit_samples - 1)),
     )
 
 

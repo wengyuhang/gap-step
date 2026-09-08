@@ -71,3 +71,53 @@
 - 同例核对显示 Optimized-MINCO 也碰撞；SC+Sync 虽无碰撞但动力学严重超限。因此该例只支持“固定安全点不足以保证厚度带内整段安全”，尚不能作为 SC+Sync 同时安全且动力学可行的优势证据。
 
 验证：实验目录 4 项测试通过，三个新增/修改 Python 文件通过 `py_compile`；反例图经渲染检查，物理开口和内缩区均为 8 顶点、2 凹顶点、单连通无洞的非凸 U 形。上述验收仍是采样数值证据，不是连续时间证明。
+
+## 2026-09-07：双 SC 输入插值 Sync
+
+用户要求在原 RotSync 上只修改穿越段：入口/出口两组 SC 输入随进度线性插值，再通过原圆盘变换与 SC 映射，与自旋窗口和法向匀速运动组成三维轨迹；原方法作对照，不增加其他规划方案。
+
+本次完成：
+
+- 在独立目录 `nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/` 新增 `SCInputInterpolatedSyncSegment`、`InterpolatedRotSyncObjective`、实验入口、测试和说明，联合变量为 `[K_free,K_sync,d_entry,d_exit]`；原 `rot_sync_sc_togt/` 只保留 `RotationSyncSegment` / `RotSyncObjective` 对照。
+- 用截断 Taylor jet 解析计算圆盘变换、SC 映射导数与旋转复合的 0–4 阶时间导数，以入口/出口 PVAJ 构造前后单段 degree-7 MINCO。
+- 新目录实验入口包含能产生明显不同两端输入的 `oblique_smoke` 斜向 L 单窗场景，并支持 `--audit-dt` 控制独立动力学审计最大步长；旧方法继续由原目录入口独立运行。
+- 修正开放单窗场景被 `scenario.closed=false` 误判为轨迹失败的验收条件；当前以终点 PVAJ 误差判定终点约束，闭合属性另行记录。
+
+验证：两输入相同时，0–4 阶与原 Sync 的最大绝对误差不超过 `4.441e-16`；两输入不同时，递推差分对解析 1–4 阶的最大绝对误差不超过 `7.108e-10`，前后 MINCO 接口的 PVAJ 跳变测试小于 `1e-8`。斜向实验中新方法两组输入距离 `0.121204`，映射端点距离 `0.113786 m`，最大 C3 跳变 `2.737e-14`；独立动力学网格最大步长 `0.999468 ms`且限制全通过，实姿长方体审计为 `0/5001` 碰撞。新方法 L-BFGS 收敛且轨迹验收通过；原方法轨迹验收通过，但优化器以 `ABNORMAL` 停止，两者未混合。整机和动力学结论都是最大 1 ms 采样验证，不是连续域证书。
+
+## 2026-09-07：双 SC 输入方法复跑 Fixed-WP 碰撞反例
+
+- 新增 `interpolated_rot_sync_sc_togt/compare_fixed_wp_counterexample.py`，严格重建历史均衡 U、尺寸比 1.9、4.5 rad/s、初相位 1.1 rad 场景；安全多边形与历史产物对称差面积为零。
+- 两方法共享实验三冻结权重、碰撞惩罚、动力学限制、L-BFGS 配置、180 秒预算及最大 1 ms 加临界时刻细化审计。Fixed-WP 复现 `100/3825` 碰撞且动力学通过。
+- 双输入方法为 `0/6738` 碰撞、一次有效穿窗、C3 跳变 `1.844e-12`，但最大速度 `16.2018 m/s`、XY/Z 角速率 `20.7656/261.9996 rad/s`、旋翼推力 `[-11332.6,11338.5] N`，故动力学失败。两者优化器均收敛，但轨迹验收均失败；没有把收敛或采样无碰撞写成成功/严格证明。
+
+## 2026-09-07：反例对比改用 TOGT 论文惩罚
+
+- 对比目标改为论文式 (12)/(15) `J=T+∫max(h,0)^3dt`；snap 权重为零，碰撞完全移出优化目标，只在求解后独立审计。新增 `paper_penalty.py`，不修改保留的 C++ `smoothedL1` 复现内核。
+- 两方法使用论文式 (12) 的字面离散（每段 64 区间、65 节点，每节点完整乘 `Delta t`）、同一动力学限制和 L-BFGS。Fixed-WP 得到 `J=2.849063`，速度 `7.02511>7 m/s`；双输入法在 180 s 超时，得到 `J=6.663766`，离散动力学惩罚仅 `0.00800405`，但 1 ms 审计检出 Z 角速率 `100.534 rad/s`和旋翼推力 `[-116747,116753] N`。
+- 两条轨迹均为一次有效穿窗和零碰撞采样，但均未通过动力学验收。结果保存在 `interpolated_rot_sync_sc_togt/results/fixed_wp_counterexample_togt_paper_eq12_20260907/`；这些是采样证据，不是连续域安全证明。
+
+## 2026-09-08：反例对比改用 TOGT 配套 C++ 目标并无预算收敛
+
+- 新增 `togt_code_penalty.py`，复刻动态 `clamp(int(T_i/0.05),8,32)` 检查区间、梯形端点权重、`mu=0.01` 的 `smoothedL1`、正常 tilt-yaw 机体角速率/单旋翼推力和 `|z_B,z+1|≤0.001` 时的 robust singularity 替代惩罚。标准代码设置下 snap、速度、碰撞权重为零，角速率和旋翼推力权重为 1。目标函数值侧与 C++ 对齐；发布代码没有双 SC 输入段，该新参数化的决策变量梯度仍用中心有限差分。
+- L-BFGS 使用 memory 256、past 32、64 次最大线搜索、`maxIterations=0`，不设墙钟预算。Fixed-WP 在 20 次迭代/113 次评估后收敛，`T=2.245914 s`、`J=2.283023`；双输入法在 14 次迭代/71 次评估后收敛，`T=6.559153 s`、`J=6.559153`。
+- 独立最大 1 ms TOGT-code 残差审计中，Fixed-WP 有 204 个单旋翼违规样本，双输入法有 51 个角速率违规样本；两条轨迹均为一次有效穿窗和零碰撞采样，但均未通过动力学验收。原项目姿态恢复审计另行保留，不与 C++ tilt-yaw 极值混淆。完整产物在 `interpolated_rot_sync_sc_togt/results/fixed_wp_counterexample_togt_code_unlimited_audited_20260908/`。
+
+## 2026-09-08：零厚度窗口与固定 SC 子集热启动
+
+- `RotatingWindow` 现在允许厚度为零；此时 `clearance_distance=rho`，Sync 入口/出口球心法向坐标为 `-rho/+rho`，对应规划球与窗口平面相切。
+- TOGT-code 对比的对照由两段普通 MINCO Fixed-WP 纠正为原固定 SC 输入 RotSync。相同时间与入口=出口时，两方法 0–4 阶导数最大误差 `7.088e-13`，目标误差 `7.283e-14`。
+- 先优化 RotSync，再将其最终解精确嵌入双输入法热启动，嵌入目标误差 `3.109e-14`。无墙钟/迭代预算运行中，两者最终均为 `T=5.811201508 s`、`J=5.829428767`，消除了不可比初始化导致的时间差。
+- 两者都是一次有效穿窗和 `0/5999` 碰撞样本，但 TOGT-code 1 ms 审计都检出 192 个动力学违规样本；这些是采样数值结果，不是连续域安全证明。产物保存在 `interpolated_rot_sync_sc_togt/results/zero_thickness_nested_warmstart_togt_code_unlimited_20260908/`。
+
+## 2026-09-08：从 Fixed-WP 轨迹反推双 SC 输入初值
+
+- 新增 `compare_fixed_wp_seeded.py`：先求零厚度普通 Fixed-WP，再求其轨迹与 `-rho/+rho` 两个球平面相切等值面的时刻，将对应位置转回旋转窗口局部坐标并做 SC 逆映射，与三段时间一起构成双输入初值。
+- Fixed-WP 为 `T=2.245913723 s`、`J=2.283023207`；反推相切时刻 `0.986851567/1.074603514 s`，两局部点安全边界余量 `0.139567/0.045006 m`，SC 逆映射误差不超过 `2.220e-16 m`。
+- 反推初值总时间仍为 `2.245913723 s`，但仅 `0.087751947 s` 的插值 Sync 段产生 `504891.2374` 的动力学惩罚。无预算优化后得到 `T=2.674461462 s`、`J=2530.901485`，动力学惩罚仍为 `2528.227023`，1 ms 审计有 2704 个违规样本，不可验收。完整产物在 `interpolated_rot_sync_sc_togt/results/zero_thickness_fixed_wp_seeded_togt_code_unlimited_20260908/`。
+
+## 2026-09-08：SC-DynaTOGT 一个自由 SC 点对比 Fixed-WP
+
+- 新增 `compare_sc_dynatogt_fixed_wp.py`，使用 SC-DynaTOGT 原生两段 MINCO 结构和解析 SC/时间链式梯度。Fixed-WP 只优化两段时间，SC-DynaTOGT 在同一决策向量上多开放二维 SC 点；从 Fixed-WP 最终解精确热启动，运行前目标和 0–4 阶轨迹误差均为零。
+- 无预算运行中，Fixed-WP 为 `T=2.486309570 s`、`J=2.489622680`；SC-DynaTOGT 为 `T=2.340844067 s`、`J=2.340972823`，时间缩短 `5.85066%`。最终解析梯度无穷范数分别为 `2.311e-9` 和 `3.209e-6`。
+- 两轨迹均为零碰撞样本，但原生 1 ms 动力学审计均失败；自由解还因贴近单位圆边界而出现 `5.122 nm` 的 SC 多边形数值越界，不记为轨迹验收成功。完整产物在 `interpolated_rot_sync_sc_togt/results/zero_thickness_sc_dynatogt_vs_fixed_wp_unlimited_20260908/`。

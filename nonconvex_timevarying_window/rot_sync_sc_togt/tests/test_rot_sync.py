@@ -207,13 +207,18 @@ def test_smoke_run_exports_research_artifacts(catalog, tmp_path) -> None:
     result, validation = run_scenario(
         scenario,
         tmp_path,
-        config=RotSyncOptimizationConfig(max_iterations=2, samples_per_segment=3),
+        config=RotSyncOptimizationConfig(
+            max_iterations=2,
+            samples_per_segment=3,
+            audit_max_step=0.01,
+        ),
         make_animation=False,
         collision_samples=301,
     )
     assert result.total_time > 0.0
     assert validation["all_q_in_safe_opening"]
     assert validation["c3_continuous"]
+    assert validation["dynamic_audit_max_step"] <= 0.01
     for name in (
         "config.json", "result.json", "trajectory.csv", "trajectory_3d.png",
         "sync_closeups.png",
@@ -224,4 +229,5 @@ def test_smoke_run_exports_research_artifacts(catalog, tmp_path) -> None:
     assert saved["max_velocity"] > 0.0
     assert saved["max_acceleration"] > 0.0
     assert saved["collision"]["body_model"] == "oriented_square_bottom_cuboid"
+    assert saved["total_time"] / (saved["collision"]["sample_count"] - 1) <= 0.01
     assert 0.0 <= saved["collision"]["sampled_collision_rate"] <= 1.0
