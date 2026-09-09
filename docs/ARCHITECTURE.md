@@ -1,6 +1,6 @@
 # 代码架构与模型边界
 
-更新：2026-09-06，依据 `40692e8` 与本地目录。现状/结果见 [PROJECT_CONTEXT](PROJECT_CONTEXT.md)，具体命令见 [RUNBOOK](RUNBOOK.md)。
+更新：2026-09-09，依据 `40692e8` 与本地目录。现状/结果见 [PROJECT_CONTEXT](PROJECT_CONTEXT.md)，具体命令见 [RUNBOOK](RUNBOOK.md)。
 
 ## 目录组织
 
@@ -12,6 +12,8 @@
     PROBLEM_DEFINITION.md       基础非凸按序穿越问题
     atlas_dynatogt/             三角 chart atlas + Hermite
     sc_dynatogt/                SC 参数化 + degree-7 MINCO 基础实现
+    random_dk_sc_dynatogt/      独立均匀 D/K 扰动基线
+    feasibility_guided_cem_sc_dynatogt/  安全相位前端 + 完整协方差 CEM
     msr_dynatogt/               SC 多初值 + 采样动力学修复
     sip_dynatogt/               witness 优化 + Arb 连续域认证
     planar_rs_dynatogt/         固定平面旋转/缩放的认证加速
@@ -40,6 +42,8 @@
 |---|---|
 | Atlas | `geometry.py` 的 ear clipping/chart → `environment.py` → `optimizer.py` → `experiments.py` / `visualize.py` |
 | SC | `boundary.py` → `offset.py` → `sc_mapping.py` → `preprocessing.py`；`environment.py` + `minco.py/dynamics.py/time_mapping.py` → `optimizer.py`；`experiments.py` 与 `diverse_demo.py` 分开 |
+| Random-DK | 复用 SC/MINCO 前向轨迹 → `search.py` 一次性独立 D/K 候选 → `safety.py` 球体接触区间与动力学短路筛选 → 单窗或多窗最终整机审计 |
+| Feasibility-Guided CEM | 单窗已验证 `(相位,D)` → `search.py` 周期别名前端 → K 时间尺度归一化、D 极坐标与完整协方差 CEM → 复用 Random-DK 硬筛选和多窗最终整机审计 |
 | MSR | `initializations.py/candidate_pool.py` → 复用 SC 求解 → `feasibility_repair.py` → `solver.py`；`comparison.py/experiments.py` 记录匹配预算比较 |
 | SIP | `model.py/constraints.py` 定义真实边界和整机 → `solver.py` 的 SLSQP witness 循环 → `intervals.py/certificate.py` 连续域细分；`io.py/verify.py` 序列化与重放 |
 | Planar-RS | `model.py/scenario.py` 限定运动模型 → `certificate.py` 的平面严格排除与 SIP 原始曲线检查 → `solver.py`；`verify.py` 独立重放 |

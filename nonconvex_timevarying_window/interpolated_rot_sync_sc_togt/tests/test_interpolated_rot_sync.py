@@ -13,6 +13,7 @@ from nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.experiments impo
 )
 from nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.optimizer import (
     InterpolatedRotSyncObjective,
+    SplineRotSyncObjective,
 )
 from nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.paper_penalty import (
     integrated_paper_dynamic_penalty,
@@ -28,6 +29,7 @@ from nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.scenarios import
 )
 from nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.trajectory import (
     SCInputInterpolatedSyncSegment,
+    SCInputSplineSyncSegment,
 )
 from nonconvex_timevarying_window.rot_sync_sc_togt.optimizer import (
     RotSyncOptimizationConfig,
@@ -129,6 +131,99 @@ def test_unequal_inputs_have_correct_derivatives_and_safe_path(catalog) -> None:
     assert np.linalg.norm(midpoint - 0.5 * (local[0] + local[-1])) > 1.0e-5
 
 
+def test_linear_bezier_exactly_recovers_two_input_crossing(catalog) -> None:
+    window = build_smoke_scenario(catalog).windows[0]
+    entry = np.asarray((-0.24, 0.13))
+    exit = np.asarray((0.31, -0.21))
+    linear = SCInputInterpolatedSyncSegment(
+        window, entry, exit, entry_time=1.7, duration=0.79
+    )
+    spline = SCInputSplineSyncSegment(
+        window,
+        np.linspace(entry, exit, 8),
+        np.zeros(6),
+        entry_time=1.7,
+        duration=0.79,
+    )
+    times = np.linspace(0.0, spline.duration, 101)
+    assert np.allclose(spline.latent_at(times), linear.latent_at(times), atol=2.0e-15)
+    assert np.allclose(spline.normal_at(times), linear.normal_at(times), atol=2.0e-15)
+    for derivative in range(5):
+        assert np.allclose(
+            spline.evaluate(times, derivative),
+            linear.evaluate(times, derivative),
+            atol=2.0e-9,
+        )
+
+
+def test_shaped_bezier_is_safe_monotone_and_has_correct_derivatives(catalog) -> None:
+    window = build_smoke_scenario(catalog).windows[0]
+    controls = np.asarray(
+        (
+            (-0.24, 0.13),
+            (-0.19, 0.24),
+            (-0.08, 0.30),
+            (0.05, 0.19),
+            (0.14, 0.04),
+            (0.18, -0.13),
+            (0.25, -0.24),
+            (0.31, -0.21),
+        )
+    )
+    shape = np.asarray((0.4, -0.2, 0.6, -0.4, 0.1, 0.3))
+    segment = SCInputSplineSyncSegment(
+        window, controls, shape, entry_time=1.7, duration=0.79
+    )
+    instant, step = 0.37, 1.0e-5
+    for derivative in range(4):
+        numeric = (
+            segment.evaluate(instant + step, derivative)
+            - segment.evaluate(instant - step, derivative)
+        ) / (2.0 * step)
+        assert np.allclose(
+            numeric, segment.evaluate(instant, derivative + 1), atol=2.0e-5
+        )
+
+    times = np.linspace(0.0, segment.duration, 101)
+    normal = segment.normal_at(times)
+    assert normal[0] == pytest.approx(-window.clearance_distance, abs=1.0e-12)
+    assert normal[-1] == pytest.approx(window.clearance_distance, abs=1.0e-12)
+    assert np.all(np.diff(segment.normal_control_points) > 0.0)
+    assert np.all(np.diff(normal) > 0.0)
+    assert segment.normal_at(segment.plane_crossing_time) == pytest.approx(
+        0.0, abs=1.0e-12
+    )
+    safe = Polygon(window.safe_polygon).buffer(1.0e-10)
+    assert all(safe.covers(Point(point)) for point in segment.local_point_at(times))
+
+
+def test_spline_objective_contains_linear_objective_and_connects_c3(catalog) -> None:
+    scenario = build_smoke_scenario(catalog)
+    config = RotSyncOptimizationConfig(max_iterations=1, samples_per_segment=3)
+    linear = InterpolatedRotSyncObjective(scenario, config)
+    spline = SplineRotSyncObjective(scenario, config)
+    linear_x = linear.initial_guess()
+    linear_x[3:5] = (-0.20, 0.14)
+    linear_x[5:7] = (0.28, -0.11)
+    free_k, sync_k, entry, exit = linear.split(linear_x)
+    spline_x = spline.pack_linear(free_k, sync_k, entry, exit)
+    linear_forward = linear.forward(linear_x)
+    spline_forward = spline.forward(spline_x)
+    times = np.linspace(0.0, linear_forward.trajectory.total_time, 101)
+    for derivative in range(5):
+        assert np.allclose(
+            spline_forward.trajectory.evaluate(times, derivative),
+            linear_forward.trajectory.evaluate(times, derivative),
+            atol=2.0e-9,
+        )
+
+    shaped_x = spline_x.copy()
+    shaped_x[7:19] = np.linspace(-0.08, 0.08, 12)
+    shaped_x[19:25] = (0.4, -0.2, 0.6, -0.4, 0.1, 0.3)
+    shaped = spline.forward(shaped_x)
+    assert np.max(shaped.trajectory.interface_residuals()) < 1.0e-8
+
+
 def test_pvaj_interfaces_are_c3(catalog) -> None:
     scenario = build_smoke_scenario(catalog)
     objective = InterpolatedRotSyncObjective(
@@ -184,6 +279,8 @@ def test_new_folder_experiment_exports(catalog, tmp_path) -> None:
     saved = json.loads((tmp_path / "result.json").read_text(encoding="utf-8"))
     assert saved["entry_latent_points"]
     assert saved["exit_latent_points"]
+    assert np.asarray(saved["latent_control_points"]).shape == (1, 8, 2)
+    assert np.asarray(saved["normal_control_points"]).shape == (1, 8)
     assert saved["collision"]["body_model"] == "oriented_square_bottom_cuboid"
 
 

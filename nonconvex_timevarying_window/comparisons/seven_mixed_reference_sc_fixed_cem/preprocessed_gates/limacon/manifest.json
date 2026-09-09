@@ -1,0 +1,73 @@
+{
+  "format_version": 1,
+  "name": "limacon",
+  "config": {
+    "vertex_counts": [
+      256
+    ],
+    "boundary_tolerance": 0.005,
+    "concavity_tolerance": 0.003,
+    "concavity_angle_threshold_deg": -5.0,
+    "offset_distance": 0.3944227367989431,
+    "miter_limit": 2.0,
+    "min_safe_area": 0.1,
+    "arc_tolerance": 0.001,
+    "clipper_scale": 1000000.0,
+    "sc_fit_options": {
+      "quadrature_order": 64,
+      "max_nfev": 1200
+    }
+  },
+  "resample_reports": [
+    {
+      "target_count": 256,
+      "max_boundary_error": 0.00018043935534931772,
+      "max_concavity_error": 0.0,
+      "concave_probe_count": 0,
+      "corners_preserved": true,
+      "is_simple": true,
+      "is_ccw": true,
+      "has_nonzero_area": true,
+      "has_holes": false,
+      "accepted": true,
+      "elapsed_seconds": 0.0002464519930072129,
+      "failure_reasons": []
+    }
+  ],
+  "offset_distance": 0.3944227367989431,
+  "offset_area": 9.797727049341999,
+  "offset_metadata": {
+    "backend": "pyclipr (Clipper2)",
+    "requested_corner_join": "Miter",
+    "requested_smooth_join": "Round",
+    "applied_path_join": "Round",
+    "join_strategy": "global_round_all_vertices_are_smooth",
+    "per_vertex_join_supported": false,
+    "per_vertex_request_exact": true,
+    "corner_count": 0,
+    "reflex_corner_count": 0,
+    "smooth_vertex_count": 256,
+    "miter_limit": 2.0,
+    "arc_tolerance": 0.001,
+    "scale_factor": 1000000.0
+  },
+  "offset_diagnostics": {
+    "nonempty": true,
+    "component_count": 1,
+    "hole_count": 0,
+    "area": 9.797727049341999,
+    "area_threshold": 0.1,
+    "single_component": true,
+    "hole_free": true,
+    "simple": true,
+    "ccw": true,
+    "positive_area": true,
+    "area_above_threshold": true,
+    "valid": true,
+    "failure_reasons": []
+  },
+  "files": {
+    "geometry": "geometry.npz",
+    "sc_map": "sc_map.npz"
+  }
+}

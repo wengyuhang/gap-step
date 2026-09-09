@@ -1,6 +1,6 @@
 # Interpolated-RotSync-SC-TOGT
 
-本目录是从 `rot_sync_sc_togt/` 拆分出的独立方法。原 RotSync 在同步段固定一个窗口局部点；本方法联合优化入口和出口两组无约束 SC 输入：
+本目录是从 `rot_sync_sc_togt/` 拆分出的独立方法。原 RotSync 在同步段固定一个窗口局部点；最初版本联合优化入口和出口两组无约束 SC 输入：
 
 ```text
 d(s) = (1-s) d_entry + s d_exit
@@ -9,6 +9,39 @@ p(t) = c + E R(theta0 + omega t) q(t) + n z(t)
 ```
 
 插值在 SC 输入空间中进行，不是连接两个实际位置。`trajectory.py` 用截断 Taylor jet 计算位置到 snap 的时间导数，入口和出口 PVAJ 作为两侧 degree-7 MINCO 边界。`optimizer.py` 优化 `[K_free,K_sync,d_entry,d_exit]`，明确复用原 RotSync 的目标、动力学限制、时间变换和 L-BFGS 驱动。
+
+## 七阶穿窗曲线原型
+
+2026-09-08 起，主实验入口使用单段 degree-7 Bézier 穿窗曲线。旧的 `SCInputInterpolatedSyncSegment`、`InterpolatedRotSyncObjective` 和历史对比入口保留，用于复现实验；新实现为 `SCInputSplineSyncSegment` 和 `SplineRotSyncObjective`。
+
+面内仍先在无约束 SC 输入空间构造曲线，再逐时刻经过圆盘变换和 SC 映射：
+
+```text
+D_i = (1-i/7) d_entry + (i/7) d_exit + 0.01 delta_i,  i=1,...,6
+D_0 = d_entry,  D_7 = d_exit
+d(s) = sum_i Bernstein^7_i(s) D_i
+q(t) = Psi(B(d(t/T_sync)))
+```
+
+所以每个有限 `d(s)` 都映射到非凸安全开口内部，不需要再添加“局部中心位于窗口内”的约束。`delta_i=0` 时，8 个控制点等距排列，曲线严格退化为旧的两点线性插值；`0.01` 只是 L-BFGS 变量尺度，不缩小可表示范围。
+
+法向也使用 8 个 Bézier 控制值。两端固定为 `Z_0=-D`、`Z_7=+D`，中间值由 7 个正增量累加生成：
+
+```text
+w = softmax([0, eta_1, ..., eta_6])
+Z_i = -D + 2D sum_{j<i} w_j
+z(s) = sum_i Bernstein^7_i(s) Z_i
+```
+
+因此 `z'(s)>0`，法向速度可以变化，但轨迹仍天然只沿一个方向穿过平面一次。世界轨迹
+
+```text
+p(t) = c + E R(theta0 + omega t) q(t) + n z(t)
+```
+
+一般不是多项式；实现继续用 Taylor jet 解析计算到 snap。真正的过平面时刻由 `z(t)=0` 求得，前后 degree-7 MINCO 直接使用样条入口/出口的世界坐标 PVAJ，因此接口保持 C3。
+
+单窗共有 8 个面内控制点和 8 个法向控制值；优化变量为入口/出口 4 维、6 个面内偏移 12 维、法向正增量比例 6 维。测试覆盖旧线性轨迹的精确嵌入、0–4 阶导数、局部路径安全、法向单调和 MINCO 接口 C3。
 
 ## 运行
 
@@ -20,6 +53,16 @@ python -m nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.experiments
 
 pytest -q nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/tests
 ```
+
+线性/样条参数化试验入口：
+
+```bash
+python -m nonconvex_timevarying_window.interpolated_rot_sync_sc_togt.compare_spline_crossing \
+  --snap-weight 1e-6 \
+  --outdir nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/results/zero_thickness_spline_new_run
+```
+
+当前有限差分原型在单窗中从 7 个变量增至 25 个变量，求解明显慢于旧线性版本。零厚度高转速案例中，旧线性解可以在 0–4 阶和目标值上嵌入样条空间，但复刻的 TOGT C++ 目标在稀疏检查点给出零动力学惩罚，全部新增形状变量成为局部平坦方向；全变量 L-BFGS 因而停在原轨迹。额外的[形状内层诊断](results/zero_thickness_spline_shape_diagnostics_20260908/REPORT.md)表明，minimum-snap 能显著降低尖峰，但仍不足以满足速度、角速率和旋翼推力限制。当前代码证明了共同参数化和天然几何合法性，尚未证明时间短于 Fixed-WP 或动力学验收通过；下一步应把形状变量的解析梯度接入 TOGT，并在同一内层目标中联合控制代价与动力学代价。
 
 原方法对照仍从以下入口运行：
 

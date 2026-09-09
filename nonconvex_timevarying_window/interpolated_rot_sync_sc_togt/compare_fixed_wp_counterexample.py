@@ -341,6 +341,14 @@ def _run_method(
                 "exit_local_points": solve.forward.local_exit_points,
             }
         )
+    if hasattr(solve.forward, "latent_control_points"):
+        payload.update(
+            {
+                "latent_control_points": solve.forward.latent_control_points,
+                "normal_shape_parameters": solve.forward.normal_shape_parameters,
+                "normal_control_points": solve.forward.normal_control_points,
+            }
+        )
     experiment.write_json(output / "result.json", payload)
     experiment.save_raw_trajectory(output, data)
     return row, payload

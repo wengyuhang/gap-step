@@ -1,6 +1,6 @@
 # 运行与验证手册
 
-更新：2026-09-06。命令入口和参数按源码/方法说明核对；本轮文档整理未执行下述训练或正式实验。默认从仓库根目录运行，MDG 单独注明。
+更新：2026-09-09。命令入口和参数按源码/方法说明核对；默认从仓库根目录运行，MDG 单独注明。
 
 ## 环境与输出
 
@@ -28,6 +28,8 @@ pytest -q nonconvex_timevarying_window/sip_dynatogt/tests
 pytest -q nonconvex_timevarying_window/planar_rs_dynatogt/tests
 pytest -q nonconvex_timevarying_window/rot_sync_sc_togt/tests
 pytest -q nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/tests
+pytest -q nonconvex_timevarying_window/random_dk_sc_dynatogt/tests
+pytest -q nonconvex_timevarying_window/feasibility_guided_cem_sc_dynatogt/tests
 pytest -q nonconvex_timevarying_window/avs_ppo/tests
 pytest -q nonconvex_timevarying_window/phaseguard_rl/tests
 pytest -q nonconvex_timevarying_window/comparisons/sc_sip_fast_closed_loop/tests
@@ -39,6 +41,15 @@ pytest -q closed_loop_deformable_window/mdg/tests
 以上是入口清单，不是要求每次全量运行。修改 SC 的 MINCO/动力学或 SIP 认证接口时，还需按 [ARCHITECTURE](ARCHITECTURE.md) 选择受影响调用方。旧废案测试仅在维护相应方法/反例时运行。纯文档改动核对链接、路径、镜像与 `git diff --check` 即可。
 
 ## 近期方法
+
+Random-DK 与 Feasibility-Guided CEM 的三窗入口分别是：
+
+```bash
+python -m nonconvex_timevarying_window.random_dk_sc_dynatogt.multi_window --outdir nonconvex_timevarying_window/random_dk_sc_dynatogt/results/new_three_u_run
+python -m nonconvex_timevarying_window.feasibility_guided_cem_sc_dynatogt.multi_window --outdir nonconvex_timevarying_window/feasibility_guided_cem_sc_dynatogt/results/new_three_u_run
+```
+
+后者默认读取方法 README 中列出的冻结 SC 基线和两条单窗安全模板；若迁移或清理本地忽略结果，必须用 `--baseline-json` 与两个 `--template-result` 显式提供来源。结果目录必须不存在，避免覆盖历史运行。
 
 RotSync 的默认 suite 是 `formal`，不是 smoke；快速回归应显式选择：
 

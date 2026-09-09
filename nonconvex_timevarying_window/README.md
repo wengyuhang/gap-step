@@ -10,8 +10,11 @@
 |---|---|---|
 | [AtlasDynaTOGT](atlas_dynatogt/README.md) | 已实现 | 将非凸窗口三角剖分为 chart atlas，联合优化穿越时间和穿越点 |
 | [SC-DynaTOGT](sc_dynatogt/README.md) | 已实现，default 实验完成 | Chang 仅做边界均匀采样，SC 圆盘映射负责内部点，接入原 TOGT/MINCO 联合优化；支持真实物理门框、分类结果目录、中文结果主页和可选 EGL/OpenGL 离线渲染，记录见 [TEST_RESULTS.md](sc_dynatogt/TEST_RESULTS.md) |
+| [Random-DK SC-DynaTOGT](random_dk_sc_dynatogt/README.md) | 单窗扩大范围后采样通过；三窗首轮失败 | 原始 SC 不合格后直接随机扰动 D/K；球体区间与全程动力学硬筛选，最终才做整机检测。单窗两组各 4000 候选后各 1 条合格，较快 T=3.16745 s；三窗 4000 候选中 4 个通过全部几何/顺序但均超速；均为采样证据 |
+| [Feasibility-Guided CEM SC-DynaTOGT](feasibility_guided_cem_sc_dynatogt/README.md) | 三窗单种子采样通过 | 用单窗安全相位构造多窗周期别名前端，再以 K 时间敏感度、D 极坐标和完整协方差 CEM 联合搜索；4612 次评估得到 3 条中间合格轨迹，T=7.39055 s 的最短者通过三窗最终整机采样审计 |
 | [RotSync-SC-TOGT](rot_sync_sc_togt/README.md) | 已实现 | 固定中心/固定平面窗口仅绕法向匀速旋转；SC 选择安全点，解析 Sync 段保持窗口坐标不变，PVAJ 严格连接相邻 degree-7 MINCO；使用扁平方柱整机可视化与碰撞率审计，含四条 D1–D4 正式闭合赛道、现实尺度极限场景及 L/U/star 单窗口固定点比较；D3/D4 正式结果保留超速失败，九对单窗比较未显示同步性能优势 |
 | [Interpolated-RotSync-SC-TOGT](interpolated_rot_sync_sc_togt/README.md) | 已实现，斜向单窗已运行 | 在入口/出口两组无约束 SC 输入间插值，再经圆盘与 SC 映射生成连续局部路径；解析到 snap 并用 PVAJ 连接 MINCO；目标、动力学限制与 L-BFGS 沿用 RotSync，整轨迹安全和动力学结论为密集采样验收 |
+| [Local Time-Warp SC Tracking](timewarp_sc_tracking/README.md) | 执行层基础组件，单窗碰撞回归已运行 | 只在当前窗附近改变 SC 轨迹进度，并在下一窗前回到原绝对时间轴；不允许无界等待。已在共享 U 形反例上消除采样碰撞，但该反例本身动力学超限，尚不是完整飞控可行方法 |
 | [MSR-DynaTOGT](msr_dynatogt/README.md) | 已实现，smoke/formal 完成 | 在 SC-DynaTOGT 外增加可复现多初值候选池、高密度采样动力学检查、uniform/local 时间修复、二分缩放和联合再优化；可行性优先于总时间，记录见 [TEST_RESULTS.md](msr_dynatogt/TEST_RESULTS.md) |
 | [SIP-DynaTOGT](sip_dynatogt/README.md) | 已实现 | 保留 `[K,D]` 与 MINCO，使用 SLSQP 活动 witness 和 Arb 区间细分求解整机半无限安全问题；只有完整连续域覆盖通过才返回 `CERTIFIED_FEASIBLE` |
 | [Planar-RS-DynaTOGT](planar_rs_dynatogt/README.md) | 已实现，有单窗与六窗认证记录 | 针对固定中心/固定平面、仅面内旋转与统一缩放；先用整机到平面的 Arb 支撑界排除时间段，再认证剩余原始曲线 |
@@ -29,8 +32,11 @@ nonconvex_timevarying_window/
   PROBLEM_DEFINITION.md     与具体算法无关的问题定义
   atlas_dynatogt/           AtlasDynaTOGT 方法的完整实现
   sc_dynatogt/              Schwarz–Christoffel DynaTOGT 方法的完整实现
+  random_dk_sc_dynatogt/    原始 SC 解邻域直接扰动 D/K，硬筛选后取最短时间
+  feasibility_guided_cem_sc_dynatogt/  安全相位前端 + 可行性引导完整协方差 CEM
   rot_sync_sc_togt/         固定平面自旋窗口的解析同步穿越 + MINCO
   interpolated_rot_sync_sc_togt/  双 SC 输入插值同步穿越 + MINCO
+  timewarp_sc_tracking/      有限时间补丁 + 下游时间回接
   msr_dynatogt/             Multi-Start and Repair DynaTOGT 的完整实现
   sip_dynatogt/             半无限约束生成 + Arb 连续域认证
   planar_rs_dynatogt/       固定平面旋转/缩放的平面排除 + 原始曲线认证

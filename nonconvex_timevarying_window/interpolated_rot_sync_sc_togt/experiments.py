@@ -19,7 +19,7 @@ from nonconvex_timevarying_window.rot_sync_sc_togt.optimizer import (
 from nonconvex_timevarying_window.sc_dynatogt.dynamics import QuadrotorParameters
 
 from .collision import sample_collision_report
-from .optimizer import optimize_interpolated_track
+from .optimizer import optimize_spline_track
 from .scenarios import (
     DEFAULT_RHO,
     REALISTIC_RHO,
@@ -84,8 +84,18 @@ def _scenario_config(
         "goal_state_pvaj": scenario.goal_state.matrix,
         "decision_vector": (
             "[K_free(0..N), K_sync(0..N-1), "
-            "d_entry_0..d_entry_(N-1), d_exit_0..d_exit_(N-1)]"
+            "d_entry, d_exit, six latent Bezier offsets, "
+            "six normal log-increment ratios per window]"
         ),
+        "crossing_curve": {
+            "degree": 7,
+            "latent_control_points_per_window": 8,
+            "normal_control_points_per_window": 8,
+            "normal_parameterization": (
+                "positive normalized increments; endpoints fixed at -D and +D"
+            ),
+            "latent_inner_offset_scale": 1.0e-2,
+        },
         "objective": "T_total + lambda_s * integral_snap_squared + lambda_d * P_dyn",
         "optimization": config,
         "cuboid_body": {
@@ -170,10 +180,7 @@ def validate_solution(
         recovered = []
         for tau, position in zip(local_times, positions):
             absolute = sync.entry_time + float(tau)
-            z = (
-                -window.clearance_distance
-                + 2.0 * window.clearance_distance * tau / sync.duration
-            )
+            z = float(sync.normal_at(tau))
             in_plane = position - window.center - window.normal * z
             recovered.append(window.rotated_basis(absolute).T @ in_plane)
         recovered_array = np.asarray(recovered)
@@ -241,7 +248,7 @@ def run_scenario(
     for window in scenario.windows:
         window.gate.save(root / "preprocessed" / window.name)
 
-    result = optimize_interpolated_track(scenario, config=settings)
+    result = optimize_spline_track(scenario, config=settings)
     validation = validate_solution(scenario, result, settings)
     effective_collision_samples = int(collision_samples)
     if settings.audit_max_step is not None:
@@ -270,9 +277,18 @@ def run_scenario(
         "optimizer_and_trajectory_pass": bool(result.success and trajectory_pass),
         "collision": collision_values,
     }
+    result_payload = result.to_dict()
+    if hasattr(result.forward, "latent_control_points"):
+        result_payload.update(
+            {
+                "latent_control_points": result.forward.latent_control_points,
+                "normal_shape_parameters": result.forward.normal_shape_parameters,
+                "normal_control_points": result.forward.normal_control_points,
+            }
+        )
     _write_json(
         root / "result.json",
-        {**result.to_dict(), "validation": validation, "collision": collision_values},
+        {**result_payload, "validation": validation, "collision": collision_values},
     )
     export_trajectory_csv(scenario, result, root / "trajectory.csv")
     plot_trajectory(

@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新：2026-09-07；核对 HEAD：`40692e8`。本页来自当前源码、方法报告、本地正式运行和 Git 历史；实验数字均标明来源与证据等级。
+更新：2026-09-09。本页来自当前源码、方法报告、本地正式运行和 Git 历史；实验数字均标明来源与证据等级。
 
 ## 当前重心
 
@@ -10,6 +10,18 @@
 
 ## 方法状态与结论边界
 
+三窗最新成功原型：新增 [Feasibility-Guided CEM SC-DynaTOGT](../nonconvex_timevarying_window/feasibility_guided_cem_sc_dynatogt/README.md)。它显式复用两条单窗硬筛选通过轨迹的安全相位，以周期别名生成 2820 个多窗前端候选，再从峰值速度最低的三窗几何通过者启动 7 轮、每轮 256 个样本的完整协方差 CEM。总计 4612 次评估得到 3 条全部中间硬约束通过轨迹；最短者 T=7.390546627 s、最大速度 6.999106268 m/s，三个窗口最终真实姿态长方体审计均为零碰撞采样，最小门框净空 50.215/266.307/58.077 mm。总运行 278.328 s，其中最终审计 156.572 s。失败样本只指导提议分布，最终排序只含全约束通过者。结果是单场景、单种子的名义模型采样证据，不是连续认证或一般成功率结论；详见[三窗结果](../nonconvex_timevarying_window/feasibility_guided_cem_sc_dynatogt/THREE_WINDOW_RESULTS.md)。
+
+曲线边界三方法对比新增一条 11.2 m 开放赛道，依次为利马松、五瓣波浪曲线和直线–三次 Bézier 混合窗口，三窗固定平面并分别以 1.5/-2.0/2.5 rad/s 自旋。原始 Fixed-WP 为 3.878918907 s、原始 SC-DynaTOGT 为 3.497544115 s，两者整机碰撞约束均通过但旋翼推力约束失败；因此不进入合格时间排名。Feasibility-Guided CEM 在 552 个候选中找到 309 个中间硬筛选通过者，最终选择 3.468057675 s，动力学与三窗真实姿态长方体碰撞审计均通过。结果见[曲线赛道报告](../nonconvex_timevarying_window/comparisons/curved_rotating_sc_fixed_wp/results/three_way_20260909/REPORT.md)，证据仍为密集采样而非连续认证。
+
+七窗口混合压力案例依次为均衡 U、利马松、星形、均衡 U、五瓣波浪、Line/Bézier、均衡 U，平面和中心固定且窗口只做面内自旋。四个插入窗口沿此前独立通过验收的三 U 轨迹布置，所以这是有已知可行种子的流程验证案例，不作为未知赛道无偏基准。Fixed-WP/原始 SC-DynaTOGT 分别为 8.666957342/8.666957333 s，二者均超速且在首个 U 窗口发生整机碰撞；Feasibility-Guided CEM 返回 7.390546627 s 的硬约束合格种子，七窗整机审计全部通过。结果见[七窗口报告](../nonconvex_timevarying_window/comparisons/seven_mixed_reference_sc_fixed_cem/results/three_way_trial2_20260909/REPORT.md)。本轮 256 个局部扰动均未新增硬约束合格解，必须保留这一负结果；采样通过不等于连续认证。
+
+三窗最新续跑：按用户要求进一步扩大独立随机扰动，D 半径比例为 1/2/4/8，K 直接噪声比例为 0.5/1/2/4，共 8000 候选。57 个通过三窗球体和顺序检查，但全部超速，最低最大速度仍为 10.333593 m/s；无最终整机检测候选。搜索 89.793 s，总计 92.015 s（重放原 SC，无本次求解耗时）。未决、边界/C3 数值超限与数值失败均保留。详见[宽范围三窗结果](../nonconvex_timevarying_window/random_dk_sc_dynatogt/MULTI_WINDOW_WIDE_RESULTS.md)。
+
+同日最新多窗试验：新增 Random-DK 三个自旋 U 窗口的开放赛道，固定平面、18 rad/s，使用原生四段 MINCO、4 个 K 标量和 3 组二维 D。4000 个候选中 877/12/4 个依次通过前 1/2/3 窗球体检查；最后 4 个均超速，最低最大速度仍为 10.57885 m/s。没有合格解、没有调用最终整机检测；见[多窗结果](../nonconvex_timevarying_window/random_dk_sc_dynatogt/MULTI_WINDOW_RESULTS.md)。单窗成功不能外推为已完成多窗修复。
+
+2026-09-09 当前新增任务为 [Random-DK SC-DynaTOGT](../nonconvex_timevarying_window/random_dk_sc_dynatogt/README.md)：固定中心/平面、窗口自旋；原始 SC 最终解不合格时直接随机扰动 D/K。用户提供的球体距离约束仅检查全部球平面接触区间，全程动力学仍为硬筛选；只在全部合格候选中选最短时间，真实整机留到最终检测。零厚度均衡 U、18 rad/s、初相位 1.1 rad 的首次两组各 300 候选失败，负结果完整保留。用户随后要求扩大范围；D 半径比例扩大至 0.25/0.5/1/2，K 加噪声比例至 0.1/0.25/0.5/1，重放原解。各 400 候选仍失败；各 4000 候选时分别找到 1 条合格轨迹，T=3.167446933/3.523313547 s，最终最大 0.2 ms 加密整机与动力学检测均通过、零碰撞样本。两者都来自 D/K 联合扰动；详见[扩大范围结果](../nonconvex_timevarying_window/random_dk_sc_dynatogt/EXPANDED_SEARCH_RESULTS.md)。这是本地未提交原型的单窗采样修复结果，不是连续认证或普适成功率证据。
+
 | 方法 | 当前实现/已有证据 | 未完成或不能推出的结论 |
 |---|---|---|
 | [AtlasDynaTOGT](../nonconvex_timevarying_window/atlas_dynatogt/README.md) | 非凸三角 chart atlas、时空联合优化；历史 default 记录为 14/14 场景成功 | Hermite 轨迹及指标与 SC/MINCO 不同，不能直接当同模型速度基线 |
@@ -18,7 +30,7 @@
 | [SIP-DynaTOGT](../nonconvex_timevarying_window/sip_dynatogt/COMPLETE_ALGORITHM_SPECIFICATION.md) | SLSQP witness 循环和 Arb 连续域认证，真实原始曲线、姿态长方体与动力学硬约束；有证书重放入口 | 仅名义模型、局部优化；不保证全局最优、固定求解时限或真实跟踪鲁棒性 |
 | [Planar-RS-DynaTOGT](../nonconvex_timevarying_window/planar_rs_dynatogt/TEST_RESULTS.md) | 固定平面排除加原始曲线认证；普通单窗端到端 37.59 s，六窗极难赛道约 30 分 6 秒获认证 | 仅固定中心/平面、面内旋转和统一缩放；不能推广成任意赛道一分钟求解 |
 | [RotSync-SC-TOGT](../nonconvex_timevarying_window/rot_sync_sc_togt/README.md) | 固定局部点 Sync 以 PVAJ 连接七阶 MINCO；有正式赛道、现实尺度和单窗对照入口 | 仅固定平面法向匀速自旋；整机碰撞/动力学验收采用密集采样，不是 SIP 连续域证书 |
-| [Interpolated-RotSync-SC-TOGT](../nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/README.md) | 独立目录维护入口/出口双 SC 输入插值 Sync，解析到 snap 并以 PVAJ 连接七阶 MINCO；斜向单窗已运行 | 继承 RotSync 的运动模型限制；安全与动力学为密集采样验收，不是连续域证书 |
+| [Interpolated-RotSync-SC-TOGT](../nonconvex_timevarying_window/interpolated_rot_sync_sc_togt/README.md) | 旧双输入线性 Sync 可复现；主入口已扩展为 8 点七阶 SC 输入曲线和可变速单调法向曲线，解析到 snap 并以世界 PVAJ 连接七阶 MINCO | 高转速形状诊断虽显著削弱尖峰，仍未通过动力学或短于 Fixed-WP；安全与动力学为密集采样验收，不是连续域证书 |
 | [AVS-PPO](../nonconvex_timevarying_window/avs_ppo/TEST_RESULTS.md) | 动作掩码与可恢复盾牌；三窗平移/球形模型 200 ID + 200 OOD 回合均完赛、零违规 | 这是特定确定性模型的实验统计，不能外推为姿态/电机/不确定性下的硬安全保证 |
 | [PhaseGuard-RL](../nonconvex_timevarying_window/phaseguard_rl/README.md) | 精简核心：相位/状态观测、点/时间动作、固定 MINCO 轨迹、认证准入、一步完整规划 PPO 与测试 | 尚未正式场景训练和性能实验；`train.py` 提供 Python 函数，尚不是配套完整场景 CLI |
 | [FAPP-PPO](../closed_loop_deformable_window/fapp_ppo/TEST_RESULTS.md) | 外生非周期开放日程、连续局部形变、未来预览和残差 CTBR PPO；有验证训练与机制演示 | 最终 ID pilot 为 0/10，后期退化；早期成功视频不能替代最终模型结果 |
