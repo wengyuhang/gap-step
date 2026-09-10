@@ -59,11 +59,13 @@ SIP 支持真实 Line/CircularArc/Bézier/非有理 B-spline 边界原语；用�
 Planar-RS 要求固定中心/平面，允许面内旋转和统一缩放；RotSync 与 Interpolated-RotSync 都仅绕法向匀速自旋。RotSync 保持窗口局部点不变；Interpolated-RotSync 在无约束 SC 输入空间线性插值，再经 `B` 和 `Psi` 得到随时间变化的局部点，不是连接两个实际位置。两者都以 PVAJ 接入相邻七阶 MINCO，不是 MINCO 拟合 Sync。
 
 `convex_timevarying_window/` 是并列问题目录。`geometry.py` 对多边形使用发布版 TOGT
-单位球归一化、平方重心权重映射，对平面圆使用 `Ball::toP` 的二维同构映射；
-`native/togt_analytic.cpp` 直接调用发布版 C++
-四旋翼手写梯度和 MINCO 伴随回传，`native_objective.py` 补齐动态窗口和 `[K,D]` 链式梯度。
-`experiment.py` 单独生成赛道、求解、绘图及最大 1 ms 步长验收。它不经过非凸 SC 预处理，
-不把安全项加入 TOGT 目标，也不在当前求解路径建立 PyTorch 自动微分图。
+单位球归一化、平方重心权重映射，对平面圆使用 `Ball::toP` 的二维同构映射。`togt/` 保存
+名义基线：`togt/native/togt_analytic.cpp` 直接调用发布版 C++ 四旋翼手写梯度和 MINCO 伴随
+回传，`togt/native_objective.py` 补齐动态窗口和 `[K,D]` 链式梯度；安全不进入名义目标。
+`conditional_dual_constraint_cem/` 在名义安全积分非零时增加手写凸安全梯度，再以双软约束
+完整协方差 CEM 搜索 `[K,D]`。动力学最终验收经同一原生库调用发布版C++ `QuadManifold`，
+安全最终验收使用真实外接球到物理门框的距离。两种方法都以最大1 ms步长密集采样，不经过非凸SC
+预处理，也不在当前求解路径建立 PyTorch 自动微分图。
 
 ## 强化学习路径
 

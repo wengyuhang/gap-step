@@ -1,0 +1,307 @@
+<?xml version="1.0"?>
+<sdf version="1.9"><world name="convex_seven_dynamic_px4_togt">
+  <physics name="course_physics" type="dart"><max_step_size>0.004</max_step_size><real_time_factor>1</real_time_factor></physics>
+  <gravity>0 0 -9.8</gravity>
+  <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+  <atmosphere type="adiabatic"/>
+  <spherical_coordinates><surface_model>EARTH_WGS84</surface_model>
+    <world_frame_orientation>ENU</world_frame_orientation>
+    <latitude_deg>47.397971057728974</latitude_deg>
+    <longitude_deg>8.546163739800146</longitude_deg><elevation>0</elevation>
+    <heading_deg>0</heading_deg></spherical_coordinates>
+  <scene><ambient>0.65 0.67 0.70 1</ambient><background>0.74 0.77 0.81 1</background><shadows>true</shadows><grid>false</grid></scene>
+  <light type="directional" name="sun"><pose>0 0 35 0 0 0</pose><cast_shadows>true</cast_shadows>
+    <diffuse>0.95 0.95 0.92 1</diffuse><direction>-0.35 0.25 -0.9</direction></light>
+  <model name="ground"><static>true</static><pose>0 0 -6.0 0 0 0</pose><link name="ground_link">
+    <collision name="ground_collision"><geometry><plane><normal>0 0 1</normal><size>80 70</size></plane></geometry></collision>
+    <visual name="ground_visual"><geometry><plane><normal>0 0 1</normal><size>80 70</size></plane></geometry>
+      <material><ambient>.72 .74 .77 1</ambient><diffuse>.84 .85 .86 1</diffuse>
+        <pbr><metal><albedo_map>materials/textures/indoor_lab_floor.png</albedo_map>
+          <roughness>.92</roughness><metalness>.01</metalness></metal></pbr></material></visual>
+  </link></model>
+  <model name="start_finish_marker"><static>true</static><pose>-16 4 3.2 0 0 0</pose><link name="marker">
+    <visual name="ring"><geometry><cylinder><radius>.65</radius><length>.035</length></cylinder></geometry>
+      <material><diffuse>.05 1 .30 1</diffuse><emissive>.03 .65 .18 1</emissive></material></visual>
+  </link></model>
+  <model name="back_wall"><static>true</static><pose>0 23 5 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>58 0.22 22</size></box></geometry>
+      <material><ambient>.70 .72 .74 1</ambient><diffuse>.70 .72 .74 1</diffuse></material></visual>
+  </link></model>
+  <model name="left_wall"><static>true</static><pose>-29 0 5 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>0.22 46 22</size></box></geometry>
+      <material><ambient>.70 .72 .74 1</ambient><diffuse>.70 .72 .74 1</diffuse></material></visual>
+  </link></model>
+  <model name="right_wall"><static>true</static><pose>29 0 5 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>0.22 46 22</size></box></geometry>
+      <material><ambient>.70 .72 .74 1</ambient><diffuse>.70 .72 .74 1</diffuse></material></visual>
+  </link></model>
+  <model name="lab_ceiling"><static>true</static><pose>0 0 16.1 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>58 46 0.2</size></box></geometry>
+      <material><ambient>.56 .59 .62 1</ambient><diffuse>.56 .59 .62 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_0_0"><static>true</static><pose>-20 -12 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_0_1"><static>true</static><pose>-7 -12 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_0_2"><static>true</static><pose>7 -12 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_0_3"><static>true</static><pose>20 -12 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_1_0"><static>true</static><pose>-20 0 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_1_1"><static>true</static><pose>-7 0 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_1_2"><static>true</static><pose>7 0 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_1_3"><static>true</static><pose>20 0 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_2_0"><static>true</static><pose>-20 12 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_2_1"><static>true</static><pose>-7 12 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_2_2"><static>true</static><pose>7 12 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="ceiling_panel_2_3"><static>true</static><pose>20 12 15.96 0 0 0</pose><link name="link">
+    <visual name="visual"><geometry><box><size>6 1 0.025</size></box></geometry>
+      <material><ambient>.98 .98 .96 1</ambient><diffuse>.98 .98 .96 1</diffuse></material></visual>
+  </link></model>
+  <model name="gate_01_W1_rectangle">
+    <static>true</static><pose>-2.38423952046 -3.41816750175 6.5799573603 0.0173371697255 -1.46191480754 0.15870233978</pose>
+    <link name="frame">
+      <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_01_rectangle_sleeve.stl</uri></mesh></geometry>
+        <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction></surface>
+      </collision>
+      <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_01_rectangle_sleeve.stl</uri></mesh></geometry>
+        <material><ambient>.025 .030 .040 1</ambient><diffuse>.055 .065 .085 1</diffuse>
+          <specular>.14 .14 .16 1</specular></material>
+      </visual>
+      <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_01_rectangle_core.stl</uri></mesh></geometry>
+        <material><ambient>0.1 0.58 1 1</ambient><diffuse>0.1 0.58 1 1</diffuse>
+          <emissive>0.1 0.58 1 1</emissive><specular>.75 .75 .75 1</specular></material>
+      </visual>
+      <sensor name="frame_contact" type="contact"><always_on>true</always_on><update_rate>250</update_rate>
+        <topic>/convex_seven/gate_01/contacts</topic>
+        <contact><collision>frame_collision</collision></contact>
+      </sensor>
+    </link>
+    <plugin filename="libPeriodicGateMotion.so" name="convex_dynamic_course::PeriodicGateMotion">
+      <center0>-2.42 -3.52 6.48</center0>
+      <base_rpy>0 -1.57079632679 0</base_rpy>
+      <translation_amplitude>0.18 0.13 0.1</translation_amplitude>
+      <rotation_amplitude>0.0872664625997 0.12217304764 0.174532925199</rotation_amplitude>
+      <translation_period>10</translation_period>
+      <rotation_period>8.5</rotation_period>
+      <phase>0.2</phase>
+      <motion_start_time>30</motion_start_time>
+    </plugin>
+  </model>
+  <model name="gate_02_W2_circle">
+    <static>true</static><pose>20.1609500537 14.5399666833 1.88608273091 -0.0689840918014 -1.54500732373 -0.202661493132</pose>
+    <link name="frame">
+      <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_02_circle_sleeve.stl</uri></mesh></geometry>
+        <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction></surface>
+      </collision>
+      <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_02_circle_sleeve.stl</uri></mesh></geometry>
+        <material><ambient>.025 .030 .040 1</ambient><diffuse>.055 .065 .085 1</diffuse>
+          <specular>.14 .14 .16 1</specular></material>
+      </visual>
+      <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_02_circle_core.stl</uri></mesh></geometry>
+        <material><ambient>1 0.3 0.16 1</ambient><diffuse>1 0.3 0.16 1</diffuse>
+          <emissive>1 0.3 0.16 1</emissive><specular>.75 .75 .75 1</specular></material>
+      </visual>
+      <sensor name="frame_contact" type="contact"><always_on>true</always_on><update_rate>250</update_rate>
+        <topic>/convex_seven/gate_02/contacts</topic>
+        <contact><collision>frame_collision</collision></contact>
+      </sensor>
+    </link>
+    <plugin filename="libPeriodicGateMotion.so" name="convex_dynamic_course::PeriodicGateMotion">
+      <center0>20.24 14.52 1.8</center0>
+      <base_rpy>0 -1.57079632679 -0.349065850399</base_rpy>
+      <translation_amplitude>0.14 0.2 0.12</translation_amplitude>
+      <rotation_amplitude>0.12217304764 0.0872664625997 0.157079632679</rotation_amplitude>
+      <translation_period>10.8</translation_period>
+      <rotation_period>9.2</rotation_period>
+      <phase>-0.6</phase>
+      <motion_start_time>30</motion_start_time>
+    </plugin>
+  </model>
+  <model name="gate_03_W3_pentagon">
+    <static>true</static><pose>20.3966653819 -8.68005116764 2.27185578183 0.0820298021548 -1.43482154622 -2.21671372512</pose>
+    <link name="frame">
+      <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_03_pentagon_sleeve.stl</uri></mesh></geometry>
+        <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction></surface>
+      </collision>
+      <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_03_pentagon_sleeve.stl</uri></mesh></geometry>
+        <material><ambient>.025 .030 .040 1</ambient><diffuse>.055 .065 .085 1</diffuse>
+          <specular>.14 .14 .16 1</specular></material>
+      </visual>
+      <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_03_pentagon_core.stl</uri></mesh></geometry>
+        <material><ambient>0.92 0.18 0.62 1</ambient><diffuse>0.92 0.18 0.62 1</diffuse>
+          <emissive>0.92 0.18 0.62 1</emissive><specular>.75 .75 .75 1</specular></material>
+      </visual>
+      <sensor name="frame_contact" type="contact"><always_on>true</always_on><update_rate>250</update_rate>
+        <topic>/convex_seven/gate_03/contacts</topic>
+        <contact><collision>frame_collision</collision></contact>
+      </sensor>
+    </link>
+    <plugin filename="libPeriodicGateMotion.so" name="convex_dynamic_course::PeriodicGateMotion">
+      <center0>20.24 -8.8 2.16</center0>
+      <base_rpy>0 -1.57079632679 -2.26892802759</base_rpy>
+      <translation_amplitude>0.2 0.12 0.15</translation_amplitude>
+      <rotation_amplitude>0.10471975512 0.13962634016 0.12217304764</rotation_amplitude>
+      <translation_period>11.6</translation_period>
+      <rotation_period>9.9</rotation_period>
+      <phase>0.9</phase>
+      <motion_start_time>30</motion_start_time>
+    </plugin>
+  </model>
+  <model name="gate_04_W4_circle">
+    <static>true</static><pose>-9.94728323307 -13.1299046984 6.39803280961 -0.0412624048993 -1.51166710525 3.31568837147</pose>
+    <link name="frame">
+      <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_04_circle_sleeve.stl</uri></mesh></geometry>
+        <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction></surface>
+      </collision>
+      <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_04_circle_sleeve.stl</uri></mesh></geometry>
+        <material><ambient>.025 .030 .040 1</ambient><diffuse>.055 .065 .085 1</diffuse>
+          <specular>.14 .14 .16 1</specular></material>
+      </visual>
+      <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_04_circle_core.stl</uri></mesh></geometry>
+        <material><ambient>0.98 0.76 0.08 1</ambient><diffuse>0.98 0.76 0.08 1</diffuse>
+          <emissive>0.98 0.76 0.08 1</emissive><specular>.75 .75 .75 1</specular></material>
+      </visual>
+      <sensor name="frame_contact" type="contact"><always_on>true</always_on><update_rate>250</update_rate>
+        <topic>/convex_seven/gate_04/contacts</topic>
+        <contact><collision>frame_collision</collision></contact>
+      </sensor>
+    </link>
+    <plugin filename="libPeriodicGateMotion.so" name="convex_dynamic_course::PeriodicGateMotion">
+      <center0>-9.9 -13.2 6.3</center0>
+      <base_rpy>0 -1.57079632679 3.14159265359</base_rpy>
+      <translation_amplitude>0.16 0.18 0.11</translation_amplitude>
+      <rotation_amplitude>0.13962634016 0.10471975512 0.174532925199</rotation_amplitude>
+      <translation_period>12.4</translation_period>
+      <rotation_period>10.6</rotation_period>
+      <phase>-0.3</phase>
+      <motion_start_time>30</motion_start_time>
+    </plugin>
+  </model>
+  <model name="gate_05_W5_hexagon">
+    <static>true</static><pose>10.5658569568 -1.82418437906 2.26772498594 0.0777725137554 -1.42796422099 1.25513598462</pose>
+    <link name="frame">
+      <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_05_hexagon_sleeve.stl</uri></mesh></geometry>
+        <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction></surface>
+      </collision>
+      <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_05_hexagon_sleeve.stl</uri></mesh></geometry>
+        <material><ambient>.025 .030 .040 1</ambient><diffuse>.055 .065 .085 1</diffuse>
+          <specular>.14 .14 .16 1</specular></material>
+      </visual>
+      <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_05_hexagon_core.stl</uri></mesh></geometry>
+        <material><ambient>0.18 0.9 0.48 1</ambient><diffuse>0.18 0.9 0.48 1</diffuse>
+          <emissive>0.18 0.9 0.48 1</emissive><specular>.75 .75 .75 1</specular></material>
+      </visual>
+      <sensor name="frame_contact" type="contact"><always_on>true</always_on><update_rate>250</update_rate>
+        <topic>/convex_seven/gate_05/contacts</topic>
+        <contact><collision>frame_collision</collision></contact>
+      </sensor>
+    </link>
+    <plugin filename="libPeriodicGateMotion.so" name="convex_dynamic_course::PeriodicGateMotion">
+      <center0>10.45 -1.98 2.16</center0>
+      <base_rpy>0 -1.57079632679 1.2217304764</base_rpy>
+      <translation_amplitude>0.13 0.16 0.18</translation_amplitude>
+      <rotation_amplitude>0.0872664625997 0.157079632679 0.13962634016</rotation_amplitude>
+      <translation_period>13.2</translation_period>
+      <rotation_period>11.3</rotation_period>
+      <phase>1.1</phase>
+      <motion_start_time>30</motion_start_time>
+    </plugin>
+  </model>
+  <model name="gate_06_W6_circle">
+    <static>true</static><pose>-6.31987948711 14.915671969 2.2106243845 -0.102805074714 -1.58473570139 3.56577985816</pose>
+    <link name="frame">
+      <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_06_circle_sleeve.stl</uri></mesh></geometry>
+        <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction></surface>
+      </collision>
+      <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_06_circle_sleeve.stl</uri></mesh></geometry>
+        <material><ambient>.025 .030 .040 1</ambient><diffuse>.055 .065 .085 1</diffuse>
+          <specular>.14 .14 .16 1</specular></material>
+      </visual>
+      <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_06_circle_core.stl</uri></mesh></geometry>
+        <material><ambient>0.12 0.88 0.94 1</ambient><diffuse>0.12 0.88 0.94 1</diffuse>
+          <emissive>0.12 0.88 0.94 1</emissive><specular>.75 .75 .75 1</specular></material>
+      </visual>
+      <sensor name="frame_contact" type="contact"><always_on>true</always_on><update_rate>250</update_rate>
+        <topic>/convex_seven/gate_06/contacts</topic>
+        <contact><collision>frame_collision</collision></contact>
+      </sensor>
+    </link>
+    <plugin filename="libPeriodicGateMotion.so" name="convex_dynamic_course::PeriodicGateMotion">
+      <center0>-6.16 14.96 2.16</center0>
+      <base_rpy>0 -1.57079632679 3.49065850399</base_rpy>
+      <translation_amplitude>0.19 0.15 0.13</translation_amplitude>
+      <rotation_amplitude>0.12217304764 0.13962634016 0.10471975512</rotation_amplitude>
+      <translation_period>14</translation_period>
+      <rotation_period>12</rotation_period>
+      <phase>-1</phase>
+      <motion_start_time>30</motion_start_time>
+    </plugin>
+  </model>
+  <model name="gate_07_W7_rectangle">
+    <static>true</static><pose>2.09663265309 8.1872354487 5.63811349866 0.101193477677 -1.48356707435 2.60384458116</pose>
+    <link name="frame">
+      <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_07_rectangle_sleeve.stl</uri></mesh></geometry>
+        <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction></surface>
+      </collision>
+      <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_07_rectangle_sleeve.stl</uri></mesh></geometry>
+        <material><ambient>.025 .030 .040 1</ambient><diffuse>.055 .065 .085 1</diffuse>
+          <specular>.14 .14 .16 1</specular></material>
+      </visual>
+      <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_07_rectangle_core.stl</uri></mesh></geometry>
+        <material><ambient>0.67 0.35 1 1</ambient><diffuse>0.67 0.35 1 1</diffuse>
+          <emissive>0.67 0.35 1 1</emissive><specular>.75 .75 .75 1</specular></material>
+      </visual>
+      <sensor name="frame_contact" type="contact"><always_on>true</always_on><update_rate>250</update_rate>
+        <topic>/convex_seven/gate_07/contacts</topic>
+        <contact><collision>frame_collision</collision></contact>
+      </sensor>
+    </link>
+    <plugin filename="libPeriodicGateMotion.so" name="convex_dynamic_course::PeriodicGateMotion">
+      <center0>2 8 5.5</center0>
+      <base_rpy>0 -1.57079632679 2.53072741539</base_rpy>
+      <translation_amplitude>0.15 0.19 0.16</translation_amplitude>
+      <rotation_amplitude>0.157079632679 0.0872664625997 0.12217304764</rotation_amplitude>
+      <translation_period>14.8</translation_period>
+      <rotation_period>12.7</rotation_period>
+      <phase>0.7</phase>
+      <motion_start_time>30</motion_start_time>
+    </plugin>
+  </model>
+</world></sdf>

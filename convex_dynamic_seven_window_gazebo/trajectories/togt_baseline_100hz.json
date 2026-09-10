@@ -1,0 +1,31 @@
+{
+  "name": "nominal_togt_margin_1p1_body_diameter",
+  "source_result": "convex_timevarying_window/togt/results/seven_convex_togt_margin_1p1_body_diameter_20260910/result.json",
+  "source_result_sha256": "19850ffac736fd58e075ceae48bf4307ea49cb3a83c3fb8e374baf61e237f2aa",
+  "reference_file": "togt_baseline_100hz.npz",
+  "reference_sha256": "2f0db9aa486cf8ad0bd6588f2496867661d33a8db724e97c2304f6edfbb56187",
+  "coordinate_frame": "Gazebo ENU",
+  "sample_count": 1874,
+  "nominal_sample_period_s": 0.01,
+  "flight_time_s": 18.724959467549915,
+  "maximum_speed_mps": 18.577498100908898,
+  "start_enu": [
+    -16.0,
+    4.0,
+    3.2
+  ],
+  "goal_enu": [
+    -15.999999999999991,
+    3.999999999999999,
+    3.2000000000000015
+  ],
+  "traversal_times_s": [
+    2.2438127258654097,
+    4.823860911533239,
+    6.953545543572931,
+    9.370655396024873,
+    11.825539879607929,
+    14.326291126227037,
+    16.12103489911879
+  ]
+}

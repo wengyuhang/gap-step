@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "course": "seven_convex_periodic_3d_closed",
+  "gate_count": 7,
+  "physics_world": "convex_seven_dynamic_physics.sdf",
+  "px4_world": "convex_seven_dynamic_px4.sdf",
+  "motion_timebase": "Gazebo simulation time",
+  "px4_vehicle": "x500"
+}

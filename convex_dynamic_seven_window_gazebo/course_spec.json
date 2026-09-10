@@ -1,0 +1,401 @@
+{
+  "name": "seven_convex_periodic_3d_closed",
+  "start": [
+    -16.0,
+    4.0,
+    3.2
+  ],
+  "goal": [
+    -16.0,
+    4.0,
+    3.2
+  ],
+  "closed_route": true,
+  "order": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "route_leg_distances": [
+    15.865850119044993,
+    29.339727333429668,
+    23.322778565171003,
+    30.739538057687206,
+    23.604035671893058,
+    23.72458008058309,
+    11.233111768339173,
+    18.581980518771406
+  ],
+  "body_half_extents": [
+    0.26504,
+    0.26504,
+    0.0589
+  ],
+  "body_circumscribed_radius": 0.37942273679894306,
+  "windows": [
+    {
+      "name": "W1_rectangle",
+      "shape": "rectangle",
+      "aperture_kind": "polygon",
+      "togt_spatial_variable_dimension": 4,
+      "margin": 0.8347300209576748,
+      "radius": null,
+      "mapping": "TOGT Polyhedron squared barycentric",
+      "polygon_vertices_local": [
+        [
+          -1.45,
+          -1.15
+        ],
+        [
+          1.45,
+          -1.15
+        ],
+        [
+          1.45,
+          1.15
+        ],
+        [
+          -1.45,
+          1.15
+        ]
+      ],
+      "center0": [
+        -2.42,
+        -3.52,
+        6.48
+      ],
+      "angles0_rpy_rad": [
+        0.0,
+        -1.5707963267948966,
+        0.0
+      ],
+      "motion": {
+        "translation_amplitude": [
+          0.18,
+          0.13,
+          0.1
+        ],
+        "rotation_amplitude": [
+          0.08726646259971647,
+          0.12217304763960307,
+          0.17453292519943295
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 10.0,
+        "rotation_period": 8.5,
+        "scale_period": 9.0,
+        "phase": 0.2,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "name": "W2_circle",
+      "shape": "circle",
+      "aperture_kind": "circle",
+      "togt_spatial_variable_dimension": 2,
+      "margin": 0.8347300209576748,
+      "radius": 1.35,
+      "mapping": "TOGT Ball",
+      "polygon_vertices_local": null,
+      "center0": [
+        20.24,
+        14.52,
+        1.8
+      ],
+      "angles0_rpy_rad": [
+        0.0,
+        -1.5707963267948966,
+        -0.3490658503988659
+      ],
+      "motion": {
+        "translation_amplitude": [
+          0.14,
+          0.2,
+          0.12
+        ],
+        "rotation_amplitude": [
+          0.12217304763960307,
+          0.08726646259971647,
+          0.15707963267948966
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 10.8,
+        "rotation_period": 9.2,
+        "scale_period": 9.0,
+        "phase": -0.6,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "name": "W3_pentagon",
+      "shape": "pentagon",
+      "aperture_kind": "polygon",
+      "togt_spatial_variable_dimension": 5,
+      "margin": 0.8347300209576748,
+      "radius": null,
+      "mapping": "TOGT Polyhedron squared barycentric",
+      "polygon_vertices_local": [
+        [
+          1.5,
+          0.0
+        ],
+        [
+          0.4635254915624212,
+          1.4265847744427302
+        ],
+        [
+          -1.213525491562421,
+          0.8816778784387098
+        ],
+        [
+          -1.2135254915624214,
+          -0.8816778784387096
+        ],
+        [
+          0.46352549156242084,
+          -1.4265847744427305
+        ]
+      ],
+      "center0": [
+        20.24,
+        -8.8,
+        2.16
+      ],
+      "angles0_rpy_rad": [
+        0.0,
+        -1.5707963267948966,
+        -2.2689280275926285
+      ],
+      "motion": {
+        "translation_amplitude": [
+          0.2,
+          0.12,
+          0.15
+        ],
+        "rotation_amplitude": [
+          0.10471975511965978,
+          0.13962634015954636,
+          0.12217304763960307
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 11.6,
+        "rotation_period": 9.9,
+        "scale_period": 9.0,
+        "phase": 0.9,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "name": "W4_circle",
+      "shape": "circle",
+      "aperture_kind": "circle",
+      "togt_spatial_variable_dimension": 2,
+      "margin": 0.8347300209576748,
+      "radius": 1.25,
+      "mapping": "TOGT Ball",
+      "polygon_vertices_local": null,
+      "center0": [
+        -9.9,
+        -13.2,
+        6.3
+      ],
+      "angles0_rpy_rad": [
+        0.0,
+        -1.5707963267948966,
+        3.141592653589793
+      ],
+      "motion": {
+        "translation_amplitude": [
+          0.16,
+          0.18,
+          0.11
+        ],
+        "rotation_amplitude": [
+          0.13962634015954636,
+          0.10471975511965978,
+          0.17453292519943295
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 12.4,
+        "rotation_period": 10.6,
+        "scale_period": 9.0,
+        "phase": -0.3,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "name": "W5_hexagon",
+      "shape": "hexagon",
+      "aperture_kind": "polygon",
+      "togt_spatial_variable_dimension": 6,
+      "margin": 0.8347300209576748,
+      "radius": null,
+      "mapping": "TOGT Polyhedron squared barycentric",
+      "polygon_vertices_local": [
+        [
+          1.45,
+          0.0
+        ],
+        [
+          0.7250000000000001,
+          1.2557368354874359
+        ],
+        [
+          -0.7249999999999996,
+          1.255736835487436
+        ],
+        [
+          -1.45,
+          1.7757378587636622e-16
+        ],
+        [
+          -0.7250000000000006,
+          -1.2557368354874356
+        ],
+        [
+          0.724999999999999,
+          -1.2557368354874365
+        ]
+      ],
+      "center0": [
+        10.45,
+        -1.98,
+        2.16
+      ],
+      "angles0_rpy_rad": [
+        0.0,
+        -1.5707963267948966,
+        1.2217304763960306
+      ],
+      "motion": {
+        "translation_amplitude": [
+          0.13,
+          0.16,
+          0.18
+        ],
+        "rotation_amplitude": [
+          0.08726646259971647,
+          0.15707963267948966,
+          0.13962634015954636
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 13.2,
+        "rotation_period": 11.3,
+        "scale_period": 9.0,
+        "phase": 1.1,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "name": "W6_circle",
+      "shape": "circle",
+      "aperture_kind": "circle",
+      "togt_spatial_variable_dimension": 2,
+      "margin": 0.8347300209576748,
+      "radius": 1.4,
+      "mapping": "TOGT Ball",
+      "polygon_vertices_local": null,
+      "center0": [
+        -6.16,
+        14.96,
+        2.16
+      ],
+      "angles0_rpy_rad": [
+        0.0,
+        -1.5707963267948966,
+        3.490658503988659
+      ],
+      "motion": {
+        "translation_amplitude": [
+          0.19,
+          0.15,
+          0.13
+        ],
+        "rotation_amplitude": [
+          0.12217304763960307,
+          0.13962634015954636,
+          0.10471975511965978
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 14.0,
+        "rotation_period": 12.0,
+        "scale_period": 9.0,
+        "phase": -1.0,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "name": "W7_rectangle",
+      "shape": "rectangle",
+      "aperture_kind": "polygon",
+      "togt_spatial_variable_dimension": 4,
+      "margin": 0.8347300209576748,
+      "radius": null,
+      "mapping": "TOGT Polyhedron squared barycentric",
+      "polygon_vertices_local": [
+        [
+          -1.35,
+          -1.08
+        ],
+        [
+          1.35,
+          -1.08
+        ],
+        [
+          1.35,
+          1.08
+        ],
+        [
+          -1.35,
+          1.08
+        ]
+      ],
+      "center0": [
+        2.0,
+        8.0,
+        5.5
+      ],
+      "angles0_rpy_rad": [
+        0.0,
+        -1.5707963267948966,
+        2.530727415391778
+      ],
+      "motion": {
+        "translation_amplitude": [
+          0.15,
+          0.19,
+          0.16
+        ],
+        "rotation_amplitude": [
+          0.15707963267948966,
+          0.08726646259971647,
+          0.12217304763960307
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 14.8,
+        "rotation_period": 12.7,
+        "scale_period": 9.0,
+        "phase": 0.7,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    }
+  ]
+}

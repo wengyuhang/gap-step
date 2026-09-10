@@ -15,6 +15,7 @@
 |---|---|---|
 | `nonconvex_timevarying_window/` | 近期主要开发区域：Atlas、SC、MSR、SIP、Planar-RS、RotSync、AVS-PPO、PhaseGuard-RL，以及跨方法比较 | [问题定义](nonconvex_timevarying_window/PROBLEM_DEFINITION.md)、[方法索引](nonconvex_timevarying_window/README.md) |
 | `closed_loop_deformable_window/` | 连续局部形变、开放机会、安全区暂时为空和完整初态返回；FAPP-PPO / MDG 并列 | [问题定义](closed_loop_deformable_window/PROBLEM_DEFINITION.md)、[方法索引](closed_loop_deformable_window/README.md) |
+| `convex_timevarying_window/` | 凸多边形/圆形周期三维窗口；发布版 TOGT 基线与条件式双约束 CEM | [问题定义](convex_timevarying_window/PROBLEM_DEFINITION.md)、[方法索引](convex_timevarying_window/README.md) |
 | `togt_timevarying_window/` | 较早的独立 DynaTOGT 动态窗口实验，Hermite 轨迹，支持指定任务序列与重复穿越 | [项目说明](togt_timevarying_window/README.md) |
 | `gap_step/` | 早期连续二维生成迷宫和 GNN PPO 特权教师实验 | [架构与旧入口区别](docs/ARCHITECTURE.md)、[运行命令](docs/RUNBOOK.md) |
 | `复现/` | TOGT 论文及外部复现包，Git 忽略的本地资源 | [历史复现审计](docs/TOGT_REPRODUCTION_AUDIT.md) |

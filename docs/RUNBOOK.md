@@ -147,5 +147,9 @@ pytest -q convex_timevarying_window/tests
 conda run -n wyh python -c \
   'from convex_timevarying_window.native_backend import build_native; build_native(force=True)'
 conda run --no-capture-output -n wyh python -m convex_timevarying_window.experiment \
-  --outdir convex_timevarying_window/results/seven_convex_togt_margin_1p1_body_diameter_20260910
+  --outdir convex_timevarying_window/togt/results/seven_convex_togt_margin_1p1_body_diameter_20260910
+conda run --no-capture-output -n wyh python \
+  -m convex_timevarying_window.conditional_dual_constraint_cem.experiment \
+  --outdir convex_timevarying_window/conditional_dual_constraint_cem/results/new_run \
+  --population 64 --maximum-rounds 50 --repair-max-iterations 600
 ```

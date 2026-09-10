@@ -1,0 +1,240 @@
+{
+  "course": "seven_convex_periodic_3d_closed",
+  "source": "course_spec.json",
+  "source_sha256": "2c12bf1907601c5656eb545eb1224c76923700c876d91bb7f310a069f2d07390",
+  "gazebo": "Harmonic / SDF 1.9",
+  "plugin": "libPeriodicGateMotion.so",
+  "motion_timebase": "Gazebo simulation time",
+  "physics_world": "convex_seven_dynamic_physics.sdf",
+  "px4_world": "convex_seven_dynamic_px4.sdf",
+  "px4_togt_world": "convex_seven_dynamic_px4_togt.sdf",
+  "togt_motion_start_time_s": 30.0,
+  "physics_step_s": 0.001,
+  "px4_step_s": 0.004,
+  "px4_vehicle": "x500",
+  "px4_spawn_pose": [
+    -16.0,
+    4.0,
+    -6.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "ground_z_m": -6.0,
+  "frame_radius_m": 0.02,
+  "sleeve_radius_m": 0.085,
+  "sleeve_outward_offset_m": 0.065,
+  "gate_count": 7,
+  "gates": [
+    {
+      "index": 1,
+      "name": "W1_rectangle",
+      "shape": "rectangle",
+      "core_mesh": "meshes/gate_01_rectangle_core.stl",
+      "core_mesh_sha256": "24b1c02ed25655645f8d0277d33002ae0529db799e9cada00c392160c9c96953",
+      "sleeve_mesh": "meshes/gate_01_rectangle_sleeve.stl",
+      "sleeve_mesh_sha256": "3989f81078c1242c25a3ce2605bab581bf716bdee2056757324f8ad65907e877",
+      "boundary_vertex_count": 4,
+      "motion": {
+        "translation_amplitude": [
+          0.18,
+          0.13,
+          0.1
+        ],
+        "rotation_amplitude": [
+          0.08726646259971647,
+          0.12217304763960307,
+          0.17453292519943295
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 10.0,
+        "rotation_period": 8.5,
+        "scale_period": 9.0,
+        "phase": 0.2,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "W2_circle",
+      "shape": "circle",
+      "core_mesh": "meshes/gate_02_circle_core.stl",
+      "core_mesh_sha256": "be914bf9b87aa8b6e1450675da317c311805190d5a287be63041e9544884f417",
+      "sleeve_mesh": "meshes/gate_02_circle_sleeve.stl",
+      "sleeve_mesh_sha256": "a730d0fcd47c7164c3c45b2748f5af2bf8bb489b62ca2b6a6a8c4939280f53a5",
+      "boundary_vertex_count": 128,
+      "motion": {
+        "translation_amplitude": [
+          0.14,
+          0.2,
+          0.12
+        ],
+        "rotation_amplitude": [
+          0.12217304763960307,
+          0.08726646259971647,
+          0.15707963267948966
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 10.8,
+        "rotation_period": 9.2,
+        "scale_period": 9.0,
+        "phase": -0.6,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "W3_pentagon",
+      "shape": "pentagon",
+      "core_mesh": "meshes/gate_03_pentagon_core.stl",
+      "core_mesh_sha256": "29cc00ae6e8ad3b79a1b6b649c41dc9f0b387ee31379a51f9e3339b32105a5fc",
+      "sleeve_mesh": "meshes/gate_03_pentagon_sleeve.stl",
+      "sleeve_mesh_sha256": "bfdc0a08ce4356149692b37b59f6f594d6becb96f0a7be5a31b81df15b02f2b2",
+      "boundary_vertex_count": 5,
+      "motion": {
+        "translation_amplitude": [
+          0.2,
+          0.12,
+          0.15
+        ],
+        "rotation_amplitude": [
+          0.10471975511965978,
+          0.13962634015954636,
+          0.12217304763960307
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 11.6,
+        "rotation_period": 9.9,
+        "scale_period": 9.0,
+        "phase": 0.9,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "W4_circle",
+      "shape": "circle",
+      "core_mesh": "meshes/gate_04_circle_core.stl",
+      "core_mesh_sha256": "dc76dbd6ef96908c58a2e415533d28bf37c1747b524ba946109252f90664b9ad",
+      "sleeve_mesh": "meshes/gate_04_circle_sleeve.stl",
+      "sleeve_mesh_sha256": "3fdfe6966c173675583ea067608257b454e05c58cc995236be875e84d0a32f76",
+      "boundary_vertex_count": 128,
+      "motion": {
+        "translation_amplitude": [
+          0.16,
+          0.18,
+          0.11
+        ],
+        "rotation_amplitude": [
+          0.13962634015954636,
+          0.10471975511965978,
+          0.17453292519943295
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 12.4,
+        "rotation_period": 10.6,
+        "scale_period": 9.0,
+        "phase": -0.3,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "W5_hexagon",
+      "shape": "hexagon",
+      "core_mesh": "meshes/gate_05_hexagon_core.stl",
+      "core_mesh_sha256": "b13d9e894fb7a7e0451cd7a8ad7008389ffca4a2f6fb1d0dd3cc4c92d4da289a",
+      "sleeve_mesh": "meshes/gate_05_hexagon_sleeve.stl",
+      "sleeve_mesh_sha256": "258a0a38804f9d51ee1b8a59d7dfd316e8ff264e4b9e74f7b5e82d0341dc59fd",
+      "boundary_vertex_count": 6,
+      "motion": {
+        "translation_amplitude": [
+          0.13,
+          0.16,
+          0.18
+        ],
+        "rotation_amplitude": [
+          0.08726646259971647,
+          0.15707963267948966,
+          0.13962634015954636
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 13.2,
+        "rotation_period": 11.3,
+        "scale_period": 9.0,
+        "phase": 1.1,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "W6_circle",
+      "shape": "circle",
+      "core_mesh": "meshes/gate_06_circle_core.stl",
+      "core_mesh_sha256": "e09ea6fc7f86729389abd08bf54111c7f33b9e650b38c6527bfc16935bb07330",
+      "sleeve_mesh": "meshes/gate_06_circle_sleeve.stl",
+      "sleeve_mesh_sha256": "000ad961b9a093dabfce83ac84fe3760c34d473a5fd33076c756e8dd853b82f8",
+      "boundary_vertex_count": 128,
+      "motion": {
+        "translation_amplitude": [
+          0.19,
+          0.15,
+          0.13
+        ],
+        "rotation_amplitude": [
+          0.12217304763960307,
+          0.13962634015954636,
+          0.10471975511965978
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 14.0,
+        "rotation_period": 12.0,
+        "scale_period": 9.0,
+        "phase": -1.0,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "W7_rectangle",
+      "shape": "rectangle",
+      "core_mesh": "meshes/gate_07_rectangle_core.stl",
+      "core_mesh_sha256": "a91fdb4d6e2ad72e55c01eeeb3646ac422d0697f274b0367004a7f176dc6700f",
+      "sleeve_mesh": "meshes/gate_07_rectangle_sleeve.stl",
+      "sleeve_mesh_sha256": "c86077571714f8e18e789e030114a5ed9ee4a02ebd0f6d9b9b8275d29b228c98",
+      "boundary_vertex_count": 4,
+      "motion": {
+        "translation_amplitude": [
+          0.15,
+          0.19,
+          0.16
+        ],
+        "rotation_amplitude": [
+          0.15707963267948966,
+          0.08726646259971647,
+          0.12217304763960307
+        ],
+        "scale_amplitude": 0.0,
+        "translation_period": 14.8,
+        "rotation_period": 12.7,
+        "scale_period": 9.0,
+        "phase": 0.7,
+        "translation_enabled": true,
+        "rotation_enabled": true,
+        "scale_enabled": false
+      }
+    }
+  ]
+}

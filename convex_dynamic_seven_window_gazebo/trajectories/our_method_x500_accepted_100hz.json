@@ -1,0 +1,24 @@
+{
+  "construction": "first hard-audit-accepted x500 Conditional Dual-Constraint CEM candidate",
+  "candidate_id": 364,
+  "result": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/results/x500_our_method/20260910_physical_constraints_margin30mm/result.json",
+  "result_sha256": "15fa34177ca079a5071d32b955fd229a8f7728bd0441c0c52a501c0520883225",
+  "candidates": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/results/x500_our_method/20260910_physical_constraints_margin30mm/candidates.jsonl",
+  "candidates_sha256": "5947d35eaa98f30d0ab53cfbe63f309b78339a29b7bcc455f88fb0590e545b19",
+  "reference_file": "our_method_x500_accepted_100hz.npz",
+  "reference_sha256": "db6661b0b3195b0e2e76d7a258e3e10b501617c899c60d1bc943e10fcc0b5f9c",
+  "flight_time_s": 28.822503627262186,
+  "sample_count": 2884,
+  "maximum_speed_mps": 12.483404097269686,
+  "maximum_acceleration_mps2": 8.475405722911287,
+  "traversal_times_s": [
+    3.2100570738695677,
+    7.714021180501236,
+    10.650603451809651,
+    14.972343700803691,
+    17.628398038131543,
+    22.75382048338098,
+    25.218935686435238
+  ],
+  "coordinate_frame": "Gazebo ENU"
+}

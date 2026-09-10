@@ -1,0 +1,32 @@
+{
+  "construction": "joint x500 TOGT reoptimization of D and K",
+  "source_result": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/results/x500_togt/20260910_replanned_x500_margin_1p1_buffered/result.json",
+  "source_sha256": "c1e5a5152d715513be09538dda34bdffd15c59a73ce43e805ba606e768b2c93f",
+  "reference_file": "togt_x500_replanned_100hz.npz",
+  "reference_sha256": "93706d08fc7e68c203dbc764c21829ec8646fd9745da779f5b7368451433269a",
+  "coordinate_frame": "Gazebo ENU",
+  "sample_count": 2581,
+  "nominal_sample_period_s": 0.01,
+  "flight_time_s": 25.791559769822776,
+  "maximum_speed_mps": 11.951192358021462,
+  "maximum_acceleration_mps2": 9.777304465648232,
+  "start_enu": [
+    -16.0,
+    4.0,
+    3.2
+  ],
+  "goal_enu": [
+    -16.000000000000004,
+    3.999999999999997,
+    3.200000000000001
+  ],
+  "traversal_times_s": [
+    2.746633820706213,
+    6.716254167457054,
+    9.279832271632618,
+    12.904237446071704,
+    17.034133727105914,
+    19.942976384057967,
+    22.045088870015107
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "nominal_togt_margin_1p1_body_diameter_timescale_2",
+  "time_scale": 2.0,
+  "construction": "original D with scaled durations; moving-window waypoints reevaluated at scaled crossing times",
+  "source_result": "convex_timevarying_window/togt/results/seven_convex_togt_margin_1p1_body_diameter_20260910/result.json",
+  "source_result_sha256": "19850ffac736fd58e075ceae48bf4307ea49cb3a83c3fb8e374baf61e237f2aa",
+  "reference_file": "togt_timescale_2_100hz.npz",
+  "reference_sha256": "a47730e5336b22525a728fbc77026767905c6e4ba149b77c110b4f3d5d51300b",
+  "coordinate_frame": "Gazebo ENU",
+  "sample_count": 3746,
+  "nominal_sample_period_s": 0.01,
+  "flight_time_s": 37.44991893509983,
+  "maximum_speed_mps": 9.246306619123724,
+  "start_enu": [
+    -16.0,
+    4.0,
+    3.2
+  ],
+  "goal_enu": [
+    -15.999999999999991,
+    3.999999999999997,
+    3.2000000000000006
+  ],
+  "traversal_times_s": [
+    4.487625451730819,
+    9.647721823066478,
+    13.90709108714586,
+    18.741310792049745,
+    23.651079759215857,
+    28.652582252454074,
+    32.24206979823758
+  ]
+}

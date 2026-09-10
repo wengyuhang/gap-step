@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "image": "px4io/px4-sitl-gazebo:latest",
+  "gazebo_version": "8.14.0",
+  "world": "convex_seven_dynamic_px4.sdf",
+  "px4_commander": "running_disarmed_hold",
+  "vehicle_model": "x500_0",
+  "gate_count": 7,
+  "periodic_gate_plugin_loaded": true
+}

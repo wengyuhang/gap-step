@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "world": "convex_seven_dynamic_physics.sdf",
+  "gate_count": 7,
+  "motion_probe": "gate_01_W1_rectangle",
+  "maximum_pose_change": 0.15542899999999998,
+  "fatal_log_lines": []
+}

@@ -1,5 +1,42 @@
 # 工作记录与提交时间线
 
+## 2026-09-10：凸窗口动力学配置与TOGT C++对齐
+
+- 对照发布 `standard_planning.yaml` 和 `QuadManifold::computeRobustPenalityCost`，确认优化目标
+  原本已使用C++实现；差异位于最终验收的Python平坦性复算和不完整配置记录。新增C ABI批量
+  状态接口，最终验收直接调用发布版 `QuadManifold::toStateWithTiltYaw`。
+- 配置明确为速度 `60 m/s`、倾角 `6.28 rad`、XY/Z角速度 `10 rad/s`、单旋翼
+  `0.25–5 N`、派生总推力 `1–20 N`；权重为速度0、角速度1、倾角1、推力1。测试扩展为
+  `11 passed`，含配置逐项断言和C++ QuadA悬停状态检查。
+- 同一正式协议重跑得到385个候选（含种子）、116个严格双零。按时间验收的第1条候选
+  `id=324` 即通过，`T=21.872307580 s`，最大单旋翼推力 `4.955388 N`，七窗最小真实球体
+  净空 `50.609726 mm`。TOGT基线仍为 `18.724959468 s`，C++峰值单旋翼推力
+  `5.015527 N` 且W2/W4/W7碰撞，故动力学与安全都失败。
+- 旧Python验收曾将候选324误判为动力学失败并返回候选201，已明确标为被C++对齐结果取代。
+  新运行总墙钟 `276.740909 s`，源码起止哈希一致。见
+  [正式报告](../convex_timevarying_window/conditional_dual_constraint_cem/results/formal_cpp_aligned_margin30mm_20260910/REPORT.md)。
+
+## 2026-09-10：凸窗口条件式双约束 CEM 正式运行
+
+> 本节记录首次细积分运行；其Python动力学验收已由上一节的TOGT C++对齐重跑取代，以下数字
+> 仅用于追溯，当前结论使用候选324和C++原生验收。
+
+- 将原凸窗口 TOGT 源码和历史结果整理到 `convex_timevarying_window/togt/`，根目录只保留旧导入
+  兼容入口；新增独立方法 `conditional_dual_constraint_cem/`。安全项采用局部坐标、平面法向和
+  凸半空间 smooth-max/圆形平方隐式场，手写位置、窗口时间、MINCO 及 `[K,D]` 全链梯度。
+- 名义 TOGT 安全软积分非零，因此按协议进入联合安全 L-BFGS 和双约束 CEM。安全积分加密为
+  每段 16–64 区间、20 ms 目标步长，规划半径额外增加 30 mm；动力学积分保持 TOGT 的 8–32
+  区间，最终安全验收不附加规划余量。
+- 正式运行源码起止哈希一致。名义 TOGT 为 `18.724959468 s`，两个软积分分别为
+  `0.00966076679109/0.0659155760885`，完整动力学和安全检查均失败。CEM 共评价 385 个候选
+  （含种子），116 个严格双零；按时间验收的第 3 条候选 `id=201` 首次完整通过，飞行时间
+  `21.945428936 s`，两个软积分均为零，最大单旋翼推力 `4.926505 N`，七窗最小真实球体净空
+  `65.114584 mm`。
+- 阶段时间为场景/目标 `0.001305 s`、安全几何 `0.000223 s`、名义 L-BFGS `0.428360 s`、
+  联合 L-BFGS `212.774717 s`、CEM `47.618212 s`、两组最终验收合计 `60.984419 s`，总墙钟
+  `322.798313 s`。结果是最大 1 ms 步长的密集采样证据，不是连续域认证；见
+  [正式报告](../convex_timevarying_window/conditional_dual_constraint_cem/results/formal_fine_margin30mm_20260910/REPORT.md)。
+
 ## 2026-09-10：七窗口凸时变赛道 TOGT 正式运行
 
 - 新建与 `nonconvex_timevarying_window/` 并列的 `convex_timevarying_window/`。赛道沿当前
@@ -15,18 +52,19 @@
 - 最大 1 ms 步长的完整动力学验收仅单旋翼推力失败，峰值 `5.053699 N`；完整外接球
   安全验收七窗全部失败，规定穿越平面和开口成员检查均通过。保留该负结果，不把优化器
   收敛或软惩罚值当作硬约束通过。
-- 产物见[正式报告](../convex_timevarying_window/results/seven_convex_togt_mapping_no_margin_final_20260910/REPORT.md)。
+- 产物见[正式报告](../convex_timevarying_window/togt/results/seven_convex_togt_mapping_no_margin_final_20260910/REPORT.md)。
 - 纠正 margin 语义后，将七窗 `margin` 都设为验收外接球直径 `0.7588454736 m`，
   保持发布版 shape 特定规则。220 次迭代、265 次评价后正常收敛；飞行时间
   `18.687039732 s`，建图 `0.001773 s`、L-BFGS `1.035401 s`。单旋翼推力峰值
   `5.048021 N`；指定穿越点净空通过，但全时域外接球安全验收仅 W3/W5 通过。
   动力学与安全验收均失败。测试 `6 passed`；产物见
-  [直径 margin 结果](../convex_timevarying_window/results/seven_convex_togt_margin_body_diameter_20260910/REPORT.md)。
+  [直径 margin 结果](../convex_timevarying_window/togt/results/seven_convex_togt_margin_body_diameter_20260910/REPORT.md)。
 - 误将 margin 设为外接球半径的中间运行另存结果目录，不作为当前结果。
 - 继续将 margin 提高到外接球直径的 1.1 倍 `0.8347300205 m`。227 次迭代、282 次
   评价后正常收敛；飞行时间 `18.724959468 s`，L-BFGS `0.965737 s`。W1/W6 由擦边
   改为通过，W2/W4/W7 仍分别侵入约 `97/301/310 mm`；W3/W5 继续通过。单旋翼
-  推力峰值 `5.047529 N`，因此动力学和安全验收仍失败。
+  推力峰值的旧Python复算为 `5.047529 N`；C++对齐复核为 `5.015527 N`，动力学与安全验收
+  结论仍均为失败。
 
 ## 2026-09-09：三窗进一步扩大至 8000 候选
 
@@ -264,3 +302,20 @@
 - 新增 `seven_unique_px4_manual.sdf` 和 `run_px4_manual.sh`：保留同一七门赛道与实体碰撞，使用 PX4 x500 默认 4 ms 步长、GPS 球面坐标、大气和磁场模型。PX4 SITL 通过官方 Gazebo 桥生成 `x500_0`，不加载规划轨迹或跟踪节点。
 - 安装官方 QGroundControl Daily Linux AppImage 到忽略的 `.runtime/`，默认打开鼠标虚拟摇杆；增加基于隔离 `pymavlink` 环境的键盘遥控入口。实测 PX4 airframe 4001 启动、x500 生成、IMU 4 ms 数据、MAVLink 14550 地面站连接和 18570 手动控制输入均正常；`vehicle_status` 为 `gcs_connection_lost=False`、`pre_flight_checks_pass=True`。
 - 按用户要求解除赛道与算法的反向依赖：新增独立 `gazebo/course_spec.py`，直接保存七门工程尺寸、解析曲线/Bézier 原语、空间位姿和运动规律；利马松、波浪与 Line/Bézier 仅按 2 mm 最大弦偏差生成 Gazebo 网格。默认 `export_world.py`、`validate_course.py`、纯赛道和 PX4 启动链均不读取 SC 预处理或算法结果，`course_manifest.json` 明确记录 `algorithm_inputs=[]`。历史算法轨迹改为显式 `--with-replay` 的可选复放图层；计入网格误差后其保守净空同步修正为 `1.878932 mm`。
+
+## 2026-09-10：凸动态七窗口 Gazebo/PX4 独立资产
+
+- 在仓库主目录新建 `convex_dynamic_seven_window_gazebo/`，冻结当前正式凸窗口实验的 `seven_convex_periodic_3d_closed` 场景；七门依次为矩形、圆形、五边形、圆形、六边形、圆形和矩形，起终点均为 `(-16,4,3.2) m`。
+- 生成独立的 1 ms DART 物理世界和 4 ms PX4 世界，以及七个半径 20 mm 的碰撞/显示门框网格。PX4 运行层沿用旧赛道已验证的官方 `x500`、QGroundControl 和键盘手动控制配置，所有源码、世界、网格、清单和运行脚本均位于新目录。
+- 新增 `PeriodicGateMotion` Gazebo System 插件，以 Gazebo 仿真时间执行与规划 `MotionProfile` 完全相同的三轴正弦平移和 RPY 正弦旋转；暂停、重置或改变实时倍率不会引入墙钟漂移。插件通过本地 Docker 构建镜像编译，不依赖宿主 Gazebo 开发包。
+- 离线资产验证通过。Gazebo Harmonic 8.10 烟雾测试加载全部七门，W1 两次采样最大位姿变化 `0.131352`，无致命日志。PX4 镜像内 Gazebo 8.14 完整启动测试生成 `x500_0`、加载七门和运动插件，`commander` 处于 disarmed/Hold 且无 failsafe。
+- 根据实机预览反馈，将初版彩色细管外观改为旧赛道的中性实验室风格：深灰 85 mm 实体软门套、彩色 20 mm LED 内沿、网格地面、三面灰墙、顶棚和十二块发光板。门套中心线向开口外偏移 65 mm，使其内表面与 20 mm 核心内表面对齐，不改变有效开口。
+- 重建并重启 PX4 世界后，七门、`x500_0`、Gazebo GUI 和 QGroundControl 均运行；地面站状态 `gcs_connection_lost=False`。窗口运动参数保持冻结场景原值，逐轴最大平移速度为 `0.081–0.116 m/s`，最大姿态角速度为 `0.073–0.129 rad/s`，其慢速观感来自原场景的小幅长周期运动，不是 Gazebo 降速。
+
+## 2026-09-10：x500 动力学重规划与两方法 PX4 实飞
+
+- 在 `convex_dynamic_seven_window_gazebo/x500_togt/` 新建独立 C++ 解析梯度后端。采用 PX4 Gazebo 官方 x500 的总质量 `2.064307692 kg`、组合惯量对角线 `(0.02383948,0.02394241,0.04399995) kg·m²`、`0.174 m` 旋翼坐标、`0.016` 力矩系数和 `8.54858 N` 单桨最大推力；未修改原 TOGT 后端。
+- x500 旋翼碰撞体的平面外包络半径为 `0.385944720 m`。TOGT 空间映射沿用 1.1 倍机体直径规则，取 `margin=0.849078383 m`；安全软积分另加 30 mm，最终硬验收不增加余量。
+- 核对发布代码后确认 `standard_planning.yaml` 虽定义 `maxVelNorm=60`，但 `weightVel=0`，`addVelocityPenalities()` 因而直接返回。x500 SDF 本身也没有物理最大速度；最终物理动力学合格只检查倾角、机体角速度和旋翼推力，速度作为 PX4 控制器诊断量记录。
+- x500 TOGT baseline 重规划得到 `T=24.660806190 s`，1 ms 动力学检查通过，整机安全检查在 W2/W5/W7 失败。Conditional Dual-Constraint CEM 以该解启动：安全 L-BFGS `72.134656 s`，CEM `78.391326 s`，首个完整验收候选 364 为 `T=28.822503627 s`，动力学和七窗球体安全均通过；完整运行总计 `170.353639 s`，源码前后哈希一致。
+- 两条轨迹均通过 PX4 Offboard 位置/速度/加速度参考在同一 x500 和动态窗口世界实飞，固定 `yaw=0` 以对齐规划模型。最终 baseline 运行 `results/px4_togt/20260910_154055/` 在 W2 接触；我们的方法运行 `results/px4_togt/20260910_153915/` 也在 W2 接触。后者 W2 名义最小净空 `0.189239 m`，首次接触时跟踪误差 `0.342649 m`，说明碰撞来自当前 PX4 位置跟踪误差超过名义余量；规划验收成功与闭环实飞安全分别记录。

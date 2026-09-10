@@ -1,0 +1,5 @@
+FROM ghcr.io/j-rivero/gazebo:harmonic-full
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends g++ make \
+ && rm -rf /var/lib/apt/lists/*
+
