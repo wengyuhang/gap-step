@@ -1,0 +1,12 @@
+{
+  "window": "W6_line_bezier",
+  "mapping_polygon": "Chang-resampled physical aperture with exact straight-run cleanup; no inward offset",
+  "source_sampled_vertices": 256,
+  "mapping_vertices": 86,
+  "source_sampled_vertices_sha256": "fd81fd440976f8140024c7e3db01e4a1f8bb20ceca648a94cd96a239fc232939",
+  "mapping_vertices_sha256": "0b27ce2d20f7b234e282fd9e5894b5bb5e3a0b0b1e84a90dd21b2537689ced08",
+  "quadrature_order": 64,
+  "optimizer_success": true,
+  "parameter_residual_inf": 1.566924368034961e-11,
+  "vertex_reconstruction_inf": 2.0739387515166577e-13
+}

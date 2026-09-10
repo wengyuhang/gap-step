@@ -56,14 +56,18 @@ python -m nonconvex_timevarying_window.feasibility_guided_cem_sc_dynatogt.multi_
 ```bash
 cd nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/gazebo
 conda run -n wyh python export_world.py
-conda run -n wyh python validate_world.py
+conda run -n wyh python validate_course.py
 conda run -n wyh python gazebo_smoke.py
 ./run_track.sh           # 有 X11 桌面；只加载实体旋转门赛道
 ./run_track.sh gui       # 流畅展示版
 ./run_track.sh headless  # 无显示服务器
+./setup_manual_control.sh # 首次下载 QGroundControl 与隔离键盘遥控环境
+./run_px4_manual.sh      # PX4 SITL + x500 + QGroundControl 鼠标手动飞行
+./run_keyboard_teleop.sh # 可选键盘手动飞行
+./stop_px4_manual.sh     # 停止 PX4/Gazebo
 ```
 
-`gazebo_smoke.py` 需要 Docker daemon 权限，使用 Gazebo Harmonic 容器实际加载世界并核对七个关节角速度。赛道资产版使用 Gazebo 内置 DART，只定义门框位置、碰撞几何、转轴和运动规律，不加载轨迹、无人机或撞击脚本。离开该目录后返回仓库根目录再执行其他模块命令。
+`gazebo_smoke.py` 需要 Docker daemon 权限，使用 Gazebo Harmonic 容器实际加载世界并核对七个关节角速度。赛道资产版仍只定义场地和门；PX4 手动版由 PX4 Gazebo 桥生成官方 x500，使用传感器、飞控、MAVLink 与 QGroundControl，不运行路径规划或轨迹跟踪。离开该目录后返回仓库根目录再执行其他模块命令。
 
 RotSync 的默认 suite 是 `formal`，不是 smoke；快速回归应显式选择：
 
@@ -136,3 +140,12 @@ python -m togt_timevarying_window.experiments --suite smoke --outdir togt_timeva
 ```
 
 外部复现先确认本地 `复现/TOGT-Planner-reproduction/` 存在，再按其说明运行；历史构建证据见 [TOGT_REPRODUCTION_AUDIT](TOGT_REPRODUCTION_AUDIT.md)。
+## 凸多边形/圆形周期三维窗口
+
+```bash
+pytest -q convex_timevarying_window/tests
+conda run -n wyh python -c \
+  'from convex_timevarying_window.native_backend import build_native; build_native(force=True)'
+conda run --no-capture-output -n wyh python -m convex_timevarying_window.experiment \
+  --outdir convex_timevarying_window/results/seven_convex_togt_margin_1p1_body_diameter_20260910
+```

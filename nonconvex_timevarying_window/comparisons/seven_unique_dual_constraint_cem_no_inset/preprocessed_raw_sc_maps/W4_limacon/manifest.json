@@ -1,0 +1,12 @@
+{
+  "window": "W4_limacon",
+  "mapping_polygon": "Chang-resampled physical aperture with exact straight-run cleanup; no inward offset",
+  "source_sampled_vertices": 256,
+  "mapping_vertices": 256,
+  "source_sampled_vertices_sha256": "e550524e3c7cb5e962c5de6606eef54dca855fadee331c921b349901b82999a6",
+  "mapping_vertices_sha256": "e550524e3c7cb5e962c5de6606eef54dca855fadee331c921b349901b82999a6",
+  "quadrature_order": 64,
+  "optimizer_success": true,
+  "parameter_residual_inf": 4.440892098500626e-14,
+  "vertex_reconstruction_inf": 9.13446518979938e-16
+}

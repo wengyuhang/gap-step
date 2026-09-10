@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import math
 from pathlib import Path
-import sys
 
 import numpy as np
 import trimesh
@@ -15,30 +15,30 @@ from PIL import Image, ImageDraw
 from shapely.geometry import Polygon
 
 
+try:
+    from .course_spec import GATES, MESH_CHORD_TOLERANCE_M, SHAPES, START
+except ImportError:  # direct script execution
+    from course_spec import GATES, MESH_CHORD_TOLERANCE_M, SHAPES, START
+
+
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[3]
-sys.path.insert(0, str(REPO))
-
-from nonconvex_timevarying_window.comparisons.seven_unique_sc_sphere.experiment import (  # noqa: E402
-    ANGLES_RPY,
-    SHAPES,
-    START,
-    build_seven_unique_track,
-)
-from nonconvex_timevarying_window.random_dk_sc_dynatogt.multi_window import (  # noqa: E402
-    MultiWindowObjective,
-)
 
 
 WORLD = HERE / "seven_unique_high_fidelity.sdf"
 PREVIEW_WORLD = HERE / "seven_unique_race_preview.sdf"
 PHYSICS_WORLD = HERE / "seven_unique_physics.sdf"
 PX4_WORLD = HERE / "seven_unique_px4_manual.sdf"
+COURSE_MANIFEST = HERE / "course_manifest.json"
 MESH_DIR = HERE / "meshes"
 TEXTURE_DIR = HERE / "materials" / "textures"
 RESULT = (
     HERE.parent / "results" / "formal_final_post5_sphere_only_20260909" / "result.json"
 )
+RESULT_TRAJECTORY = RESULT.parent / "dual_constraint_cem_trajectory.npz"
+REPLAY_BODY_HALF_EXTENTS = np.asarray((0.26504, 0.26504, 0.0589))
+REPLAY_BODY_SPHERE_RADIUS = float(np.linalg.norm(REPLAY_BODY_HALF_EXTENTS))
+REPLAY_PLANNING_SPHERE_RADIUS = REPLAY_BODY_SPHERE_RADIUS + 0.015
 FRAME_RADIUS = 0.010
 FRAME_SECTIONS = 12
 SLEEVE_RADIUS = 0.085
@@ -244,7 +244,7 @@ def visual_box(name: str, pose, size, color, *, emissive=None) -> str:
       </visual></link></model>'''
 
 
-def race_venue_xml(scenario) -> str:
+def race_venue_xml(gates) -> str:
     """Visual-only arena dressing; it intentionally adds no collision geometry."""
     pieces = []
     dark = (0.045, 0.055, 0.075, 1.0)
@@ -278,9 +278,9 @@ def race_venue_xml(scenario) -> str:
         visual_box("start_arch_magenta", (START[0] - .105, START[1] + 1.0, 5.6, 0, 0, 0), (.04, 1.9, .13), magenta, emissive=magenta),
     ))
     # Two slim towers and a header identify every checkpoint while leaving the race geometry unchanged.
-    for index, (window, color) in enumerate(zip(scenario.windows, COLORS), start=1):
+    for index, (window, color) in enumerate(zip(gates, COLORS), start=1):
         cx, cy, cz = map(float, window.center)
-        sweep_radius = float(np.max(np.linalg.norm(window.physical_polygon, axis=1))) + SLEEVE_RADIUS
+        sweep_radius = float(np.max(np.linalg.norm(window.boundary, axis=1))) + SLEEVE_RADIUS
         pedestal_top = cz - sweep_radius - 0.25
         height = max(0.25, pedestal_top + 6.0)
         pieces.append(visual_box(f"gate_{index:02d}_tower",
@@ -292,7 +292,7 @@ def race_venue_xml(scenario) -> str:
     return "\n".join(pieces)
 
 
-def indoor_lab_xml(scenario) -> str:
+def indoor_lab_xml(gates) -> str:
     """Neutral indoor flight-test hall inspired by laboratory gate courses."""
     pieces = []
     wall = (0.70, 0.72, 0.74, 1.0)
@@ -319,13 +319,15 @@ def indoor_lab_xml(scenario) -> str:
 
 def remove_model(xml: str, name: str) -> str:
     marker = f'<model name="{name}">'
+    if marker not in xml:
+        return xml
     start = xml.index(marker)
     end = xml.index('</model>', start) + len('</model>')
     return xml[:start] + xml[end:]
 
 
-def quadrotor_model(body) -> str:
-    size = 2.0 * np.asarray(body.half_extents)
+def quadrotor_model(half_extents: np.ndarray) -> str:
+    size = 2.0 * np.asarray(half_extents)
     x, y, z = START
     rotor_xy = 0.205
     visuals = [
@@ -341,12 +343,34 @@ def quadrotor_model(body) -> str:
       {''.join(visuals)}</link></model>'''
 
 
-def main() -> None:
-    scenario, inherited = build_seven_unique_track()
-    result = json.loads(RESULT.read_text(encoding="utf-8"))
-    accepted = next(row for row in result["rows"] if row["method"].startswith("Dual-Constraint"))
-    objective = MultiWindowObjective(scenario, inherited)
-    forward = objective.forward(np.asarray(accepted["decision_vector"], dtype=float))
+def evaluate_saved_trajectory(path: Path, sample_count: int) -> tuple[float, np.ndarray]:
+    """Evaluate a retained replay polynomial without importing planning code."""
+    payload = np.load(path)
+    coefficients = np.asarray(payload["coefficients"], dtype=float)
+    durations = np.asarray(payload["durations"], dtype=float)
+    total_time = float(np.sum(durations))
+    times = np.linspace(0.0, total_time, sample_count)
+    cumulative = np.r_[0.0, np.cumsum(durations)]
+    points = np.empty((sample_count, 3), dtype=float)
+    for output_index, instant in enumerate(times):
+        segment = min(
+            int(np.searchsorted(cumulative[1:], instant, side="right")),
+            len(durations) - 1,
+        )
+        local = instant - cumulative[segment]
+        basis = local ** np.arange(coefficients.shape[1])
+        points[output_index] = basis @ coefficients[segment]
+    return total_time, points
+
+
+def main(argv=None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--with-replay",
+        action="store_true",
+        help="also rebuild the separate accepted-algorithm replay worlds",
+    )
+    args = parser.parse_args(argv)
 
     MESH_DIR.mkdir(parents=True, exist_ok=True)
     floor_texture = create_floor_texture()
@@ -355,18 +379,19 @@ def main() -> None:
     preview_gate_xml = []
     physics_gate_xml = []
     gate_records = []
-    for index, (shape, window, angles, color) in enumerate(
-        zip(SHAPES, scenario.windows, ANGLES_RPY, COLORS)
+    for index, (shape, window, color) in enumerate(
+        zip(SHAPES, GATES, COLORS)
     ):
+        angles = window.base_rpy
         collision_name = f"gate_{index + 1:02d}_{shape}_collision.stl"
         visual_core_name = f"gate_{index + 1:02d}_{shape}_visual_core.stl"
         sleeve_name = f"gate_{index + 1:02d}_{shape}_sleeve.stl"
         collision_path = MESH_DIR / collision_name
         visual_core_path = MESH_DIR / visual_core_name
         sleeve_path = MESH_DIR / sleeve_name
-        collision_mesh = tube_mesh(window.physical_polygon, FRAME_RADIUS, FRAME_SECTIONS, closed=True)
+        collision_mesh = tube_mesh(window.boundary, FRAME_RADIUS, FRAME_SECTIONS, closed=True)
         visual_polygon, visual_error = simplified_visual_polygon(
-            window.physical_polygon, PREVIEW_BOUNDARY_TOLERANCE)
+            window.boundary, PREVIEW_BOUNDARY_TOLERANCE)
         visual_core_mesh = tube_mesh(visual_polygon, FRAME_RADIUS, 8, closed=True)
         sleeve_centerline = outward_offset_polygon(
             visual_polygon, SLEEVE_RADIUS - FRAME_RADIUS)
@@ -381,12 +406,12 @@ def main() -> None:
         physics_gate_xml.append(gate_model(index, window, angles, sleeve_name, visual_core_name,
                                            sleeve_name, LAB_GATE_COLOR, include_collision=True))
         edge_lengths = np.linalg.norm(
-            np.roll(window.physical_polygon, -1, axis=0) - window.physical_polygon, axis=1)
+            np.roll(window.boundary, -1, axis=0) - window.boundary, axis=1)
         gate_records.append({
             "index": index + 1, "name": window.name, "shape": shape,
             "center": window.center.tolist(), "base_rpy": list(map(float, angles)),
             "theta0": float(window.theta0), "omega": float(window.omega),
-            "boundary_points": int(len(window.physical_polygon)),
+            "boundary_points": int(len(window.boundary)),
             "maximum_boundary_chord_m": float(np.max(edge_lengths)),
             "collision_mesh": f"meshes/{collision_name}",
             "collision_mesh_sha256": sha256(collision_path),
@@ -405,15 +430,25 @@ def main() -> None:
             "visual_boundary_hausdorff_error_m": visual_error,
         })
 
-    times = np.linspace(0.0, float(forward.trajectory.total_time), PATH_SAMPLES)
-    path_points = np.asarray(forward.trajectory.evaluate(times), dtype=float)
-    path_mesh = tube_mesh(path_points, PATH_RADIUS, 10, closed=False)
+    replay_time = None
+    accepted = None
+    path_mesh = None
     path_file = MESH_DIR / "accepted_trajectory.stl"
-    path_mesh.export(path_file, file_type="stl")
     path_uri = "meshes/accepted_trajectory.stl"
+    if args.with_replay:
+        result = json.loads(RESULT.read_text(encoding="utf-8"))
+        accepted = next(
+            row for row in result["rows"]
+            if row["method"].startswith("Dual-Constraint")
+        )
+        replay_time, path_points = evaluate_saved_trajectory(
+            RESULT_TRAJECTORY, PATH_SAMPLES
+        )
+        path_mesh = tube_mesh(path_points, PATH_RADIUS, 10, closed=False)
+        path_mesh.export(path_file, file_type="stl")
 
     floor_route_points = np.vstack((np.asarray(START, dtype=float),
-                                    np.asarray([window.center for window in scenario.windows]),
+                                    np.asarray([window.center for window in GATES]),
                                     np.asarray(START, dtype=float)))
     floor_route_points[:, 2] = -5.91
     floor_route_mesh = tube_mesh(floor_route_points, 0.10, 8, closed=False)
@@ -423,9 +458,13 @@ def main() -> None:
     gate_text = "\n".join(gate_xml)
     preview_gate_text = "\n".join(preview_gate_xml)
     physics_gate_text = "\n".join(physics_gate_xml)
-    quad = quadrotor_model(scenario.body)
-    venue = race_venue_xml(scenario)
-    lab_venue = indoor_lab_xml(scenario)
+    quad = quadrotor_model(REPLAY_BODY_HALF_EXTENTS) if args.with_replay else ""
+    replay_visual = f'''<model name="accepted_trajectory"><static>true</static><link name="path"><visual name="path_visual">{mesh_geometry(path_uri)}
+    <material><ambient>0.10 0.95 0.88 0.78</ambient><diffuse>0.10 0.95 0.88 0.78</diffuse><emissive>0.05 0.55 0.50 0.78</emissive></material>
+  </visual></link></model>
+  {quad}''' if args.with_replay else ""
+    venue = race_venue_xml(GATES)
+    lab_venue = indoor_lab_xml(GATES)
     world_text = f'''<?xml version="1.0" ?>
 <sdf version="1.9"><world name="seven_unique_high_fidelity">
   <physics name="one_millisecond" type="dart"><max_step_size>0.001</max_step_size><real_time_factor>1</real_time_factor></physics>
@@ -472,14 +511,12 @@ def main() -> None:
     <visual name="pad"><geometry><cylinder><radius>0.85</radius><length>0.08</length></cylinder></geometry><material><diffuse>0.08 0.95 0.32 1</diffuse><emissive>0.04 0.45 0.12 1</emissive></material></visual>
     <visual name="mast"><pose>0 0 4.56 0 0 0</pose><geometry><cylinder><radius>0.025</radius><length>9.04</length></cylinder></geometry><material><emissive>0.1 1 0.35 1</emissive></material></visual>
   </link></model>
-  <model name="accepted_trajectory"><static>true</static><link name="path"><visual name="path_visual">{mesh_geometry(path_uri)}
-    <material><ambient>0.10 0.95 0.88 0.78</ambient><diffuse>0.10 0.95 0.88 0.78</diffuse><emissive>0.05 0.55 0.50 0.78</emissive></material>
-  </visual></link></model>
-  {quad}
+  {replay_visual}
   {venue}
   {gate_text}
 </world></sdf>'''
-    WORLD.write_text(world_text, encoding="utf-8")
+    if args.with_replay:
+        WORLD.write_text(world_text, encoding="utf-8")
     preview_text = world_text.replace(
         'world name="seven_unique_high_fidelity"',
         'world name="seven_unique_race_preview"', 1).replace(
@@ -488,13 +525,13 @@ def main() -> None:
         "<max_step_size>0.001</max_step_size>",
         f"<max_step_size>{PREVIEW_PHYSICS_STEP}</max_step_size>", 1).replace(
         gate_text, preview_gate_text, 1)
-    PREVIEW_WORLD.write_text(preview_text, encoding="utf-8")
+    if args.with_replay:
+        PREVIEW_WORLD.write_text(preview_text, encoding="utf-8")
     physics_text = world_text.replace(
         'world name="seven_unique_high_fidelity"',
         'world name="seven_unique_physics"', 1).replace(
         'physics name="one_millisecond"',
         'physics name="physical_one_millisecond"', 1).replace(
-        quad, "", 1).replace(
         venue, lab_venue, 1).replace(
         gate_text, physics_gate_text, 1)
     physics_text = physics_text.replace(
@@ -514,7 +551,12 @@ def main() -> None:
     light_start = physics_text.index('  <light type="directional" name="sun">')
     light_end = physics_text.index('  <model name="ground">', light_start)
     physics_text = physics_text[:light_start] + physics_text[light_end:]
-    for model_name in ("accepted_trajectory", "floor_racing_line", "start_finish_beacon"):
+    for model_name in (
+        "accepted_quadrotor",
+        "accepted_trajectory",
+        "floor_racing_line",
+        "start_finish_beacon",
+    ):
         physics_text = remove_model(physics_text, model_name)
     gui_start = physics_text.index('  <gui fullscreen="0">')
     gui_end = physics_text.index('  </gui>', gui_start) + len('  </gui>')
@@ -556,16 +598,14 @@ def main() -> None:
     px4_text = px4_text[:physics_end] + px4_environment + px4_text[physics_end:]
     PX4_WORLD.write_text(px4_text, encoding="utf-8")
 
-    hard_margin = min(
-        row["minimum_margin"] for row in accepted["safety_audit"]["per_window"]
-    )
     manifest = {
-        "world": WORLD.name, "sdf_version": "1.9", "gazebo_release": "Harmonic",
-        "preview_world": PREVIEW_WORLD.name,
+        "sdf_version": "1.9",
+        "gazebo_release": "Harmonic",
         "physics_world": PHYSICS_WORLD.name,
         "px4_manual_world": PX4_WORLD.name,
-        "preview_physics_step_s": PREVIEW_PHYSICS_STEP,
-        "preview_gate_collisions": False,
+        "course_spec": "course_spec.py",
+        "algorithm_inputs": [],
+        "curve_mesh_chord_tolerance_m": MESH_CHORD_TOLERANCE_M,
         "visual_boundary_tolerance_m": PREVIEW_BOUNDARY_TOLERANCE,
         "physics_step_s": 0.001, "ground_height_m": -6.0,
         "px4_physics_step_s": PX4_PHYSICS_STEP,
@@ -580,19 +620,6 @@ def main() -> None:
                           "sha256": sha256(floor_texture)},
         "lab_floor_texture": {"path": str(lab_floor_texture.relative_to(HERE)),
                               "sha256": sha256(lab_floor_texture)},
-        "source_result": str(RESULT.relative_to(REPO)),
-        "source_result_sha256": sha256(RESULT),
-        "accepted_candidate_id": int(accepted["selected_candidate_id"]),
-        "accepted_flight_time_s": float(forward.trajectory.total_time),
-        "body_half_extents_m": np.asarray(scenario.body.half_extents).tolist(),
-        "body_sphere_radius_m": float(scenario.body.circumscribed_radius),
-        "planning_sphere_radius_m": float(scenario.windows[0].rho),
-        "hard_audit_minimum_centerline_margin_m": float(hard_margin),
-        "remaining_margin_after_gazebo_frame_radius_m": float(hard_margin - FRAME_RADIUS),
-        "trajectory": {"samples": PATH_SAMPLES, "mesh": path_uri,
-                       "mesh_sha256": sha256(path_file),
-                       "mesh_vertices": int(len(path_mesh.vertices)),
-                       "mesh_triangles": int(len(path_mesh.faces))},
         "floor_racing_line": {"mesh": "meshes/floor_racing_line.stl",
                               "mesh_sha256": sha256(floor_route_file),
                               "mesh_triangles": int(len(floor_route_mesh.faces)),
@@ -600,14 +627,54 @@ def main() -> None:
         "gates": gate_records,
         "coordinate_convention": "mesh xy is the original local aperture plane; model base is frozen RPY; child yaw is theta0+omega*t",
     }
-    (HERE / "manifest.json").write_text(
+    COURSE_MANIFEST.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
-    print(f"wrote {WORLD}")
-    print(f"wrote {PREVIEW_WORLD}")
+    if args.with_replay:
+        assert accepted is not None and replay_time is not None and path_mesh is not None
+        hard_margin = min(
+            row["minimum_margin"] for row in accepted["safety_audit"]["per_window"]
+        )
+        replay_manifest = {
+            **manifest,
+            "world": WORLD.name,
+            "preview_world": PREVIEW_WORLD.name,
+            "preview_physics_step_s": PREVIEW_PHYSICS_STEP,
+            "preview_gate_collisions": False,
+            "source_result": str(RESULT.relative_to(REPO)),
+            "source_result_sha256": sha256(RESULT),
+            "accepted_candidate_id": int(accepted["selected_candidate_id"]),
+            "accepted_flight_time_s": replay_time,
+            "body_half_extents_m": REPLAY_BODY_HALF_EXTENTS.tolist(),
+            "body_sphere_radius_m": REPLAY_BODY_SPHERE_RADIUS,
+            "planning_sphere_radius_m": REPLAY_PLANNING_SPHERE_RADIUS,
+            "hard_audit_minimum_centerline_margin_m": float(hard_margin),
+            "remaining_margin_after_gazebo_frame_radius_m": float(
+                hard_margin - FRAME_RADIUS - MESH_CHORD_TOLERANCE_M
+            ),
+            "trajectory": {
+                "samples": PATH_SAMPLES,
+                "mesh": path_uri,
+                "mesh_sha256": sha256(path_file),
+                "mesh_vertices": int(len(path_mesh.vertices)),
+                "mesh_triangles": int(len(path_mesh.faces)),
+            },
+        }
+        (HERE / "manifest.json").write_text(
+            json.dumps(replay_manifest, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(f"wrote {WORLD}")
+        print(f"wrote {PREVIEW_WORLD}")
+        print(
+            f"replay trajectory_samples={PATH_SAMPLES} "
+            f"conservative_remaining_margin="
+            f"{hard_margin - FRAME_RADIUS - MESH_CHORD_TOLERANCE_M:.9f} m"
+        )
     print(f"wrote {PHYSICS_WORLD}")
     print(f"wrote {PX4_WORLD}")
-    print(f"gates=7 trajectory_samples={PATH_SAMPLES} remaining_margin={hard_margin - FRAME_RADIUS:.9f} m")
+    print(f"wrote {COURSE_MANIFEST}")
+    print("gates=7 source=course_spec.py algorithm_inputs=none")
 
 
 if __name__ == "__main__":

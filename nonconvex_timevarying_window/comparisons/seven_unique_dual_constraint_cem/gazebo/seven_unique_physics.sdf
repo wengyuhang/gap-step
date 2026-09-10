@@ -16,7 +16,6 @@
   
   
   
-  
   <model name="lab_back_wall"><static>true</static><pose>0 20 4.5 0 0 0</pose><link name="visual_only">
       <visual name="visual"><geometry><box><size>54 0.22 21</size></box></geometry>
         <material><ambient>0.700 0.720 0.740 1.000</ambient><diffuse>0.700 0.720 0.740 1.000</diffuse><emissive>0.000 0.000 0.000 1.000</emissive></material>

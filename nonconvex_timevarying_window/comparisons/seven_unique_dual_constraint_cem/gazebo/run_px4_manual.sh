@@ -11,7 +11,7 @@ cd "$ROOT"
 env MPLCONFIGDIR=/tmp/seven_unique_mpl XDG_CACHE_HOME=/tmp/seven_unique_cache \
   conda run -n wyh python export_world.py
 env MPLCONFIGDIR=/tmp/seven_unique_mpl XDG_CACHE_HOME=/tmp/seven_unique_cache \
-  conda run -n wyh python validate_world.py >/dev/null
+  conda run -n wyh python validate_course.py >/dev/null
 
 if [[ -z "${DISPLAY:-}" ]]; then
   echo 'No DISPLAY is set.' >&2
@@ -29,7 +29,7 @@ docker run -d --name "$CONTAINER" --network host \
   --volume "$ROOT:/workspace:ro" \
   --workdir /opt/px4-gazebo --device /dev/dri \
   --entrypoint bash "$IMAGE" -lc \
-  "gz sim -r -v 3 /workspace/$WORLD >/tmp/seven_unique_gazebo.log 2>&1 & exec /opt/px4-gazebo/bin/px4-gazebo -d ." \
+  "gz sim -s -r -v 3 /workspace/$WORLD >/tmp/seven_unique_gazebo.log 2>&1 & gz sim -g -v 3 >/tmp/seven_unique_gazebo_gui.log 2>&1 & exec /opt/px4-gazebo/bin/px4-gazebo -d ." \
   >/dev/null
 
 for _ in $(seq 1 60); do

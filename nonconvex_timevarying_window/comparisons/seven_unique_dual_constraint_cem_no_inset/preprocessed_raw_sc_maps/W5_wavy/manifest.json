@@ -1,0 +1,12 @@
+{
+  "window": "W5_wavy",
+  "mapping_polygon": "Chang-resampled physical aperture with exact straight-run cleanup; no inward offset",
+  "source_sampled_vertices": 256,
+  "mapping_vertices": 256,
+  "source_sampled_vertices_sha256": "12f602dded4cdc11164a282005e5ae473478ecc9b72edd622b6827ac949e6032",
+  "mapping_vertices_sha256": "12f602dded4cdc11164a282005e5ae473478ecc9b72edd622b6827ac949e6032",
+  "quadrature_order": 64,
+  "optimizer_success": true,
+  "parameter_residual_inf": 1.5720758028692217e-13,
+  "vertex_reconstruction_inf": 1.6939819667758158e-15
+}

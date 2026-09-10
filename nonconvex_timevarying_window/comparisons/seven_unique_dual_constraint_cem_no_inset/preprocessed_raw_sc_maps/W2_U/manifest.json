@@ -1,0 +1,12 @@
+{
+  "window": "W2_U",
+  "mapping_polygon": "Chang-resampled physical aperture with exact straight-run cleanup; no inward offset",
+  "source_sampled_vertices": 64,
+  "mapping_vertices": 8,
+  "source_sampled_vertices_sha256": "a9f19c6b2cbadff3ccd3946bb64555acd6e4275638db256f82d3826759a93f51",
+  "mapping_vertices_sha256": "4023d80a36457f1fa201f1cb4722eb30c3833ae7d4e249b1f148899eaaddc8c3",
+  "quadrature_order": 64,
+  "optimizer_success": true,
+  "parameter_residual_inf": 1.0972334152370422e-12,
+  "vertex_reconstruction_inf": 1.036613740313948e-13
+}

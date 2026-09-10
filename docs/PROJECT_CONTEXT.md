@@ -10,6 +10,22 @@
 
 ## 方法状态与结论边界
 
+2026-09-10 新增并列的 [凸时变窗口 TOGT 实验](../convex_timevarying_window/README.md)：
+沿七异形闭合赛道的位置布置 2 个矩形、3 个精确圆、1 个正五边形和 1 个正六边形，所有窗口均作周期三轴平移和
+roll/pitch/yaw 三轴旋转。求解严格复用 TOGT 发布 standard 目标及 L-BFGS 数值配置。
+当前后端直接封装发布版 C++ 手写四旋翼梯度和 MINCO 伴随回传；凸多边形改用论文的
+平方重心映射，平面圆使用 Ball 映射的二维同构，D 维数为 `4/2/5/2/6/2/4`。所有
+TOGT margin 已进一步提高到外接球直径的 1.1 倍 `0.8347300205 m`，严格使用发布版
+Rectangle/Ball/Pentagon/Hexagon 各自不同的缩量规则。当前冻结运行正常收敛，飞行时间
+`18.724959468 s`，初始化 `0.001796 s`、282 次评价的 L-BFGS `0.965737 s`；
+但最大单旋翼推力 `5.047529 N > 5 N`，安全验收 W1/W3/W5/W6 通过，
+W2/W4/W7 仍分别侵入约 `97/301/310 mm`。故动力学和安全验收仍均失败。指定穿越时刻的点净空足够，但 margin 不约束相邻时刻的轨迹与运动门框。结果是最大 1 ms 步长的密集采样证据，
+不是连续域认证。
+
+2026-09-10，Dual-Constraint CEM SC-DynaTOGT 的安全软积分已补入该新方法的前置 L-BFGS：目标为原 TOGT 目标加固定权重的全轨迹可微安全积分，梯度经 MINCO、窗口时间导数和 SC Jacobian 回传到原生 `[K,D]`。原始 `sc_dynatogt/`、Fixed-WP 未修改，多中心与停滞重启未加入。七窗口无内缩旧负结果早于此修改，保留作问题定位，不能当成当前流程实验结果。
+
+同日完成无历史轨迹/候选关联的无内缩冷启动正式运行。L-BFGS 用时 `2356.510 s`，CEM 用时 `102.775 s`，预处理、L-BFGS、CEM 合计 `2466.570 s`。512 条 CEM 候选中有 24 条当前离散网格严格双零且完整动力学均通过，但 24 条真实外接球检测全部失败，故没有验收解。失败暴露出每段最多 32 区间的全段安全积分会漏掉 `0.02–0.18 s` 的短接触区间；软积分为零仍不能替代密集安全检测。
+
 三窗最新成功原型：新增 [Feasibility-Guided CEM SC-DynaTOGT](../nonconvex_timevarying_window/feasibility_guided_cem_sc_dynatogt/README.md)。它显式复用两条单窗硬筛选通过轨迹的安全相位，以周期别名生成 2820 个多窗前端候选，再从峰值速度最低的三窗几何通过者启动 7 轮、每轮 256 个样本的完整协方差 CEM。总计 4612 次评估得到 3 条全部中间硬约束通过轨迹；最短者 T=7.390546627 s、最大速度 6.999106268 m/s，三个窗口最终真实姿态长方体审计均为零碰撞采样，最小门框净空 50.215/266.307/58.077 mm。总运行 278.328 s，其中最终审计 156.572 s。失败样本只指导提议分布，最终排序只含全约束通过者。结果是单场景、单种子的名义模型采样证据，不是连续认证或一般成功率结论；详见[三窗结果](../nonconvex_timevarying_window/feasibility_guided_cem_sc_dynatogt/THREE_WINDOW_RESULTS.md)。
 
 曲线边界三方法对比新增一条 11.2 m 开放赛道，依次为利马松、五瓣波浪曲线和直线–三次 Bézier 混合窗口，三窗固定平面并分别以 1.5/-2.0/2.5 rad/s 自旋。原始 Fixed-WP 为 3.878918907 s、原始 SC-DynaTOGT 为 3.497544115 s，两者整机碰撞约束均通过但旋翼推力约束失败；因此不进入合格时间排名。Feasibility-Guided CEM 在 552 个候选中找到 309 个中间硬筛选通过者，最终选择 3.468057675 s，动力学与三窗真实姿态长方体碰撞审计均通过。结果见[曲线赛道报告](../nonconvex_timevarying_window/comparisons/curved_rotating_sc_fixed_wp/results/three_way_20260909/REPORT.md)，证据仍为密集采样而非连续认证。
@@ -81,6 +97,8 @@ DynaTOGT 在 `togt_timevarying_window/` 使用动态窗口、离散热启动、L
 
 在七种不同形状的分散闭环赛道上，共冻结 3072 条随机候选；首次严格双零位于第 42 轮，随后完整运行第 43–47 轮。按飞行时间排序的首条严格双零候选 `id=2701` 即通过独立硬验收，`T=24.709999069 s`，两个软积分均为零；全程 1 ms 动力学检测和七窗口真实外接球检测均通过，最小真实球体余量 `13.878932 mm`。Fixed-WP 与原始 SC-DynaTOGT 分别为 `24.217926422/24.127878371 s`，但二者动力学与球体碰撞检测都失败。正式结果见[三方法报告](../nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/results/formal_final_post5_sphere_only_20260909/REPORT.md)。平面重复穿越只保留为诊断，不参与有限门框球体碰撞成败；所有硬验收仍是密集采样证据，不是连续域证书。
 
+2026-09-10 新增[无内缩 SC 消融](../nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem_no_inset/README.md)。七个原始物理开口 SC 建图全部成功，但改前的原始无内缩 SC 将 W6/W7 点推至物理边界，50×64 个 CEM 候选无严格双零。已知成功轨迹可以等价映射到无内缩参数化并保持双零，说明失败来自时间/动力学基线与局部 CEM 的搜索盆地，而非无内缩参数化排除了可行解。该实验暴露的安全软项未进入前置 L-BFGS 问题已在新方法封装中修复；旧负结果保留，改后完整实验尚未运行。
+
 ## 2026-09-10：七异形闭环 Gazebo 场景
 
-同一赛道已导出为[Gazebo Harmonic 场景组](../nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/gazebo/README.md)。算法复放世界的七个碰撞核心直接沿冻结物理边界生成，三类曲线门框合计保留 297,504 个碰撞三角面；另有 4 ms、无门框接触计算的流畅展示世界。赛道资产世界采用室内实验场风格，使用 Gazebo 内置 DART 与 1 ms 步长，85 mm 可见门套就是实际碰撞体；它只定义浅灰网格地面、三面墙、顶棚发光板、门框位置、转轴和角速度，不接规划轨迹、无人机或撞击脚本。Gazebo 网格叠层、灯光实体标记和门下支撑杆均已移除。每扇门使用固定基座、法向转动关节和原生 JointController。算法复放世界计入 10 mm 实体门框后，正式轨迹仍有 `3.878932 mm` 最小球体净空；Gazebo 场景不替代连续域证书或飞控跟踪实验。
+同一赛道已导出为[Gazebo Harmonic 场景组](../nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/gazebo/README.md)。当前赛道源是独立的 `course_spec.py`：多边形门由工程尺寸顶点定义，三类曲线门由解析方程或 Bézier 控制点定义，并仅为 Gazebo 网格按 2 mm 弦偏差离散；赛道生成和验证的 `algorithm_inputs=[]`，不读取 SC 预处理、安全内缩或规划结果。赛道资产世界采用室内实验场风格，使用 Gazebo 内置 DART 与 1 ms 步长，85 mm 可见门套就是实际碰撞体。PX4 手动世界保留同一场地与七门几何，按官方 x500 配置使用 4 ms 步长，由 PX4 Gazebo 桥生成 x500 并接入 IMU/GPS/磁场、PX4 SITL、MAVLink 和 QGroundControl；支持鼠标虚拟摇杆与独立键盘遥控，不含路径规划或轨迹跟踪。算法结果仅能通过显式 `--with-replay` 加入另外两个复放世界；计入 10 mm 门框和 2 mm 网格误差后，旧正式轨迹保守净空为 `1.878932 mm`。Gazebo/PX4 手动飞行不替代连续域证书或飞控跟踪实验。

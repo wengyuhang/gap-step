@@ -6,23 +6,19 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-import sys
 import xml.etree.ElementTree as ET
 
 import numpy as np
 import trimesh
 
 
-HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[3]
-sys.path.insert(0, str(REPO))
+try:
+    from .course_spec import GATES, boundary_at, rotation_matrix
+except ImportError:  # direct script execution
+    from course_spec import GATES, boundary_at, rotation_matrix
 
-from nonconvex_timevarying_window.comparisons.seven_unique_sc_sphere.experiment import (  # noqa: E402
-    ANGLES_RPY,
-    build_seven_unique_track,
-)
-from nonconvex_timevarying_window.sc_dynatogt.environment import rotation_and_derivative  # noqa: E402
-from nonconvex_timevarying_window.rot_sync_sc_togt.geometry import rotation_2d  # noqa: E402
+
+HERE = Path(__file__).resolve().parent
 
 
 WORLD = HERE / "seven_unique_high_fidelity.sdf"
@@ -57,14 +53,14 @@ def validate() -> dict:
     require(world.find("./gui/plugin[@filename='InteractiveViewControl']") is not None,
             "interactive mouse camera control plugin missing")
     models = {item.attrib["name"]: item for item in world.findall("model")}
-    scenario, _ = build_seven_unique_track()
-    require(len(manifest["gates"]) == len(scenario.windows) == 7, "expected seven gates")
+    require(len(manifest["gates"]) == len(GATES) == 7, "expected seven gates")
 
     pose_errors = []
     mesh_records = []
-    for index, (window, angles, record) in enumerate(
-        zip(scenario.windows, ANGLES_RPY, manifest["gates"]), start=1
+    for index, (window, record) in enumerate(
+        zip(GATES, manifest["gates"]), start=1
     ):
+        angles = window.base_rpy
         name = f"gate_{index:02d}_{window.name}"
         require(name in models, f"missing model {name}")
         model = models[name]
@@ -113,12 +109,15 @@ def validate() -> dict:
                              "triangles": int(len(mesh.faces)), "open_edges": 0,
                              "visual_sleeve_triangles": int(len(visual_mesh.faces))})
 
-        base_rotation, _ = rotation_and_derivative(angles, np.zeros(3))
+        base_rotation = rotation_matrix(angles)
         for instant in (0.0, 0.137, 1.0):
+            angle = window.theta0 + window.omega * instant
+            spin = np.asarray(((np.cos(angle), -np.sin(angle)),
+                               (np.sin(angle), np.cos(angle))))
             exported = (window.center[None, :] +
-                        (base_rotation[:, :2] @ rotation_2d(window.theta0 + window.omega * instant)
-                         @ window.physical_polygon.T).T)
-            reference = window.boundary_at(instant)
+                        (base_rotation[:, :2] @ spin
+                         @ window.boundary.T).T)
+            reference = boundary_at(window, instant)
             pose_errors.append(float(np.max(np.abs(exported - reference))))
 
     trajectory = manifest["trajectory"]
@@ -151,7 +150,7 @@ def validate() -> dict:
                 - manifest["preview_physics_step_s"]) < 1e-12,
             "preview physics step mismatch")
     preview_models = {item.attrib["name"]: item for item in preview.findall("model")}
-    for index, window in enumerate(scenario.windows, start=1):
+    for index, window in enumerate(GATES, start=1):
         name = f"gate_{index:02d}_{window.name}"
         require(preview_models[name].find("./link[@name='frame']/collision") is None,
                 f"preview gate must be render-only: {name}")
@@ -163,7 +162,7 @@ def validate() -> dict:
     require(physical.find("gui") is None,
             "track world must use Gazebo's standard GUI configuration")
     physical_models = {item.attrib["name"]: item for item in physical.findall("model")}
-    for index, (window, record) in enumerate(zip(scenario.windows, manifest["gates"]), start=1):
+    for index, (window, record) in enumerate(zip(GATES, manifest["gates"]), start=1):
         name = f"gate_{index:02d}_{window.name}"
         model = physical_models.get(name)
         require(model is not None, f"physical gate missing: {name}")

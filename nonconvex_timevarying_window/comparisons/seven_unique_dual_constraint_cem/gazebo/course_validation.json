@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "source": "course_spec.py",
+  "algorithm_inputs": [],
+  "gate_count": 7,
+  "curve_mesh_chord_tolerance_m": 0.002,
+  "physics_world": "seven_unique_physics.sdf",
+  "px4_world": "seven_unique_px4_manual.sdf"
+}

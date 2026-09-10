@@ -5,7 +5,7 @@
   "maximum_pose_error_m": 0.0,
   "physics_step_s": 0.001,
   "frame_radius_m": 0.01,
-  "remaining_accepted_clearance_m": 0.0038789320909036838,
+  "remaining_accepted_clearance_m": 0.0018789320909036837,
   "mesh_records": [
     {
       "name": "gate_01_W1_L",
@@ -30,22 +30,22 @@
     },
     {
       "name": "gate_04_W4_limacon",
-      "vertices": 41722,
-      "triangles": 87072,
+      "vertices": 2484,
+      "triangles": 5184,
       "open_edges": 0,
-      "visual_sleeve_triangles": 2560
+      "visual_sleeve_triangles": 2520
     },
     {
       "name": "gate_05_W5_wavy",
-      "vertices": 47096,
-      "triangles": 98304,
+      "vertices": 3680,
+      "triangles": 7680,
       "open_edges": 0,
-      "visual_sleeve_triangles": 3600
+      "visual_sleeve_triangles": 3880
     },
     {
       "name": "gate_06_W6_line_bezier",
-      "vertices": 37655,
-      "triangles": 110592,
+      "vertices": 1104,
+      "triangles": 2304,
       "open_edges": 0,
       "visual_sleeve_triangles": 1120
     },

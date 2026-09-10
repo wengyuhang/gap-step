@@ -1,9 +1,18 @@
 import numpy as np
+from pathlib import Path
+from shapely.geometry import Polygon
 
+from nonconvex_timevarying_window.comparisons.seven_unique_dual_constraint_cem.gazebo.course_spec import (
+    GATES,
+    MESH_CHORD_TOLERANCE_M,
+)
 from nonconvex_timevarying_window.comparisons.seven_unique_dual_constraint_cem.gazebo.export_world import (
     outward_offset_polygon,
     simplified_visual_polygon,
     tube_mesh,
+)
+from nonconvex_timevarying_window.comparisons.seven_unique_dual_constraint_cem.gazebo.validate_course import (
+    validate as validate_course,
 )
 
 
@@ -32,3 +41,17 @@ def test_visual_polygon_simplification_has_bounded_error():
     simplified, error = simplified_visual_polygon(circle, 0.006)
     assert len(simplified) < 100
     assert error <= 0.006
+
+
+def test_course_definition_and_runtime_assets_are_algorithm_independent():
+    source = (
+        Path(__file__).parents[1] / "gazebo" / "course_spec.py"
+    ).read_text(encoding="utf-8")
+    assert "preprocess" not in source.lower()
+    assert "sc_dynatogt" not in source
+    assert len(GATES) == 7
+    assert MESH_CHORD_TOLERANCE_M == 0.002
+    assert all(Polygon(gate.boundary).is_valid for gate in GATES)
+    validation = validate_course()
+    assert validation["passed"]
+    assert validation["algorithm_inputs"] == []

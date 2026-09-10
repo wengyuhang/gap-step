@@ -10,7 +10,7 @@ fi
 
 cd "$ROOT"
 env MPLCONFIGDIR=/tmp/seven_unique_mpl XDG_CACHE_HOME=/tmp/seven_unique_cache \
-  conda run -n wyh python export_world.py
+  conda run -n wyh python export_world.py --with-replay
 env MPLCONFIGDIR=/tmp/seven_unique_mpl XDG_CACHE_HOME=/tmp/seven_unique_cache \
   conda run -n wyh python validate_world.py >/dev/null
 

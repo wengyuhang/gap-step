@@ -9,7 +9,7 @@ cd "$ROOT"
 env MPLCONFIGDIR=/tmp/seven_unique_mpl XDG_CACHE_HOME=/tmp/seven_unique_cache \
   conda run -n wyh python export_world.py
 env MPLCONFIGDIR=/tmp/seven_unique_mpl XDG_CACHE_HOME=/tmp/seven_unique_cache \
-  conda run -n wyh python validate_world.py >/dev/null
+  conda run -n wyh python validate_course.py >/dev/null
 
 if [[ -z "${DISPLAY:-}" ]]; then
   echo 'No DISPLAY is set.' >&2

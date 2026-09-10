@@ -150,7 +150,7 @@ def dual_constraint_cem(objective, seed_x, scenario, dynamic_config,
     seed_latent = polar_encode(seed_x, temporal_dimension)
     seed_row = _evaluate(objective, scenario, dynamic_config, safety_config, cem_config,
                          seed_x, 0, -1, seed_latent)
-    seed_row["stage"] = "unmodified_sc_seed"
+    seed_row["stage"] = "input_seed"
     rows, memory, summaries = [seed_row], [seed_row], []
     first_zero = None
     next_id = 1

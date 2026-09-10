@@ -29,6 +29,7 @@
     PROBLEM_DEFINITION.md       安全区可为空、机会选择、完整初态返回
     fapp_ppo/                  未来预览残差 CTBR 控制
     mdg/src/mdg/               移动圆盘图规划
+  convex_timevarying_window/    凸多边形/精确圆 + 周期三维位姿 + TOGT/MINCO
   togt_timevarying_window/       独立 DynaTOGT/Hermite 动态窗口实验
   gap_step/                     二维生成迷宫与历史训练入口
   复现/                         本地 TOGT 外部复现，Git 忽略
@@ -56,6 +57,13 @@ SC 的 Chang 方法只用于边界均匀重采样和角点保留。内部点来�
 SIP 支持真实 Line/CircularArc/Bézier/非有理 B-spline 边界原语；用于映射的采样多边形和认证的原始曲线是两种数据，不得混用。SLSQP 给候选，Arb 完整有限覆盖给认证状态，优化器成功字段不能替代认证。
 
 Planar-RS 要求固定中心/平面，允许面内旋转和统一缩放；RotSync 与 Interpolated-RotSync 都仅绕法向匀速自旋。RotSync 保持窗口局部点不变；Interpolated-RotSync 在无约束 SC 输入空间线性插值，再经 `B` 和 `Psi` 得到随时间变化的局部点，不是连接两个实际位置。两者都以 PVAJ 接入相邻七阶 MINCO，不是 MINCO 拟合 Sync。
+
+`convex_timevarying_window/` 是并列问题目录。`geometry.py` 对多边形使用发布版 TOGT
+单位球归一化、平方重心权重映射，对平面圆使用 `Ball::toP` 的二维同构映射；
+`native/togt_analytic.cpp` 直接调用发布版 C++
+四旋翼手写梯度和 MINCO 伴随回传，`native_objective.py` 补齐动态窗口和 `[K,D]` 链式梯度。
+`experiment.py` 单独生成赛道、求解、绘图及最大 1 ms 步长验收。它不经过非凸 SC 预处理，
+不把安全项加入 TOGT 目标，也不在当前求解路径建立 PyTorch 自动微分图。
 
 ## 强化学习路径
 
