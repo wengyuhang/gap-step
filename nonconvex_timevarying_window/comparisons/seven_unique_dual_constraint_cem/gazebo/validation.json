@@ -1,0 +1,84 @@
+{
+  "passed": true,
+  "world": "/home/jack/wyh/时变窗口/nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/gazebo/seven_unique_high_fidelity.sdf",
+  "gate_count": 7,
+  "maximum_pose_error_m": 0.0,
+  "physics_step_s": 0.001,
+  "frame_radius_m": 0.01,
+  "remaining_accepted_clearance_m": 0.0038789320909036838,
+  "mesh_records": [
+    {
+      "name": "gate_01_W1_L",
+      "vertices": 138,
+      "triangles": 288,
+      "open_edges": 0,
+      "visual_sleeve_triangles": 240
+    },
+    {
+      "name": "gate_02_W2_U",
+      "vertices": 184,
+      "triangles": 384,
+      "open_edges": 0,
+      "visual_sleeve_triangles": 320
+    },
+    {
+      "name": "gate_03_W3_star",
+      "vertices": 230,
+      "triangles": 480,
+      "open_edges": 0,
+      "visual_sleeve_triangles": 400
+    },
+    {
+      "name": "gate_04_W4_limacon",
+      "vertices": 41722,
+      "triangles": 87072,
+      "open_edges": 0,
+      "visual_sleeve_triangles": 2560
+    },
+    {
+      "name": "gate_05_W5_wavy",
+      "vertices": 47096,
+      "triangles": 98304,
+      "open_edges": 0,
+      "visual_sleeve_triangles": 3600
+    },
+    {
+      "name": "gate_06_W6_line_bezier",
+      "vertices": 37655,
+      "triangles": 110592,
+      "open_edges": 0,
+      "visual_sleeve_triangles": 1120
+    },
+    {
+      "name": "gate_07_W7_balanced_U",
+      "vertices": 184,
+      "triangles": 384,
+      "open_edges": 0,
+      "visual_sleeve_triangles": 320
+    }
+  ],
+  "checks": [
+    "SDF 1.9 structure and required systems",
+    "seven collision and visual meshes with SHA-256",
+    "outward visual sleeves do not replace physical collision cores",
+    "capped tube segments with no open mesh edges",
+    "base pose, theta0 and omega",
+    "theta0+omega*t boundary agreement",
+    "1 ms physics step",
+    "OGRE2 overview camera",
+    "interactive mouse camera control",
+    "accepted trajectory and quadrotor visuals",
+    "race venue, floor texture and projected racing line",
+    "arena decorations contain no collision geometry",
+    "4 ms render-only preview world with bounded visual simplification",
+    "visible 85 mm gate sleeves are the physical collision meshes",
+    "track-only world contains no trajectory, vehicle or impact actuator",
+    "Gazebo standard GUI is not overridden by the world",
+    "neutral indoor lab walls, ceiling panels and a single floor grid",
+    "no light markers or support rods",
+    "PX4 x500 manual world at the official 4 ms simulation step",
+    "PX4 GPS, atmosphere and magnetic-field world metadata",
+    "PX4 server configuration owns the sensor and physics systems",
+    "positive clearance after physical frame radius"
+  ]
+}

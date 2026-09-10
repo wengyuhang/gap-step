@@ -1,6 +1,6 @@
 # 运行与验证手册
 
-更新：2026-09-09。命令入口和参数按源码/方法说明核对；默认从仓库根目录运行，MDG 单独注明。
+更新：2026-09-10。命令入口和参数按源码/方法说明核对；默认从仓库根目录运行，MDG 单独注明。
 
 ## 环境与输出
 
@@ -50,6 +50,20 @@ python -m nonconvex_timevarying_window.feasibility_guided_cem_sc_dynatogt.multi_
 ```
 
 后者默认读取方法 README 中列出的冻结 SC 基线和两条单窗安全模板；若迁移或清理本地忽略结果，必须用 `--baseline-json` 与两个 `--template-result` 显式提供来源。结果目录必须不存在，避免覆盖历史运行。
+
+七异形闭环正式轨迹的 Gazebo Harmonic 场景位于 `comparisons/seven_unique_dual_constraint_cem/gazebo/`：
+
+```bash
+cd nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/gazebo
+conda run -n wyh python export_world.py
+conda run -n wyh python validate_world.py
+conda run -n wyh python gazebo_smoke.py
+./run_track.sh           # 有 X11 桌面；只加载实体旋转门赛道
+./run_track.sh gui       # 流畅展示版
+./run_track.sh headless  # 无显示服务器
+```
+
+`gazebo_smoke.py` 需要 Docker daemon 权限，使用 Gazebo Harmonic 容器实际加载世界并核对七个关节角速度。赛道资产版使用 Gazebo 内置 DART，只定义门框位置、碰撞几何、转轴和运动规律，不加载轨迹、无人机或撞击脚本。离开该目录后返回仓库根目录再执行其他模块命令。
 
 RotSync 的默认 suite 是 `formal`，不是 smoke；快速回归应显式选择：
 

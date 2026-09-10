@@ -74,40 +74,62 @@ def evaluate_fast(trajectory, times, derivative=0):
     return result
 
 
-def obstacle_distances(polygon, points):
-    return np.asarray([Point(q).distance(polygon.boundary) if polygon.contains(Point(q)) else 0.0
-                       for q in points])
+def obstacle_distances(polygon, points, *, obstacle_model="solid_exterior"):
+    """Distance to either an aperture-complement wall or a finite frame curve."""
+
+    if obstacle_model == "solid_exterior":
+        return np.asarray([
+            Point(q).distance(polygon.boundary) if polygon.contains(Point(q)) else 0.0
+            for q in points
+        ])
+    if obstacle_model == "boundary_frame":
+        return np.asarray([Point(q).distance(polygon.boundary) for q in points])
+    raise ValueError("obstacle_model must be 'solid_exterior' or 'boundary_frame'")
 
 
-def sphere_margins(trajectory, window, polygon, grid, radius):
+def sphere_margins(trajectory, window, polygon, grid, radius, *, obstacle_model="solid_exterior"):
     positions = evaluate_fast(trajectory, grid) - window.center
     base = positions @ window.plane_basis
     theta = window.theta0 + window.omega * grid
     c, s = np.cos(theta), np.sin(theta)
     q = np.column_stack((c * base[:, 0] + s * base[:, 1], -s * base[:, 0] + c * base[:, 1]))
     z = positions @ window.normal
-    distance = obstacle_distances(polygon, q)
+    distance = obstacle_distances(polygon, q, obstacle_model=obstacle_model)
     return np.sqrt(z * z + distance * distance) - radius
 
 
-def sphere_check(trajectory, window, radius, *, dt=0.0002, fine_dt=0.00005):
+def sphere_check(
+    trajectory, window, radius, *, dt=0.0002, fine_dt=0.00005,
+    obstacle_model="solid_exterior", stop_at_first_violation=True,
+):
     intervals, crossings, contacts = plane_intervals(trajectory, window, radius)
     polygon = Polygon(window.physical_polygon)
-    count, minimum, actual_dt = 0, float("inf"), 0.0
+    count, minimum, minimum_time, actual_dt = 0, float("inf"), None, 0.0
     stage = "coarse"
+    violation_stage = None
     for step in (min(0.002, np.deg2rad(1) / max(abs(window.omega), 1e-12)), dt):
         for a, b in intervals:
             grid = np.unique(np.r_[np.linspace(a, b, max(2, int(np.ceil((b - a) / step)) + 1)),
                                    [t for t in crossings + list(contacts) if a <= t <= b]])
-            margins = sphere_margins(trajectory, window, polygon, grid, radius)
+            margins = sphere_margins(
+                trajectory, window, polygon, grid, radius,
+                obstacle_model=obstacle_model,
+            )
             if not np.all(np.isfinite(margins)):
                 raise ValueError("nonfinite sphere distances")
             count += len(grid)
-            minimum = min(minimum, float(np.min(margins)))
+            local_index = int(np.argmin(margins))
+            local_minimum = float(margins[local_index])
+            if local_minimum < minimum:
+                minimum = local_minimum
+                minimum_time = float(grid[local_index])
             if minimum <= 1e-9:
-                return dict(passed=False, status="VIOLATED" if minimum < -1e-9 else "UNRESOLVED",
-                            minimum_margin=minimum, samples=count, stage=stage,
-                            intervals=intervals, crossings=crossings)
+                violation_stage = violation_stage or stage
+                if stop_at_first_violation:
+                    return dict(passed=False, status="VIOLATED" if minimum < -1e-9 else "UNRESOLVED",
+                                minimum_margin=minimum, minimum_time=minimum_time,
+                                samples=count, stage=stage,
+                                intervals=intervals, crossings=crossings)
             if stage == "dense":
                 actual_dt = max(actual_dt, float(np.max(np.diff(grid))))
                 critical = margins < 0.005
@@ -115,17 +137,34 @@ def sphere_check(trajectory, window, radius, *, dt=0.0002, fine_dt=0.00005):
                 critical[1:-1] |= (margins[1:-1] <= margins[:-2]) & (margins[1:-1] <= margins[2:])
                 for i in np.flatnonzero(critical[:-1] | critical[1:]):
                     extra = np.linspace(grid[i], grid[i + 1], max(2, int(np.ceil((grid[i + 1] - grid[i]) / fine_dt)) + 1))
-                    values = sphere_margins(trajectory, window, polygon, extra, radius)
+                    values = sphere_margins(
+                        trajectory, window, polygon, extra, radius,
+                        obstacle_model=obstacle_model,
+                    )
                     if not np.all(np.isfinite(values)):
                         raise ValueError("nonfinite refined distances")
                     count += len(extra)
-                    minimum = min(minimum, float(np.min(values)))
+                    local_index = int(np.argmin(values))
+                    local_minimum = float(values[local_index])
+                    if local_minimum < minimum:
+                        minimum = local_minimum
+                        minimum_time = float(extra[local_index])
                     if minimum <= 1e-9:
-                        return dict(passed=False, status="VIOLATED" if minimum < -1e-9 else "UNRESOLVED",
-                                    minimum_margin=minimum, samples=count, stage="refined",
-                                    intervals=intervals, crossings=crossings)
+                        violation_stage = violation_stage or "refined"
+                        if stop_at_first_violation:
+                            return dict(passed=False, status="VIOLATED" if minimum < -1e-9 else "UNRESOLVED",
+                                        minimum_margin=minimum, minimum_time=minimum_time,
+                                        samples=count, stage="refined",
+                                        intervals=intervals, crossings=crossings)
         stage = "dense"
-    return dict(passed=True, status="SAMPLED_PASS", minimum_margin=minimum, samples=count,
+    if minimum <= 1e-9:
+        return dict(passed=False, status="VIOLATED" if minimum < -1e-9 else "UNRESOLVED",
+                    minimum_margin=minimum, minimum_time=minimum_time,
+                    samples=count, stage=violation_stage,
+                    intervals=intervals, crossings=crossings,
+                    maximum_dense_step=actual_dt)
+    return dict(passed=True, status="SAMPLED_PASS", minimum_margin=minimum,
+                minimum_time=minimum_time, samples=count,
                 maximum_dense_step=actual_dt, intervals=intervals, crossings=crossings)
 
 

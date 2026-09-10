@@ -1,6 +1,6 @@
 # 代码架构与模型边界
 
-更新：2026-09-09，依据 `40692e8` 与本地目录。现状/结果见 [PROJECT_CONTEXT](PROJECT_CONTEXT.md)，具体命令见 [RUNBOOK](RUNBOOK.md)。
+更新：2026-09-10，依据 `40692e8` 与本地目录。现状/结果见 [PROJECT_CONTEXT](PROJECT_CONTEXT.md)，具体命令见 [RUNBOOK](RUNBOOK.md)。
 
 ## 目录组织
 
@@ -22,6 +22,7 @@
     avs_ppo/                   动作掩码/可恢复盾牌 PPO
     phaseguard_rl/             点/时间 PPO + 认证准入
     comparisons/               SC/SIP 压力场景与速率基准
+      seven_unique_dual_constraint_cem/gazebo/  七异形闭环 Gazebo Harmonic 世界与高保真网格
     废案/                       WBSC、CWB、Exact-Area 历史方法
     实验方案/                   本地 ICRA 方案，审计时未跟踪
   closed_loop_deformable_window/
@@ -92,6 +93,6 @@ DynaTOGT 由 `geometry.py/environment.py` 描述动态窗口，`optimizer.py` �
 
 SC 的 `visualization.py` 生成物理门框图和轨迹图，`simulation_render.py` 用 EGL/OpenGL 回放已保存轨迹，`results_manager.py` 管理分类结果、manifest 与主页。显示层不改变求解几何或提供飞控/传感器认证。历史结果目录保留 `experiments/demos/diagnostics/work` 分类与迁移校验。
 
-SC/SIP 宽域比较中的本地 `gazebo/` 是单独适配层，目前平移/RPY 与均匀缩放支持不同；其 README 中明确缩放和飞控接入的缺口。方法渲染、Gazebo 世界与实际动力学执行各自记录。
+SC/SIP 宽域比较中的本地 `gazebo/` 是单独适配层，目前平移/RPY 与均匀缩放支持不同；其 README 中明确缩放和飞控接入的缺口。七异形闭环比较另有独立 Gazebo Harmonic 场景，直接从冻结物理边界生成碰撞网格，以原生转动关节执行固定平面法向自旋。方法渲染、Gazebo 世界与实际动力学执行各自记录。
 
 根 `pytest.ini` 只自动收集 `gap_step/tests`。研究方法及比较目录都有自己的测试目录；影响共享代码时按依赖选择回归，不能用裸 `pytest -q` 代替。

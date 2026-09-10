@@ -116,6 +116,13 @@ def test_solid_exterior_distance_is_zero_in_u_notch():
     np.testing.assert_allclose(distances, [0, 0.5, 0, 0])
 
 
+def test_boundary_frame_distance_does_not_turn_the_whole_exterior_into_a_wall():
+    polygon = Polygon([[-1, -1], [1, -1], [1, 1], [-1, 1]])
+    distances = obstacle_distances(
+        polygon, [[0, 0], [2, 0], [1, 0]], obstacle_model="boundary_frame")
+    np.testing.assert_allclose(distances, [1, 1, 0])
+
+
 def test_sphere_rejects_outside_aperture_and_accepts_center():
     passing = sphere_check(PolynomialTrajectory([-2, 4]), window(), 0.2)
     failing = sphere_check(PolynomialTrajectory([-2, 4], y=2), window(), 0.2)
@@ -125,6 +132,20 @@ def test_sphere_rejects_outside_aperture_and_accepts_center():
         bad_window = window()
         bad_window.thickness = 0.1
         sphere_check(PolynomialTrajectory([-2, 4]), bad_window, 0.2)
+
+
+def test_boundary_frame_sphere_check_can_scan_past_the_first_violation():
+    result = sphere_check(
+        PolynomialTrajectory([-2, 4], y=0.9),
+        window(),
+        0.2,
+        obstacle_model="boundary_frame",
+        stop_at_first_violation=False,
+    )
+    assert not result["passed"]
+    assert result["minimum_margin"] < 0.0
+    assert result["minimum_time"] is not None
+    assert result["maximum_dense_step"] <= 0.0002 + 1e-12
 
 
 def test_vectorized_polynomial_evaluation_matches_native_and_dynamics():

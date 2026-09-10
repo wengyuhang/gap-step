@@ -1,6 +1,6 @@
 # 当前项目状态
 
-更新：2026-09-09。本页来自当前源码、方法报告、本地正式运行和 Git 历史；实验数字均标明来源与证据等级。
+更新：2026-09-10。本页来自当前源码、方法报告、本地正式运行和 Git 历史；实验数字均标明来源与证据等级。
 
 ## 当前重心
 
@@ -15,6 +15,8 @@
 曲线边界三方法对比新增一条 11.2 m 开放赛道，依次为利马松、五瓣波浪曲线和直线–三次 Bézier 混合窗口，三窗固定平面并分别以 1.5/-2.0/2.5 rad/s 自旋。原始 Fixed-WP 为 3.878918907 s、原始 SC-DynaTOGT 为 3.497544115 s，两者整机碰撞约束均通过但旋翼推力约束失败；因此不进入合格时间排名。Feasibility-Guided CEM 在 552 个候选中找到 309 个中间硬筛选通过者，最终选择 3.468057675 s，动力学与三窗真实姿态长方体碰撞审计均通过。结果见[曲线赛道报告](../nonconvex_timevarying_window/comparisons/curved_rotating_sc_fixed_wp/results/three_way_20260909/REPORT.md)，证据仍为密集采样而非连续认证。
 
 七窗口混合压力案例依次为均衡 U、利马松、星形、均衡 U、五瓣波浪、Line/Bézier、均衡 U，平面和中心固定且窗口只做面内自旋。四个插入窗口沿此前独立通过验收的三 U 轨迹布置，所以这是有已知可行种子的流程验证案例，不作为未知赛道无偏基准。Fixed-WP/原始 SC-DynaTOGT 分别为 8.666957342/8.666957333 s，二者均超速且在首个 U 窗口发生整机碰撞；Feasibility-Guided CEM 返回 7.390546627 s 的硬约束合格种子，七窗整机审计全部通过。结果见[七窗口报告](../nonconvex_timevarying_window/comparisons/seven_mixed_reference_sc_fixed_cem/results/three_way_trial2_20260909/REPORT.md)。本轮 256 个局部扰动均未新增硬约束合格解，必须保留这一负结果；采样通过不等于连续认证。
+
+新增七种不同形状的分散闭环压力赛道，参考 `20260717_paper_irregular_closed` 的中心和姿态布局，起终点均为 `(-16,4,3.2) m`，窗口固定中心/平面且只做面内自旋。原始 SC-DynaTOGT 正常收敛到 `T=24.127878371 s`。按上传约束的有限零厚度门框模型，仅在全部 `|z|≤r_s` 区间做最大 `0.2 ms`、临界处 `0.05 ms` 球体检查；W5 波浪、W6 Line/Bézier、W7 均衡 U 碰撞，W1–W4 通过。结果与赛道图见[七种形状闭环实验](../nonconvex_timevarying_window/comparisons/seven_unique_sc_sphere/README.md)。若把开口外整张无限平面视作实体，闭合轨迹的回程平面交叉会产生结构性碰撞，因此该口径不用于这条有限门框赛道。
 
 三窗最新续跑：按用户要求进一步扩大独立随机扰动，D 半径比例为 1/2/4/8，K 直接噪声比例为 0.5/1/2/4，共 8000 候选。57 个通过三窗球体和顺序检查，但全部超速，最低最大速度仍为 10.333593 m/s；无最终整机检测候选。搜索 89.793 s，总计 92.015 s（重放原 SC，无本次求解耗时）。未决、边界/C3 数值超限与数值失败均保留。详见[宽范围三窗结果](../nonconvex_timevarying_window/random_dk_sc_dynatogt/MULTI_WINDOW_WIDE_RESULTS.md)。
 
@@ -72,3 +74,13 @@ GAP-Step 的较新入口是 `window_maze_env.py -> train_window.py / evaluate_wi
 DynaTOGT 在 `togt_timevarying_window/` 使用动态窗口、离散热启动、L-BFGS-B 和 Hermite 轨迹，保留重复穿越任务支持；SC 等目录的 MINCO 后端不代表此目录已替换为 MINCO。TOGT C++ 复现的历史构建结论见[复现审计](TOGT_REPRODUCTION_AUDIT.md)。
 
 下一步见 [ROADMAP](ROADMAP.md)，变更依据见 [DECISIONS](DECISIONS.md)，提交时间线见 [TASK_LOG](TASK_LOG.md)。
+
+## 2026-09-09：双软约束 CEM 的七异形闭环验收
+
+新增 [Dual-Constraint CEM SC-DynaTOGT](../nonconvex_timevarying_window/dual_constraint_cem_sc_dynatogt/README.md)：删除按窗口设计的结构化前端，直接在原始 SC-DynaTOGT 最终 `[K,D]` 周围更新完整协方差。每个候选并行计算 TOGT 动力学软积分与含 15 mm 规划余量的可微门框安全软积分；固定 `epsilon=1e-6` 仅作为排序数值平台，合格仍要求两个原始积分严格等于零。首次严格双零后再搜索 5 轮。
+
+在七种不同形状的分散闭环赛道上，共冻结 3072 条随机候选；首次严格双零位于第 42 轮，随后完整运行第 43–47 轮。按飞行时间排序的首条严格双零候选 `id=2701` 即通过独立硬验收，`T=24.709999069 s`，两个软积分均为零；全程 1 ms 动力学检测和七窗口真实外接球检测均通过，最小真实球体余量 `13.878932 mm`。Fixed-WP 与原始 SC-DynaTOGT 分别为 `24.217926422/24.127878371 s`，但二者动力学与球体碰撞检测都失败。正式结果见[三方法报告](../nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/results/formal_final_post5_sphere_only_20260909/REPORT.md)。平面重复穿越只保留为诊断，不参与有限门框球体碰撞成败；所有硬验收仍是密集采样证据，不是连续域证书。
+
+## 2026-09-10：七异形闭环 Gazebo 场景
+
+同一赛道已导出为[Gazebo Harmonic 场景组](../nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/gazebo/README.md)。算法复放世界的七个碰撞核心直接沿冻结物理边界生成，三类曲线门框合计保留 297,504 个碰撞三角面；另有 4 ms、无门框接触计算的流畅展示世界。赛道资产世界采用室内实验场风格，使用 Gazebo 内置 DART 与 1 ms 步长，85 mm 可见门套就是实际碰撞体；它只定义浅灰网格地面、三面墙、顶棚发光板、门框位置、转轴和角速度，不接规划轨迹、无人机或撞击脚本。Gazebo 网格叠层、灯光实体标记和门下支撑杆均已移除。每扇门使用固定基座、法向转动关节和原生 JointController。算法复放世界计入 10 mm 实体门框后，正式轨迹仍有 `3.878932 mm` 最小球体净空；Gazebo 场景不替代连续域证书或飞控跟踪实验。

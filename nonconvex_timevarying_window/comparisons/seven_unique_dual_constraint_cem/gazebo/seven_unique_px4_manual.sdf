@@ -1,0 +1,352 @@
+<?xml version="1.0" ?>
+<sdf version="1.9"><world name="seven_unique_px4_manual">
+  <physics name="px4_manual_four_millisecond" type="dart"><max_step_size>0.004</max_step_size><real_time_factor>1</real_time_factor></physics>
+  <gravity>0 0 -9.8</gravity>
+  <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+  <atmosphere type="adiabatic"/>
+  <spherical_coordinates>
+    <surface_model>EARTH_WGS84</surface_model>
+    <world_frame_orientation>ENU</world_frame_orientation>
+    <latitude_deg>47.397971057728974</latitude_deg>
+    <longitude_deg>8.546163739800146</longitude_deg>
+    <elevation>0</elevation>
+    <heading_deg>0</heading_deg>
+  </spherical_coordinates>
+
+
+
+
+  <scene><ambient>0.64 0.66 0.68 1</ambient><background>0.73 0.75 0.77 1</background><shadows>false</shadows><grid>false</grid></scene>
+
+  <model name="ground"><static>true</static><pose>0 0 -6 0 0 0</pose><link name="ground_link">
+    <collision name="ground_collision"><geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry></collision>
+    <visual name="ground_visual"><geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+      <material><ambient>0.72 0.74 0.76 1</ambient><diffuse>0.84 0.85 0.86 1</diffuse><specular>0.08 0.08 0.08 1</specular>
+        <pbr><metal><albedo_map>materials/textures/indoor_lab_floor.png</albedo_map><roughness>0.92</roughness><metalness>0.02</metalness></metal></pbr></material>
+    </visual></link></model>
+  
+  
+  
+  
+  <model name="lab_back_wall"><static>true</static><pose>0 20 4.5 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>54 0.22 21</size></box></geometry>
+        <material><ambient>0.700 0.720 0.740 1.000</ambient><diffuse>0.700 0.720 0.740 1.000</diffuse><emissive>0.000 0.000 0.000 1.000</emissive></material>
+      </visual></link></model>
+<model name="lab_left_wall"><static>true</static><pose>-27 0 4.5 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>0.22 40 21</size></box></geometry>
+        <material><ambient>0.700 0.720 0.740 1.000</ambient><diffuse>0.700 0.720 0.740 1.000</diffuse><emissive>0.000 0.000 0.000 1.000</emissive></material>
+      </visual></link></model>
+<model name="lab_right_wall"><static>true</static><pose>27 0 4.5 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>0.22 40 21</size></box></geometry>
+        <material><ambient>0.700 0.720 0.740 1.000</ambient><diffuse>0.700 0.720 0.740 1.000</diffuse><emissive>0.000 0.000 0.000 1.000</emissive></material>
+      </visual></link></model>
+<model name="lab_ceiling"><static>true</static><pose>0 0 15.1 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>54 40 0.2</size></box></geometry>
+        <material><ambient>0.560 0.590 0.620 1.000</ambient><diffuse>0.560 0.590 0.620 1.000</diffuse><emissive>0.000 0.000 0.000 1.000</emissive></material>
+      </visual></link></model>
+<model name="lab_back_skirt"><static>true</static><pose>0 19.84 -5.55 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>54 0.08 0.7</size></box></geometry>
+        <material><ambient>0.560 0.590 0.620 1.000</ambient><diffuse>0.560 0.590 0.620 1.000</diffuse><emissive>0.000 0.000 0.000 1.000</emissive></material>
+      </visual></link></model>
+<model name="lab_left_skirt"><static>true</static><pose>-26.84 0 -5.55 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>0.08 40 0.7</size></box></geometry>
+        <material><ambient>0.560 0.590 0.620 1.000</ambient><diffuse>0.560 0.590 0.620 1.000</diffuse><emissive>0.000 0.000 0.000 1.000</emissive></material>
+      </visual></link></model>
+<model name="lab_right_skirt"><static>true</static><pose>26.84 0 -5.55 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>0.08 40 0.7</size></box></geometry>
+        <material><ambient>0.560 0.590 0.620 1.000</ambient><diffuse>0.560 0.590 0.620 1.000</diffuse><emissive>0.000 0.000 0.000 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_0_0"><static>true</static><pose>-18 -10 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_0_1"><static>true</static><pose>-6 -10 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_0_2"><static>true</static><pose>6 -10 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_0_3"><static>true</static><pose>18 -10 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_1_0"><static>true</static><pose>-18 0 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_1_1"><static>true</static><pose>-6 0 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_1_2"><static>true</static><pose>6 0 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_1_3"><static>true</static><pose>18 0 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_2_0"><static>true</static><pose>-18 10 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_2_1"><static>true</static><pose>-6 10 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_2_2"><static>true</static><pose>6 10 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+<model name="ceiling_panel_2_3"><static>true</static><pose>18 10 14.96 0 0 0</pose><link name="visual_only">
+      <visual name="visual"><geometry><box><size>5.6 1 0.025</size></box></geometry>
+        <material><ambient>0.980 0.980 0.960 1.000</ambient><diffuse>0.980 0.980 0.960 1.000</diffuse><emissive>0.980 0.980 0.960 1.000</emissive></material>
+      </visual></link></model>
+  <model name="gate_01_W1_L">
+      <pose>-2.42 -3.52 6.48 0 -1.57079632679 0</pose>
+      <self_collide>false</self_collide>
+      <link name="base">
+        <gravity>false</gravity>
+        <inertial><mass>1</mass><inertia><ixx>1</ixx><iyy>1</iyy><izz>1</izz></inertia></inertial>
+      </link>
+      <link name="frame"><pose relative_to="base">0 0 0 0 0 0.4</pose><gravity>false</gravity>
+        <inertial><mass>8</mass><inertia><ixx>40</ixx><iyy>40</iyy><izz>40</izz></inertia></inertial>
+        <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_01_L_sleeve.stl</uri></mesh></geometry>
+          <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+          <bounce><restitution_coefficient>.16</restitution_coefficient><threshold>.05</threshold></bounce></surface>
+        </collision>
+        <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_01_L_sleeve.stl</uri></mesh></geometry>
+          <material><ambient>0.025 0.030 0.040 1</ambient><diffuse>0.055 0.065 0.085 1</diffuse>
+          <specular>0.14 0.14 0.16 1</specular></material>
+        </visual>
+        <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_01_L_visual_core.stl</uri></mesh></geometry>
+          <material><ambient>0.780 0.830 0.900 1.000</ambient><diffuse>0.780 0.830 0.900 1.000</diffuse>
+          <specular>0.75 0.75 0.75 1</specular><emissive>0.780 0.830 0.900 1.000</emissive></material>
+        </visual>
+      </link>
+      <joint name="world_fixed" type="fixed"><parent>world</parent><child>base</child></joint>
+      <joint name="spin" type="revolute"><parent>base</parent><child>frame</child>
+        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper>
+        <velocity>100</velocity><effort>1e9</effort></limit><dynamics><damping>0</damping></dynamics></axis>
+      </joint>
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>spin</joint_name><initial_velocity>5</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <joint_name>spin</joint_name><topic>/seven_unique/gate_01/joint_state</topic>
+      </plugin>
+    </model>
+<model name="gate_02_W2_U">
+      <pose>20.24 14.52 1.8 0 -1.57079632679 -0.349065850399</pose>
+      <self_collide>false</self_collide>
+      <link name="base">
+        <gravity>false</gravity>
+        <inertial><mass>1</mass><inertia><ixx>1</ixx><iyy>1</iyy><izz>1</izz></inertia></inertial>
+      </link>
+      <link name="frame"><pose relative_to="base">0 0 0 0 0 -0.7</pose><gravity>false</gravity>
+        <inertial><mass>8</mass><inertia><ixx>40</ixx><iyy>40</iyy><izz>40</izz></inertia></inertial>
+        <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_02_U_sleeve.stl</uri></mesh></geometry>
+          <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+          <bounce><restitution_coefficient>.16</restitution_coefficient><threshold>.05</threshold></bounce></surface>
+        </collision>
+        <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_02_U_sleeve.stl</uri></mesh></geometry>
+          <material><ambient>0.025 0.030 0.040 1</ambient><diffuse>0.055 0.065 0.085 1</diffuse>
+          <specular>0.14 0.14 0.16 1</specular></material>
+        </visual>
+        <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_02_U_visual_core.stl</uri></mesh></geometry>
+          <material><ambient>0.780 0.830 0.900 1.000</ambient><diffuse>0.780 0.830 0.900 1.000</diffuse>
+          <specular>0.75 0.75 0.75 1</specular><emissive>0.780 0.830 0.900 1.000</emissive></material>
+        </visual>
+      </link>
+      <joint name="world_fixed" type="fixed"><parent>world</parent><child>base</child></joint>
+      <joint name="spin" type="revolute"><parent>base</parent><child>frame</child>
+        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper>
+        <velocity>100</velocity><effort>1e9</effort></limit><dynamics><damping>0</damping></dynamics></axis>
+      </joint>
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>spin</joint_name><initial_velocity>-4</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <joint_name>spin</joint_name><topic>/seven_unique/gate_02/joint_state</topic>
+      </plugin>
+    </model>
+<model name="gate_03_W3_star">
+      <pose>20.24 -8.8 2.16 0 -1.57079632679 -2.26892802759</pose>
+      <self_collide>false</self_collide>
+      <link name="base">
+        <gravity>false</gravity>
+        <inertial><mass>1</mass><inertia><ixx>1</ixx><iyy>1</iyy><izz>1</izz></inertia></inertial>
+      </link>
+      <link name="frame"><pose relative_to="base">0 0 0 0 0 0.55</pose><gravity>false</gravity>
+        <inertial><mass>8</mass><inertia><ixx>40</ixx><iyy>40</iyy><izz>40</izz></inertia></inertial>
+        <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_03_star_sleeve.stl</uri></mesh></geometry>
+          <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+          <bounce><restitution_coefficient>.16</restitution_coefficient><threshold>.05</threshold></bounce></surface>
+        </collision>
+        <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_03_star_sleeve.stl</uri></mesh></geometry>
+          <material><ambient>0.025 0.030 0.040 1</ambient><diffuse>0.055 0.065 0.085 1</diffuse>
+          <specular>0.14 0.14 0.16 1</specular></material>
+        </visual>
+        <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_03_star_visual_core.stl</uri></mesh></geometry>
+          <material><ambient>0.780 0.830 0.900 1.000</ambient><diffuse>0.780 0.830 0.900 1.000</diffuse>
+          <specular>0.75 0.75 0.75 1</specular><emissive>0.780 0.830 0.900 1.000</emissive></material>
+        </visual>
+      </link>
+      <joint name="world_fixed" type="fixed"><parent>world</parent><child>base</child></joint>
+      <joint name="spin" type="revolute"><parent>base</parent><child>frame</child>
+        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper>
+        <velocity>100</velocity><effort>1e9</effort></limit><dynamics><damping>0</damping></dynamics></axis>
+      </joint>
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>spin</joint_name><initial_velocity>4.5</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <joint_name>spin</joint_name><topic>/seven_unique/gate_03/joint_state</topic>
+      </plugin>
+    </model>
+<model name="gate_04_W4_limacon">
+      <pose>-9.9 -13.2 6.3 0 -1.57079632679 3.14159265359</pose>
+      <self_collide>false</self_collide>
+      <link name="base">
+        <gravity>false</gravity>
+        <inertial><mass>1</mass><inertia><ixx>1</ixx><iyy>1</iyy><izz>1</izz></inertia></inertial>
+      </link>
+      <link name="frame"><pose relative_to="base">0 0 0 0 0 -0.35</pose><gravity>false</gravity>
+        <inertial><mass>8</mass><inertia><ixx>40</ixx><iyy>40</iyy><izz>40</izz></inertia></inertial>
+        <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_04_limacon_sleeve.stl</uri></mesh></geometry>
+          <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+          <bounce><restitution_coefficient>.16</restitution_coefficient><threshold>.05</threshold></bounce></surface>
+        </collision>
+        <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_04_limacon_sleeve.stl</uri></mesh></geometry>
+          <material><ambient>0.025 0.030 0.040 1</ambient><diffuse>0.055 0.065 0.085 1</diffuse>
+          <specular>0.14 0.14 0.16 1</specular></material>
+        </visual>
+        <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_04_limacon_visual_core.stl</uri></mesh></geometry>
+          <material><ambient>0.780 0.830 0.900 1.000</ambient><diffuse>0.780 0.830 0.900 1.000</diffuse>
+          <specular>0.75 0.75 0.75 1</specular><emissive>0.780 0.830 0.900 1.000</emissive></material>
+        </visual>
+      </link>
+      <joint name="world_fixed" type="fixed"><parent>world</parent><child>base</child></joint>
+      <joint name="spin" type="revolute"><parent>base</parent><child>frame</child>
+        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper>
+        <velocity>100</velocity><effort>1e9</effort></limit><dynamics><damping>0</damping></dynamics></axis>
+      </joint>
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>spin</joint_name><initial_velocity>-5</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <joint_name>spin</joint_name><topic>/seven_unique/gate_04/joint_state</topic>
+      </plugin>
+    </model>
+<model name="gate_05_W5_wavy">
+      <pose>10.45 -1.98 2.16 0 -1.57079632679 1.2217304764</pose>
+      <self_collide>false</self_collide>
+      <link name="base">
+        <gravity>false</gravity>
+        <inertial><mass>1</mass><inertia><ixx>1</ixx><iyy>1</iyy><izz>1</izz></inertia></inertial>
+      </link>
+      <link name="frame"><pose relative_to="base">0 0 0 0 0 0.9</pose><gravity>false</gravity>
+        <inertial><mass>8</mass><inertia><ixx>40</ixx><iyy>40</iyy><izz>40</izz></inertia></inertial>
+        <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_05_wavy_sleeve.stl</uri></mesh></geometry>
+          <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+          <bounce><restitution_coefficient>.16</restitution_coefficient><threshold>.05</threshold></bounce></surface>
+        </collision>
+        <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_05_wavy_sleeve.stl</uri></mesh></geometry>
+          <material><ambient>0.025 0.030 0.040 1</ambient><diffuse>0.055 0.065 0.085 1</diffuse>
+          <specular>0.14 0.14 0.16 1</specular></material>
+        </visual>
+        <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_05_wavy_visual_core.stl</uri></mesh></geometry>
+          <material><ambient>0.780 0.830 0.900 1.000</ambient><diffuse>0.780 0.830 0.900 1.000</diffuse>
+          <specular>0.75 0.75 0.75 1</specular><emissive>0.780 0.830 0.900 1.000</emissive></material>
+        </visual>
+      </link>
+      <joint name="world_fixed" type="fixed"><parent>world</parent><child>base</child></joint>
+      <joint name="spin" type="revolute"><parent>base</parent><child>frame</child>
+        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper>
+        <velocity>100</velocity><effort>1e9</effort></limit><dynamics><damping>0</damping></dynamics></axis>
+      </joint>
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>spin</joint_name><initial_velocity>5.5</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <joint_name>spin</joint_name><topic>/seven_unique/gate_05/joint_state</topic>
+      </plugin>
+    </model>
+<model name="gate_06_W6_line_bezier">
+      <pose>-6.16 14.96 2.16 0 -1.57079632679 3.49065850399</pose>
+      <self_collide>false</self_collide>
+      <link name="base">
+        <gravity>false</gravity>
+        <inertial><mass>1</mass><inertia><ixx>1</ixx><iyy>1</iyy><izz>1</izz></inertia></inertial>
+      </link>
+      <link name="frame"><pose relative_to="base">0 0 0 0 0 -1.1</pose><gravity>false</gravity>
+        <inertial><mass>8</mass><inertia><ixx>40</ixx><iyy>40</iyy><izz>40</izz></inertia></inertial>
+        <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_06_line_bezier_sleeve.stl</uri></mesh></geometry>
+          <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+          <bounce><restitution_coefficient>.16</restitution_coefficient><threshold>.05</threshold></bounce></surface>
+        </collision>
+        <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_06_line_bezier_sleeve.stl</uri></mesh></geometry>
+          <material><ambient>0.025 0.030 0.040 1</ambient><diffuse>0.055 0.065 0.085 1</diffuse>
+          <specular>0.14 0.14 0.16 1</specular></material>
+        </visual>
+        <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_06_line_bezier_visual_core.stl</uri></mesh></geometry>
+          <material><ambient>0.780 0.830 0.900 1.000</ambient><diffuse>0.780 0.830 0.900 1.000</diffuse>
+          <specular>0.75 0.75 0.75 1</specular><emissive>0.780 0.830 0.900 1.000</emissive></material>
+        </visual>
+      </link>
+      <joint name="world_fixed" type="fixed"><parent>world</parent><child>base</child></joint>
+      <joint name="spin" type="revolute"><parent>base</parent><child>frame</child>
+        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper>
+        <velocity>100</velocity><effort>1e9</effort></limit><dynamics><damping>0</damping></dynamics></axis>
+      </joint>
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>spin</joint_name><initial_velocity>-15</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <joint_name>spin</joint_name><topic>/seven_unique/gate_06/joint_state</topic>
+      </plugin>
+    </model>
+<model name="gate_07_W7_balanced_U">
+      <pose>2 8 5.5 0 -1.57079632679 2.53072741539</pose>
+      <self_collide>false</self_collide>
+      <link name="base">
+        <gravity>false</gravity>
+        <inertial><mass>1</mass><inertia><ixx>1</ixx><iyy>1</iyy><izz>1</izz></inertia></inertial>
+      </link>
+      <link name="frame"><pose relative_to="base">0 0 0 0 0 1.25</pose><gravity>false</gravity>
+        <inertial><mass>8</mass><inertia><ixx>40</ixx><iyy>40</iyy><izz>40</izz></inertia></inertial>
+        <collision name="frame_collision"><geometry><mesh><uri>meshes/gate_07_balanced_U_sleeve.stl</uri></mesh></geometry>
+          <surface><contact><collide_bitmask>0xffff</collide_bitmask></contact>
+          <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+          <bounce><restitution_coefficient>.16</restitution_coefficient><threshold>.05</threshold></bounce></surface>
+        </collision>
+        <visual name="foam_sleeve"><geometry><mesh><uri>meshes/gate_07_balanced_U_sleeve.stl</uri></mesh></geometry>
+          <material><ambient>0.025 0.030 0.040 1</ambient><diffuse>0.055 0.065 0.085 1</diffuse>
+          <specular>0.14 0.14 0.16 1</specular></material>
+        </visual>
+        <visual name="led_inner_edge"><geometry><mesh><uri>meshes/gate_07_balanced_U_visual_core.stl</uri></mesh></geometry>
+          <material><ambient>0.780 0.830 0.900 1.000</ambient><diffuse>0.780 0.830 0.900 1.000</diffuse>
+          <specular>0.75 0.75 0.75 1</specular><emissive>0.780 0.830 0.900 1.000</emissive></material>
+        </visual>
+      </link>
+      <joint name="world_fixed" type="fixed"><parent>world</parent><child>base</child></joint>
+      <joint name="spin" type="revolute"><parent>base</parent><child>frame</child>
+        <axis><xyz>0 0 1</xyz><limit><lower>-1e16</lower><upper>1e16</upper>
+        <velocity>100</velocity><effort>1e9</effort></limit><dynamics><damping>0</damping></dynamics></axis>
+      </joint>
+      <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+        <joint_name>spin</joint_name><initial_velocity>18</initial_velocity>
+      </plugin>
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <joint_name>spin</joint_name><topic>/seven_unique/gate_07/joint_state</topic>
+      </plugin>
+    </model>
+</world></sdf>

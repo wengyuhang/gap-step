@@ -1,0 +1,303 @@
+{
+  "world": "seven_unique_high_fidelity.sdf",
+  "sdf_version": "1.9",
+  "gazebo_release": "Harmonic",
+  "preview_world": "seven_unique_race_preview.sdf",
+  "physics_world": "seven_unique_physics.sdf",
+  "px4_manual_world": "seven_unique_px4_manual.sdf",
+  "preview_physics_step_s": 0.004,
+  "preview_gate_collisions": false,
+  "visual_boundary_tolerance_m": 0.006,
+  "physics_step_s": 0.001,
+  "ground_height_m": -6.0,
+  "px4_physics_step_s": 0.004,
+  "px4_spawn_pose": [
+    -16.0,
+    4.0,
+    -6.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "px4_vehicle_model": "x500",
+  "frame_centerline_radius_m": 0.01,
+  "frame_sections": 12,
+  "visual_sleeve_radius_m": 0.085,
+  "visual_sleeve_outward_offset_m": 0.07500000000000001,
+  "arena_decorations_are_visual_only": true,
+  "floor_texture": {
+    "path": "materials/textures/arena_floor.png",
+    "sha256": "c2dfb4a0148daa2b75dd7145caf45dee4bf36613e6ea6811771aca00b8bfaaff"
+  },
+  "lab_floor_texture": {
+    "path": "materials/textures/indoor_lab_floor.png",
+    "sha256": "5352bec04dce3bf892ff929a7c671d07766f352f545a75be9d3bdea9e9050d86"
+  },
+  "source_result": "nonconvex_timevarying_window/comparisons/seven_unique_dual_constraint_cem/results/formal_final_post5_sphere_only_20260909/result.json",
+  "source_result_sha256": "c7fb895994735a52cdfe857bae484f61920b3c631285d01d1a43266e30127a07",
+  "accepted_candidate_id": 2701,
+  "accepted_flight_time_s": 24.70999906944269,
+  "body_half_extents_m": [
+    0.26504,
+    0.26504,
+    0.0589
+  ],
+  "body_sphere_radius_m": 0.37942273679894306,
+  "planning_sphere_radius_m": 0.3944227367989431,
+  "hard_audit_minimum_centerline_margin_m": 0.013878932090903684,
+  "remaining_margin_after_gazebo_frame_radius_m": 0.0038789320909036838,
+  "trajectory": {
+    "samples": 720,
+    "mesh": "meshes/accepted_trajectory.stl",
+    "mesh_sha256": "c8ad15c58ca5c28683317ae547819d9aa2828ffb60c966d143125bfcf6e8df51",
+    "mesh_vertices": 15818,
+    "mesh_triangles": 28760
+  },
+  "floor_racing_line": {
+    "mesh": "meshes/floor_racing_line.stl",
+    "mesh_sha256": "a9e2822c716249dc0aefac371429aaee77b0b2d8671357b03edc8018d9d0d285",
+    "mesh_triangles": 256,
+    "collision": false
+  },
+  "gates": [
+    {
+      "index": 1,
+      "name": "W1_L",
+      "shape": "L",
+      "center": [
+        -2.42,
+        -3.52,
+        6.48
+      ],
+      "base_rpy": [
+        0.0,
+        -1.5707963267948966,
+        0.0
+      ],
+      "theta0": 0.4,
+      "omega": 5.0,
+      "boundary_points": 6,
+      "maximum_boundary_chord_m": 4.0,
+      "collision_mesh": "meshes/gate_01_L_collision.stl",
+      "collision_mesh_sha256": "d745235185a7aa5890ebaae6ad9415dd8b35eea4bb89b11a2a0b0af05b61d702",
+      "collision_mesh_vertices": 156,
+      "collision_mesh_triangles": 288,
+      "collision_mesh_watertight": true,
+      "visual_sleeve_mesh": "meshes/gate_01_L_sleeve.stl",
+      "visual_sleeve_mesh_sha256": "480ec32c93024ff04e011c6b1d72a1083288add87ce449e34445d1afb772df52",
+      "visual_sleeve_mesh_vertices": 132,
+      "visual_sleeve_mesh_triangles": 240,
+      "visual_sleeve_radius_m": 0.085,
+      "visual_sleeve_outward_offset_m": 0.07500000000000001,
+      "visual_core_mesh": "meshes/gate_01_L_visual_core.stl",
+      "visual_core_mesh_sha256": "cf8ba194a658511fa71c6daaea5c3710d84b68b617f2f3516576baab2596f1b0",
+      "visual_boundary_points": 6,
+      "visual_boundary_hausdorff_error_m": 0.0
+    },
+    {
+      "index": 2,
+      "name": "W2_U",
+      "shape": "U",
+      "center": [
+        20.24,
+        14.52,
+        1.8
+      ],
+      "base_rpy": [
+        0.0,
+        -1.5707963267948966,
+        -0.3490658503988659
+      ],
+      "theta0": -0.7,
+      "omega": -4.0,
+      "boundary_points": 8,
+      "maximum_boundary_chord_m": 5.0,
+      "collision_mesh": "meshes/gate_02_U_collision.stl",
+      "collision_mesh_sha256": "2bf35c5b4a502d94e1463f8c79adf8c462f85e161aebf617f5c67171856b71cd",
+      "collision_mesh_vertices": 208,
+      "collision_mesh_triangles": 384,
+      "collision_mesh_watertight": true,
+      "visual_sleeve_mesh": "meshes/gate_02_U_sleeve.stl",
+      "visual_sleeve_mesh_sha256": "e87958b740ec29ad05011cc65164e3465341ad0c9644e447f07c273a8ab67f3d",
+      "visual_sleeve_mesh_vertices": 176,
+      "visual_sleeve_mesh_triangles": 320,
+      "visual_sleeve_radius_m": 0.085,
+      "visual_sleeve_outward_offset_m": 0.07500000000000001,
+      "visual_core_mesh": "meshes/gate_02_U_visual_core.stl",
+      "visual_core_mesh_sha256": "b589c3971c535c09e13b7addcc026d7126e3ae53e5230a1a626642dd562f4cfe",
+      "visual_boundary_points": 8,
+      "visual_boundary_hausdorff_error_m": 0.0
+    },
+    {
+      "index": 3,
+      "name": "W3_star",
+      "shape": "star",
+      "center": [
+        20.24,
+        -8.8,
+        2.16
+      ],
+      "base_rpy": [
+        0.0,
+        -1.5707963267948966,
+        -2.2689280275926285
+      ],
+      "theta0": 0.55,
+      "omega": 4.5,
+      "boundary_points": 10,
+      "maximum_boundary_chord_m": 1.7089915980905388,
+      "collision_mesh": "meshes/gate_03_star_collision.stl",
+      "collision_mesh_sha256": "f40e04e271a04f6a3af1ce16b0d26f80d2c58204d3149256c378936450171784",
+      "collision_mesh_vertices": 260,
+      "collision_mesh_triangles": 480,
+      "collision_mesh_watertight": true,
+      "visual_sleeve_mesh": "meshes/gate_03_star_sleeve.stl",
+      "visual_sleeve_mesh_sha256": "37eeaf15e103ec82e50468c80a779132266ad969857697d16ed5c3a56ba7a721",
+      "visual_sleeve_mesh_vertices": 220,
+      "visual_sleeve_mesh_triangles": 400,
+      "visual_sleeve_radius_m": 0.085,
+      "visual_sleeve_outward_offset_m": 0.07500000000000001,
+      "visual_core_mesh": "meshes/gate_03_star_visual_core.stl",
+      "visual_core_mesh_sha256": "f07e000a5cc511dda4adb168462ff6c1dc3eee3f6d8814573f2529d0069a940a",
+      "visual_boundary_points": 10,
+      "visual_boundary_hausdorff_error_m": 0.0
+    },
+    {
+      "index": 4,
+      "name": "W4_limacon",
+      "shape": "limacon",
+      "center": [
+        -9.9,
+        -13.2,
+        6.3
+      ],
+      "base_rpy": [
+        0.0,
+        -1.5707963267948966,
+        3.141592653589793
+      ],
+      "theta0": -0.35,
+      "omega": -5.0,
+      "boundary_points": 1814,
+      "maximum_boundary_chord_m": 0.009978506435299706,
+      "collision_mesh": "meshes/gate_04_limacon_collision.stl",
+      "collision_mesh_sha256": "b17066295c418752e0c390d522718d2d08f001c0d61bdab167c12ef1ffb32d21",
+      "collision_mesh_vertices": 47164,
+      "collision_mesh_triangles": 87072,
+      "collision_mesh_watertight": true,
+      "visual_sleeve_mesh": "meshes/gate_04_limacon_sleeve.stl",
+      "visual_sleeve_mesh_sha256": "c47f17d022447e6a52175d90b9c494192d53359e5828432e4833ddf3666a77dc",
+      "visual_sleeve_mesh_vertices": 1408,
+      "visual_sleeve_mesh_triangles": 2560,
+      "visual_sleeve_radius_m": 0.085,
+      "visual_sleeve_outward_offset_m": 0.07500000000000001,
+      "visual_core_mesh": "meshes/gate_04_limacon_visual_core.stl",
+      "visual_core_mesh_sha256": "e108dc211216a8341751938a1da5f112bd257226834b7ffcfc62c381158c1b78",
+      "visual_boundary_points": 64,
+      "visual_boundary_hausdorff_error_m": 0.002764193110406116
+    },
+    {
+      "index": 5,
+      "name": "W5_wavy",
+      "shape": "wavy",
+      "center": [
+        10.45,
+        -1.98,
+        2.16
+      ],
+      "base_rpy": [
+        0.0,
+        -1.5707963267948966,
+        1.2217304763960306
+      ],
+      "theta0": 0.9,
+      "omega": 5.5,
+      "boundary_points": 2048,
+      "maximum_boundary_chord_m": 0.008610826013216269,
+      "collision_mesh": "meshes/gate_05_wavy_collision.stl",
+      "collision_mesh_sha256": "19e140259d0c0ddeee37cf7f571a3e6f8f1e6f072b55fb0270043ec19c7c2931",
+      "collision_mesh_vertices": 53248,
+      "collision_mesh_triangles": 98304,
+      "collision_mesh_watertight": true,
+      "visual_sleeve_mesh": "meshes/gate_05_wavy_sleeve.stl",
+      "visual_sleeve_mesh_sha256": "cfdc7c6a0dfa295d96c9faa1f4c4129f1724710a48abd13cef5720a939194cd4",
+      "visual_sleeve_mesh_vertices": 1980,
+      "visual_sleeve_mesh_triangles": 3600,
+      "visual_sleeve_radius_m": 0.085,
+      "visual_sleeve_outward_offset_m": 0.07500000000000001,
+      "visual_core_mesh": "meshes/gate_05_wavy_visual_core.stl",
+      "visual_core_mesh_sha256": "14b5a6e7b0c85c6573f038d23b5f9217d8c8c8bcfa6fa4885584e13fd8ffb2cb",
+      "visual_boundary_points": 90,
+      "visual_boundary_hausdorff_error_m": 0.00582819091510638
+    },
+    {
+      "index": 6,
+      "name": "W6_line_bezier",
+      "shape": "line_bezier",
+      "center": [
+        -6.16,
+        14.96,
+        2.16
+      ],
+      "base_rpy": [
+        0.0,
+        -1.5707963267948966,
+        3.490658503988659
+      ],
+      "theta0": -1.1,
+      "omega": -15.0,
+      "boundary_points": 2304,
+      "maximum_boundary_chord_m": 0.00999164972382221,
+      "collision_mesh": "meshes/gate_06_line_bezier_collision.stl",
+      "collision_mesh_sha256": "b1e574cb76f8b4f6698a150f56a053826549ec35b7229512343f22729057009f",
+      "collision_mesh_vertices": 59904,
+      "collision_mesh_triangles": 110592,
+      "collision_mesh_watertight": true,
+      "visual_sleeve_mesh": "meshes/gate_06_line_bezier_sleeve.stl",
+      "visual_sleeve_mesh_sha256": "4a588a66edf77b896cb28839bed5b357efc0fa066dd6ea43ff2b902fbe06f90a",
+      "visual_sleeve_mesh_vertices": 616,
+      "visual_sleeve_mesh_triangles": 1120,
+      "visual_sleeve_radius_m": 0.085,
+      "visual_sleeve_outward_offset_m": 0.07500000000000001,
+      "visual_core_mesh": "meshes/gate_06_line_bezier_visual_core.stl",
+      "visual_core_mesh_sha256": "41b8be6de6e6487562e88d336f6ce71b4e035c341430da359edd7720ce94f879",
+      "visual_boundary_points": 28,
+      "visual_boundary_hausdorff_error_m": 0.004013827437471355
+    },
+    {
+      "index": 7,
+      "name": "W7_balanced_U",
+      "shape": "balanced_U",
+      "center": [
+        2.0,
+        8.0,
+        5.5
+      ],
+      "base_rpy": [
+        0.0,
+        -1.5707963267948966,
+        2.530727415391778
+      ],
+      "theta0": 1.25,
+      "omega": 18.0,
+      "boundary_points": 8,
+      "maximum_boundary_chord_m": 3.1982782110784207,
+      "collision_mesh": "meshes/gate_07_balanced_U_collision.stl",
+      "collision_mesh_sha256": "27cbfc6d32fc0f8e784b9f91768b7afeb0ff8163d28726b01fb289edfc6ad43e",
+      "collision_mesh_vertices": 208,
+      "collision_mesh_triangles": 384,
+      "collision_mesh_watertight": true,
+      "visual_sleeve_mesh": "meshes/gate_07_balanced_U_sleeve.stl",
+      "visual_sleeve_mesh_sha256": "16a14e76bfc539424a3b4c5571c671cfa0dbb70d58caf5e88befd20ea058da26",
+      "visual_sleeve_mesh_vertices": 176,
+      "visual_sleeve_mesh_triangles": 320,
+      "visual_sleeve_radius_m": 0.085,
+      "visual_sleeve_outward_offset_m": 0.07500000000000001,
+      "visual_core_mesh": "meshes/gate_07_balanced_U_visual_core.stl",
+      "visual_core_mesh_sha256": "a2281801cf1a1aa164e4eed12ae52acac6a18f0b994b5714f04b3c84b31a0597",
+      "visual_boundary_points": 8,
+      "visual_boundary_hausdorff_error_m": 0.0
+    }
+  ],
+  "coordinate_convention": "mesh xy is the original local aperture plane; model base is frozen RPY; child yaw is theta0+omega*t"
+}

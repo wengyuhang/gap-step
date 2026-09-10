@@ -1,0 +1,43 @@
+{
+  "passed": true,
+  "image": "ghcr.io/j-rivero/gazebo:harmonic-full",
+  "world": "seven_unique_physics.sdf",
+  "joint_states": [
+    {
+      "gate": 1,
+      "target_rad_s": 5.0,
+      "measured_rad_s": 5.0
+    },
+    {
+      "gate": 2,
+      "target_rad_s": -4.0,
+      "measured_rad_s": -4.0
+    },
+    {
+      "gate": 3,
+      "target_rad_s": 4.5,
+      "measured_rad_s": 4.5
+    },
+    {
+      "gate": 4,
+      "target_rad_s": -5.0,
+      "measured_rad_s": -5.0
+    },
+    {
+      "gate": 5,
+      "target_rad_s": 5.5,
+      "measured_rad_s": 5.5
+    },
+    {
+      "gate": 6,
+      "target_rad_s": -15.0,
+      "measured_rad_s": -15.0
+    },
+    {
+      "gate": 7,
+      "target_rad_s": 18.0,
+      "measured_rad_s": 18.0
+    }
+  ],
+  "fatal_log_lines": []
+}
