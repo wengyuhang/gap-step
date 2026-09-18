@@ -347,7 +347,8 @@ def safety_audit(trajectory, track: SCWindowTrack, maximum_step=AUDIT_STEP) -> d
     }
 
 
-def plot_route(path: Path, trajectory, track: SCWindowTrack, crossing_times: np.ndarray) -> None:
+def plot_route(path: Path, trajectory, track: SCWindowTrack, crossing_times: np.ndarray,
+               trajectory_label: str = "TOGT trajectory") -> None:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -356,7 +357,10 @@ def plot_route(path: Path, trajectory, track: SCWindowTrack, crossing_times: np.
     points = np.real(trajectory.evaluate(times, 0))
     figure = plt.figure(figsize=(9, 7))
     axis = figure.add_subplot(111, projection="3d")
-    axis.plot(points[:, 0], points[:, 1], points[:, 2], color="tab:blue", linewidth=1.7, label="TOGT trajectory")
+    axis.plot(
+        points[:, 0], points[:, 1], points[:, 2], color="tab:blue",
+        linewidth=1.7, label=trajectory_label,
+    )
     for i, (window, instant) in enumerate(zip(track.windows, crossing_times)):
         boundary = window.boundary_at(float(instant), circle_samples=160)
         boundary = np.vstack((boundary, boundary[0]))

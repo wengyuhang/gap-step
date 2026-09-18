@@ -9,6 +9,7 @@
     <latitude_deg>47.397971057728974</latitude_deg>
     <longitude_deg>8.546163739800146</longitude_deg><elevation>0</elevation>
     <heading_deg>0</heading_deg></spherical_coordinates>
+
   <scene><ambient>0.65 0.67 0.70 1</ambient><background>0.74 0.77 0.81 1</background><shadows>true</shadows><grid>false</grid></scene>
   <light type="directional" name="sun"><pose>0 0 35 0 0 0</pose><cast_shadows>true</cast_shadows>
     <diffuse>0.95 0.95 0.92 1</diffuse><direction>-0.35 0.25 -0.9</direction></light>
@@ -304,4 +305,5 @@
       <motion_start_time>30</motion_start_time>
     </plugin>
   </model>
+
 </world></sdf>

@@ -19,6 +19,8 @@ TEXTURE_DIR = HERE / "materials" / "textures"
 PHYSICS_WORLD = HERE / "convex_seven_dynamic_physics.sdf"
 PX4_WORLD = HERE / "convex_seven_dynamic_px4.sdf"
 PX4_TOGT_WORLD = HERE / "convex_seven_dynamic_px4_togt.sdf"
+PX4_NMPC_WORLD = HERE / "convex_seven_dynamic_px4_togt_nmpc.sdf"
+PX4_REPLAY_WORLD = HERE / "convex_seven_dynamic_px4_replay.sdf"
 MANIFEST = HERE / "manifest.json"
 FRAME_RADIUS = 0.020
 FRAME_SECTIONS = 12
@@ -29,6 +31,10 @@ PX4_STEP = 0.004
 GROUND_Z = -6.0
 PX4_SPAWN = (-16.0, 4.0, -6.0, 0.0, 0.0, 0.0)
 TOGT_MOTION_START = 30.0
+# Three real-time iterations take about 14 ms on this host. Slow wall-clock
+# execution leaves enough CPU time for every 10 ms simulation-time control
+# update; physics step, trajectory timebase, and window motion stay unchanged.
+NMPC_REAL_TIME_FACTOR = 1.0
 COLORS = (
     (0.10, 0.58, 1.00, 1.0),
     (1.00, 0.30, 0.16, 1.0),
@@ -170,12 +176,21 @@ def indoor_lab_xml() -> str:
     return "\n".join(pieces)
 
 
-def world_xml(course: dict, gates: str, *, px4: bool, name: str | None = None) -> str:
+def world_xml(course: dict, gates: str, *, px4: bool,
+              name: str | None = None, real_time_factor: float = 1.0,
+              trajectory_replay: bool = False) -> str:
     if name is None:
         name = "convex_seven_dynamic_px4" if px4 else "convex_seven_dynamic_physics"
     step = PX4_STEP if px4 else PHYSICS_STEP
     systems = "" if px4 else '''
   <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+  <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+  <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+  <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>'''
+    if trajectory_replay:
+        # This direct-Gazebo replay world must expose its x500_0 model and
+        # contact streams to the world-level replay plugin.
+        systems += '''
   <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
   <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
   <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact"/>'''
@@ -190,9 +205,22 @@ def world_xml(course: dict, gates: str, *, px4: bool, name: str | None = None) -
     <heading_deg>0</heading_deg></spherical_coordinates>''' if px4 else "\n  <gravity>0 0 -9.8</gravity>"
     start = course["start"]
     decorations = indoor_lab_xml()
+    replay_plugin = '''
+  <plugin filename="libTrajectoryReplay.so" name="convex_dynamic_course::TrajectoryReplay">
+    <target_model>x500_0</target_model>
+    <motion_start_time>30</motion_start_time>
+    <reference_environment_variable>REPLAY_REFERENCE</reference_environment_variable>
+    <release_udp_port>18680</release_udp_port>
+    </plugin>''' if trajectory_replay else ""
+    replay_vehicle = '''
+  <include>
+    <uri>model://x500</uri><name>x500_0</name>
+    <pose>-16 4 3.2 0 0 0</pose>
+  </include>''' if trajectory_replay else ""
     return f'''<?xml version="1.0"?>
 <sdf version="1.9"><world name="{name}">
-  <physics name="course_physics" type="dart"><max_step_size>{step}</max_step_size><real_time_factor>1</real_time_factor></physics>{systems}{environment}
+  <physics name="course_physics" type="dart"><max_step_size>{step}</max_step_size><real_time_factor>{real_time_factor:g}</real_time_factor></physics>{systems}{environment}
+{replay_plugin}
   <scene><ambient>0.65 0.67 0.70 1</ambient><background>0.74 0.77 0.81 1</background><shadows>true</shadows><grid>false</grid></scene>
   <light type="directional" name="sun"><pose>0 0 35 0 0 0</pose><cast_shadows>true</cast_shadows>
     <diffuse>0.95 0.95 0.92 1</diffuse><direction>-0.35 0.25 -0.9</direction></light>
@@ -209,6 +237,7 @@ def world_xml(course: dict, gates: str, *, px4: bool, name: str | None = None) -
   </link></model>
 {decorations}
 {gates}
+{replay_vehicle}
 </world></sdf>'''
 
 
@@ -249,6 +278,17 @@ def main() -> None:
         course, "\n".join(delayed_models), px4=True,
         name="convex_seven_dynamic_px4_togt",
     ), encoding="utf-8")
+    PX4_NMPC_WORLD.write_text(world_xml(
+        course, "\n".join(delayed_models), px4=True,
+        name="convex_seven_dynamic_px4_togt_nmpc",
+        real_time_factor=NMPC_REAL_TIME_FACTOR,
+    ), encoding="utf-8")
+    PX4_REPLAY_WORLD.write_text(world_xml(
+        course, "\n".join(delayed_models), px4=True,
+        name="convex_seven_dynamic_px4_replay",
+        real_time_factor=1.0,
+        trajectory_replay=True,
+    ), encoding="utf-8")
     manifest = {
         "course": course["name"],
         "source": "course_spec.json",
@@ -259,7 +299,10 @@ def main() -> None:
         "physics_world": PHYSICS_WORLD.name,
         "px4_world": PX4_WORLD.name,
         "px4_togt_world": PX4_TOGT_WORLD.name,
+        "px4_togt_nmpc_world": PX4_NMPC_WORLD.name,
+        "px4_replay_world": PX4_REPLAY_WORLD.name,
         "togt_motion_start_time_s": TOGT_MOTION_START,
+        "nmpc_real_time_factor": NMPC_REAL_TIME_FACTOR,
         "physics_step_s": PHYSICS_STEP,
         "px4_step_s": PX4_STEP,
         "px4_vehicle": "x500",

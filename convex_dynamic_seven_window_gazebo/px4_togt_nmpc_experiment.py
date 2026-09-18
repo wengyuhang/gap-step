@@ -20,10 +20,14 @@ import numpy as np
 HERE = Path(__file__).resolve().parent
 _TELEOP_SITE = next((HERE / ".runtime/teleop-venv/lib").glob("python*/site-packages"))
 sys.path.insert(0, str(_TELEOP_SITE))
+sys.path.insert(0, str(HERE.parent))
 from pymavlink import mavutil
 from scipy.spatial.transform import Rotation
 from convex_dynamic_seven_window_gazebo.togt_nmpc import (
-    DT as NMPC_DT, G, MASS, N as NMPC_N, TOGTTrackingNMPC, flat_reference_ned,
+    DT as NMPC_DT, HOVER_THRUST_NORMALIZED, MAX_TOTAL_THRUST,
+    MOTOR_CONSTANT, MOTOR_SPEED_MIN, MOTOR_SPEED_MAX, RATE_INTERFACE_FRACTION, N as NMPC_N,
+    Q_BODY_RATE, Q_INPUT, Q_POSITION, Q_QUATERNION, Q_VELOCITY,
+    TOGTTrackingNMPC, collective_thrust_to_px4, flat_reference_ned,
 )
 
 
@@ -31,7 +35,7 @@ CONTAINER = "convex_seven_togt_experiment"
 PARTITION = "convex_seven_togt_experiment_partition"
 WORLD = "convex_seven_dynamic_px4_togt_nmpc"
 MOTION_START_S = 30.0
-DEFAULT_REFERENCE = HERE / "trajectories/togt_baseline_100hz.npz"
+DEFAULT_REFERENCE = HERE / "trajectories/togt_x500_physical_constraints_100hz.npz"
 RESULTS = HERE / "results" / "px4_togt_nmpc"
 CONTACT_TOPICS = tuple(
     f"/world/{WORLD}/model/gate_{index:02d}_W{index}_{shape}/link/frame/sensor/frame_contact/contact"
@@ -52,6 +56,9 @@ PARAMETERS = {
     "MPC_JERK_AUTO": 50.0,
     "MPC_JERK_MAX": 50.0,
     "MPC_TILTMAX_AIR": 45.0,
+    # Used only by the position-controlled preparation/hold phase. The
+    # body-rate + thrust interface is scaled by max collective thrust and does
+    # not pass through this parameter.
     "MPC_THR_HOVER": 0.5,
 }
 
@@ -95,6 +102,29 @@ class ClockReader:
             self.process.kill()
 
 
+class StallWatchdog:
+    """Detect a frozen Gazebo server so the run cannot block forever.
+
+    The contact stream and the vehicle state both stop when the physics server
+    stalls, so the countdown is driven by the simulation clock itself: if it has
+    not advanced for ``timeout_s`` of wall clock time, the run is aborted and
+    whatever was recorded is kept.
+    """
+
+    def __init__(self, timeout_s: float = 20.0) -> None:
+        self.timeout_s = timeout_s
+        self.clock_value = None
+        self.wall = time.monotonic()
+
+    def stalled(self, clock_value) -> bool:
+        now = time.monotonic()
+        if clock_value != self.clock_value:
+            self.clock_value = clock_value
+            self.wall = now
+            return False
+        return now - self.wall > self.timeout_s
+
+
 def set_parameter(name: str, value: float) -> None:
     result = docker("/opt/px4-gazebo/bin/px4-param", "set", name, str(value), check=False)
     if result.returncode != 0:
@@ -133,18 +163,20 @@ def send_bodyrate_thrust(link, body_rate_frd, normalized_thrust) -> None:
     )
 
 
+def send_attitude_thrust(link, quaternion_wxyz, normalized_thrust) -> None:
+    link.mav.set_attitude_target_send(
+        0, 1, 1,
+        mavutil.mavlink.ATTITUDE_TARGET_TYPEMASK_BODY_ROLL_RATE_IGNORE |
+        mavutil.mavlink.ATTITUDE_TARGET_TYPEMASK_BODY_PITCH_RATE_IGNORE |
+        mavutil.mavlink.ATTITUDE_TARGET_TYPEMASK_BODY_YAW_RATE_IGNORE,
+        tuple(map(float, quaternion_wxyz)), 0.0, 0.0, 0.0,
+        float(normalized_thrust),
+    )
+
+
 def interpolate_rows(times, values, query):
     query=np.asarray(query,float); values=np.asarray(values,float)
     return np.column_stack([np.interp(query,times,values[:,i]) for i in range(values.shape[1])])
-
-
-def interpolate(reference, t: float):
-    source_t = reference["time"]
-    values = []
-    for name in ("position_enu", "velocity_enu", "acceleration_enu"):
-        source = reference[name]
-        values.append(np.asarray([np.interp(t, source_t, source[:, axis]) for axis in range(3)]))
-    return values
 
 
 def enu_to_ned(vector: np.ndarray, *, position: bool, origin_enu: np.ndarray) -> np.ndarray:
@@ -162,9 +194,12 @@ def parse_contacts(path: Path) -> dict:
         content,
         flags=re.S,
     )
+    stamps = re.findall(r'stamp\s*\{\s*sec:\s*(\d+)\s*nsec:\s*(\d+)', content)
+    stamp_values = [int(sec) + int(nsec)*1e-9 for sec, nsec in stamps]
     return {
         "raw_log": path.name,
         "contact_pair_count": len(pairs),
+        "first_contact_sim_time_s": min(stamp_values) if stamp_values else None,
         "collision_pairs": sorted({f"{first} <-> {second}" for first, second in pairs}),
     }
 
@@ -172,12 +207,20 @@ def parse_contacts(path: Path) -> dict:
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--reference", type=Path, default=DEFAULT_REFERENCE)
+    parser.add_argument("--max-reference-time", type=float)
+    parser.add_argument("--interface", choices=("attitude", "bodyrate"), default="bodyrate")
+    parser.add_argument("--control-frequency", type=float, default=100.0)
     args = parser.parse_args(argv)
     reference_path = args.reference.resolve()
+    if args.control_frequency <= 0:
+        parser.error("--control-frequency must be positive")
+    control_period = 1.0 / args.control_frequency
     run_dir = RESULTS / datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir.mkdir(parents=True)
     reference = np.load(reference_path)
-    reference_duration = float(reference["time"][-1])
+    full_reference_duration = float(reference["time"][-1])
+    reference_duration = min(full_reference_duration, args.max_reference_time) \
+        if args.max_reference_time is not None else full_reference_duration
     reference_state, reference_rotors = flat_reference_ned(reference)
     controller = TOGTTrackingNMPC()
     for name, value in PARAMETERS.items():
@@ -214,6 +257,16 @@ def main(argv=None) -> None:
     start_ned = enu_to_ned(start_enu, position=True, origin_enu=origin_enu)
     origin_ned = np.asarray((origin_enu[1], origin_enu[0], -origin_enu[2]))
     reference_state[:, :3] -= origin_ned
+    # TOGT builds the attitude from its flat outputs with the heading reference
+    # taken along world X (quadrotor_manifold.cpp:59-66, x_B = y_c x z_B with
+    # yaw=0). In the z-up ENU course frame that is East, i.e. yaw +90 deg in
+    # PX4's NED compass sense, and it stays there for the whole trajectory.
+    # Handing over from a yaw=0 hold leaves a 90 deg step for the NMPC to
+    # remove with torque, which saturates the motors on the first control tick,
+    # so the hold is commanded at the reference's own initial heading.
+    q0 = reference_state[0, 6:10]
+    initial_yaw = math.atan2(2.0*(q0[0]*q0[3] + q0[1]*q0[2]),
+                             1.0 - 2.0*(q0[2]*q0[2] + q0[3]*q0[3]))
 
     contact_processes = []
     contact_paths = []
@@ -228,7 +281,25 @@ def main(argv=None) -> None:
         contact_processes.append((process, stream))
         contact_paths.append(path)
 
+    header = ("sim_time_s", "reference_time_s", "actual_n_m", "actual_e_m", "actual_d_m",
+              "actual_vn_mps", "actual_ve_mps", "actual_vd_mps", "reference_n_m",
+              "reference_e_m", "reference_d_m", "position_error_m")
+    csv_path = run_dir / "px4_local_position.csv"
+    csv_stream = csv_path.open("w", newline="", encoding="utf-8")
+    csv_writer = csv.writer(csv_stream)
+    csv_writer.writerow(header)
     rows = []
+
+    def record(row) -> None:
+        """Append a telemetry row and flush it, so a physics freeze that kills
+        the run still leaves the flight so far on disk."""
+        rows.append(row)
+        if len(row) == len(header):
+            csv_writer.writerow(row)
+            csv_stream.flush()
+
+    watchdog = StallWatchdog()
+    stalled = False
     latest_local = local
     latest_attitude = None
     last_heartbeat = 0.0
@@ -236,7 +307,7 @@ def main(argv=None) -> None:
     try:
         # Stream the start setpoint before switching to Offboard, as PX4 requires.
         for _ in range(120):
-            send_setpoint(link, start_ned)
+            send_setpoint(link, start_ned, yaw=initial_yaw)
             send_gcs_heartbeat(link)
             time.sleep(0.01)
         link.mav.set_mode_send(1, mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED, 6 << 16)
@@ -245,10 +316,11 @@ def main(argv=None) -> None:
         # confirms the armed bit, instead of silently waiting on the ground.
         armed = False
         last_arm_request = 0.0
-        arm_deadline = time.monotonic() + 10.0
+        # Allow for host load during PX4 health initialization.
+        arm_deadline = time.monotonic() + 60.0
         while not armed and time.monotonic() < arm_deadline:
             now = time.monotonic()
-            send_setpoint(link, start_ned)
+            send_setpoint(link, start_ned, yaw=initial_yaw)
             send_gcs_heartbeat(link)
             if now - last_arm_request >= 1.0:
                 link.mav.command_long_send(1, 1, mavutil.mavlink.MAV_CMD_COMPONENT_ARM_DISARM,
@@ -264,13 +336,16 @@ def main(argv=None) -> None:
                     latest_attitude = message
             time.sleep(0.01)
         if not armed:
-            raise RuntimeError("PX4 did not confirm armed state within 10 seconds")
+            raise RuntimeError("PX4 did not confirm armed state within 60 wall-clock seconds")
 
         # Hold the exact trajectory initial state until the common simulation epoch.
         while clock.value is not None and clock.value < MOTION_START_S:
+            if watchdog.stalled(clock.value):
+                stalled = True
+                raise RuntimeError(f"Gazebo clock stalled at {clock.value:.3f} s during preparation")
             now = time.monotonic()
             if now >= next_send:
-                send_setpoint(link, start_ned)
+                send_setpoint(link, start_ned, yaw=initial_yaw)
                 next_send += 0.01
             if now - last_heartbeat >= 0.5:
                 send_gcs_heartbeat(link)
@@ -279,8 +354,8 @@ def main(argv=None) -> None:
             if message is not None:
                 if message.get_type() == "LOCAL_POSITION_NED":
                     latest_local = message
-                    rows.append((clock.value, -1.0, message.x, message.y, message.z,
-                                 message.vx, message.vy, message.vz, math.nan, math.nan, math.nan))
+                    record((clock.value, -1.0, message.x, message.y, message.z,
+                            message.vx, message.vy, message.vz, math.nan, math.nan, math.nan))
                 elif message.get_type() == "ATTITUDE":
                     latest_attitude = message
             time.sleep(0.001)
@@ -303,32 +378,87 @@ def main(argv=None) -> None:
             message=link.recv_match(type="ATTITUDE",blocking=True,timeout=.2)
             if message is not None: latest_attitude=message
         if latest_attitude is None: raise RuntimeError("PX4 ATTITUDE stream unavailable")
-        next_control_sim=MOTION_START_S
-        controller_calls=0; controller_failures=0; controller_seconds=[]
-        last_rate=np.zeros(3); last_thrust=.5
+        # Refuse to hand over with a large heading error: the NMPC would spend
+        # its first ticks saturated removing it, which is a setup fault rather
+        # than a result about the trajectory.
+        preparation_yaw_error = abs(math.remainder(latest_attitude.yaw - initial_yaw, 2.0*math.pi))
+        if preparation_yaw_error > math.radians(25.0):
+            raise RuntimeError(
+                "x500 heading has not reached the reference attitude: "
+                f"yaw error={math.degrees(preparation_yaw_error):.1f} deg")
+        control_lock = threading.Lock()
+        control = {
+            "rate": np.zeros(3), "attitude": q0.copy(),
+            "thrust": float(collective_thrust_to_px4(HOVER_THRUST_NORMALIZED * MAX_TOTAL_THRUST)),
+            "calls": 0, "failures": 0, "seconds": [], "error": None,
+        }
+        control_stop = threading.Event()
+
+        def solve_mpc() -> None:
+            next_control_sim = MOTION_START_S
+            try:
+                while not control_stop.is_set():
+                    sim_time = clock.value
+                    if sim_time is None or sim_time < next_control_sim:
+                        time.sleep(0.0002)
+                        continue
+                    if sim_time > MOTION_START_S + reference_duration:
+                        return
+                    relative = max(0.0, sim_time - MOTION_START_S)
+                    horizon_t = np.clip(relative + np.arange(NMPC_N+1)*NMPC_DT,
+                                        0, reference_duration)
+                    xr = interpolate_rows(reference["time"], reference_state, horizon_t)
+                    ur = interpolate_rows(reference["time"], reference_rotors, horizon_t[:-1])
+                    local_snapshot, att = latest_local, latest_attitude
+                    xyzw = Rotation.from_euler("ZYX", [att.yaw, att.pitch, att.roll]).as_quat()
+                    q = np.asarray((xyzw[3], xyzw[0], xyzw[1], xyzw[2]))
+                    if np.dot(q, xr[0, 6:10]) < 0:
+                        xr[:, 6:10] *= -1
+                    x0 = np.r_[[local_snapshot.x, local_snapshot.y, local_snapshot.z],
+                               [local_snapshot.vx, local_snapshot.vy, local_snapshot.vz], q,
+                               [att.rollspeed, att.pitchspeed, att.yawspeed]]
+                    started = time.perf_counter()
+                    try:
+                        rotor_command, attitude, rate, stats = controller.solve(x0, xr, ur)
+                        thrust = float(collective_thrust_to_px4(np.sum(rotor_command)))
+                        with control_lock:
+                            control["rate"] = rate
+                            control["attitude"] = attitude
+                            control["thrust"] = thrust
+                    except RuntimeError:
+                        with control_lock:
+                            control["failures"] += 1
+                    with control_lock:
+                        control["seconds"].append(time.perf_counter() - started)
+                        control["calls"] += 1
+                    next_control_sim = max(next_control_sim + control_period,
+                                           sim_time + 0.6*control_period)
+            except Exception as exc:
+                with control_lock:
+                    control["error"] = repr(exc)
+
+        control_thread = threading.Thread(target=solve_mpc, daemon=True)
+        control_thread.start()
+        next_command_sim = MOTION_START_S
+        command_sends = 0
         while clock.value <= MOTION_START_S + reference_duration:
+            if watchdog.stalled(clock.value):
+                stalled = True
+                break
             relative_t = max(0.0, clock.value - MOTION_START_S)
             position_ned=interpolate_rows(reference["time"],reference_state[:,:3],[relative_t])[0]
-            if clock.value >= next_control_sim:
-                horizon_t=np.clip(relative_t+np.arange(NMPC_N+1)*NMPC_DT,0,reference_duration)
-                xr=interpolate_rows(reference["time"],reference_state,horizon_t)
-                ur=interpolate_rows(reference["time"],reference_rotors,horizon_t[:-1])
-                att=latest_attitude
-                xyzw=Rotation.from_euler("ZYX",[att.yaw,att.pitch,att.roll]).as_quat()
-                q=np.asarray((xyzw[3],xyzw[0],xyzw[1],xyzw[2]))
-                if np.dot(q,xr[0,6:10])<0: xr[:,6:10]*=-1
-                x0=np.r_[[latest_local.x,latest_local.y,latest_local.z],
-                         [latest_local.vx,latest_local.vy,latest_local.vz],q,
-                         [att.rollspeed,att.pitchspeed,att.yawspeed]]
-                solve_started=time.perf_counter()
-                try:
-                    rotor_command,last_rate,stats=controller.solve(x0,xr,ur)
-                    last_thrust=float(np.clip(.5*np.sum(rotor_command)/(MASS*G),.05,1.0))
-                except RuntimeError:
-                    controller_failures+=1
-                controller_seconds.append(time.perf_counter()-solve_started); controller_calls+=1
-                next_control_sim=max(next_control_sim+.01,clock.value+.006)
-            send_bodyrate_thrust(link,last_rate,last_thrust)
+            if clock.value >= next_command_sim:
+                with control_lock:
+                    rate = control["rate"].copy()
+                    attitude = control["attitude"].copy()
+                    thrust = control["thrust"]
+                if args.interface == "attitude":
+                    send_attitude_thrust(link, attitude, thrust)
+                else:
+                    send_bodyrate_thrust(link, rate, thrust)
+                command_sends += 1
+                next_command_sim = max(next_command_sim + control_period,
+                                       clock.value + 0.6*control_period)
             now = time.monotonic()
             if now - last_heartbeat >= 0.5:
                 send_gcs_heartbeat(link)
@@ -340,19 +470,27 @@ def main(argv=None) -> None:
                 if message.get_type() == "LOCAL_POSITION_NED":
                     latest_local = message
                     error = np.asarray((message.x, message.y, message.z)) - position_ned
-                    rows.append((clock.value, relative_t,
-                                 message.x, message.y, message.z,
-                                 message.vx, message.vy, message.vz,
-                                 position_ned[0], position_ned[1], position_ned[2],
-                                 float(np.linalg.norm(error))))
+                    record((clock.value, relative_t,
+                            message.x, message.y, message.z,
+                            message.vx, message.vy, message.vz,
+                            position_ned[0], position_ned[1], position_ned[2],
+                            float(np.linalg.norm(error))))
                 elif message.get_type() == "ATTITUDE":
                     latest_attitude=message
             time.sleep(0.001)
 
+        control_stop.set()
+        control_thread.join(timeout=2.0)
+        with control_lock:
+            controller_calls = control["calls"]
+            controller_failures = control["failures"]
+            controller_seconds = list(control["seconds"])
+            controller_error = control["error"]
+
         goal_ned = start_ned
         hold_end = time.monotonic() + 2.0
         while time.monotonic() < hold_end:
-            send_setpoint(link, goal_ned)
+            send_setpoint(link, goal_ned, yaw=initial_yaw)
             send_gcs_heartbeat(link)
             time.sleep(0.01)
     finally:
@@ -365,40 +503,75 @@ def main(argv=None) -> None:
             stream.close()
         clock.close()
 
-    csv_path = run_dir / "px4_local_position.csv"
-    header = ("sim_time_s", "reference_time_s", "actual_n_m", "actual_e_m", "actual_d_m",
-              "actual_vn_mps", "actual_ve_mps", "actual_vd_mps", "reference_n_m",
-              "reference_e_m", "reference_d_m", "position_error_m")
-    with csv_path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.writer(stream)
-        writer.writerow(header)
-        for row in rows:
-            if len(row) == len(header):
-                writer.writerow(row)
+    csv_stream.close()
 
     flight_rows = [row for row in rows if len(row) == len(header) and row[1] >= 0.0]
-    errors = [row[-1] for row in flight_rows if math.isfinite(row[-1])]
     contacts = [parse_contacts(path) for path in contact_paths]
+    first_contact_sim_time = min(
+        (item["first_contact_sim_time_s"] for item in contacts
+         if item["first_contact_sim_time_s"] is not None), default=None)
+    pre_contact_rows = [
+        row for row in flight_rows
+        if first_contact_sim_time is None or row[0] < first_contact_sim_time
+    ]
+
+    def tracking_metrics(sample_rows):
+        if not sample_rows:
+            return {"samples": 0, "rms": None, "mean": None, "p95": None,
+                    "maximum": None, "final": None, "axis_rms_ned": None}
+        vector = np.asarray([[row[2]-row[8], row[3]-row[9], row[4]-row[10]]
+                             for row in sample_rows])
+        norm = np.linalg.norm(vector, axis=1)
+        return {
+            "samples": len(sample_rows),
+            "rms": float(np.sqrt(np.mean(norm**2))),
+            "mean": float(np.mean(norm)),
+            "p95": float(np.quantile(norm, 0.95)),
+            "maximum": float(np.max(norm)),
+            "final": float(norm[-1]),
+            "axis_rms_ned": np.sqrt(np.mean(vector**2, axis=0)).tolist(),
+        }
     status = docker("/opt/px4-gazebo/bin/px4-commander", "status", check=False).stdout
     result = {
         "passed_execution": bool(flight_rows),
+        "gazebo_clock_stalled": stalled,
         "reference": str(reference_path.relative_to(HERE)),
         "reference_flight_time_s": reference_duration,
         "motion_start_sim_time_s": MOTION_START_S,
         "origin_enu_m": origin_enu.tolist(),
         "preparation_error_m": preparation_error,
         "preparation_speed_mps": preparation_speed,
+        "reference_initial_yaw_deg": float(np.degrees(initial_yaw)),
+        "preparation_yaw_error_deg": float(math.degrees(preparation_yaw_error)),
         "px4_parameters": PARAMETERS,
-        "controller":"TOGT-paper cited Agilicious-style full-state NMPC to collective-thrust/body-rate interface",
-        "controller_configuration":{"dt_s":NMPC_DT,"horizon_steps":NMPC_N,"nominal_frequency_hz":100,
+        "thrust_normalization": {
+            "convention": "inverse x500 motor-speed map: omega=sqrt(F/(4k)), command=(omega-150)/850",
+            "max_total_thrust_n": MAX_TOTAL_THRUST,
+            "motor_constant": MOTOR_CONSTANT,
+            "motor_speed_range_rad_s": [MOTOR_SPEED_MIN, MOTOR_SPEED_MAX],
+            "hover_command": float(collective_thrust_to_px4(HOVER_THRUST_NORMALIZED * MAX_TOTAL_THRUST)),
+        },
+        "controller":"TOGT-paper cited Agilicious-style full-state MPC adapted to PX4 collective-thrust/body-rate interface",
+        "controller_configuration":{"dt_s":NMPC_DT,"horizon_steps":NMPC_N,
+          "nominal_frequency_hz":args.control_frequency,
           "calls":controller_calls,"failures":controller_failures,
+          "achieved_frequency_hz":float(controller_calls/max(flight_rows[-1][1],1e-9)) if flight_rows else None,
+          "command_sends":command_sends,
+          "command_frequency_hz":float(command_sends/max(flight_rows[-1][1],1e-9)) if flight_rows else None,
+          "worker_error":controller_error,
+          "px4_rate_interface_fraction":RATE_INTERFACE_FRACTION,
+          "px4_control_interface":args.interface,
+          "weights":{"position":Q_POSITION.tolist(),"velocity":Q_VELOCITY.tolist(),
+                     "quaternion":Q_QUATERNION.tolist(),"body_rate":Q_BODY_RATE.tolist(),
+                     "rotor_input":Q_INPUT.tolist()},
+          "iterations_per_solve":1,"scheme":"real-time iteration (shifted warm start)",
           "mean_solve_seconds":float(np.mean(controller_seconds)),"max_solve_seconds":float(np.max(controller_seconds))},
         "telemetry_samples": len(flight_rows),
-        "tracking_error_m": {
-            "rms": float(np.sqrt(np.mean(np.square(errors)))) if errors else None,
-            "maximum": float(np.max(errors)) if errors else None,
-            "final": float(errors[-1]) if errors else None,
-        },
+        "tracking_error_m": tracking_metrics(flight_rows),
+        "pre_contact_tracking_error_m": tracking_metrics(pre_contact_rows),
+        "first_contact_sim_time_s": first_contact_sim_time,
+        "first_contact_reference_time_s": (first_contact_sim_time-MOTION_START_S)
+          if first_contact_sim_time is not None else None,
         "contacts": contacts,
         "collision_detected": any(item["contact_pair_count"] > 0 for item in contacts),
         "commander_status": status.strip().splitlines(),

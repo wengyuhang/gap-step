@@ -129,7 +129,10 @@ def safety_audit(trajectory, track):
     return {"passed":bool(all(r["passed"] for r in rows) and cp),"sphere_frame_clearance_passed":bool(all(r["passed"] for r in rows)),
             "prescribed_crossings_passed":cp,"per_window":rows,"crossings":crossings,"sample_count":count,
             "maximum_step_bound_seconds":AUDIT_STEP,"acceptance_margin_added":0.0,
-            "vehicle_sphere_radius":X500_FRAME_RADIUS,"evidence":"full-flight dense sphere-frame distance sampling; not a continuous certificate"}
+            "vehicle_sphere_radius":X500_FRAME_RADIUS,
+            "safety_model":"direction-independent circumscribed x500 footprint sphere",
+            "role":"conservative planning proxy only; final collision acceptance uses the official x500 SDF and Gazebo sleeve meshes",
+            "evidence":"full-flight dense sphere-proxy distance sampling; not a continuous certificate or final Gazebo collision verdict"}
 
 
 def jsonable(v):

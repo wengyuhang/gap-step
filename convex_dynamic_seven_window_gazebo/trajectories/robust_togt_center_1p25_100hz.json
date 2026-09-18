@@ -1,0 +1,84 @@
+{
+  "source": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/trajectories/our_method_x500_accepted_100hz.npz",
+  "output": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/trajectories/robust_togt_center_1p25_100hz.npz",
+  "time_scale": 1.25,
+  "bump_half_width_s": 1.4,
+  "flight_time_s": 36.028129534077735,
+  "path_length_m": 203.44761660356113,
+  "maximum_speed_mps": 10.08037366251101,
+  "maximum_acceleration_mps2": 7.916098364514032,
+  "maximum_jerk_mps3": 16.22744737317836,
+  "maximum_snap_mps4": 56.08953802453038,
+  "corrections": [
+    {
+      "gate": 1,
+      "crossing_time_s": 4.01257134233696,
+      "correction_m": [
+        -0.14603310191666363,
+        -0.5649396727905289,
+        0.3811902199050268
+      ],
+      "correction_norm_m": 0.6969852828426977
+    },
+    {
+      "gate": 2,
+      "crossing_time_s": 9.642526475626545,
+      "correction_m": [
+        0.22565264741023583,
+        0.6771361085395906,
+        0.3328928189458942
+      ],
+      "correction_norm_m": 0.7875595569080045
+    },
+    {
+      "gate": 3,
+      "crossing_time_s": 13.313254314762064,
+      "correction_m": [
+        0.4168460461376249,
+        -0.2296773335743829,
+        -0.24736365570852614
+      ],
+      "correction_norm_m": 0.5363777418050599
+    },
+    {
+      "gate": 4,
+      "crossing_time_s": 18.715429626004614,
+      "correction_m": [
+        -0.0796917796045129,
+        0.2239059538765531,
+        -0.3340954433031573
+      ],
+      "correction_norm_m": 0.4100053916155696
+    },
+    {
+      "gate": 5,
+      "crossing_time_s": 22.035497547664427,
+      "correction_m": [
+        0.30208721113239534,
+        -0.08863599997623117,
+        0.06588978535700907
+      ],
+      "correction_norm_m": 0.321643416590372
+    },
+    {
+      "gate": 6,
+      "crossing_time_s": 28.442275604226225,
+      "correction_m": [
+        -0.37379087497329966,
+        0.7545137213920441,
+        -0.0553384566450803
+      ],
+      "correction_norm_m": 0.8438441317956981
+    },
+    {
+      "gate": 7,
+      "crossing_time_s": 31.523669608044045,
+      "correction_m": [
+        0.42562240380361005,
+        0.6206510375791305,
+        0.438003873475747
+      ],
+      "correction_norm_m": 0.8707522806443706
+    }
+  ]
+}

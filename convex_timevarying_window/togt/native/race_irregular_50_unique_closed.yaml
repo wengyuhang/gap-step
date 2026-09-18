@@ -1,0 +1,570 @@
+# 50 distinct physical convex windows on an irregular closed racing course.
+# Generated deterministically; start equals goal and every GateXX is unique.
+initState:
+  pos: [-18.0, 0.0, 2.0]
+  vel: [0.0, 0.0, 0.0]
+  acc: [0.0, 0.0, 0.0]
+  jer: [0.0, 0.0, 0.0]
+  rot: [1.0, 0.0, 0.0, 0.0]
+  cthrustmass: 9.8066
+  euler: [0.0, 0.0, 0.0]
+endState:
+  pos: [-18.0, 0.0, 2.0]
+  vel: [0.0, 0.0, 0.0]
+  acc: [0.0, 0.0, 0.0]
+  jer: [0.0, 0.0, 0.0]
+  rot: [1.0, 0.0, 0.0, 0.0]
+  cthrustmass: 9.8066
+  euler: [0.0, 0.0, 0.0]
+orders: ['Gate01','Gate02','Gate03','Gate04','Gate05','Gate06','Gate07','Gate08','Gate09','Gate10','Gate11','Gate12','Gate13','Gate14','Gate15','Gate16','Gate17','Gate18','Gate19','Gate20','Gate21','Gate22','Gate23','Gate24','Gate25','Gate26','Gate27','Gate28','Gate29','Gate30','Gate31','Gate32','Gate33','Gate34','Gate35','Gate36','Gate37','Gate38','Gate39','Gate40','Gate41','Gate42','Gate43','Gate44','Gate45','Gate46','Gate47','Gate48','Gate49','Gate50']
+Gate01:
+  type: 'RectanglePrisma'
+  position: [-17.23, -1.848, 2.154]
+  rpy: [0.0, -90.0, -67.380135]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate02:
+  type: 'RectanglePrisma'
+  position: [-15.83, -5.208, 2.434]
+  rpy: [0.0, -90.0, -67.380135]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate03:
+  type: 'RectanglePrisma'
+  position: [-14.43, -8.568, 2.714]
+  rpy: [0.0, -90.0, -67.380135]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate04:
+  type: 'RectanglePrisma'
+  position: [-13.03, -11.928, 2.994]
+  rpy: [0.0, -90.0, 31.234252]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate05:
+  type: 'RectanglePrisma'
+  position: [-9.986, -10.082, 2.589]
+  rpy: [0.0, -90.0, 32.471192]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate06:
+  type: 'RectanglePrisma'
+  position: [-6.906, -8.122, 2.169]
+  rpy: [0.0, -90.0, 32.471192]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate07:
+  type: 'RectanglePrisma'
+  position: [-3.826, -6.162, 1.749]
+  rpy: [0.0, -90.0, 2.202598]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate08:
+  type: 'RectanglePrisma'
+  position: [-0.29, -6.026, 1.728]
+  rpy: [0.0, -90.0, -30.963757]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate09:
+  type: 'RectanglePrisma'
+  position: [3.91, -8.546, 2.288]
+  rpy: [0.0, -90.0, -30.963757]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate10:
+  type: 'RectanglePrisma'
+  position: [8.11, -11.066, 2.848]
+  rpy: [0.0, -90.0, -30.963757]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate11:
+  type: 'RectanglePrisma'
+  position: [12.31, -13.586, 3.408]
+  rpy: [0.0, -90.0, 40.570904]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate12:
+  type: 'RectanglePrisma'
+  position: [15.106, -11.192, 2.9618]
+  rpy: [0.0, -90.0, 53.130102]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate13:
+  type: 'RectanglePrisma'
+  position: [17.626, -7.832, 2.3178]
+  rpy: [0.0, -90.0, 53.130102]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate14:
+  type: 'RectanglePrisma'
+  position: [20.146, -4.472, 1.6738]
+  rpy: [0.0, -90.0, 71.291098]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate15:
+  type: 'RectanglePrisma'
+  position: [21.334, -0.964, 1.4072]
+  rpy: [0.0, -90.0, 122.735226]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate16:
+  type: 'RectanglePrisma'
+  position: [18.814, 2.956, 2.1912]
+  rpy: [0.0, -90.0, 122.735226]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate17:
+  type: 'RectanglePrisma'
+  position: [16.294, 6.876, 2.9752]
+  rpy: [0.0, -90.0, 122.735226]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate18:
+  type: 'RectanglePrisma'
+  position: [13.774, 10.796, 3.7592]
+  rpy: [0.0, -90.0, 179.343344]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate19:
+  type: 'RectanglePrisma'
+  position: [10.284, 10.836, 3.612]
+  rpy: [0.0, -90.0, -156.801409]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate20:
+  type: 'RectanglePrisma'
+  position: [6.364, 9.156, 3.052]
+  rpy: [0.0, -90.0, -156.801409]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate21:
+  type: 'RectanglePrisma'
+  position: [2.444, 7.476, 2.492]
+  rpy: [0.0, -90.0, -163.838627]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate22:
+  type: 'RectanglePrisma'
+  position: [-1.476, 6.34, 2.0612]
+  rpy: [0.0, -90.0, 144.462322]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate23:
+  type: 'RectanglePrisma'
+  position: [-5.396, 9.14, 2.5652]
+  rpy: [0.0, -90.0, 144.462322]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate24:
+  type: 'RectanglePrisma'
+  position: [-9.316, 11.94, 3.0692]
+  rpy: [0.0, -90.0, 144.462322]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate25:
+  type: 'RectanglePrisma'
+  position: [-13.236, 14.74, 3.5732]
+  rpy: [0.0, -90.0, -168.896167]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate26:
+  type: 'RectanglePrisma'
+  position: [-16.232, 14.152, 3.4458]
+  rpy: [0.0, -90.0, -123.690068]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate27:
+  type: 'RectanglePrisma'
+  position: [-18.472, 10.792, 2.8018]
+  rpy: [0.0, -90.0, -123.690068]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate28:
+  type: 'RectanglePrisma'
+  position: [-20.712, 7.432, 2.1578]
+  rpy: [0.0, -90.0, -123.690068]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate29:
+  type: 'RectanglePrisma'
+  position: [-22.952, 4.072, 1.5138]
+  rpy: [0.0, -90.0, -26.027755]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate30:
+  type: 'RectanglePrisma'
+  position: [-19.438, 2.356, 2.322]
+  rpy: [0.0, -90.0, -24.775141]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate31:
+  type: 'RectanglePrisma'
+  position: [-15.798, 0.676, 3.162]
+  rpy: [0.0, -90.0, -24.775141]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate32:
+  type: 'RectanglePrisma'
+  position: [-12.158, -1.004, 4.002]
+  rpy: [0.0, -90.0, 16.177967]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate33:
+  type: 'RectanglePrisma'
+  position: [-8.518, 0.052, 4.1238]
+  rpy: [0.0, -90.0, 54.162347]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate34:
+  type: 'RectanglePrisma'
+  position: [-4.878, 5.092, 3.1998]
+  rpy: [0.0, -90.0, 54.162347]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate35:
+  type: 'RectanglePrisma'
+  position: [-1.238, 10.132, 2.2758]
+  rpy: [0.0, -90.0, 54.162347]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate36:
+  type: 'RectanglePrisma'
+  position: [2.402, 15.172, 1.3518]
+  rpy: [0.0, -90.0, -13.519687]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate37:
+  type: 'RectanglePrisma'
+  position: [6.744, 14.128, 1.668]
+  rpy: [0.0, -90.0, -26.565051]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate38:
+  type: 'RectanglePrisma'
+  position: [11.224, 11.888, 2.228]
+  rpy: [0.0, -90.0, -26.565051]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate39:
+  type: 'RectanglePrisma'
+  position: [15.704, 9.648, 2.788]
+  rpy: [0.0, -90.0, -47.176925]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate40:
+  type: 'RectanglePrisma'
+  position: [18.26, 6.89, 3.0964]
+  rpy: [0.0, -90.0, -123.690068]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate41:
+  type: 'RectanglePrisma'
+  position: [15.46, 2.69, 2.7044]
+  rpy: [0.0, -90.0, -123.690068]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate42:
+  type: 'RectanglePrisma'
+  position: [12.66, -1.51, 2.3124]
+  rpy: [0.0, -90.0, -123.690068]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate43:
+  type: 'RectanglePrisma'
+  position: [9.86, -5.71, 1.9204]
+  rpy: [0.0, -90.0, -144.361272]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate44:
+  type: 'RectanglePrisma'
+  position: [5.896, -8.552, 2.1298]
+  rpy: [0.0, -90.0, -153.434949]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate45:
+  type: 'RectanglePrisma'
+  position: [1.416, -10.792, 2.6058]
+  rpy: [0.0, -90.0, -153.434949]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate46:
+  type: 'RectanglePrisma'
+  position: [-3.064, -13.032, 3.0818]
+  rpy: [0.0, -90.0, -161.310193]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate47:
+  type: 'RectanglePrisma'
+  position: [-7.374, -14.49, 3.449]
+  rpy: [0.0, -90.0, 126.253838]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate48:
+  type: 'RectanglePrisma'
+  position: [-10.454, -10.29, 3.029]
+  rpy: [0.0, -90.0, 126.253838]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate49:
+  type: 'RectanglePrisma'
+  position: [-13.534, -6.09, 2.609]
+  rpy: [0.0, -90.0, 126.253838]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+Gate50:
+  type: 'RectanglePrisma'
+  position: [-16.614, -1.89, 2.189]
+  rpy: [0.0, -90.0, 126.253838]
+  width: 2.4
+  height: 2.4
+  marginW: 0.8
+  marginH: 0.8
+  length: 0.0
+  midpoints: 0
+  stationary: true
+

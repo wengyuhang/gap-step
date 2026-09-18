@@ -6,15 +6,31 @@
 #include <stdexcept>
 #include "drolib/planner/angle.hpp"
 #include "drolib/planner/traj_params.hpp"
+#include "drolib/solver/lbfgs.hpp"
 #include "drolib/solver/minco_snap.hpp"
 #include "drolib/system/quadrotor_manifold.hpp"
 
 namespace {
-void standard(drolib::TrajParams &p) {
+using raw_lbfgs_evaluate_t = double (*)(void *, int, const double *, double *);
+struct RawLbfgsContext { raw_lbfgs_evaluate_t evaluate; void *instance; int iterations = 0; };
+double rawLbfgsEvaluate(void *opaque, const Eigen::VectorXd &x, Eigen::VectorXd &g) {
+  auto *ctx = static_cast<RawLbfgsContext *>(opaque);
+  return ctx->evaluate(ctx->instance, x.size(), x.data(), g.data());
+}
+int rawLbfgsProgress(void *opaque, const Eigen::VectorXd &, const Eigen::VectorXd &,
+                     const double, const double, const int iteration, const int) {
+  static_cast<RawLbfgsContext *>(opaque)->iterations = iteration;
+  return 0;
+}
+void standard(drolib::TrajParams &p, const double penalty_scale = 1.0) {
+  if (!(penalty_scale > 0.0) || !std::isfinite(penalty_scale)) {
+    throw std::runtime_error("penalty scale must be finite and positive");
+  }
   p.piecesPerSegment=13; p.speedGuess=1; p.maxVelNorm=60; p.maxOmgXY=10;
   p.maxOmgZ=10; p.maxTiltedAngle=6.28; p.maxThr=5; p.minThr=.25;
   p.weightTime=1; p.weightEnergy=0; p.weightPos=0; p.weightVel=0;
-  p.weightOmg=1; p.weightRot=1; p.weightThr=1; p.smoothingEps=.01;
+  p.weightOmg=penalty_scale; p.weightRot=penalty_scale;
+  p.weightThr=penalty_scale; p.smoothingEps=.01;
   p.numConstPena=16; p.dynamicConstCheck=true; p.minNumCheck=8;
   p.maxNumCheck=32; p.checkTimeSec=.05;
   p.maxVelSqr=3600; p.maxOmgXYSqr=100; p.maxOmgZSqr=100;
@@ -22,6 +38,27 @@ void standard(drolib::TrajParams &p) {
   p.collectivtThrMean=10.5; p.collectivtThrRadi=9.5;
   p.collectivtThrRadiSqr=90.25;
   p.boundX<<-10000,10000; p.boundY<<-10000,10000; p.boundZ<<-10000,10000;
+}
+
+extern "C" int togt_released_lbfgs(
+    int n, double *x, double *cost, raw_lbfgs_evaluate_t evaluate, void *instance,
+    int memory, int past, double min_step, int max_linesearch, int max_iterations,
+    double rel_cost_tolerance, double rel_grad_tolerance, int *iterations) {
+  try {
+    if (n <= 0 || !x || !cost || !evaluate || !iterations) return -1;
+    Eigen::VectorXd values(n); for (int i=0;i<n;i++) values(i)=x[i];
+    drolib::lbfgs_parameter_t params;
+    params.mem_size=memory; params.past=past; params.min_step=min_step;
+    params.max_linesearch=max_linesearch; params.max_iterations=max_iterations;
+    params.delta=rel_cost_tolerance; params.g_epsilon=rel_grad_tolerance;
+    RawLbfgsContext context{evaluate, instance, 0};
+    double value=0.0;
+    const int status=drolib::lbfgs_optimize(values, value, rawLbfgsEvaluate,
+                                              nullptr, rawLbfgsProgress, &context, params);
+    for (int i=0;i<n;i++) x[i]=values(i);
+    *cost=value; *iterations=context.iterations;
+    return status;
+  } catch (...) { return -2; }
 }
 drolib::QuadParams quad_params() {
   drolib::QuadParams p; p.name="QuadA"; p.mass=1; p.inertia<<.005,.005,.01;
@@ -39,7 +76,12 @@ double integrate(const Eigen::VectorXd &T,const Eigen::MatrixX3d &C,
                  Eigen::MatrixX3d &gC,Eigen::VectorXd &gT) {
   double cost=0; drolib::ConstAngle yaw(0); Eigen::Matrix<double,8,6> b;
   for(int i=0;i<T.size();i++) { auto c=C.block<8,3>(8*i,0);
-    int M=std::min(std::max(int(T(i)/p.checkTimeSec),p.minNumCheck),p.maxNumCheck);
+    // A duration-dependent integer quadrature count makes the dynamic-window
+    // objective discontinuous whenever T crosses a sampling threshold.  Use
+    // the released maximum density for every candidate in both compared
+    // methods, keeping the objective differentiable while changing neither
+    // the penalty formula nor the L-BFGS stopping conditions.
+    int M=p.maxNumCheck;
     double frac=1.0/M, step=T(i)*frac;
     for(int j=0;j<=M;j++) { double t=j*step; beta(t,b);
       Eigen::Vector3d x[6]; for(int r=0;r<6;r++) x[r]=c.transpose()*b.col(r);
@@ -55,9 +97,43 @@ double integrate(const Eigen::VectorXd &T,const Eigen::MatrixX3d &C,
 }
 }
 
+int objective_gradient_impl(int n,const double *h0,const double *h1,
+ const double *pr,const double *tr,double *cost,double *gpr,double *gtr,
+ const double penalty_scale, char *error,int capacity) {
+ try {
+  if(n<1) throw std::runtime_error("invalid piece count");
+  Eigen::Matrix<double,3,4> head,tail;
+  for(int r=0;r<3;r++) for(int c=0;c<4;c++) {head(r,c)=h0[4*r+c];tail(r,c)=h1[4*r+c];}
+  Eigen::VectorXd T(n); for(int i=0;i<n;i++){T(i)=tr[i];if(!(T(i)>0))throw std::runtime_error("invalid duration");}
+  Eigen::Matrix3Xd P(3,n-1); for(int i=0;i<n-1;i++)for(int a=0;a<3;a++)P(a,i)=pr[3*i+a];
+  drolib::MincoSnap minco; minco.setConditions(head,tail,n); minco.setParameters(P,T);
+  drolib::TrajParams params; standard(params, penalty_scale); drolib::QuadManifold quad(quad_params());
+  Eigen::MatrixX3d gC=Eigen::MatrixX3d::Zero(8*n,3); Eigen::VectorXd gt0=Eigen::VectorXd::Zero(n);
+  *cost=integrate(T,minco.getCoeffs(),quad,params,gC,gt0)+T.sum();
+  Eigen::Matrix3Xd gp(3,n-1); Eigen::VectorXd gt(n); minco.propagateGrad(gC,gt0,gp,gt); gt.array()+=1;
+  for(int i=0;i<n-1;i++)for(int a=0;a<3;a++)gpr[3*i+a]=gp(a,i);
+  for(int i=0;i<n;i++)gtr[i]=gt(i); return 0;
+ } catch(const std::exception &e) {if(error&&capacity){std::strncpy(error,e.what(),capacity-1);error[capacity-1]=0;}return 1;}
+}
+
 extern "C" int togt_objective_gradient(int n,const double *h0,const double *h1,
  const double *pr,const double *tr,double *cost,double *gpr,double *gtr,
  char *error,int capacity) {
+  return objective_gradient_impl(n,h0,h1,pr,tr,cost,gpr,gtr,1.0,error,capacity);
+}
+
+extern "C" int togt_objective_gradient_weighted(int n,const double *h0,const double *h1,
+ const double *pr,const double *tr,double *cost,double *gpr,double *gtr,
+ const double penalty_scale, char *error,int capacity) {
+  return objective_gradient_impl(n,h0,h1,pr,tr,cost,gpr,gtr,penalty_scale,error,capacity);
+}
+
+// Same released MINCO/dynamics objective, additionally exposing the adjoint
+// with respect to the terminal PVAJ.  This is required by the rolling
+// right-boundary formulation; it does not alter the standard entry points.
+extern "C" int togt_objective_gradient_tail(
+ const int n,const double *h0,const double *h1,const double *pr,const double *tr,
+ double *cost,double *gpr,double *gtr,double *gtail,char *error,const int capacity) {
  try {
   if(n<1) throw std::runtime_error("invalid piece count");
   Eigen::Matrix<double,3,4> head,tail;
@@ -68,9 +144,12 @@ extern "C" int togt_objective_gradient(int n,const double *h0,const double *h1,
   drolib::TrajParams params; standard(params); drolib::QuadManifold quad(quad_params());
   Eigen::MatrixX3d gC=Eigen::MatrixX3d::Zero(8*n,3); Eigen::VectorXd gt0=Eigen::VectorXd::Zero(n);
   *cost=integrate(T,minco.getCoeffs(),quad,params,gC,gt0)+T.sum();
-  Eigen::Matrix3Xd gp(3,n-1); Eigen::VectorXd gt(n); minco.propagateGrad(gC,gt0,gp,gt); gt.array()+=1;
+  Eigen::Matrix3Xd gp(3,n-1); Eigen::VectorXd gt(n); Eigen::Matrix<double,3,4> gtail_mat;
+  minco.propagateGrad(gC,gt0,gp,gt,&gtail_mat); gt.array()+=1;
   for(int i=0;i<n-1;i++)for(int a=0;a<3;a++)gpr[3*i+a]=gp(a,i);
-  for(int i=0;i<n;i++)gtr[i]=gt(i); return 0;
+  for(int i=0;i<n;i++)gtr[i]=gt(i);
+  for(int r=0;r<3;r++)for(int c=0;c<4;c++)gtail[4*r+c]=gtail_mat(r,c);
+  return 0;
  } catch(const std::exception &e) {if(error&&capacity){std::strncpy(error,e.what(),capacity-1);error[capacity-1]=0;}return 1;}
 }
 

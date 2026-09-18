@@ -29,12 +29,15 @@ class ConvexDualCEMConfig:
     independent_time_std: float = 0.20
     common_time_std: float = 0.15
     spatial_std: float = 0.30
+    maximum_seconds: float | None = None
 
     def __post_init__(self):
         if not 0 < self.memory <= self.elite < self.population:
             raise ValueError("require 0 < memory <= elite < population")
         if self.maximum_rounds < 1 or self.post_zero_rounds < 0:
             raise ValueError("invalid round count")
+        if self.maximum_seconds is not None and self.maximum_seconds <= 0.0:
+            raise ValueError("maximum_seconds must be positive when supplied")
 
 
 def _canonicalize(x, objective):
@@ -124,6 +127,7 @@ def conditional_dual_cem(base, safety, seed_x, mode,
     """Search native variable-dimension ``[K,D]`` with full covariance."""
     if mode not in {"dynamic_only", "joint"}:
         raise ValueError("mode must be dynamic_only or joint")
+    started = time.perf_counter()
     mean, covariance, floor = _initial_distribution(seed_x, base, config)
     rng = np.random.default_rng(config.seed)
     seed = _evaluate(base, safety, _canonicalize(seed_x, base), 0, -1, mode)
@@ -131,10 +135,17 @@ def conditional_dual_cem(base, safety, seed_x, mode,
     rows, memory, summaries = [seed], [seed], []
     first_zero = None
     next_id = 1
+    timed_out = False
     for round_index in range(config.maximum_rounds):
+        if config.maximum_seconds is not None and time.perf_counter()-started >= config.maximum_seconds:
+            timed_out = True
+            break
         samples = rng.multivariate_normal(mean, covariance, size=config.population)
         current = []
         for sample in samples:
+            if config.maximum_seconds is not None and time.perf_counter()-started >= config.maximum_seconds:
+                timed_out = True
+                break
             x = _canonicalize(sample, base)
             row = _evaluate(base, safety, x, next_id, round_index, mode)
             row["latent"] = x.copy()
@@ -143,6 +154,8 @@ def conditional_dual_cem(base, safety, seed_x, mode,
             rows.append(row)
             if on_record is not None:
                 on_record(row)
+        if not current:
+            break
         ranked = _rank(memory+current, config, mode, safety.config.objective_weight)
         elite = ranked[:config.elite]
         elite_samples = np.asarray([row.get("latent", row["x"]) for row in elite])
@@ -159,11 +172,19 @@ def conditional_dual_cem(base, safety, seed_x, mode,
             "best_dynamic_integral": min(row["dynamic_integral"] for row in current),
             "best_safety_integral": min(row["safety_integral"] for row in current),
             "best_augmented_objective": min(row["augmented_objective"] for row in current),
+            "elapsed_seconds": time.perf_counter()-started,
+            "timed_out": timed_out,
         })
         if zero_count and first_zero is None:
             first_zero = round_index
         if first_zero is not None and round_index-first_zero >= config.post_zero_rounds:
             break
+        if timed_out:
+            break
+    if summaries:
+        summaries[-1]["timed_out"] = timed_out
+    elif timed_out:
+        summaries.append({"round": -1, "timed_out": True, "elapsed_seconds": time.perf_counter()-started})
     return rows, _rank(rows, config, mode, safety.config.objective_weight), summaries
 
 

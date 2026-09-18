@@ -16,11 +16,14 @@ import threading
 import time
 
 import numpy as np
+import torch
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent))
 _TELEOP_SITE = next((HERE / ".runtime/teleop-venv/lib").glob("python*/site-packages"))
 sys.path.insert(0, str(_TELEOP_SITE))
 from pymavlink import mavutil
+from convex_timevarying_window.online_safe_mppi.experiment import Course
 
 
 CONTAINER = "convex_seven_togt_experiment"
@@ -153,12 +156,20 @@ def parse_contacts(path: Path) -> dict:
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--reference", type=Path, default=DEFAULT_REFERENCE)
+    parser.add_argument("--final-gate-guard", action="store_true",
+                        help="Pause TOGT phase and centre on W7 before crossing.")
+    parser.add_argument("--guard-lead", type=float, default=2.40,
+                        help="Reference seconds before W7 to enter the guard.")
     args = parser.parse_args(argv)
     reference_path = args.reference.resolve()
     run_dir = RESULTS / datetime.now().strftime("%Y%m%d_%H%M%S")
     run_dir.mkdir(parents=True)
     reference = np.load(reference_path)
     reference_duration = float(reference["time"][-1])
+    traversal_times = np.asarray(reference.get("traversal_times", []), dtype=float)
+    if args.final_gate_guard and len(traversal_times) != 7:
+        raise RuntimeError("the final-gate guard requires seven traversal times")
+    course = Course(torch.device("cpu")) if args.final_gate_guard else None
     for name, value in PARAMETERS.items():
         set_parameter(name, value)
 
@@ -209,6 +220,14 @@ def main(argv=None) -> None:
     latest_local = local
     last_heartbeat = 0.0
     next_send = time.monotonic()
+    guard_mode = "reference"
+    guard_events = []
+    reference_phase = 0.0
+    previous_course_time = 0.0
+    guarded_crossing = None
+    previous_final_local = None
+    completion_course_time = None
+    controller_cycle_ms = []
     try:
         # Stream the start setpoint before switching to Offboard, as PX4 requires.
         for _ in range(120):
@@ -269,9 +288,74 @@ def main(argv=None) -> None:
                 f"x500 did not settle at TOGT start: error={preparation_error:.3f} m, "
                 f"speed={preparation_speed:.3f} m/s"
             )
-        while clock.value <= MOTION_START_S + reference_duration:
+        maximum_end_time = MOTION_START_S + reference_duration + 18.0
+        while clock.value <= maximum_end_time:
+            controller_started = time.perf_counter()
             relative_t = max(0.0, clock.value - MOTION_START_S)
-            position_enu, velocity_enu, acceleration_enu = interpolate(reference, relative_t)
+            course_step = max(0.0, relative_t - previous_course_time)
+            previous_course_time = relative_t
+            if guard_mode in ("reference", "resume"):
+                reference_phase = min(reference_duration, reference_phase + course_step)
+            actual_enu = origin_enu + np.asarray(
+                (latest_local.y, latest_local.x, -latest_local.z), dtype=float)
+            actual_velocity_enu = np.asarray(
+                (latest_local.vy, latest_local.vx, -latest_local.vz), dtype=float)
+            if args.final_gate_guard and guard_mode == "reference" \
+                    and reference_phase >= traversal_times[-1] - args.guard_lead:
+                guard_mode = "stage"
+                guard_events.append({"event": "stage", "course_time_s": relative_t,
+                                     "reference_phase_s": reference_phase})
+
+            if args.final_gate_guard and guard_mode in ("stage", "cross"):
+                assert course is not None
+                center, rotation, center_rate, _ = course.pose(6, relative_t)
+                local_gate = rotation.T @ (actual_enu - center)
+                local_velocity = rotation.T @ (actual_velocity_enu - center_rate)
+                if guard_mode == "stage":
+                    position_enu = center - 1.50 * rotation[:, 2]
+                    velocity_enu = center_rate
+                    acceleration_enu = np.zeros(3)
+                    if (np.linalg.norm(local_gate[:2]) < 0.22
+                            and abs(local_gate[2] + 1.50) < 0.35
+                            and np.linalg.norm(local_velocity[:2]) < 0.80):
+                        guard_mode = "cross"
+                        guard_events.append({"event": "cross_command", "course_time_s": relative_t,
+                                             "local_position_m": local_gate.tolist()})
+                else:
+                    position_enu = center + 1.80 * rotation[:, 2]
+                    velocity_enu = center_rate + 3.0 * rotation[:, 2]
+                    acceleration_enu = np.zeros(3)
+                    if previous_final_local is not None \
+                            and previous_final_local[2] <= 0.0 < local_gate[2]:
+                        alpha = (-previous_final_local[2]
+                                 / max(local_gate[2] - previous_final_local[2], 1.0e-9))
+                        crossing_local = ((1.0 - alpha) * previous_final_local
+                                          + alpha * local_gate)
+                        guarded_crossing = {
+                            "course_time_s": relative_t - (1.0 - alpha) * course_step,
+                            "local_xy_m": crossing_local[:2].tolist(),
+                        }
+                    if local_gate[2] > 1.0 and np.linalg.norm(local_gate[:2]) < 0.55:
+                        guard_mode = "resume"
+                        reference_phase = min(reference_duration, traversal_times[-1] + 1.0)
+                        guard_events.append({"event": "resume", "course_time_s": relative_t,
+                                             "reference_phase_s": reference_phase})
+                previous_final_local = local_gate.copy()
+            else:
+                position_enu, velocity_enu, acceleration_enu = interpolate(
+                    reference, reference_phase)
+            if reference_phase >= reference_duration and guard_mode in ("reference", "resume"):
+                guard_mode = "finish"
+                guard_events.append({"event": "finish_hold", "course_time_s": relative_t})
+            if guard_mode == "finish":
+                goal_error = float(np.linalg.norm(actual_enu - reference["position_enu"][-1]))
+                goal_speed = float(np.linalg.norm(actual_velocity_enu))
+                if goal_error < 0.55 and goal_speed < 1.0:
+                    completion_course_time = relative_t
+                    guard_events.append({"event": "complete", "course_time_s": relative_t,
+                                         "goal_error_m": goal_error,
+                                         "goal_speed_mps": goal_speed})
+                    break
             position_ned = enu_to_ned(position_enu, position=True, origin_enu=origin_enu)
             velocity_ned = enu_to_ned(velocity_enu, position=False, origin_enu=origin_enu)
             acceleration_ned = enu_to_ned(acceleration_enu, position=False, origin_enu=origin_enu)
@@ -282,6 +366,7 @@ def main(argv=None) -> None:
             if now >= next_send:
                 send_setpoint(link, position_ned, velocity_ned, acceleration_ned, yaw)
                 next_send = now + 0.008
+            controller_cycle_ms.append((time.perf_counter() - controller_started) * 1000.0)
             if now - last_heartbeat >= 0.5:
                 send_gcs_heartbeat(link)
                 last_heartbeat = now
@@ -334,6 +419,17 @@ def main(argv=None) -> None:
         "passed_execution": bool(flight_rows),
         "reference": str(reference_path.relative_to(HERE)),
         "reference_flight_time_s": reference_duration,
+        "actual_course_time_s": completion_course_time,
+        "final_gate_guard_enabled": args.final_gate_guard,
+        "final_gate_guard_events": guard_events,
+        "guarded_final_crossing": guarded_crossing,
+        "controller_cycle_ms": {
+            "samples": len(controller_cycle_ms),
+            "mean": float(np.mean(controller_cycle_ms)) if controller_cycle_ms else None,
+            "p99": float(np.percentile(controller_cycle_ms, 99)) if controller_cycle_ms else None,
+            "maximum": float(np.max(controller_cycle_ms)) if controller_cycle_ms else None,
+            "under_100ms": bool(controller_cycle_ms and max(controller_cycle_ms) < 100.0),
+        },
         "motion_start_sim_time_s": MOTION_START_S,
         "origin_enu_m": origin_enu.tolist(),
         "preparation_error_m": preparation_error,

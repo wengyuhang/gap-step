@@ -11,3 +11,8 @@ target_link_libraries(PeriodicGateMotion PRIVATE
   gz-plugin2::gz-plugin2
   gz-sim8::gz-sim8)
 
+add_library(TrajectoryReplay SHARED src/TrajectoryReplay.cc)
+target_compile_features(TrajectoryReplay PRIVATE cxx_std_17)
+target_link_libraries(TrajectoryReplay PRIVATE
+  gz-plugin2::gz-plugin2
+  gz-sim8::gz-sim8)

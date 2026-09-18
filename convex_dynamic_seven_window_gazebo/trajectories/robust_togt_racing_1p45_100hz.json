@@ -1,0 +1,49 @@
+{
+  "source": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/trajectories/our_method_x500_accepted_100hz.npz",
+  "output": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/trajectories/robust_togt_racing_1p45_100hz.npz",
+  "time_scale": 1.45,
+  "bump_half_width_s": 1.7,
+  "flight_time_s": 41.79263025953017,
+  "path_length_m": 204.05376705572604,
+  "maximum_speed_mps": 8.611267511593143,
+  "maximum_acceleration_mps2": 6.30057231638217,
+  "maximum_jerk_mps3": 9.393186256961531,
+  "maximum_snap_mps4": 29.456114537879735,
+  "corrections": [
+    {
+      "gate": 1,
+      "crossing_time_s": 4.654582757110873,
+      "maximum_warp_m": 0.7444815819705248
+    },
+    {
+      "gate": 2,
+      "crossing_time_s": 11.185330711726792,
+      "maximum_warp_m": 0.9964454235048954
+    },
+    {
+      "gate": 3,
+      "crossing_time_s": 15.443375005123993,
+      "maximum_warp_m": 0.5802626358809383
+    },
+    {
+      "gate": 4,
+      "crossing_time_s": 21.70989836616535,
+      "maximum_warp_m": 0.4153021351054514
+    },
+    {
+      "gate": 5,
+      "crossing_time_s": 25.561177155290736,
+      "maximum_warp_m": 0.5274564517351614
+    },
+    {
+      "gate": 6,
+      "crossing_time_s": 32.99303970090242,
+      "maximum_warp_m": 0.9137850009826946
+    },
+    {
+      "gate": 7,
+      "crossing_time_s": 36.56745674533109,
+      "maximum_warp_m": 0.2618420890728452
+    }
+  ]
+}
