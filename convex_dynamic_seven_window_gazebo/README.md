@@ -127,7 +127,19 @@ conda run --no-capture-output -n wyh python analyze_guarded_racing_run.py \
 
 `1.20×` 版实际时间 `37.108 s`，但 W4 有 1 次旋翼接触，按协议失败；`1.25×` 连续两次零接触，其中最后一次使用严格终点计时。因此当前速度边界保留在 `1.20×` 失败与 `1.25×` 成功之间，不把失败圈当成竞速结果。
 
-## 无控制误差的 Gazebo 回放
+## 2026-09-18：统一在线规划入口
+
+新的[三窗口滚动规划](../convex_timevarying_window/receding_gate_racing/README.md)位于独立方法目录。
+它复用本目录的真实 PX4/x500 场景，但不读取上述离线参考、不启用末门守门器。
+含房间约束的 v10 原赛道 `33.640 s`，相位/布局变体 `34.416/32.356 s`，均完成七门零接触及房间边界验收，
+完整在线规划周期最大 `77.415 ms`。这是有限场景仿真证据，非连续域安全保证。
+
+本轮发现镜像的 `SENS_GPS0_DELAY=110 ms` 与 Gazebo 当前时刻测量不匹配；适配器将
+`SENS_GPS0_DELAY/SENS_GPS1_DELAY` 设为 0，并保存全部飞控参数。真值仅用于事后 ULog 审计。
+中心点消融为 `30.652 s`，因此尚未证明自由选点带来圈速优势。
+完整失败记录与复现命令见[实验报告](../convex_timevarying_window/receding_gate_racing/RESULTS.md)。
+
+## 无控制误差的 Gazebo 回放（历史实验）
 
 `px4_kinematic_replay.py` 使用同一官方 x500 SDF 的动态刚体与七扇动态门框，但不启动 PX4 控制器。它在每个 `4 ms` 物理步直接写入冻结轨迹的位姿、线速度和机体角速度；门框 contact sensor 发现首次接触后以 UDP 通知插件永久释放模型，之后由 Gazebo 的重力与刚体碰撞响应决定运动。该实验检验名义几何和 Gazebo 碰撞口径，不能作为 PX4 闭环结论。
 
