@@ -51,13 +51,18 @@ def summarize(path):
 def main():
     p=argparse.ArgumentParser();p.add_argument('--outdir',type=Path,required=True)
     p.add_argument('--method',choices=['polynomial','proposed','rl'],required=True)
-    p.add_argument('--stage',choices=['static','development','pilot','matrix'],default='matrix')
+    p.add_argument('--stage',choices=['static','development','pilot','matrix','center_motion'],default='matrix')
     p.add_argument('--checkpoint',type=Path);p.add_argument('--max-flight-time',type=float,default=60.)
     a=p.parse_args()
     if a.method=='rl' and a.checkpoint is None:p.error('RL requires a trained checkpoint')
     a.outdir.mkdir(parents=True,exist_ok=False)
     if a.stage=='static':conditions=[(1,0,0,.4)]
     elif a.stage=='development':conditions=[(1,1,1,.4),(10,4,4,.4)]
+    elif a.stage=='center_motion':
+        if a.method!='polynomial':p.error('center_motion currently matches the 2023 polynomial baseline only')
+        conditions=[(rate,translation,1,phase)
+                    for rate in (1,3,6,10) for translation in (1,2,4)
+                    for phase in (0.,2*math.pi/3)]
     else:
         base=[(r,s,s) for r in (1,10) for s in (1,2,4)]+[(10,4,1),(10,1,4)]
         if a.stage=='pilot':base=[(1,1,1),(10,1,1),(10,4,4)]
@@ -78,28 +83,43 @@ def main():
     (a.outdir/'protocol.json').write_text(json.dumps(protocol,indent=2)+'\n')
     rows=[]
     for index,(rate,translation,rotation,phase) in enumerate(conditions):
-        for f in sources:
-            if hashes[str(f)]!=hashlib.sha256(f.read_bytes()).hexdigest():raise RuntimeError(f'Frozen source changed: {f}')
-        if a.checkpoint and checkpoint_hash!=hashlib.sha256(a.checkpoint.read_bytes()).hexdigest():raise RuntimeError('Frozen checkpoint changed')
-        path=a.outdir/f'case_{index:02d}_r{rate}_t{translation}_a{rotation}'
-        common=['--outdir',str(path),'--motion-rate',str(rate),'--translation-scale',str(translation),
-                '--rotation-scale',str(rotation),'--phase',str(phase),'--max-flight-time',str(a.max_flight_time)]
-        if a.method=='rl':
-            cmd=[sys.executable,'-u','-m','复现.agile_generalist_rl_2026.px4','--checkpoint',str(a.checkpoint),*common]
-        else:
-            cmd=[sys.executable,'-u','-m','convex_timevarying_window.receding_gate_racing.px4_experiment',
-                 '--launch','--tracking-preview','.05',('--paper-polynomial' if a.method=='polynomial' else '--checked'),*common]
-        print('START',index,cmd,flush=True);tick=time.perf_counter()
-        with (a.outdir/f'case_{index:02d}_console.log').open('w') as console:
-            try:
-                process=subprocess.run(cmd,stdout=console,stderr=subprocess.STDOUT,timeout=240)
-                returncode=process.returncode
-            except subprocess.TimeoutExpired:returncode=None
-        if (path/'result.json').exists():row=summarize(path)
-        else:row={'method':a.method,'run':str(path),'physical_success':False,'realtime_success':False,'failure':'missing_result','returncode':returncode}
-        row['wall_s']=time.perf_counter()-tick;rows.append(row)
-        (a.outdir/'summary.json').write_text(json.dumps(rows,indent=2)+'\n')
-        print('RESULT',json.dumps(row),flush=True)
+        for attempt in ((1,2) if a.stage=='center_motion' else (1,)):
+            for f in sources:
+                if hashes[str(f)]!=hashlib.sha256(f.read_bytes()).hexdigest():raise RuntimeError(f'Frozen source changed: {f}')
+            if a.checkpoint and checkpoint_hash!=hashlib.sha256(a.checkpoint.read_bytes()).hexdigest():raise RuntimeError('Frozen checkpoint changed')
+            suffix=f'_p{0 if phase==0. else 1}_attempt{attempt}' if a.stage=='center_motion' else ''
+            path=a.outdir/f'case_{index:02d}_r{rate}_t{translation}_a{rotation}{suffix}'
+            common=['--outdir',str(path),'--motion-rate',str(rate),'--translation-scale',str(translation),
+                    '--rotation-scale',str(rotation),'--phase',str(phase),'--max-flight-time',str(a.max_flight_time)]
+            if a.method=='rl':
+                cmd=[sys.executable,'-u','-m','复现.agile_generalist_rl_2026.px4','--checkpoint',str(a.checkpoint),*common]
+            else:
+                cmd=[sys.executable,'-u','-m','convex_timevarying_window.receding_gate_racing.px4_experiment',
+                     '--launch','--tracking-preview','.05',('--paper-polynomial' if a.method=='polynomial' else '--checked'),*common]
+            print('START',index,attempt,cmd,flush=True);tick=time.perf_counter()
+            console_path=a.outdir/(f'case_{index:02d}{suffix}_console.log')
+            with console_path.open('w') as console:
+                try:
+                    process=subprocess.run(cmd,stdout=console,stderr=subprocess.STDOUT,timeout=240)
+                    returncode=process.returncode
+                except subprocess.TimeoutExpired:returncode=None
+            if (path/'result.json').exists():
+                result=json.loads((path/'result.json').read_text())
+                infrastructure_failure=result.get('failure')=="RuntimeError('arm failed')"
+                row=summarize(path) if not infrastructure_failure else {
+                    'method':a.method,'run':str(path),'physical_success':False,
+                    'realtime_success':False,'failure':result['failure']}
+            else:
+                infrastructure_failure=False
+                row={'method':a.method,'run':str(path),'physical_success':False,
+                     'realtime_success':False,'failure':'missing_result'}
+            row.update(index=index,attempt=attempt,phase_id=0 if phase==0. else 1,
+                       infrastructure_failure=infrastructure_failure,returncode=returncode,
+                       wall_s=time.perf_counter()-tick)
+            rows.append(row)
+            (a.outdir/'summary.json').write_text(json.dumps(rows,indent=2)+'\n')
+            print('RESULT',json.dumps(row),flush=True)
+            if not infrastructure_failure:break
     print('DONE',a.outdir,flush=True)
 
 

@@ -14,6 +14,8 @@ class Config:
     feedback_geometry_reserve: float = 0.  # Candidate tightening; NEVER changes gate event slab.
     staged_entry: bool = False  # Explicit developmental ablation, not default.
     terminal_velocity_cost: bool = False
+    passage_event_tail: bool = False  # CTBR only: full exit + checked handover tail.
+    axis_workspace_bounds: bool = False  # Same room, directional interval bound.
     frame_offset: float = .065
     frame_thickness: float = .085
     speed: float = 12.

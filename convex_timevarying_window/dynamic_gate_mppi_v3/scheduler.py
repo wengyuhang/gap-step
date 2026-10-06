@@ -49,6 +49,10 @@ class Scheduler:
         # Repeated observations are coalesced, never restart a busy solve.
         self.tracking_pending = True
 
+    def flag_prediction_warning(self):
+        """Far-horizon infeasibility requests a solve, not autonomous flight."""
+        self.pending = True
+
     def observe(self, now, interval_times, clearances, crossing, first_gate):
         cfg = self.config
         if self.last_observation is not None and now-self.last_observation < cfg.dt-1e-9:

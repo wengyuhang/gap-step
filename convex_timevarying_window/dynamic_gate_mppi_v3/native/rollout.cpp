@@ -88,6 +88,48 @@ extern "C" void v3_integrate(double *s,const double *u,double dt,int substeps){
  for(int i=0;i<substeps;i++)v3::step(s,u,dt/substeps);
 }
 
+#ifndef V3_GPU
+// CPU FP64 revalidation of ONE retained feedback policy. Bulk exploration
+// remains CUDA. Algebra is identical to FeedbackManeuver.command.
+extern "C" int v3_feedback_replay(int count,const double *initial,const double *targets,
+ const double *feedforward,const double *previous,double *commands){
+ using namespace v3;
+ double s[17],prev[4];std::memcpy(s,initial,sizeof(s));
+ if(previous)std::memcpy(prev,previous,sizeof(prev));
+ for(int k=0;k<count;k++){
+  const double *d=targets+17*k,*ff=feedforward+4*k;
+  double R[9],Rd[9],E[9]={};rotation(s+6,R);rotation(d+6,Rd);
+  double pe=0.,ve=0.,we=0.;
+  for(int a=0;a<3;a++){pe+=sq(d[a]-s[a]);ve+=sq(d[3+a]-s[3+a]);we+=sq(d[10+a]-s[10+a]);}
+  for(int i=0;i<3;i++)for(int j=0;j<3;j++)for(int a=0;a<3;a++)E[3*i+j]+=Rd[3*a+i]*R[3*a+j];
+  if(pe>sq(.35)||ve>1.||we>sq(1.5)||(E[0]+E[4]+E[8]-1.)/2.<std::cos(20.*3.141592653589793/180.))return 0;
+  double correction[3],force[3],world_rate[3]={},body_z[3]={},body_c[3]={};
+  double err[3]={.5*(E[7]-E[5]),.5*(E[2]-E[6]),.5*(E[3]-E[1])};
+  for(int a=0;a<3;a++){
+   correction[a]=mass*(2.*(d[a]-s[a])+2.8*(d[3+a]-s[3+a]));
+   force[a]=Rd[3*a+2]*ff[0]+correction[a];
+   for(int j=0;j<3;j++)world_rate[a]+=Rd[3*a+j]*ff[1+j];
+  }
+  for(int a=0;a<3;a++)for(int j=0;j<3;j++){
+   body_z[a]+=R[3*j+a]*Rd[3*j+2];body_c[a]+=R[3*j+a]*correction[j];
+  }
+  double u[4]={};for(int a=0;a<3;a++)u[0]+=force[a]*R[3*a+2];
+  u[0]=std::clamp(u[0],4*kf*150.*150.,4*maxf);
+  for(int a=0;a<3;a++){
+   double rate=-5.*err[a]+5.*(body_z[(a+1)%3]*body_c[(a+2)%3]-body_z[(a+2)%3]*body_c[(a+1)%3])/std::max(ff[0],1.);
+   for(int j=0;j<3;j++)rate+=R[3*j+a]*world_rate[j];
+   u[1+a]=std::clamp(rate,-3.,3.);
+  }
+  for(int a=0;a<4;a++){
+   if(k||previous)u[a]=std::clamp(u[a],prev[a]-(a? .16:6.4),prev[a]+(a? .16:6.4));
+   commands[4*k+a]=prev[a]=u[a];
+  }
+  for(int j=0;j<4;j++)step(s,u,.005);
+ }
+ return 1;
+}
+#endif
+
 // Feedback only constructs candidates. No candidate bypasses hard admission.
 namespace v3 {
 void feedback(double *s,const double *pd,const double *vd,const double *ad,
@@ -272,16 +314,16 @@ extern "C" void v3_guided(int batch,int gates,const double *initial,const double
 extern "C" void v3_rollout(int batch,int steps,int gates,const double *initial,
  const double *controls,const double *poses,const double *geom,const double *frame_speeds,
  const double *signs,const double *guides,const double *cfg,int first,int crossing,
- double *states,double *clearances,int *valid,int *indices,double *race,int *phases,int *reasons){
+ double *states,double *clearances,int *valid,int *indices,double *race,int *phases,int *reasons,int *near_valid){
  using namespace v3;
  // geometry step .01, control step .02, integration .005; configuration wrapper checks these.
  const double h=.01,acc_bound=4*maxf/mass+g+4*8.06428e-5*1000/mass*cfg[3];
  #pragma omp parallel for num_threads(4) if(batch >= 4)
  for(int b=0;b<batch;b++){
   double s[17];std::memcpy(s,initial,17*sizeof(double));int gate=first,phase=crossing;
-  bool newly_entered=false;
+  bool newly_entered=false;int end=steps,first_exit=-1;
   double *path=states+b*(steps+1)*17;std::memcpy(path,s,17*sizeof(double));
-  valid[b]=1;reasons[b]=0;race[b]=0;indices[b*(steps+1)]=gate;
+  valid[b]=1;near_valid[b]=0;reasons[b]=0;race[b]=0;indices[b*(steps+1)]=gate;
   phases[b*(steps+1)]=phase;
   for(int a=0;a<17;a++)if(!std::isfinite(s[a])){valid[b]=0;reasons[b]|=256;}
   for(int a=13;a<17;a++)if(s[a]<0||s[a]>1000.){valid[b]=0;reasons[b]|=64;}
@@ -317,7 +359,8 @@ extern "C" void v3_rollout(int batch,int steps,int gates,const double *initial,
    for(int a=0;a<3;a++){
     double room=std::min(std::min(old[a]-cfg[6+a],s[a]-cfg[6+a]),
                          std::min(cfg[9+a]-old[a],cfg[9+a]-s[a]));
-    remaining=std::min(remaining,room-cfg[1]-.5*speed_bound*h);
+    double room_speed=cfg[19]>0?std::abs(old[3+a])+acc_bound*h:speed_bound;
+    remaining=std::min(remaining,room-cfg[1]-.5*room_speed*h);
    }
    clearances[b*steps+k]=remaining;
    if(!(remaining>0)){valid[b]=0;reasons[b]|=1;}
@@ -382,6 +425,23 @@ extern "C" void v3_rollout(int batch,int steps,int gates,const double *initial,
    }
    std::memcpy(path+(k+1)*17,s,17*sizeof(double));indices[b*(steps+1)+k+1]=gate;
    phases[b*(steps+1)+k+1]=phase;
+   if(k==9)near_valid[b]=valid[b]; // Before terminal/full-passage conditions.
+#if V3_CTBR
+   if(cfg[17]>0){
+    if(gate>first && first_exit<0)first_exit=k+1;
+    // Keep ALL physical and task checks through a complete short extension.
+    // Unexecuted distant tails are not part of this local passage contract.
+    if(first_exit>=0 && k+1>=2*((first_exit+int(cfg[18])+1)/2)){
+     end=k+1;
+     for(int j=end+1;j<=steps;j++){
+      std::memcpy(path+j*17,s,17*sizeof(double));
+      indices[b*(steps+1)+j]=gate;phases[b*(steps+1)+j]=phase;
+      clearances[b*steps+j-1]=remaining;
+     }
+     break;
+    }
+   }
+#endif
   }
   // Admission needs a COMPLETE exit witness. A still-in-gate prediction is
   // not executable merely because its prefix has positive clearance.
@@ -396,7 +456,7 @@ extern "C" void v3_rollout(int batch,int steps,int gates,const double *initial,
    // Terminal entry-side viability proxy: preserve enough normal braking
    // distance when a full passage has NOT yet been demonstrated. This is
    // not a command to stop, nor a formal quadrotor invariant-set proof.
-   const double *pose=poses+(steps*gates+gate)*12;
+   const double *pose=poses+(end*gates+gate)*12;
    const double *before_pose=pose-gates*12;
    double q[3],before_q[3],previous_p[3];local(s,pose,q);
    for(int a=0;a<3;a++)previous_p[a]=s[a]-.01*s[3+a];
@@ -409,7 +469,7 @@ extern "C" void v3_rollout(int batch,int steps,int gates,const double *initial,
   // Terminal cost-to-go proxy: transverse kinetic energy is distance that
   // must be spent braking before passage. Do not reward fast orbiting.
   if(gate<gates){
-   const double *target=guides+(steps*(gates+1)+gate)*3;
+   const double *target=guides+(end*(gates+1)+gate)*3;
    double delta[3],length=0.,along=0.,speed2=0.;
    for(int a=0;a<3;a++){delta[a]=target[a]-s[a];length+=sq(delta[a]);speed2+=sq(s[3+a]);}
    length=std::sqrt(length);

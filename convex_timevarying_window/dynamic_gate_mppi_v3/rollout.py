@@ -26,7 +26,7 @@ def native(controls=50,ctbr=False):
     lib.v3_integrate.restype = None
     lib.v3_guided.argtypes = [ctypes.c_int,ctypes.c_int]+[ptr]*4+[ctypes.c_int,ctypes.c_int,ptr,ptr]
     lib.v3_guided.restype = None
-    lib.v3_rollout.argtypes = [ctypes.c_int]*3 + [ptr]*8 + [ctypes.c_int]*2 + [ptr]*7
+    lib.v3_rollout.argtypes = [ctypes.c_int]*3 + [ptr]*8 + [ctypes.c_int]*2 + [ptr]*8
     lib.v3_rollout.restype = None
     return lib
 
@@ -40,6 +40,8 @@ class Batch:
     race: np.ndarray
     phases: np.ndarray
     rejection_bits: np.ndarray | None = None
+    end_steps: np.ndarray | None = None
+    near_valid: np.ndarray | None = None
 
 
 class Rollout:
@@ -62,9 +64,10 @@ class Rollout:
                 if len(f.physical_vertices) > 14: raise ValueError("native frame supports at most 14 sides")
                 self.geom[i, :3] = [1, 0, len(f.physical_vertices)]
                 self.geom[i, 3:3+2*len(f.physical_vertices)] = f.physical_vertices.ravel()
+        from .passage_contract import PASSAGE_TAIL_STEPS
         self.cfg = np.array([config.radius, config.error_margin, config.frame_thickness,
                              config.speed, config.acceleration, np.cos(np.deg2rad(config.tilt)),
-                             *config.lower, *config.upper, *track.goal,config.feedback_geometry_reserve,float(config.staged_entry)])
+                             *config.lower, *config.upper, *track.goal,config.feedback_geometry_reserve,float(config.staged_entry),float(config.passage_event_tail),PASSAGE_TAIL_STEPS,float(config.axis_workspace_bounds)])
         self.frame_speeds = np.ascontiguousarray(self.geometry.frame_speeds[list(track.order)])
 
     def prepare(self, now, local_points=None):
@@ -99,11 +102,14 @@ class Rollout:
         valid = np.empty(n, dtype=np.int32); indices = np.empty((n, ns+1), dtype=np.int32); race = np.empty(n)
         phases = np.empty((n, ns+1), dtype=np.int32)
         reasons = np.empty(n,dtype=np.int32)
+        near_valid = np.empty(n,dtype=np.int32)
         arrays = [x, u, poses, self.geom, self.frame_speeds, self.signs, guides, self.cfg]
         self.lib.v3_rollout(n, ns, len(self.track.order), *(a.ctypes.data for a in arrays),
                             first, int(crossing), states.ctypes.data, clear.ctypes.data,
-                            valid.ctypes.data, indices.ctypes.data, race.ctypes.data, phases.ctypes.data,reasons.ctypes.data)
-        return Batch(states, clear, valid.astype(bool), indices, race, phases,reasons)
+                            valid.ctypes.data, indices.ctypes.data, race.ctypes.data, phases.ctypes.data,reasons.ctypes.data,near_valid.ctypes.data)
+        from .passage_contract import checked_end_steps
+        ends=checked_end_steps(indices,first,self.ctbr and self.config.passage_event_tail,np)
+        return Batch(states, clear, valid.astype(bool), indices, race, phases,reasons,ends,near_valid.astype(bool))
 
     def integrate(self, state, controls, dt=.02):
         state = np.array(state, dtype=np.float64, copy=True)

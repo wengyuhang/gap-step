@@ -16,12 +16,14 @@ def prefix_violation(model, states, times, limits=None, geometry=None):
     return None
 
 
-def feedback_prefix(model,policy,state,now,duration=.1):
+def feedback_prefix(model,policy,state,now,duration=.1,previous=None):
     """Recheck the existing policy with the actual 100 Hz feedback hold."""
     states=[state.copy()];times=now+np.arange(int(round(duration/.01))+1)*.01
+    limited=previous is not None
     for t in times[:-1]:
-        u=policy.command(states[-1],float(t))
+        u=policy.command(states[-1],float(t),previous,.01) if limited else policy.command(states[-1],float(t))
         states.append(model.integrate(states[-1],u,.01))
+        previous=u
     return np.asarray(states),times
 
 

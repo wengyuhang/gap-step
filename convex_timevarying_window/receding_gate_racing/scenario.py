@@ -1,6 +1,7 @@
 """Apply the same held-out course changes to the planner and Gazebo."""
 from dataclasses import replace
 from pathlib import Path
+import os
 import subprocess
 import time
 import xml.etree.ElementTree as ET
@@ -47,6 +48,12 @@ def write_variant_world(track, assets, outdir):
 def launch_variant(track, assets, outdir):
     target=write_variant_world(track,assets,outdir)
     container='convex_seven_togt_experiment'
+    gui=os.environ.get('GZ_SHOW_GUI')=='1'
+    if gui:
+        display=os.environ.get('DISPLAY')
+        if not display or not Path(f"/tmp/.X11-unix/X{display.rsplit(':',1)[-1].split('.')[0]}").is_socket():
+            raise RuntimeError('Gazebo GUI requested but DISPLAY/X11 socket is unavailable')
+        subprocess.run(['xhost','+si:localuser:root'],check=True,stdout=subprocess.DEVNULL)
     # This is the same dedicated experiment target as the existing launcher.
     subprocess.run(['docker','rm','-f',container],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
     time.sleep(2.)
@@ -56,9 +63,15 @@ def launch_variant(track, assets, outdir):
              '--env','PX4_GZ_STANDALONE=1','--env','PX4_GZ_WORLD=convex_seven_dynamic_px4_togt',
              '--env','PX4_GZ_MODEL_POSE=-16,4,-6,0,0,0',
              '--volume',f'{assets.resolve()}:/workspace:ro',
-             '--volume',f'{target}:/workspace/convex_seven_dynamic_px4_togt.sdf:ro',
-             '--workdir','/opt/px4-gazebo','--entrypoint','bash','px4io/px4-sitl-gazebo:latest','-lc',
-             'gz sim -s -r -v 2 /workspace/convex_seven_dynamic_px4_togt.sdf >/tmp/gazebo.log 2>&1 & exec /opt/px4-gazebo/bin/px4-gazebo -d .']
+             '--volume',f'{target}:/workspace/convex_seven_dynamic_px4_togt.sdf:ro']
+    if gui:
+        command+=['--env',f'DISPLAY={display}','--env','QT_X11_NO_MITSHM=1',
+                  '--volume','/tmp/.X11-unix:/tmp/.X11-unix:rw']
+        if Path('/dev/dri').exists():command+=['--device','/dev/dri']
+    shell='gz sim -s -r -v 2 /workspace/convex_seven_dynamic_px4_togt.sdf >/tmp/gazebo.log 2>&1 & '
+    if gui:shell+='gz sim -g -v 3 >/tmp/gazebo_gui.log 2>&1 & '
+    shell+='exec /opt/px4-gazebo/bin/px4-gazebo -d .'
+    command+=['--workdir','/opt/px4-gazebo','--entrypoint','bash','px4io/px4-sitl-gazebo:latest','-lc',shell]
     subprocess.run(command,check=True,stdout=subprocess.DEVNULL)
     for _ in range(40):
         status=subprocess.run(['docker','exec',container,'/opt/px4-gazebo/bin/px4-commander','status'],capture_output=True)

@@ -8,6 +8,11 @@
 
 两者均为有披露差异的独立实现，不是作者官方代码。协议见[PROTOCOL.md](PROTOCOL.md)。
 
+2026-09-23 的 2023 Wang 方法与当前 checked 方法的 24 条件窗口中心运动对齐实验，见
+[专用协议](CENTER_MOTION_WANG2023_PROTOCOL.md)与[逐条件结果](results/center_motion_wang2023_20260923/COMPARISON_REPORT.md)。
+当前方法严格23/24，Wang独立复现严格17/24；共同严格通过16组中当前方法12组更快、Wang 4组更快。
+这不代表作者官方性能，亦不构成连续时间安全认证。
+
 ## 运行队列
 
 ```bash

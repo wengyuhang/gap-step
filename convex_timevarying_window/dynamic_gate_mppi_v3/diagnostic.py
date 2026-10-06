@@ -103,23 +103,27 @@ def run(args):
                                  "validation":validation,
                                  "error": candidate if isinstance(candidate, dict) else None})
             risk=controller.reference_risk(state, now, progress.first, ref,progress.crossing)
+            if args.backend=='ctbr' and controller.reference_warning(state,now,progress.first,ref,progress.crossing):
+                scheduler.flag_prediction_warning()
             errors=controller.tracking_error(state,now,ref)
             if errors['tracking_failed']:scheduler.flag_tracking_error()
             selection = controller.select(state, now, progress.first, progress.crossing,
                                            risk, ref, last)
             scheduler.set_risk(controller.last_diagnostics.get('avoidance',risk))
+            if controller.last_diagnostics.get('replan_requested'):scheduler.flag_prediction_warning()
             tracking_log.append(dict(time=now, gate=progress.first, **errors,
                 reference_risk=risk, reference_age=None if ref is None else now-ref.made_at,
                 baseline_valid=controller.last_diagnostics.get('baseline_valid'),
                 baseline_clearance=controller.last_diagnostics.get('baseline_clearance'),
                 avoidance=scheduler.avoiding, reference_weight=0. if scheduler.avoiding or ref is None else 1.))
             if selection is not None:
-                controller.publish(selection, state, now)
+                if args.backend=='ctbr':controller.publish(selection,state,now,progress.first)
+                else:controller.publish(selection, state, now)
             action = controller.cached_action(state, now)
             if action is None:
                 failure = "validated_cache_exhausted"; break
             if selection is not None and asynchronous.ready:
-                request = scheduler.observe(now, now+np.arange(controller.ns+1)*.01,
+                request = scheduler.observe(now, now+np.arange(len(selection.clearances)+1)*.01,
                                             selection.clearances, not progress.computation_allowed(state[:3],now),
                                             progress.first)
                 if request is not None:

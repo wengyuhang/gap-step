@@ -20,7 +20,10 @@ from convex_timevarying_window.receding_gate_racing.localization_audit import au
 def main():
     p=argparse.ArgumentParser();p.add_argument('--outdir',type=Path,required=True)
     p.add_argument('--continuation',action='store_true');p.add_argument('--tracking-preview',type=float,default=0.)
-    p.add_argument('--checked',action='store_true');p.add_argument('--anticipatory',action='store_true');a=p.parse_args()
+    p.add_argument('--checked',action='store_true');p.add_argument('--anticipatory',action='store_true')
+    p.add_argument('--center-motion-grid',action='store_true',
+                   help='rates 1/3/6/10 x translation amplitudes 1/2/4; fixed rotation amplitude')
+    a=p.parse_args()
     if a.checked:a.continuation=True
     if a.anticipatory and not a.checked:p.error('anticipatory requires checked')
     a.outdir.mkdir(parents=True,exist_ok=False)
@@ -34,10 +37,16 @@ def main():
     for f in source.glob('*.py'):shutil.copyfile(f,snapshot/f.name)
     if a.continuation:shutil.copyfile(extra,snapshot/'continuation_planner.py')
     if a.checked:shutil.copyfile(guard_source,snapshot/'continuation_guard.py')
-    conditions=[(r,t,t,'joint') for r in (1,10) for t in (1,2,4)]
-    conditions += [(10,4,1,'translation'),(10,1,4,'rotation')]
+    if a.center_motion_grid:
+        conditions=[(r,t,1,'translation') for r in (1,3,6,10) for t in (1,2,4)]
+    else:
+        conditions=[(r,t,t,'joint') for r in (1,10) for t in (1,2,4)]
+        conditions += [(10,4,1,'translation'),(10,1,4,'rotation')]
     phases=[0,2*math.pi/3]
-    protocol=dict(conditions=conditions,phases=phases,source_sha256=hashes,
+    protocol=dict(conditions=conditions,phases=phases,
+                  design='center_motion_grid' if a.center_motion_grid else 'original_amplitude_matrix',
+                  runner_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                  source_sha256=hashes,
                   python=platform.python_version(),numpy=np.__version__,scipy=scipy.__version__,max_flight_time_s=60,
                   continuation=a.continuation,continuation_source_sha256=extra_hash,tracking_preview_s=a.tracking_preview,
                   checked=a.checked,anticipatory=a.anticipatory,guard_source_sha256=guard_hash)

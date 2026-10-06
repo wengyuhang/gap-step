@@ -99,6 +99,14 @@ class Geometry:
         room = np.minimum(p-np.asarray(cfg.lower), np.asarray(cfg.upper)-p).min(axis=-1)
         remaining = (np.minimum(room[:, :-1], room[:, 1:]) - cfg.error_margin
                      - .5*speed_bound*dt)
+        if cfg.axis_workspace_bounds:
+            # Each plane distance is 1-Lipschitz in its NORMAL coordinate.
+            # Tangential flight cannot close that plane's clearance. The
+            # same full physical acceleration bound still applies per axis.
+            room_axes=np.minimum(p-np.asarray(cfg.lower),np.asarray(cfg.upper)-p)
+            normal_speed=np.abs(v[:,:-1])+acceleration_bound*dt[None,:,None]
+            remaining=(np.minimum(room_axes[:,:-1],room_axes[:,1:])-cfg.error_margin
+                       -.5*normal_speed*dt[None,:,None]).min(axis=-1)
         for d in distances:
             remaining = np.minimum(remaining, d)
         return remaining

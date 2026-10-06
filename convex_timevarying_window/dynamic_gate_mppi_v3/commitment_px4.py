@@ -30,12 +30,12 @@ def run(args):
     track,opt=build_track();vary_track(track,args.phase)
     scene=track
     if args.gates==1:track=replace(track,windows=(track.windows[track.order[0]],),order=(0,))
-    cfg=replace(Config(),horizon=2.5,samples=args.samples)
+    cfg=replace(Config(),horizon=2.5,samples=args.samples,axis_workspace_bounds=True)
     # Feedback needs correction authority; reserve is algorithm-wide, not
     # gate-specific. Physical acceptance limits remain cfg, unchanged.
     planning_cfg=replace(cfg,acceleration=cfg.acceleration-1.,tilt=cfg.tilt-4.,
                          feedback_geometry_reserve=.1,staged_entry=args.staged_entry,
-                         terminal_velocity_cost=args.terminal_velocity_cost)
+                         terminal_velocity_cost=args.terminal_velocity_cost,passage_event_tail=True)
     ctrl=CommitmentController(track,planning_cfg,args.seed);planner=Planner(track,opt);worker=AsyncPlanner(track,opt)
     actual_geometry=Geometry(track,cfg)
     s=Session(args.outdir,scene,consistent_velocity=True);hashes={}
@@ -53,6 +53,7 @@ def run(args):
     active=None;solves=[];updates=[];crossings=[];rows=[];activations=[];policy_history=[];watchdog=[];failure=None;completed=False
     live=(args.outdir/'solves_live.jsonl').open('w',buffering=1)
     now=0.;verified_until=0.;initial_reference_ms=None
+    sent_command=None;sent_at=None
     planning_lock=threading.RLock()
     def receive_reference(x,at):
         nonlocal ref
@@ -69,7 +70,7 @@ def run(args):
             updates.append(dict(time=at,accepted=accepted,validation=validation,error=candidate if isinstance(candidate,dict) else None))
 
     def send_feedback(x,at):
-        nonlocal active,verified_until
+        nonlocal active,verified_until,sent_command,sent_at
         # Receive completed TOGT work at feedback rate. Waiting for the next
         # 50--70 ms GPU cycle could discard a result actually ready at 75 ms.
         receive_reference(x,at)
@@ -81,20 +82,26 @@ def run(args):
             activations.append(dict(time=at,anchor=selection.made_at,accepted=accepted,phase_match=phase_ok,errors=errors))
             if accepted:policy_history.append(selection)
             if accepted:active=ctrl.maneuver
-        if active is None:return ctrl.rollout.feedback(x,track.start,np.zeros(3),np.zeros(3))
+        if active is None:
+            command=ctrl.rollout.feedback(x,track.start,np.zeros(3),np.zeros(3))
+            sent_command=command;sent_at=at
+            return command
         if at>verified_until:raise RuntimeError(f'feedback_revalidation_lease_expired: now={at:.6f}, verified_until={verified_until:.6f}')
         if verified_until-at<.04:
             # Short-horizon execution validation must not wait for a long
             # GPU solve. Recheck the EXISTING feedback, not an unchecked
             # held command, with time left before the previous lease ends.
-            tick=time.perf_counter();states,times=feedback_prefix(ctrl.rollout,active,x,at)
+            tick=time.perf_counter();states,times=feedback_prefix(ctrl.rollout,active,x,at,previous=sent_command)
             bad=prefix_violation(ctrl.rollout,states,times,cfg,actual_geometry)
             bad=bad or prefix_task_violation(track,progress,states,times,cfg)
             elapsed=1000*(time.perf_counter()-tick)
             watchdog.append(dict(time=at,cycle_ms=elapsed,violation=bad))
             if bad is not None or elapsed>=40:raise RuntimeError(f'feedback_watchdog_{bad or "deadline"}')
             verified_until=max(verified_until,at+.1)
-        return active.command(x,at)
+        dt=.01 if sent_at is None else max(0.,min(.02,at-sent_at))
+        command=active.command(x,at,sent_command,dt)
+        sent_command=command;sent_at=at
+        return command
     try:
         s.prepare();s.feedback=send_feedback
         now,x,_=s.read();last=x.copy();last_t=now
@@ -131,14 +138,16 @@ def run(args):
                 tick=time.perf_counter();lead=.08;anchor=now+lead;prediction=x.copy();pred=copy.copy(progress)
                 prefix=[prediction.copy()];queued_policies=tuple(pending)
                 policy=active
+                previous=sent_command
                 for k in range(20):
                     at=now+.005*k
                     for queued in queued_policies:
                         if queued.made_at<=at:policy=FeedbackManeuver(queued,progress.first)
-                    u=ctrl.rollout.feedback(prediction,track.start,np.zeros(3),np.zeros(3)) if policy is None else policy.command(prediction,at)
+                    u=ctrl.rollout.feedback(prediction,track.start,np.zeros(3),np.zeros(3)) if policy is None else policy.command(prediction,at,previous,.005)
                     old=prediction;prediction=ctrl.rollout.integrate(prediction,u,.005)
                     pred.update(old[:3],at,prediction[:3],at+.005,True)
                     prefix.append(prediction.copy())
+                    previous=u
                     if k==15:anchor_state=prediction.copy();anchor_progress=copy.copy(pred);anchor_input=u.copy()
                 if pred.violation:
                     np.savez_compressed(args.outdir/'rejected_prefix.npz',states=prefix,times=now+np.arange(21)*.005)
@@ -152,14 +161,17 @@ def run(args):
                 verified_until=max(verified_until,now+.1)
                 prediction,pred,u=anchor_state,anchor_progress,anchor_input
                 risk=ctrl.reference_risk(x,now,progress.first,ref,progress.crossing)
+                warning=ctrl.reference_warning(x,now,progress.first,ref,progress.crossing)
+                if warning:scheduler.flag_prediction_warning()
                 errors=ctrl.tracking_error(x,now,ref)
                 if errors['tracking_failed']:scheduler.flag_tracking_error()
                 selection=ctrl.select(prediction,anchor,pred.first,pred.crossing,risk,ref,u)
                 scheduler.set_risk(ctrl.last_diagnostics.get('avoidance',True))
+                if ctrl.last_diagnostics.get('replan_requested'):scheduler.flag_prediction_warning()
                 returned_time,actual,_=s.read();ms=1000*(time.perf_counter()-tick)
                 accepted=bool(selection is not None and returned_time<anchor and ms<100 and s.failure is None)
                 record=dict(time=now,accepted=accepted,late=bool(returned_time>=anchor),gate=progress.first,
-                            phase=progress.crossing,verified_until=verified_until,**ctrl.last_diagnostics)
+                            phase=progress.crossing,verified_until=verified_until,reference_warning=warning,**ctrl.last_diagnostics)
                 record['cycle_ms']=ms;solves.append(record);live.write(json.dumps(record)+'\n')
                 if accepted:
                     selection.expected_first=pred.first;selection.expected_phase=pred.crossing
@@ -177,7 +189,7 @@ def run(args):
                     if i+10<len(cache.states):
                         times=cache.made_at+np.arange(i,len(cache.states))*.01
                         req=scheduler.observe(now,times,cache.clearances[i:],not progress.computation_allowed(x[:3],now),progress.first)
-                        if req is not None:worker.submit(len(updates),pvaj_from_state(ctrl.rollout,x,active.command(x,now)),req.anchor,req.first_gate)
+                        if req is not None:worker.submit(len(updates),pvaj_from_state(ctrl.rollout,x,sent_command),req.anchor,req.first_gate)
             rows.append([now,*x[:6],0.,0.,0.,*x[:3],progress.first,0.])
             if progress.first==len(track.order):
                 if args.gates==1 or (np.linalg.norm(x[:3]-track.goal)<.55 and np.linalg.norm(x[3:6])<1):completed=True;break

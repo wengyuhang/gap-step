@@ -33,7 +33,7 @@ __device__ inline void copy_bytes(double *dst,const double *src,unsigned long n)
     code=re.sub(r'(?<![\w.])((?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?|\d+[eE][+-]?\d+)(?![\w.])',r'\1f',code)
     for name in ('fmin','fmax','fabs','sqrt','hypot'):
         code=re.sub(r'\b'+name+r'\(',name+'f(',code)
-    return f"#define V3_CTBR {int(ctbr)}\n#define V3_CONTROLS {controls}\n#define V3_STEPS {2*controls}\n#define V3_NODES {2*controls+1}\n#define V3_KNOTS {controls//5+1}\n"+code+SAMPLING_AND_SCORE
+    return f"#define V3_GPU 1\n#define V3_CTBR {int(ctbr)}\n#define V3_CONTROLS {controls}\n#define V3_STEPS {2*controls}\n#define V3_NODES {2*controls+1}\n#define V3_KNOTS {controls//5+1}\n"+code+SAMPLING_AND_SCORE
 
 
 SAMPLING_AND_SCORE=r'''
@@ -62,23 +62,23 @@ extern "C" __global__ void sample_controls(int n,int small,const float *baseline
 extern "C" __global__ void score_controls(int n,int gates,const float *u,const float *previous,
  const float *states,const float *clear,const int *ids,const int *phases,const float *poses,
  const float *signs,const float *reference,const int *expected,float refweight,float margin,
- float slab,float maxf,const float *race,float *cost,int *recovered){
+ float slab,float maxf,const float *race,const int *ends,float *cost,int *recovered){
  int b=blockIdx.x*blockDim.x+threadIdx.x;if(b>=n)return;
  float total=refweight>0?0.f:race[b],smooth=0.f;int bad=0;recovered[b]=0;
- for(int k=0;k<V3_CONTROLS;k++)for(int a=0;a<4;a++){
+ for(int k=0;k<ends[b]/2;k++)for(int a=0;a<4;a++){
   float delta=(u[(b*V3_CONTROLS+k)*4+a]-(k?u[(b*V3_CONTROLS+k-1)*4+a]:previous[a]))/maxf;smooth+=delta*delta;
  }
  total+=.02f*smooth/float(V3_CONTROLS);
  for(int j=0;j<10;j++)bad+=clear[b*V3_STEPS+j]<margin;
- for(int k=0;k<V3_NODES;k++){
+ for(int k=0;k<=ends[b];k++){
   const float *x=states+(b*V3_NODES+k)*17;int gate=ids[b*V3_NODES+k];
   if(refweight>0 && expected[k]>=0){
    const float *r=reference+k*6;float term=0;
    for(int a=0;a<3;a++){float dp=(x[a]-r[a])/.5f,dv=(x[3+a]-r[3+a])/2.f;term+=dp*dp+dv*dv;}
    total+=refweight*.01f*term;
   }
-  if(k>0 && k<=(V3_STEPS-10)){bad-=clear[b*V3_STEPS+k-1]<margin;bad+=clear[b*V3_STEPS+k+9]<margin;}
-  if(k<=(V3_STEPS-10) && bad==0 && phases[b*V3_NODES+k]==0){
+  if(k>0 && k<=(ends[b]-10)){bad-=clear[b*V3_STEPS+k-1]<margin;bad+=clear[b*V3_STEPS+k+9]<margin;}
+  if(k<=(ends[b]-10) && bad==0 && phases[b*V3_NODES+k]==0){
    bool entry=gate>=gates;
    if(!entry){const float *p=poses+(k*gates+gate)*12;float z=0;
     for(int a=0;a<3;a++)z+=(x[a]-p[a])*p[5+3*a];entry=z*signs[gate]<=-slab;
@@ -116,9 +116,12 @@ class GPURollout(Rollout):
         valid=cp.empty(n,dtype=cp.int32);ids=cp.empty((n,self.ns+1),dtype=cp.int32)
         race=cp.empty(n,dtype=cp.float32);phases=cp.empty((n,self.ns+1),dtype=cp.int32)
         reasons=cp.empty(n,dtype=cp.int32)
+        near_valid=cp.empty(n,dtype=cp.int32)
         self.kernel(((n+127)//128,),(128,),(np.int32(n),np.int32(self.ns),np.int32(gates),
-            x,u,poses,geom,speeds,signs,guides,cfg,np.int32(first),np.int32(phase),states,clear,valid,ids,race,phases,reasons))
-        return Batch(states,clear,valid.astype(cp.bool_),ids,race,phases,reasons)
+            x,u,poses,geom,speeds,signs,guides,cfg,np.int32(first),np.int32(phase),states,clear,valid,ids,race,phases,reasons,near_valid))
+        from .passage_contract import checked_end_steps
+        ends=checked_end_steps(ids,first,self.ctbr and self.config.passage_event_tail,cp)
+        return Batch(states,clear,valid.astype(cp.bool_),ids,race,phases,reasons,ends,near_valid.astype(cp.bool_))
 
 
 class GPUController(Controller):
@@ -164,7 +167,7 @@ class GPUController(Controller):
             batch.indices,batch.phases,prepared[0],self.gpu.device_constants[2],cp.asarray(ref),
             cp.asarray(expected,dtype=cp.int32),np.float32(not avoid and reference is not None),
             np.float32(cfg.computation_clearance),np.float32(cfg.radius+cfg.error_margin+cfg.frame_thickness),
-            np.float32(cfg.max_rotor_thrust),batch.race,costs,recovered))
+            np.float32(cfg.max_rotor_thrust),batch.race,batch.end_steps,costs,recovered))
         return costs,recovered.astype(cp.bool_)
 
     def select(self,state,now,first=0,crossing=False,avoid=False,reference=None,previous_input=None):

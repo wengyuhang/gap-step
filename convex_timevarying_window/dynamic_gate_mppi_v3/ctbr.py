@@ -15,6 +15,17 @@ def encode_ctbr(command):
 class CTBRRollout(Rollout):
     ctbr=True
 
+    def replay_feedback(self,state,policy,now,count,previous=None):
+        desired,ff=policy.targets(now+np.arange(count)*.02)
+        state=np.ascontiguousarray(state,dtype=float)
+        previous=None if previous is None else np.ascontiguousarray(previous,dtype=float)
+        commands=np.empty((count,4))
+        fn=self.lib.v3_feedback_replay
+        fn.argtypes=[ctypes.c_int]+[ctypes.c_void_p]*5;fn.restype=ctypes.c_int
+        ok=fn(count,state.ctypes.data,desired.ctypes.data,ff.ctypes.data,
+              None if previous is None else previous.ctypes.data,commands.ctypes.data)
+        return commands if ok else None
+
     def feedback(self,state,position,velocity,acceleration):
         x=np.ascontiguousarray(state,dtype=float)
         pva=np.ascontiguousarray(np.r_[position,velocity,acceleration],dtype=float)
