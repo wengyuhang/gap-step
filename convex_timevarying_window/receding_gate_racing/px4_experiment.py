@@ -91,9 +91,14 @@ def main():
     parser.add_argument('--tracking-preview',type=float,default=0.,help='identified end-to-end tracking delay, seconds; continuation only')
     parser.add_argument('--guarded',action='store_true',help='commit only a checked racing prefix plus analytic brake')
     parser.add_argument('--checked',action='store_true',help='joint local racing/rest trajectory with batched admissibility checks')
+    parser.add_argument('--checked-soft',action='store_true',help='checked plus dynamic-frame soft clearance objective')
     parser.add_argument('--anticipatory',action='store_true',help='prepare the next checked horizon before crossing')
     parser.add_argument('--paper-polynomial',action='store_true',help='independent IROS 2023 time-uniform MINCO baseline; same PX4 transport only')
     args=parser.parse_args()
+    if args.checked_soft:
+        if any((args.guarded,args.paper_polynomial,args.nested,args.center,args.race,args.legacy_crossing,args.anticipatory)):
+            parser.error('checked-soft is an objective-only variant; do not combine with other algorithm changes')
+        args.checked=True
     if args.guarded and args.checked:parser.error('choose either guarded or checked')
     if args.guarded or args.checked:args.continuation=True
     if args.paper_polynomial and (args.continuation or args.nested or args.center or args.anticipatory):
@@ -103,7 +108,10 @@ def main():
     if not np.isfinite(args.tracking_preview) or not 0<=args.tracking_preview<=.2:
         parser.error('tracking preview must be finite and in [0, 0.2] seconds')
     if args.tracking_preview and not continuous_reference:parser.error('tracking preview requires continuous reference transport')
-    cfg=replace(Config(),free_points=not args.center); track,_=build_track()
+    config_type=Config
+    if args.checked_soft:
+        from convex_timevarying_window.checked_soft_racing.planner import Config as config_type
+    cfg=replace(config_type(),free_points=not args.center); track,_=build_track()
     if args.local_sweep: cfg=replace(cfg,crossing_constraint='local_sweep')
     if args.legacy_crossing: cfg=replace(cfg,crossing_constraint='worst_case')
     # Arena geometry is an input from this Gazebo scene, not a gate-dependent
@@ -127,6 +135,10 @@ def main():
             from convex_timevarying_window.continuation_racing.guard import Planner as ContinuationPlanner
         if args.checked:
             from convex_timevarying_window.continuation_racing.guard import CheckedPlanner as ContinuationPlanner
+        if args.checked_soft:
+            from convex_timevarying_window.checked_soft_racing.planner import Planner as ContinuationPlanner
+            for p in (ROOT/'convex_timevarying_window/checked_soft_racing').glob('*.py'):
+                source_hashes['checked_soft_'+p.name]=hashlib.sha256(p.read_bytes()).hexdigest()
         planner=ContinuationPlanner(track,cfg)
         source_hashes['continuation_planner.py']=hashlib.sha256((ROOT/'convex_timevarying_window/continuation_racing/planner.py').read_bytes()).hexdigest()
         if args.guarded or args.checked:source_hashes['continuation_guard.py']=hashlib.sha256((ROOT/'convex_timevarying_window/continuation_racing/guard.py').read_bytes()).hexdigest()
@@ -347,11 +359,13 @@ def main():
             'origin_enu_m':origin.tolist(),'race_configuration':args.race,
             'nested_refinement':args.nested,'selection_counts':getattr(planner,'selection_counts',None),
             'continuation':args.continuation,
-            'method':'paper_polynomial_2023_independent' if args.paper_polynomial else 'proposed',
+            'method':('checked_soft_racing' if args.checked_soft else
+                      'paper_polynomial_2023_independent' if args.paper_polynomial else 'proposed'),
             'continuous_reference_transport':continuous_reference,
             'tracking_preview_s':args.tracking_preview,
             'guarded':args.guarded,
             'checked':args.checked,
+            'checked_soft':args.checked_soft,
             'anticipatory':args.anticipatory,
             'goal_error_m':float(np.linalg.norm(state[:3]-track.goal)),
             'goal_speed_mps':float(np.linalg.norm(state[3:6])),

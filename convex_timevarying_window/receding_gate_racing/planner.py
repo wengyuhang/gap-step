@@ -167,6 +167,10 @@ class Planner:
     def collocation_parameters(self, first, ids):
         return np.empty(0)
 
+    def extra_stage_cost(self, position, absolute_time, first, wi, k):
+        """Optional objective-only extension; existing planners are unchanged."""
+        return 0.
+
     def _build(self, first):
         cfg = self.cfg
         # The return-to-start endpoint is just one final knot with PVA fixed.
@@ -268,6 +272,7 @@ class Planner:
                 con(ca.sumsqr(thrust), 4., (4*8.54858/2.0643076923*.90)**2)
                 con(self.tilt_expression(a,demanded,thrust), -np.inf, 0.)
                 objective += cfg.jerk_weight*T/(cfg.nodes+1)*ca.sumsqr(jerk)
+                objective += T/(cfg.nodes+1)*self.extra_stage_cost(p, absolute+T*u, first, wi, k)
                 # Only the neighbouring frames constrain a segment in the NLP.
                 # Every frame is checked on the short executable prefix below.
                 for gj in self.segment_frames(first, wi, k):
