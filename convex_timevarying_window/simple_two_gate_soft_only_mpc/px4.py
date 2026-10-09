@@ -147,10 +147,12 @@ def main():
                 raise RuntimeError('simulation_state_diverged')
             exited = progress.observe(pos, stamp)
             gate = progress.gate
+            if getattr(cfg, 'abort_missed_gate', False) and progress.violation == 'missed_current_opening':
+                raise RuntimeError('missed_opening_no_reverse_reentry')
             active = ref.advance(now, gate, progress.phase)
             desired_at_measurement = ref.state_at(stamp, 3)[0][:3]
             tracking_error = float(np.linalg.norm(pos-desired_at_measurement))
-            if gate < len(track.windows):
+            if gate < len(track.windows) or getattr(cfg, 'full_task_error_recovery', False):
                 scheduler.observe(now, gate, exited, tracking_error)
             if exited:
                 print('MPC body exit', gate, round(now, 3), flush=True)
@@ -184,7 +186,7 @@ def main():
                 entry['planning_trigger'] = trigger
                 entry['request_head'] = request_head
                 solves.append(entry); solve_log.write(json.dumps(entry)+'\n'); solve_log.flush()
-            if scheduler.due(now) and not worker.busy and gate < len(track.windows):
+            if scheduler.due(now) and not worker.busy and (gate < len(track.windows) or getattr(cfg, 'full_task_error_recovery', False)):
                 recovery = (scheduler.pending['reason'] == 'tracking_error'
                             or tracking_error > scheduler.error_high)
                 target_time = stamp if recovery else now+.15

@@ -1,5 +1,39 @@
 # 代码架构与模型边界
 
+## 2026-10-09：名义动力学硬约束分支
+
+`dynamic_passage_velocity_minco/hard_dynamics.py` 构造阻力平坦映射、角速度/角加速度和混控单电机推力；
+`hard_planner.py` 保持七变量两段C5，时间目标、节点硬执行量界、出口位置半空间和局部安全交换。
+`hard_worker/hard_flight` 提供隔离入口，复用上轮allocation_mpc，旧入口不覆盖。
+`hard_probe` 是固定旧头测试；`comparisons/single_gate_translation/hard_validation_report.py` 生成真值/接触与离线1ms诊断。
+硬界仅优化节点强制，最高5.095%节点间推力超限仍存在；不可描述为连续域动力学证书。
+
+## 2026-10-09：单窗执行修复分支
+
+`dynamic_passage_velocity_minco/repaired_flight.py` 是新增入口，旧 `flight.py` 保留。
+`allocation_mpc.py` 继承原跟踪RTI，仅替换为耦合电机力/力矩分配预测；不是新的避障控制器。
+`repaired_planner.py` 通过旧planner的默认空扩展接口补推力软残差，并支持gate=1后的单段终点恢复。
+`repaired_worker.py` 为隔离进程提供对应规划器；共享px4的末窗后事件监听/漏窗中止仅新Config开关启用。
+结果汇总/真值审计入口为 `comparisons/single_gate_translation/repair_validation_report.py`。
+六档复测四成功两漏窗；下面“不改MPC”的描述仅适用于旧flight，不适用于修复入口。
+
+## 2026-10-09：单窗自由速度与前向尾段 MINCO
+
+`convex_timevarying_window/dynamic_passage_velocity_minco/`独立于旧四变量版本。
+`trajectory.py`构造内部位置/速度约束的两段minimum-snap线性系统（C5，不称原版TOGT的C6）；
+`planner.py`7变量、原局部安全见证、尾段速度Bernstein形状条件；`flight/worker`仅替换规划器，
+不改MPC/PX4或固定窗后零VAJ终点。`probe/analyze`分别负责固定输入诊断与真实接触/ULog审计。
+最终flight未启用开发用A自由和提前相位配置。后续升档/修复仍仅单窗，不能描述为七窗实现。
+
+## 2026-10-09：点式 TOGT MINCO 单窗变体
+
+`convex_timevarying_window/togt_point_only_mpc/` 与旧软安全版并列。
+`planner.py` 直接用全局 MINCO-s4 将起点PVAJ、窗口内二维点和终点PVAJ
+映射为每航段一个七次多项式，窗口状态不再是自由变量；`trajectory.py`
+修正每航段一片对应的穿窗事件时刻。`worker.py` 复用隔离进程接口，
+`flight.py` 复用原单窗场景、MPC、PX4执行与实体接触记录。
+同目标采用通用多初值、原物理航段密度的软安全采样，不属于纯换曲线阶次消融。
+
 ## 2026-10-08：纯软两窗执行与弹性MPC
 
 最新控制入口已切换tracking_mpc.py：继承数值RTI循环但覆盖目标和约束构造，只有跟踪/平滑与

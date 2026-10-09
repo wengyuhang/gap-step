@@ -1,5 +1,14 @@
 # 运行与验证手册
 
+## 点式 TOGT MINCO 单窗重测（2026-10-09）
+
+独立方法说明、命令及原 W1 2.5Hz/3.5m 已运行结果见
+[`togt_point_only_mpc/README.md`](../convex_timevarying_window/togt_point_only_mpc/README.md)
+和其 `results/f2p5_a3p5_point_only_v1_20261009/REPORT.md`。运行会控制
+`convex_seven_togt_experiment` 容器，不触碰旧回放容器；新结果目录必须不存在。
+同结构自由／中心配对结果另见
+`convex_timevarying_window/togt_point_only_mpc/results/f2p5_a3p5_point_only_pair_20261009.md`。
+
 ## 自由纯跟踪版继续升档（2026-10-08）
 
 `python -u -m convex_timevarying_window.simple_two_gate_soft_only_mpc.raise_difficulty_run --baseline convex_timevarying_window/simple_two_gate_soft_only_mpc/results/pure_tracking_v1_20261008 --outdir <new-directory>`。
