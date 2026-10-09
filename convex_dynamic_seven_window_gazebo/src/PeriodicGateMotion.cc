@@ -32,6 +32,10 @@ class PeriodicGateMotion final :
     this->translationPeriod = _sdf->Get<double>("translation_period");
     this->rotationPeriod = _sdf->Get<double>("rotation_period");
     this->phase = _sdf->Get<double>("phase");
+    // Optional component offsets. Legacy worlds retain their original motion.
+    // Equal offsets allow motion along a single vector in an oblique plane.
+    this->translationPhase = _sdf->Get<gz::math::Vector3d>(
+        "translation_phase_offsets", gz::math::Vector3d(0.0, 0.7, 1.4)).first;
     this->motionStartTime = _sdf->Get<double>("motion_start_time", 0.0).first;
   }
 
@@ -45,13 +49,12 @@ class PeriodicGateMotion final :
     constexpr double twoPi = 6.283185307179586476925286766559;
     gz::math::Vector3d position = this->center;
     gz::math::Vector3d rpy = this->baseRpy;
-    const std::array<double, 3> translationPhase{0.0, 0.7, 1.4};
     const std::array<double, 3> rotationPhase{0.0, 0.9, 1.8};
     for (std::size_t axis = 0; axis < 3; ++axis)
     {
       position[axis] += this->translationAmplitude[axis] *
           std::sin(twoPi * t / this->translationPeriod + this->phase +
-                   translationPhase[axis]);
+                   this->translationPhase[axis]);
       rpy[axis] += this->rotationAmplitude[axis] *
           std::sin(twoPi * t / this->rotationPeriod + this->phase +
                    rotationPhase[axis]);
@@ -72,6 +75,7 @@ class PeriodicGateMotion final :
   private: gz::math::Vector3d baseRpy{0, 0, 0};
   private: gz::math::Vector3d translationAmplitude{0, 0, 0};
   private: gz::math::Vector3d rotationAmplitude{0, 0, 0};
+  private: gz::math::Vector3d translationPhase{0.0, 0.7, 1.4};
   private: double translationPeriod{1.0};
   private: double rotationPeriod{1.0};
   private: double phase{0.0};

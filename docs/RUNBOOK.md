@@ -1,6 +1,236 @@
 # 运行与验证手册
 
+## 自由纯跟踪版继续升档（2026-10-08）
+
+`python -u -m convex_timevarying_window.simple_two_gate_soft_only_mpc.raise_difficulty_run --baseline convex_timevarying_window/simple_two_gate_soft_only_mpc/results/pure_tracking_v1_20261008 --outdir <new-directory>`。
+固定算法、原初相，频率/幅度/同步0.5步长四轮，每路线首次物理窗框接触停止；未碰撞超时不算边界。
+看status.json、boundaries.json与REPORT.md；本批测试上限不等于物理临界值。
+
+## 纯跟踪MPC匹配中心对比（2026-10-08）
+
+`python -u -m convex_timevarying_window.simple_two_gate_soft_only_mpc.center_run --free-results convex_timevarying_window/simple_two_gate_soft_only_mpc/results/pure_tracking_v1_20261008 --outdir <new-directory>`。
+仅跑已有七条件的中心版、每组一次；冻结源须匹配自由版，配置只允许free_points不同，世界文件须相同。
+新目录REPORT.md按幅度/频率排序，status.json显示进行中/结束；失败及证据缺口保留。
+
+## 无名义准入两窗＋弹性MPC（2026-10-08）
+
+误差恢复自由单方复测：`python -u -m convex_timevarying_window.simple_two_gate_soft_only_mpc.recovery_run --outdir <new-directory>`。
+固定v3七条件各一次、只ours；源码快照/summary/status保存于新目录，勿覆盖旧v3配对实验。
+
+完整说明：`convex_timevarying_window/simple_two_gate_soft_only_mpc/README.md`。
+conda `wyh`：`python -m pytest -q convex_timevarying_window/simple_two_gate_soft_only_mpc/tests`。
+串行新结果目录：`python -u -m convex_timevarying_window.simple_two_gate_soft_only_mpc.run --outdir convex_timevarying_window/simple_two_gate_soft_only_mpc/results/<new-name>`。
+基线1Hz/2m重跑，随后频率/幅度/同步0.5递增；中心→自由，每条件一次；仅experiment容器。
+主指标完整无碰撞时间与碰撞/未完成；原严格审计保留诊断。`status.json`/`REPORT.md`看当前结果；
+被中途停止的旧批次另读`COORDINATOR_STATE.json`，不能把原running状态当仍在执行。
+旧硬MPC精确重放与新控制快照验证分别为`mpc_replay.py`、`mpc_recovery_probe.py`，不是实飞。
+
+## 简化两窗：同结构中心完整闭环配对（2026-10-08）
+
+主指标包含返航，不能使用W7退出时间。冻结两次串行飞行；只操作experiment、不操作replay。
+协议见simple_two_gate_mpc/README.md。输出目录必须不存在；运行中不编辑方法/依赖源码。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/simple_two_gate_mpc/tests convex_timevarying_window/event_triggered_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.simple_two_gate_mpc.run --outdir convex_timevarying_window/simple_two_gate_mpc/results/new_pair
+```
+
+## 第三窗零VA＋竞速初始化（2026-10-08）
+
+最难原赛道1Hz/2m/初相，一版本一次，与冻结历史中心24.428s比较。编译发生在飞行前，
+不是离线预求航路；不要更改正在运行批次的源码。仅操作experiment容器，不操作replay。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/third_gate_racing_mpc/tests convex_timevarying_window/third_gate_stop_mpc/tests convex_timevarying_window/event_triggered_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.third_gate_racing_mpc.run --outdir convex_timevarying_window/third_gate_racing_mpc/results/new_run
+```
+
+## 两自由窗＋第三窗中心零VA（2026-10-08）
+
+仅最难1Hz/2m/初相，新版本一次；与历史中心24.428s比较，不额外跑中心或上轮估值版本。
+协议见`convex_timevarying_window/third_gate_stop_mpc/README.md`；独占experiment，不操作replay。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/third_gate_stop_mpc/tests convex_timevarying_window/event_triggered_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.third_gate_stop_mpc.run --outdir convex_timevarying_window/third_gate_stop_mpc/results/new_run
+```
+
+## 两窗＋第三窗时间估计（2026-10-08）
+
+新方案位于`convex_timevarying_window/third_gate_time_mpc/`，与完整赛程续接版本分开。
+仅原布局1Hz/2m/初相，各变体一次；独占experiment容器，不操作replay。
+构图/编译不求轨迹，耗时与在线正常收敛求解分开记录。输出目录必须不存在。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/third_gate_time_mpc/tests convex_timevarying_window/event_triggered_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.third_gate_time_mpc.run --outdir convex_timevarying_window/third_gate_time_mpc/results/new_hardest_run
+```
+
+正常收敛不等于可行，残差合格不等于实时，七窗通过不等于严格返航通过；各项分别报告。
+
+## 自由末态事件版（2026-10-07）
+
+`event_free_terminal_mpc`才是当前两窗/M2/加密/时限/事件触发且非最终局部末态PVAJ自由的入口。
+与旧`event_triggered_mpc`（固定停车末端）和`wang_free_terminal_mpc`（另一N2/M4分支）区分。
+使用全新结果目录，独占experiment容器；旧结果不可覆盖，replay容器不动。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.event_free_terminal_mpc.run --outdir convex_timevarying_window/event_free_terminal_mpc/results/new_run
+```
+
+## 事件触发单场景 MINCO/MPC（2026-10-07）
+
+协议：`convex_timevarying_window/event_triggered_mpc/README.md`。1Hz/2m/初始相位，单次PX4/Gazebo，
+只替换experiment专用容器，不操作replay，不并发飞行。旧f1_a2_v1_20261007不可覆盖。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.event_triggered_mpc.run --outdir convex_timevarying_window/event_triggered_mpc/results/new_run
+```
+
+## 当前算法与Wang初始相位27次比较（2026-10-07）
+
+协议在`convex_timevarying_window/comparisons/comprehensive_wang/PROTOCOL.md`。
+每条件只飞一次、全局初相位0并保留各窗相对相位；18主比较＋9消融。
+必须先验证readiness，正式飞行无GUI，不能同时运行其他飞行。
+只操作专用experiment容器；未完成既有目录不能用新路径偷偷覆盖失败。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.comparisons.comprehensive_wang.run --readiness 复现/polynomial_dynamic_racing_2023/px4_matched_x500/results/readiness_v3_20261007.json --outdir convex_timevarying_window/comparisons/comprehensive_wang/results/new_run
+```
+
+结束自动生成图/报告。`--resume`仅用于完整记录边界的中断且源/配置不变；存在未裁决目录时拒绝覆盖。
+
+## 穿窗邻域加密修复（2026-10-07）
+
+保留旧no-postcheck/软目标入口，使用新目录；重复试验首个失败即停止该版本，
+协议在`convex_timevarying_window/comparisons/original_fixed_plane_crossing_resolved/PROTOCOL.md`。
+新几何测试会安装进程内场景查询，建议和旧测试分开进程运行。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/crossing_resolved_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.comparisons.original_fixed_plane_crossing_resolved.run --repeats 3 --gui-last --outdir convex_timevarying_window/comparisons/original_fixed_plane_crossing_resolved/results/new_run
+```
+
+只替换专用experiment容器，不动replay；--gui-last需DISPLAY可用，原v1_20261007不得覆盖。
+
+## 更保守软目标配对消融（2026-10-07）
+
+仅在专用Gazebo实验容器执行；不会改replay容器。协议在
+`convex_timevarying_window/comparisons/original_fixed_plane_deadline_soft_conservative/PROTOCOL.md`。
+使用全新输出目录，不覆盖已完成的soft_v1_20261007：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/comparisons/original_fixed_plane_deadline_soft_conservative/tests convex_timevarying_window/comparisons/original_fixed_plane_deadline_no_postcheck/tests convex_timevarying_window/wang_progress_mpc/tests convex_timevarying_window/comparisons/original_fixed_plane_deadline/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.comparisons.original_fixed_plane_deadline_soft_conservative.run --outdir convex_timevarying_window/comparisons/original_fixed_plane_deadline_soft_conservative/results/new_run
+```
+
 更新：2026-09-10。命令入口和参数按源码/方法说明核对；默认从仓库根目录运行，MDG 单独注明。
+
+## Wang 2023 独立论文核心（非Gazebo入口）
+
+原文方程与所有未公开参数的选择见[paper_core说明](../复现/polynomial_dynamic_racing_2023/paper_core/README.md)。
+单独安装的是公开LBFGS-Lite优化器，不是作者竞速完整源码；旧匹配版本/成绩保留。
+
+```bash
+conda run -n wyh python -m 复现.polynomial_dynamic_racing_2023.paper_core.setup_vendor
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q 复现/polynomial_dynamic_racing_2023/paper_core/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 conda run --no-capture-output -n wyh python -m 复现.polynomial_dynamic_racing_2023.paper_core.benchmark --outdir 复现/polynomial_dynamic_racing_2023/paper_core/results/new_core --repeats 5
+```
+
+是短局部数值核验，不产生七窗圈时；输出目录需全新，保留所有超预算、未收敛和约束残差。
+不得用本轮实时通过数量代替安全飞行成功率。
+
+## 新论文核心：原位置固定平面PX4/Gazebo测试
+
+[协议](../复现/polynomial_dynamic_racing_2023/px4_fixed_plane/PROTOCOL.md)与
+[六条件结果](../复现/polynomial_dynamic_racing_2023/px4_fixed_plane/results/original_layout_v2_20261007/REPORT.md)。
+这不是下节矩形环线布局，也不调用旧匹配版规划器；当前第一窗前MPC中止，尚无竞速成绩。
+会替换专用`convex_seven_togt_experiment`容器，保留旧回放容器。
+
+```bash
+./convex_dynamic_seven_window_gazebo/build_plugin.sh
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q 复现/polynomial_dynamic_racing_2023/px4_fixed_plane/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run --no-capture-output -n wyh python -m 复现.polynomial_dynamic_racing_2023.px4_fixed_plane.matrix --outdir 复现/polynomial_dynamic_racing_2023/px4_fixed_plane/results/new_run
+```
+
+## 固定平面七窗：只对比当前方法与Wang
+
+2026-10-07删除事后几何/动力学复查的独立仿真消融（事件检查仍保留，不是安全部署入口）：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/comparisons/original_fixed_plane_deadline_no_postcheck/tests convex_timevarying_window/wang_progress_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.comparisons.original_fixed_plane_deadline_no_postcheck.run --outdir convex_timevarying_window/comparisons/original_fixed_plane_deadline_no_postcheck/results/new_run
+```
+
+两档结果：低档24.748s通过，高档过5窗后第6窗真实碰撞；旧算法默认未修改。详见新目录报告。
+
+2026-10-07既有共同过窗时刻限制版（原MINCO＋MPC，不是Checked/PVA）同场景入口：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/comparisons/original_fixed_plane_deadline/tests convex_timevarying_window/wang_progress_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.comparisons.original_fixed_plane_deadline.run --outdir convex_timevarying_window/comparisons/original_fixed_plane_deadline/results/new_run
+```
+
+原布局0相两档：低档24.876s通过，高档3窗后60s超时；并非完整矩阵。原方法/历史结果不改。
+完整证据见该目录`results/deadline_v1_20261007/REPORT.md`。
+
+2026-10-07原始Checked/PVA回归入口（不是MPC，也不是Checked-Soft）：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/comparisons/original_fixed_plane_checked/tests convex_timevarying_window/continuation_racing/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.comparisons.original_fixed_plane_checked.run --outdir convex_timevarying_window/comparisons/original_fixed_plane_checked/results/new_run
+```
+
+同原布局0相两档28.284/57.360s均返航，但高频−5.3mm球净空违反，不能称2/2安全通过。
+保留旧可停车机制/PVA，仅场景查询适配。详见该目录`results/original_checked_v1_20261007/REPORT.md`。
+
+2026-10-07后续自由局部末端PVAJ版（独立目录，旧版保留）两条件回归：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/wang_free_terminal_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.wang_free_terminal_mpc.run --outdir convex_timevarying_window/wang_free_terminal_mpc/results/new_run
+```
+
+非终局末端PVAJ可变，最终任务返航PVA固定；目前两档退出2窗/1窗后失败，无全程圈时。
+报告在该目录`results/free_terminal_v1_20261007/REPORT.md`；运行会替换专用实验容器，不操作旧回放。
+
+最新**原不规则位置**、与新paper_core相同六条件的我们现有free_warm入口：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.comparisons.original_fixed_plane_ours.run --outdir convex_timevarying_window/comparisons/original_fixed_plane_ours/results/new_run
+```
+
+这六次目前均通过W1后参考耗尽，固定末端自相矛盾，见该目录报告；与下述较早矩形环线结果分开。
+
+最新无中途停车、中心初值三窗版本为独立`wang_center_seed_mpc`；两条件已完成16.432/16.816s，
+不宣称全面快于旧版。重跑必须新目录，不覆盖已保存结果或恢复旧矩阵混版：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/wang_center_seed_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.wang_center_seed_mpc.experiment --outdir convex_timevarying_window/wang_center_seed_mpc/results/new_development
+```
+
+后续公共过窗时刻修复在独立`wang_progress_mpc`，不向旧暂停矩阵混入新版：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/wang_progress_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.wang_progress_mpc.experiment --outdir convex_timevarying_window/wang_progress_mpc/results/new_development
+```
+
+此入口只运行预声明的慢联调与快速回归两条件，不是完整24趟矩阵。
+
+2026-10-07新增独立场景适配与24趟配对协议，详见
+[入口说明](../convex_timevarying_window/comparisons/fixed_plane_wang/README.md)。
+需要Docker/PX4/Gazebo；只重建专用实验容器，不改旧场景或原方法源码。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/comparisons/fixed_plane_wang/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -u -m convex_timevarying_window.comparisons.fixed_plane_wang.run --outdir convex_timevarying_window/comparisons/fixed_plane_wang/results/new_formal
+OPENBLAS_NUM_THREADS=1 conda run -n wyh python -m convex_timevarying_window.comparisons.fixed_plane_wang.report convex_timevarying_window/comparisons/fixed_plane_wang/results/new_formal
+```
+
+可先以`--pilot`和单独新目录联调；正式输入是Hz和米，不再使用旧运动倍数。
+事后单趟用`fixed_plane_wang.audit RUN --method ours`（或`wang`），禁止默认旧赛道审计。
 
 ## 环境与输出
 
@@ -14,6 +244,77 @@ conda activate wyh
 已有结果、checkpoint 和外部复现资料可能被 Git 忽略，检出源码不代表它们存在。新实验使用独立结果目录，保留原运行。GAP-Step 的部分训练配置含 `clean_outputs: true`，会清空所配置输出目录；复用结果前应在新配置中指定新路径或关闭该开关。
 
 ## 测试范围
+
+### 2026-10-07：当前Wang自由状态事件v4完整矩阵
+
+仅新增编排，飞行源码须与 `event_v4_20261007/protocol.json` 的63项哈希完全一致。
+38条件约需40余分钟；不要同时运行其他飞行或重型历史审计。运行中不修改冻结源码。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -m convex_timevarying_window.comparisons.wang_free_state_mpc.run --outdir convex_timevarying_window/comparisons/wang_free_state_mpc/results/new_frozen
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run --no-capture-output -n wyh python -m convex_timevarying_window.comparisons.wang_free_state_mpc.report convex_timevarying_window/comparisons/wang_free_state_mpc/results/new_frozen
+```
+
+仅进程中断恢复使用 `--resume`；不会覆盖已有趟或重飞算法失败。报告器要求status=complete，
+历史只读ULog事件复核存入新批次，不改历史原标签。协议在对应comparison目录。
+
+### 2026-10-07：Wang MINCO 自由状态与中心对照
+
+两批必须串行运行（共用 PX4/Gazebo 实例），自由点/中心的区别仅为局部坐标界，均使用同一 MPC。
+下列两个运行命令不能并行执行；各自指定全新输出目录，历史批次不覆盖。
+当前入口包含事件修复；每趟除原检查外生成 `passage_audit.json`，
+主验收必须再通过“七窗正向各一次/整机离面”，不能只读 `gates=7`。
+`results/free_v1_20261007` 是修复前冻结结果；`event_v2_20261007` 保留开发结果，
+`event_v3_20261007` 是纠正远处下一窗平面误判后的复测，保留高频假反向中止；
+`event_v4_20261007` 再将进度检测统一到新鲜测量时间。不混用版本或挑选最快成绩。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/wang_free_state_mpc/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -m convex_timevarying_window.wang_free_state_mpc.experiment --outdir convex_timevarying_window/wang_free_state_mpc/results/new_free
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -m convex_timevarying_window.wang_free_state_mpc.experiment --center-only --outdir convex_timevarying_window/wang_free_state_mpc/results/new_center
+```
+
+### 2026-10-07：TOGT-MINCO 两条件试测
+
+独立入口，七次 MINCO-s4 + 原优化 MPC，默认跑原始及 r10/t1/a1/120° 两个条件，不是全矩阵。
+v1/v2 开发失败和 v3 完成记录分目录保留；使用新目录，不能覆盖已有批次。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/togt_minco_mpc/tests convex_timevarying_window/checked_soft_mpc_isolated/tests convex_timevarying_window/checked_soft_mpc_racing/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -m convex_timevarying_window.togt_minco_mpc.experiment --outdir convex_timevarying_window/togt_minco_mpc/results/new_probe
+```
+
+`protocol.json` 冻结配置/源码；在线 100 ms 含检查与 IPC，构图单列。方法 `RESULTS.md`
+记录本次结果与历史同条件来源，不能把两趟通过当总体安全保证或速度优势。
+
+### 2026-10-06：优化MPC完整矩阵
+
+使用独立规划进程和等价QP消元；当前只跑优化版，不继续旧未优化MPC批次。
+三个开发条件和正式38条件分开保存；正式批次中不改源码/配置。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/checked_soft_mpc_isolated/tests convex_timevarying_window/comparisons/checked_soft_mpc_optimized/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -m convex_timevarying_window.comparisons.checked_soft_mpc_optimized.run --outdir convex_timevarying_window/comparisons/checked_soft_mpc_optimized/results/new_frozen
+# 仅在全部计时飞行结束后生成对比图和共同动力学诊断。
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m convex_timevarying_window.comparisons.checked_soft_mpc_optimized.report convex_timevarying_window/comparisons/checked_soft_mpc_optimized/results/new_frozen --historical-dynamics
+```
+
+中断续跑加`--resume`并使用原目录；哈希一致才继续，已有原始飞行不重跑。
+用户允许轻微名义超限，但碰撞、负净空、未完成七窗返航和100 ms超限仍失败。
+
+### 2026-10-06：MPC替换跟踪的碰撞条件复测
+
+独立入口保留Checked-Soft规划与原赛道设置；每次指定新目录，旧PVA矩阵当前暂停。
+只有控制器变更，不自动恢复旧38条件批次。
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 conda run -n wyh python -m pytest -q convex_timevarying_window/checked_soft_mpc_racing/tests
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -m convex_timevarying_window.checked_soft_mpc_racing.px4 --motion-rate 10 --translation-scale 4 --rotation-scale 1 --phase 2.0943951023931953 --outdir convex_timevarying_window/checked_soft_mpc_racing/results/new_hard_case
+conda run -n wyh python -m convex_timevarying_window.checked_soft_mpc_racing.report convex_timevarying_window/checked_soft_mpc_racing/results/new_hard_case --outdir convex_timevarying_window/checked_soft_mpc_racing/results/new_comparison
+```
+
+MPC为1 s滚动预测、直接总推力/角速度；构图/准备与在线耗时分列，真实净空和接触独立审计。
+不能把无接触但未七窗返航的试验计为成功；报告保留所有开发失败和准备期异常。
 
 ```bash
 # 根 pytest.ini 只默认收集该目录
@@ -141,6 +442,21 @@ python -m togt_timevarying_window.experiments --suite smoke --outdir togt_timeva
 
 外部复现先确认本地 `复现/TOGT-Planner-reproduction/` 存在，再按其说明运行；历史构建证据见 [TOGT_REPRODUCTION_AUDIT](TOGT_REPRODUCTION_AUDIT.md)。
 ## 凸多边形/圆形周期三维窗口
+
+### 在线 Checked-Soft 目标函数变体（2026-10-06）
+
+以下命令从仓库根目录运行；新输出目录必须不存在。批量实验会重启专用PX4实验容器，
+不能与其他占用该容器的飞行并行。完成计时飞行后再运行共同ULog动力学审计。
+
+```bash
+conda run -n wyh python -m pytest -q convex_timevarying_window/checked_soft_racing/tests convex_timevarying_window/continuation_racing/tests convex_timevarying_window/receding_gate_racing/tests convex_timevarying_window/comparisons/checked_soft_racing/tests
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 GZ_SHOW_GUI=0 conda run --no-capture-output -n wyh python -m convex_timevarying_window.comparisons.checked_soft_racing.run --outdir convex_timevarying_window/comparisons/checked_soft_racing/results/new_frozen_run
+OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 conda run -n wyh python -m convex_timevarying_window.comparisons.checked_soft_racing.report convex_timevarying_window/comparisons/checked_soft_racing/results/new_frozen_run --dynamics
+```
+
+中断后同一未改源码的批次可给运行器加 `--resume`。协议见
+[Checked-Soft](../convex_timevarying_window/comparisons/checked_soft_racing/PROTOCOL.md)。
+下面命令属于较早的离线凸TOGT/CEM，不是新在线算法入口。
 
 ```bash
 pytest -q convex_timevarying_window/tests
