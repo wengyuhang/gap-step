@@ -1,0 +1,20 @@
+{
+  "SettingsVersion": 1.2,
+  "SimMode": "Multirotor",
+  "ViewMode": "SpringArmChase",
+  "ClockSpeed": 0.1,
+  "ApiServerPort": 41451,
+  "Vehicles": {
+    "RaceDrone": {
+      "VehicleType": "SimpleFlight",
+      "AutoCreate": true,
+      "AllowAPIAlways": true,
+      "EnableCollisions": true,
+      "EnableCollisionPassthrogh": false,
+      "X": 0,
+      "Y": 0,
+      "Z": 0,
+      "Yaw": 0
+    }
+  }
+}

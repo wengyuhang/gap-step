@@ -7,7 +7,6 @@ import shutil
 import sys
 from .adapter import Worker
 from 复现.polynomial_dynamic_racing_2023.px4_fixed_plane.scenario import Case, build_case, launch, manifest
-from 复现.polynomial_dynamic_racing_2023.px4_fixed_plane.reference import Reference
 
 
 def neutral_vary(track, phase, layout, rate, translation, rotation):
@@ -17,6 +16,7 @@ def neutral_vary(track, phase, layout, rate, translation, rotation):
 
 
 def main():
+    from 复现.polynomial_dynamic_racing_2023.px4_fixed_plane.reference import Reference
     p = argparse.ArgumentParser()
     p.add_argument('--frequency', type=float, required=True)
     p.add_argument('--amplitude', type=float, required=True)

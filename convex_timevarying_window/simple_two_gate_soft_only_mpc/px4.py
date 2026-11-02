@@ -64,6 +64,7 @@ def main():
     except Exception:
         worker.close()
         raise
+    if hasattr(mpc,'bind_session'): mpc.bind_session(session)
     processes, contact_paths = [], []
     for name, topic in [('barometer', '/world/convex_seven_dynamic_px4_togt/model/x500_0/link/base_link/sensor/air_pressure_sensor/air_pressure'),
                         ('truth', '/model/x500_0/odometry_with_covariance')]+[(f'gate_{i+1:02d}_contacts', t) for i, t in enumerate(CONTACT_TOPICS)]:
@@ -241,6 +242,7 @@ def main():
         rejected_event_retry_s=scheduler.retry_delay,
         build_s=build_s, mpc_build_s=mpc_build_s, mpc_warmup_ms=warmup_ms, mpc_config=asdict(mpc.cfg),
         mpc_cycles=mpc.logs, sender_failure=session.failure, source_sha256=sources,
+        tracker_metadata=getattr(mpc,'metadata',None),
         phase=a.phase, layout=a.layout, motion_rate=a.motion_rate, translation_scale=a.translation_scale,
         rotation_scale=a.rotation_scale, numpy_version=np.__version__, origin_enu_m=session.origin.tolist(),
         checked=False, checked_soft=True, continuation=True, tracking_preview_s=0., planning_lead_s=.15,

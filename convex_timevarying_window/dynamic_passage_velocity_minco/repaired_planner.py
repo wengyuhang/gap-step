@@ -85,7 +85,8 @@ class Planner(Parent):
         return super().solve(state,now,first)
 
     def goal(self,state,now):
-        began=time.perf_counter();deadline=began+self.cfg.max_solve_ms/1000
+        began=time.perf_counter()
+        deadline=float('inf') if self.cfg.max_solve_ms is None else began+self.cfg.max_solve_ms/1000
         initial=max(.5,np.linalg.norm(self.track.goal-state[:3])/5.+.5,
                     np.linalg.norm(state[3:6])/6.)
         cached_x=None;out=None

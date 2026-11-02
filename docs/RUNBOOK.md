@@ -1,5 +1,14 @@
 # 运行与验证手册
 
+## 2026-10-13：当前单窗单重射击MPC
+
+单窗配对入口single_gate_swing.flight默认已切换新MPC；旧paired_final_20261012结果保留。
+同参考重飞：python -m convex_timevarying_window.togt_style_mpc.frozen_single_gate --baseline-dir <原单窗结果目录> --outdir <新目录>。
+使用togt_style_mpc/README中的acados运行环境变量，当前新MPC自身求解为原生CasADi+L-BFGS-B。
+七窗可显式--tracker single-shooting；尚未用此新跟踪实飞七窗，不以单窗结果代替。
+测试：python -m pytest -q convex_timevarying_window/togt_style_mpc/tests convex_timevarying_window/comparisons/single_gate_swing/tests。
+报告与五条验证：convex_timevarying_window/togt_style_mpc/results/tracking_repair_20261013/REPORT.md。
+
 ## 点式 TOGT MINCO 单窗重测（2026-10-09）
 
 独立方法说明、命令及原 W1 2.5Hz/3.5m 已运行结果见
@@ -478,3 +487,19 @@ conda run --no-capture-output -n wyh python \
   --outdir convex_timevarying_window/conditional_dual_constraint_cem/results/new_run \
   --population 64 --maximum-rounds 50 --repair-max-iterations 600
 ```
+## 2026-10-13 无规划时间上限的单窗升档
+
+环境仍wyh、ACADOS_SOURCE_DIR=/home/jack/wyh/dependencies/acados-togt-v0.5.4及对应lib、单线程BLAS、GZ_SHOW_GUI=0。
+入口`python -u -m convex_timevarying_window.comparisons.single_gate_swing.extension --outdir <新目录>`，
+默认固定4m从4.5Hz起、固定4Hz从4.5m起，步长.5；任一方法失败后完成配对并停止该路线。
+`--start-frequency 5 --start-amplitude 5 --stop-on ours`可接续寻找自由点首次失败，已飞条件不重跑。
+本场景默认max_solve_ms=None，在线/诊断无墙钟截止，但保留40s完整任务与数值迭代/见证上限。
+新修改验证：`python -m pytest -q convex_timevarying_window/comparisons/single_gate_swing/tests convex_timevarying_window/dynamic_passage_velocity_minco/tests convex_timevarying_window/togt_style_mpc/tests`，32通过。
+# 2026-10-13离线横移靠近实验
+
+`comparisons/single_gate_linear_approach/offline_plan.py:compute`先在新目录保存各plan.json，
+随后wyh环境、ACADOS_SOURCE_DIR与LD_LIBRARY_PATH按togt_style_mpc配置，线程数1：
+`python -u -m convex_timevarying_window.comparisons.single_gate_linear_approach.offline_run --outdir <已有8条plan且尚未实飞的新批目录>`。
+不重复运行已有protocol.json目录；只操作convex_seven_togt_experiment。
+协议见该方法OFFLINE_PROTOCOL.md。旧在线run入口不再用于当前用户任务。
+

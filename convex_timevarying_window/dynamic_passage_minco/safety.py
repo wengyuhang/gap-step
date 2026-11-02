@@ -80,7 +80,7 @@ def box_distance_squared(lower, upper, half_sizes):
 
 
 def passage(plan, window, radius, frame_offset=.065, tolerance=2e-4, max_boxes=512,
-            piece_indices=None):
+            piece_indices=None, translation_bounds=None):
     """Return all possible plane-overlap intervals, worst witness, and bounds."""
     rotation = window.state_at(0.)[1]
     amplitude = rotation.T@window.motion.translation_amplitude
@@ -95,14 +95,17 @@ def passage(plan, window, radius, frame_offset=.065, tolerance=2e-4, max_boxes=5
 
     def value(piece, u):
         t = starts[piece]+plan.durations[piece]*u
-        q = rotation.T@(plan.sample(float(t))-window.center0)-amplitude*np.sin(omega*t+phase)
+        q = rotation.T@(plan.sample(float(t))-window.state_at(float(t))[0])
         return float(rectangle_distance_squared(q, half_sizes))
 
     def enqueue(piece, a, b, control):
         nonlocal serial, best, witness
         ta, tb = starts[piece]+plan.durations[piece]*np.array([a, b])
-        sl, su = sine_range(omega*ta+phase, omega*tb+phase)
-        v0, v1 = amplitude*sl, amplitude*su
+        if translation_bounds is None:
+            sl, su = sine_range(omega*ta+phase, omega*tb+phase)
+            v0, v1 = amplitude*sl, amplitude*su
+        else:
+            v0, v1 = translation_bounds(ta, tb)
         lower = control.min(axis=0)-np.maximum(v0, v1)-1e-10
         upper = control.max(axis=0)-np.minimum(v0, v1)+1e-10
         bound = box_distance_squared(lower, upper, half_sizes)

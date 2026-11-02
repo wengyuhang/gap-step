@@ -23,6 +23,14 @@ from .state_consistency import PositionVelocityObserver
 
 class Session:
     """Single telemetry owner, coherent snapshots, independent feedback sender."""
+    telemetry_intervals=((31,10000),(32,10000),(375,10000))
+    motor_estimator_class=MotorEstimate
+
+    def on_message(self, message):
+        pass
+
+    def control_state(self, state, stamp):
+        return state
     def __init__(self,out,track,consistent_velocity=False):
         self.out=out;self.track=track
         out.mkdir(parents=True,exist_ok=False)
@@ -33,13 +41,13 @@ class Session:
         self.link=mavutil.mavlink_connection('udpin:0.0.0.0:14550',source_system=254,source_component=190)
         send_gcs_heartbeat(self.link)
         if self.link.wait_heartbeat(timeout=10) is None:raise RuntimeError('no heartbeat')
-        for message in (31,32,375):
-            self.link.mav.command_long_send(1,1,mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL,0,message,10000,0,0,0,0,0)
+        for message,interval in self.telemetry_intervals:
+            self.link.mav.command_long_send(1,1,mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL,0,message,interval,0,0,0,0,0)
         self.clock=ClockReader();self.lock=threading.Lock();self.stop=False
         self.snapshot=None;self.feedback=None;self.failure=None;self.failure_snapshot=None;self.sent=[];self.armed=False
         self.measurements=deque(maxlen=8192)
         self.origin=None;self.hold=track.start.copy();self._latest=None;self._attitude=None
-        self._motors=MotorEstimate();self._stamps={};self._outputs=None
+        self._motors=self.motor_estimator_class();self._stamps={};self._outputs=None
         self.velocity_observer=PositionVelocityObserver() if consistent_velocity else None
         self.observer_log=[]
         self._receive_thread=threading.Thread(target=self._receive,daemon=True)
@@ -61,6 +69,7 @@ class Session:
             if kind=='ATTITUDE_QUATERNION':self._attitude=msg
             if kind=='ACTUATOR_OUTPUT_STATUS':
                 self._outputs=np.array(msg.actuator[:4]);self._motors.update(msg.time_usec*1e-6,self._outputs)
+            self.on_message(msg)
             p,q=self._latest,self._attitude
             if p is None or q is None or self._motors.speed is None or self.clock.value is None:continue
             if self.origin is None:self.origin=np.array([-16.-p.y,4.-p.x,-5.76+p.z])
@@ -106,8 +115,11 @@ class Session:
                     send_setpoint(self.link,enu_to_ned(self.hold,position=True,origin_enu=self.origin))
                 else:
                     if age>.1:raise RuntimeError('stale_full_state')
+                    x=self.control_state(x,now)
                     u=fn(x,now);rate,thrust=encode_ctbr(u)
                     send_bodyrate_thrust(self.link,rate,thrust)
+                    notified=getattr(self,'command_sent',None)
+                    if notified is not None: notified(u,float(self.clock.value)-30.)
                     self.sent.append((now,*x,*u,1000*(time.monotonic()-wall)))
                 if wall-beat>.4:send_gcs_heartbeat(self.link);beat=wall
             except Exception as exc:

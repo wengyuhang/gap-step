@@ -37,6 +37,10 @@ class PeriodicGateMotion final :
     this->translationPhase = _sdf->Get<gz::math::Vector3d>(
         "translation_phase_offsets", gz::math::Vector3d(0.0, 0.7, 1.4)).first;
     this->motionStartTime = _sdf->Get<double>("motion_start_time", 0.0).first;
+    this->linear = _sdf->Get<bool>("linear_translation", false).first;
+    this->linearVelocity = _sdf->Get<gz::math::Vector3d>(
+        "linear_velocity", gz::math::Vector3d::Zero).first;
+    this->linearAnchorTime = _sdf->Get<double>("linear_anchor_time", 0.0).first;
   }
 
   public: void PreUpdate(const gz::sim::UpdateInfo &_info,
@@ -55,6 +59,9 @@ class PeriodicGateMotion final :
       position[axis] += this->translationAmplitude[axis] *
           std::sin(twoPi * t / this->translationPeriod + this->phase +
                    this->translationPhase[axis]);
+      if (this->linear)
+        position[axis] = this->center[axis] + this->linearVelocity[axis] *
+            (t - this->linearAnchorTime);
       rpy[axis] += this->rotationAmplitude[axis] *
           std::sin(twoPi * t / this->rotationPeriod + this->phase +
                    rotationPhase[axis]);
@@ -80,6 +87,9 @@ class PeriodicGateMotion final :
   private: double rotationPeriod{1.0};
   private: double phase{0.0};
   private: double motionStartTime{0.0};
+  private: bool linear{false};
+  private: gz::math::Vector3d linearVelocity{0, 0, 0};
+  private: double linearAnchorTime{0.0};
 };
 }
 

@@ -54,13 +54,33 @@ class Planner:
         return ca.sum1(times)+self.cfg.constraint_penalty*ca.sum1(dynamic**3)
     def order_seeds(self, seeds, state, now): return seeds
 
+    def symbolic_pose(self, window, t):
+        return symbolic_pose(window, t)
+
+    def arrival_initialization(self, window, now, initial):
+        period = window.motion.translation_period; omega = 2*np.pi/period
+        nearest = round((omega*(now+initial)+window.motion.phase-np.pi/2)/np.pi)
+        arrivals = [(np.pi/2+(nearest+step)*np.pi-window.motion.phase)/omega-now
+                    for step in (0, -1, -2, 1)]
+        return arrivals, omega, period
+
+    def arrival_bounds(self, window, now, seed_arrival, omega, period):
+        turn = (np.pi/2+round((omega*seed_arrival+window.motion.phase-np.pi/2)/np.pi)*np.pi
+                -window.motion.phase)/omega
+        return max(.3, turn-period/4-now), min(15., max(.3, turn+period/4-now))
+
+    def local_passage(self, plan, window, piece):
+        return passage(plan, window,
+                       self.cfg.radius+self.cfg.frame_thickness+self.cfg.passage_margin,
+                       self.cfg.frame_offset, piece_indices=(piece,))
+
     def _build(self):
         cfg = self.cfg; w = self.windows[0]
         self.nvar = 10 if cfg.free_crossing_acceleration else 7
         x = ca.MX.sym('passage_velocity_x', self.nvar)
         par = ca.MX.sym('passage_velocity_par', 13+2*cfg.witness_slots)
         times = ca.exp(x[:2]); crossing = par[0]+times[0]
-        center, rotation = symbolic_pose(w, crossing)
+        center, rotation = self.symbolic_pose(w, crossing)
         knot = center+rotation[:, :2]@x[2:4]
         C = minco_coefficients(ca.reshape(par[1:13], 3, 4),
             ca.horzcat(ca.DM(self.track.goal), ca.DM.zeros(3, 3)), knot, x[4:7], times,
@@ -98,7 +118,7 @@ class Planner:
                 offset = ca.fmin(par[13+piece*cfg.witness_slots+j], times[piece])
                 u = 1.-offset/times[0] if piece == 0 else offset/times[1]
                 t = crossing-offset if piece == 0 else crossing+offset
-                cc, rr = symbolic_pose(w, t)
+                cc, rr = self.symbolic_pose(w, t)
                 q = rr.T@(state(piece, u)-cc)
                 for axis in (0, 1):
                     for sign in (-1, 1):
@@ -136,7 +156,8 @@ class Planner:
 
     def solve(self, state, now, first):
         if first != 0: raise ValueError('Single-window planner already completed')
-        began = time.perf_counter(); deadline = began+self.cfg.max_solve_ms/1000.
+        began = time.perf_counter()
+        deadline = float('inf') if self.cfg.max_solve_ms is None else began+self.cfg.max_solve_ms/1000.
         cfg = self.cfg; state = np.asarray(state)
         if len(state) == 9: state = np.r_[state, np.zeros(3)]
         w = self.windows[0]
@@ -153,10 +174,7 @@ class Planner:
                 initial1 = accelerate+(distance1-accelerate_distance)/cfg.speed
             initial1 = max(.8, initial1+cfg.acceleration/cfg.jerk)
         initial2 = max(.8, np.sqrt(6*distance2/cfg.acceleration), (60*distance2/cfg.jerk)**(1/3))
-        period = w.motion.translation_period; omega = 2*np.pi/period
-        nearest_turn = round((omega*(now+initial1)+w.motion.phase-np.pi/2)/np.pi)
-        arrivals = [(np.pi/2+(nearest_turn+step)*np.pi-w.motion.phase)/omega-now
-                    for step in (0, -1, -2, 1)]
+        arrivals, omega, period = self.arrival_initialization(w, now, initial1)
         initial_velocity = -.8*cfg.speed*self.signs[0]*self.rotation[:, 2]
         initial_acceleration = (self.signs[0]*self.rotation[:, 2]
             *min(cfg.acceleration, np.dot(initial_velocity, initial_velocity)/(2*max(.1, distance2))))
@@ -173,10 +191,8 @@ class Planner:
             x = np.clip(seed, self.lower, self.upper)
             basin_lower, basin_upper = self.lower.copy(), self.upper.copy()
             seed_arrival = now+np.exp(seed[0])
-            turn = (np.pi/2+round((omega*seed_arrival+w.motion.phase-np.pi/2)/np.pi)*np.pi
-                    -w.motion.phase)/omega
-            basin_lower[0] = np.log(max(.3, turn-period/4-now))
-            basin_upper[0] = np.log(min(15., max(.3, turn+period/4-now)))
+            lower_t, upper_t = self.arrival_bounds(w, now, seed_arrival, omega, period)
+            basin_lower[0], basin_upper[0] = np.log([lower_t, upper_t])
             x = np.clip(x, basin_lower, basin_upper)
             offsets = np.tile(np.r_[base_offsets, np.zeros(cfg.witness_slots-len(base_offsets))], (2, 1))
             next_slots = [len(base_offsets)]*2
@@ -223,8 +239,7 @@ class Planner:
                     x = last; status = 'wall_budget'; converged = False
                     if getattr(cfg, 'strict_evaluation_deadline', False): break
                 out = self.function(x, par); plan = self._plan(x, now, out)
-                parts = [passage(plan, w, cfg.radius+cfg.frame_thickness+cfg.passage_margin,
-                                 cfg.frame_offset, piece_indices=(piece,)) for piece in range(2)]
+                parts = [self.local_passage(plan, w, piece) for piece in range(2)]
                 verified = dict(passed=all(p['passed'] for p in parts), parts=parts,
                     outcome='numerically_bounded' if all(p['passed'] for p in parts) else 'violated_or_unresolved',
                     minimum_sample_distance_m=min(p['minimum_sample_distance_m'] for p in parts),
@@ -249,14 +264,16 @@ class Planner:
             attempts.append(dict(seed=seed.tolist(), rounds=round_records))
             if best is not None: break
         elapsed = 1000*(time.perf_counter()-began)
+        failure_status = 'no_converged_safe_passage' if cfg.max_solve_ms is None else 'no_safe_passage_under_budget'
         stats = dict(iter_count=total_iterations, optimization_ms=elapsed, attempts=attempts,
-                     return_status='safe_passage_found' if best else 'no_safe_passage_under_budget',
+                     wall_time_limit_ms=cfg.max_solve_ms,
+                     return_status='safe_passage_found' if best else failure_status,
                      converged=best is not None, passage_model='sphere versus moving aperture outside half-planes',
                      formal_certificate=False, candidate_policy='first_converged_locally_safe',
                      interior_velocity_free=True)
         stats['interior_acceleration_free'] = cfg.free_crossing_acceleration
         self.solvers[0][0].value = stats
-        if best is None: raise RuntimeError('no_safe_passage_under_budget: '+str(elapsed))
+        if best is None: raise RuntimeError(failure_status+': '+str(elapsed))
         value, plan, verified = best
         stats.update(final_objective=value, passage=verified)
         plan.optimizer_stats = stats; plan.solve_ms = elapsed

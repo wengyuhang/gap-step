@@ -8,6 +8,7 @@ import sys
 from .worker import Worker
 from convex_timevarying_window.simple_two_gate_mpc.planner import Config
 from .reference import Reference
+from .scheduler import Scheduler
 from convex_timevarying_window.comparisons.original_fixed_plane_ours.flight import neutral_vary
 from 复现.polynomial_dynamic_racing_2023.px4_fixed_plane.scenario import Case,build_case,launch,manifest
 
@@ -30,7 +31,6 @@ def main():
     refs=[]
     def reference(start):
         ref=Reference(start,len(build_case(case)[0].windows));refs.append(ref);return ref
-    from .scheduler import Scheduler
     entry.Scheduler=Scheduler
     entry.Reference=reference;entry.Worker=Worker;entry.PlannerConfig=lambda:variant_config(a.method)
     entry.build_track=lambda:build_case(case);entry.vary_track=neutral_vary;ctbr_probe.launch_variant=launch
