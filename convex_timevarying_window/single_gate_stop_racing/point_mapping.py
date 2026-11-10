@@ -29,3 +29,20 @@ def symbolic(aperture,d):
 
 def numeric(aperture,d):
     return np.asarray(symbolic(aperture,ca.DM(d))).ravel()
+
+
+def inverse(aperture, point):
+    """Interior inverse using disk algebra or positive mean-value coordinates."""
+    point = np.asarray(point, float)
+    if aperture.kind == 'circle':
+        return point/(aperture.radius+np.sqrt(aperture.radius**2-point@point))
+    vectors = aperture.physical_vertices-point
+    distances = np.linalg.norm(vectors, axis=1)
+    following = np.roll(vectors, -1, axis=0)
+    cross = vectors[:, 0]*following[:, 1]-vectors[:, 1]*following[:, 0]
+    tangents = cross/(distances*np.roll(distances, -1)+np.sum(vectors*following, axis=1))
+    weights = (np.roll(tangents, 1)+tangents)/distances
+    weights /= weights.sum()
+    if not np.isfinite(weights).all() or np.any(weights < 0.):
+        raise ValueError('Mean-value inverse requires a point strictly inside a convex polygon')
+    return np.sqrt(np.r_[weights[1:], weights[:1]])

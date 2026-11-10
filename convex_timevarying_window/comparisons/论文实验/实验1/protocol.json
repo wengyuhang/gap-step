@@ -1,0 +1,91 @@
+{
+  "experiment_id": "实验1",
+  "created_date": "2026-11-05",
+  "status": "completed_current_protocol",
+  "translation": {
+    "status": "complete_34_flights",
+    "runner_module": "convex_timevarying_window.comparisons.single_gate_swing.run",
+    "tracker_module": "convex_timevarying_window.togt_style_mpc.shooting_controller",
+    "motion_type": "fixed_orientation_in_plane_linear_sinusoid",
+    "variants": [
+      "ours",
+      "center"
+    ],
+    "static_case": {
+      "frequency_hz": 1.0,
+      "amplitude_m": 0.0
+    },
+    "amplitudes_m": [
+      2.0,
+      4.0
+    ],
+    "frequencies_hz": [
+      0.5,
+      1.0,
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      3.5,
+      4.0
+    ],
+    "phase_rad": 0.0,
+    "repetitions_per_condition": 1,
+    "planned_conditions": 17,
+    "planned_flights": 34,
+    "wall_clock_solve_limit_ms": null,
+    "report_deadline_ms": 100.0,
+    "task_limit_s": 40.0,
+    "physics_step_s": 0.001,
+    "contact_rate_hz": 1000,
+    "historical_results_reused_as_new": false,
+    "result_directory": "results/translation_v1_20261105"
+  },
+  "pendulum": {
+    "status": "complete_9_valid_comparison_records",
+    "author_repository": "https://github.com/uzh-rpg/high_mpc",
+    "author_commit": "7aade770169c839f52a5b2927343d1858d51c133",
+    "variants": [
+      "ours",
+      "center",
+      "high_mpc_author"
+    ],
+    "formal_cases": {
+      "initial_angles_deg": [
+        0,
+        60,
+        120
+      ],
+      "initial_angular_velocity_rad_s": 0,
+      "repetitions": 1,
+      "methods": 3,
+      "formal_flights": 9
+    },
+    "physical_model": "common_x500_PX4_Gazebo",
+    "mix_absolute_times_with_x500_translation": false,
+    "formal_flights_allowed_before_validation": false,
+    "gate_nominal_diameter_m": 1.9788007268322227,
+    "size_matching": "propeller_diameter_ratio; full-body ratio not verified",
+    "author_policy_retrained": false,
+    "online_terminal_position_m": 0.5,
+    "truth_terminal_position_m": 0.55,
+    "static_preflight": "results/preflight_pendulum_v3_20261105",
+    "dynamic_interface": "results/pendulum_dynamic_interface_v1_20261105",
+    "formal_result_directory": "results/pendulum_final_v2_20261105",
+    "validation_passed": true,
+    "formal_flights_started": true,
+    "formal_flights_completed": 9,
+    "unmodified_free_center_records_retained": 6,
+    "fair_model_matched_author_benchmark_complete": false,
+    "first_contact_finer_check": "results/pendulum_first_contact_resolution_v1_20261105",
+    "safety_advantage_established": false
+  },
+  "primary_metrics": [
+    "completed_no_collision",
+    "complete_task_time_s",
+    "physical_collision"
+  ],
+  "source_freeze_required": true,
+  "formal_flights_started": true,
+  "report": "RESULTS.md"
+}

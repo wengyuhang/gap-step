@@ -27,6 +27,9 @@ from .tracking_mpc import MPC, Config
 ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE_LOWER = (-28.,-30.,.65)
 WORKSPACE_UPPER = (28.,22.,12.)
+# Per-experiment terminal tolerance; legacy entries retain their exact defaults.
+FINISH_POSITION_TOLERANCE = .55
+FINISH_SPEED_TOLERANCE = 1.
 PARAMETERS = {'MPC_XY_VEL_MAX':14., 'MPC_XY_CRUISE':12., 'MPC_Z_VEL_MAX_UP':7.,
               'MPC_Z_VEL_MAX_DN':7., 'MPC_ACC_HOR':10., 'MPC_ACC_HOR_MAX':12.,
               'MPC_ACC_UP_MAX':9., 'MPC_ACC_DOWN_MAX':9., 'MPC_JERK_AUTO':35.,
@@ -213,7 +216,7 @@ def main():
             desired = active.sample(now) if active is not None else track.start
             row = [now, *pos, *vel, *acceleration, *desired, gate, float(np.linalg.norm(pos-desired)), stamp]
             if now-last_row >= .018: record(row); last_row = now
-            if gate == len(track.windows) and np.linalg.norm(pos-track.goal) < .55 and np.linalg.norm(vel) < 1.:
+            if gate == len(track.windows) and np.linalg.norm(pos-track.goal) < FINISH_POSITION_TOLERANCE and np.linalg.norm(vel) < FINISH_SPEED_TOLERANCE:
                 record(row); finished = True; completed = now; break
             time.sleep(.001)
         if not finished: failure = 'timeout'

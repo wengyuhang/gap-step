@@ -37,6 +37,14 @@ def k_from_durations(durations: np.ndarray) -> np.ndarray:
     return out
 
 
+def symbolic_durations_from_k(k):
+    """CasADi expression of the same TOGT positive-duration mapping."""
+    import casadi as ca
+
+    return ca.if_else(k > 0.0, (0.5*k+1.0)*k+1.0,
+        1.0/((0.5*k-1.0)*k+1.0))
+
+
 def duration_jacobian_diagonal(k: np.ndarray) -> np.ndarray:
     """Return the diagonal of ``d tau(K) / dK``."""
 

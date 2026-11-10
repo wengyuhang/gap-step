@@ -14,7 +14,7 @@ void standard(drolib::TrajParams &p) {
   p.piecesPerSegment=13; p.speedGuess=1; p.maxVelNorm=11.95; p.maxOmgXY=3.839724354;
   p.maxOmgZ=3.490658504; p.maxTiltedAngle=0.78; p.maxThr=8.54858; p.minThr=0;
   p.weightTime=1; p.weightEnergy=0; p.weightPos=0; p.weightVel=0;
-  p.weightOmg=1000; p.weightRot=1000; p.weightThr=1000; p.smoothingEps=.01;
+  p.weightOmg=1000; p.weightRot=0; p.weightThr=1000; p.smoothingEps=.01;
   p.numConstPena=16; p.dynamicConstCheck=true; p.minNumCheck=8;
   p.maxNumCheck=32; p.checkTimeSec=.05;
   p.maxVelSqr=142.8025; p.maxOmgXYSqr=14.74348422; p.maxOmgZSqr=12.18469679;
@@ -43,7 +43,7 @@ double integrate(const Eigen::VectorXd &T,const Eigen::MatrixX3d &C,
                  Eigen::MatrixX3d &gC,Eigen::VectorXd &gT) {
   double cost=0; drolib::ConstAngle yaw(0); Eigen::Matrix<double,8,6> b;
   for(int i=0;i<T.size();i++) { auto c=C.block<8,3>(8*i,0);
-    int M=std::min(std::max(int(T(i)/p.checkTimeSec),p.minNumCheck),p.maxNumCheck);
+    const int M=p.maxNumCheck;
     double frac=1.0/M, step=T(i)*frac;
     for(int j=0;j<=M;j++) { double t=j*step; beta(t,b);
       Eigen::Vector3d x[6]; for(int r=0;r<6;r++) x[r]=c.transpose()*b.col(r);

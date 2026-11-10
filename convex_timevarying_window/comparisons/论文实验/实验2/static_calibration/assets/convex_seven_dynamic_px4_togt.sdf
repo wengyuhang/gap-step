@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+<!-- Mount target only. Each flight overlays its frozen result-local world. -->
+<sdf version="1.9"/>

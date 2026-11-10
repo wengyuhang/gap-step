@@ -45,3 +45,16 @@ results/
 
 # External reproduction code
 复现/
+
+# CasADi JIT temporary sources
+/jit_tmp*.c
+
+# Generated CMake caches and build files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+/build/Makefile
+/convex_timevarying_window/comparisons/论文实验/实验1/pendulum/assets/build/Makefile
+/convex_timevarying_window/comparisons/论文实验/实验2/assets/build/Makefile
+/convex_timevarying_window/comparisons/论文实验/实验2/assets/container_build/
+/convex_timevarying_window/comparisons/论文实验/实验2/assets/dev_build/

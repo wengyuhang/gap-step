@@ -15,6 +15,8 @@ RATE_MAX = np.array([3.8, 3.8, 3.49])
 POSITIONS = np.array([[.174, -.174, .06], [-.174, .174, .06],
                       [.174, .174, .06], [-.174, -.174, .06]])
 COM = np.array([0., 0., 4*.016076923076923075*.06/MASS])
+ROTOR_DRAG = 8.06428e-5
+ROLLING_MOMENT = 1e-6
 
 
 def rotation(q):
@@ -29,19 +31,24 @@ def quaternion_error(q, reference):
     return reference[0]*q[1:]-q[0]*reference[1:]-ca.cross(reference[1:], q[1:])
 
 
-def expressions():
-    x, u = ca.SX.sym('x', 13), ca.SX.sym('u', 4)
-    rot, omega = rotation(x[6:10]), x[10:13]
-    force = ca.vertcat(0., 0., ca.sum1(u))
-    aero_torque = ca.SX.zeros(3)
-    body_v = rot.T@x[3:6]
+def aerodynamics(rot, velocity, omega, rotor_forces):
+    force = ca.vertcat(0., 0., ca.sum1(rotor_forces))
+    torque = ca.DM.zeros(3)
+    body_v = rot.T@velocity
     for i in range(4):
         velocity = body_v+ca.cross(omega, ca.DM(POSITIONS[i]))
         planar = ca.vertcat(velocity[:2], 0.)
-        speed = ca.sqrt(ca.fmax(u[i], 1e-8)/KF)
-        drag = -8.06428e-5*speed*planar
+        speed = ca.sqrt(ca.fmax(rotor_forces[i], 1e-8)/KF)
+        drag = -ROTOR_DRAG*speed*planar
         force += drag
-        aero_torque += ca.cross(ca.DM(POSITIONS[i]-COM), drag)-1e-6*speed*planar
+        torque += ca.cross(ca.DM(POSITIONS[i]-COM), drag)-ROLLING_MOMENT*speed*planar
+    return force, torque
+
+
+def expressions():
+    x, u = ca.SX.sym('x', 13), ca.SX.sym('u', 4)
+    rot, omega = rotation(x[6:10]), x[10:13]
+    force, aero_torque = aerodynamics(rot, x[3:6], omega, u)
     inertia = ca.DM(X500_INERTIA)
     torque = ca.DM(MIXER[1:])@u+aero_torque
     acc = rot@force/MASS-ca.vertcat(0., 0., G)

@@ -1,0 +1,17 @@
+{
+  "repository": "https://github.com/FSC-Lab/TOGT-Planner",
+  "commit": "6707d3a1d06e4bd33d4aaa5e6f9fa02497ee90c5",
+  "path": "resources/racetrack/race_uzh_7g_multiprisma.yaml",
+  "git_blob_sha1": "be48065c3747e091f2efa4b15b962db0d5260f24",
+  "original_bytes_sha256": "335591ea6fbd12750ab6a910c82a975d2712355717ea25e2246c26bd0d30ac2e",
+  "retrieved_from_official_github_api": true,
+  "start": [-5.0, 4.5, 1.2],
+  "original_end": [4.75, -0.9, 1.2],
+  "positions": [[-1.1, -1.6, 3.6], [9.2, 6.6, 1.0], [9.2, -4.0, 1.2], [-4.5, -6.0, 3.5], [-4.5, -6.0, 0.8], [4.75, -0.9, 1.2], [-2.8, 6.8, 1.2]],
+  "rpy_degrees_first_six": [[0, -90, 0], [0, -90, -20], [0, -90, -130], [0, -90, 180], [0, -90, 0], [0, -90, 70]],
+  "original_types": ["TrianglePrisma", "RectanglePrisma", "PentagonPrisma", "RectanglePrisma", "RectanglePrisma", "HexagonPrisma", "SingleBall"],
+  "seventh_original_radius_m": 0.3,
+  "third_original_corridor_length_m": 16.0,
+  "third_original_midpoints": 1,
+  "note": "Normalized factual geometry extract, not a byte-identical copy of upstream YAML. Only layout/first-six poses/order are used; physical shapes, seventh plane, closed return and polynomial structure remain our task adaptations."
+}

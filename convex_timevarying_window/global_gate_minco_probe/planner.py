@@ -71,6 +71,7 @@ class Planner:
         self.forward = ca.Function('global_forward', [x], [forward, ca.jacobian(forward, x)])
         # Piece-major 24-coefficient blocks, also used in the analytic chain rule.
         vector = ca.vertcat(*[ca.vec(C[8*k:8*k+8, :]) for k in range(self.n)])
+        self.curve_values = ca.Function('global_curve_values', [x], [vector], {'cse': True})
         self.curve = ca.Function('global_curve', [x], [vector, ca.jacobian(vector, x)], {'cse': True})
         # Geometric homotopy is optional and used only to obtain a shorter
         # initialization; weight zero recovers the unchanged time objective.
@@ -311,7 +312,8 @@ class Planner:
                         duration_s=float(plan.durations.sum()), first_nodes_s=first_nodes)
                     records.append(record)
                     progress(record)
-                    if not result.success or minimum < -1e-5:
+                    verification_ready = bool(result.success or getattr(result, 'verification_ready', False))
+                    if not verification_ready or minimum < -1e-5:
                         break
                     checks, passed = self.verify(plan, deadline)
                     local_ok = all(p['passed'] for p in checks if p['piece'] in (p['gate'], p['gate']+1))
@@ -320,6 +322,8 @@ class Planner:
                     record['checks'] = checks
                     record['global_passed'] = passed
                     if passed:
+                        if not result.success:
+                            continue
                         elapsed = time.perf_counter()-began
                         plan.solve_ms = elapsed*1000
                         return plan, dict(found=True, solve_s=elapsed, first_nodes_s=first_nodes,
