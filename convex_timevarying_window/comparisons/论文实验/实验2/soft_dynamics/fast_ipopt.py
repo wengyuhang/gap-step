@@ -104,6 +104,10 @@ def build_problem(planner, witnesses, progress, deadline, warm):
     keys.extend(('soft', index) for index in range(int(slack.numel())))
     assert len(keys) == int(constraints.numel())
     return dict(solver=solver, callback=callback, lower=lower, upper=upper, keys=keys,
+        native_expressions=[variables, parameters, x, times, coefficients, objective/normalization, constraints],
+        formulation=ca.Function('finite_native_formulation', [variables, parameters],
+            [objective/normalization, constraints], ['x', 'p'], ['f', 'g']),
+        solver_options={key: value for key, value in options.items() if key != 'iteration_callback'},
         unpack=ca.Function('finite_original_variables', [z, parameters], [x]),
         baseline=ca.Function('finite_minco_baseline', [z, parameters], [baseline]),
         residuals=ca.Function('finite_initial_residuals', [z, parameters], [residuals]),
