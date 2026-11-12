@@ -1,0 +1,469 @@
+{
+  "best_candidate": "a75_f6_ours_3",
+  "best_time_s": 24.382057148328528,
+  "gazebo_executed": false,
+  "level": "a75_f6",
+  "parallel_wall_s": 657.03804698,
+  "qualified": 2,
+  "rows": [
+    {
+      "continued_iteration_limit_rounds": [
+        1
+      ],
+      "finite_calls": [
+        {
+          "iterations": 5000,
+          "minimum_constraint": 4.882766272418237e-07,
+          "objective": 76.99366048705984,
+          "round": 1,
+          "solver_s": 173.857818588,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 851,
+          "minimum_constraint": 3.073876944648113e-09,
+          "objective": 76.98785083002139,
+          "round": 2,
+          "solver_s": 34.011352141,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 1057,
+          "minimum_constraint": 0.00015463643734739407,
+          "objective": 77.04017508773666,
+          "round": 3,
+          "solver_s": 43.727102512,
+          "status": "Infeasible_Problem_Detected"
+        },
+        {
+          "iterations": 340,
+          "minimum_constraint": 2.2925414344676653e-09,
+          "objective": 77.0771444405058,
+          "round": 4,
+          "solver_s": 13.840453904,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 1304,
+          "minimum_constraint": 1.8860484285454504e-09,
+          "objective": 77.0199254499145,
+          "round": 5,
+          "solver_s": 56.036373027,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 1643,
+          "minimum_constraint": 1.756722656232057e-09,
+          "objective": 77.02579791885967,
+          "round": 6,
+          "solver_s": 65.318901647,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 1280,
+          "minimum_constraint": 1.869797403020179e-08,
+          "objective": 76.99410880510385,
+          "round": 7,
+          "solver_s": 52.833506109,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 589,
+          "minimum_constraint": 2.735749016213873e-09,
+          "objective": 76.9958434476173,
+          "round": 8,
+          "solver_s": 23.093489275,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 431,
+          "minimum_constraint": 4.368823802725075e-09,
+          "objective": 76.99659244856728,
+          "round": 9,
+          "solver_s": 16.433821069,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "found": true,
+      "ground_collision": true,
+      "objective": 76.99659244856728,
+      "outcome": "无碰撞轨迹",
+      "passed": true,
+      "process_wall_s": 486.807348693,
+      "seed": 0,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/run/candidates/a75_f6_ours_0/result.json",
+      "termination_reason": "verified_solution",
+      "time_s": 76.99659188345919
+    },
+    {
+      "continued_iteration_limit_rounds": [
+        1
+      ],
+      "finite_calls": [
+        {
+          "iterations": 5000,
+          "minimum_constraint": 0.0013189545683825465,
+          "objective": 76499.26180867614,
+          "round": 1,
+          "solver_s": 157.336653823,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": -0.019356453934385377,
+          "objective": 74985.94433208584,
+          "round": 2,
+          "solver_s": 159.666935224,
+          "status": "Maximum_Iterations_Exceeded"
+        }
+      ],
+      "found": false,
+      "ground_collision": null,
+      "objective": null,
+      "outcome": "未找到",
+      "passed": false,
+      "process_wall_s": 318.912210817,
+      "seed": 1,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/run/candidates/a75_f6_ours_1/result.json",
+      "termination_reason": "finite_node_geometry_violation",
+      "time_s": null
+    },
+    {
+      "continued_iteration_limit_rounds": [],
+      "finite_calls": [
+        {
+          "iterations": 5000,
+          "minimum_constraint": -0.22099368556951654,
+          "objective": 319832163.50990355,
+          "round": 1,
+          "solver_s": 156.291105971,
+          "status": "Maximum_Iterations_Exceeded"
+        }
+      ],
+      "found": false,
+      "ground_collision": null,
+      "objective": null,
+      "outcome": "未找到",
+      "passed": false,
+      "process_wall_s": 157.304065634,
+      "seed": 2,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/run/candidates/a75_f6_ours_2/result.json",
+      "termination_reason": "finite_node_geometry_violation",
+      "time_s": null
+    },
+    {
+      "continued_iteration_limit_rounds": [
+        1,
+        2
+      ],
+      "finite_calls": [
+        {
+          "iterations": 5000,
+          "minimum_constraint": 0.0019126955246141497,
+          "objective": 95040.85397388187,
+          "round": 1,
+          "solver_s": 165.166723809,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": 0.02716164374919422,
+          "objective": 707315.1202181516,
+          "round": 2,
+          "solver_s": 161.204293319,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 2179,
+          "minimum_constraint": 8.88026120693386e-09,
+          "objective": 24.82451808459904,
+          "round": 3,
+          "solver_s": 78.220889082,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 569,
+          "minimum_constraint": 4.856190033430963e-09,
+          "objective": 24.82377481548239,
+          "round": 4,
+          "solver_s": 20.495779471,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 700,
+          "minimum_constraint": 3.999713310554043e-09,
+          "objective": 24.836175686929742,
+          "round": 5,
+          "solver_s": 24.070582365,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 1222,
+          "minimum_constraint": 4.256472091457297e-09,
+          "objective": 24.387056366278127,
+          "round": 6,
+          "solver_s": 44.022882084,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 254,
+          "minimum_constraint": 6.990251044669549e-09,
+          "objective": 24.387765219919803,
+          "round": 7,
+          "solver_s": 9.017854786,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 318,
+          "minimum_constraint": 3.527181380302835e-09,
+          "objective": 24.381282617783942,
+          "round": 8,
+          "solver_s": 11.462900669,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 281,
+          "minimum_constraint": 3.562329209394477e-09,
+          "objective": 24.381879020262186,
+          "round": 9,
+          "solver_s": 10.371892632,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 333,
+          "minimum_constraint": 3.53358725613262e-09,
+          "objective": 24.382053305879047,
+          "round": 10,
+          "solver_s": 12.511705553,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 243,
+          "minimum_constraint": 3.614738619539537e-09,
+          "objective": 24.38205449418882,
+          "round": 11,
+          "solver_s": 8.881187302,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 305,
+          "minimum_constraint": 1.7719904654711627e-08,
+          "objective": 24.382054525408655,
+          "round": 12,
+          "solver_s": 11.288268868,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 218,
+          "minimum_constraint": 3.5414479682138733e-09,
+          "objective": 24.38205534380377,
+          "round": 13,
+          "solver_s": 8.985192892,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 479,
+          "minimum_constraint": 3.533542458633576e-09,
+          "objective": 24.38205743079573,
+          "round": 14,
+          "solver_s": 17.746113288,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "found": true,
+      "ground_collision": false,
+      "objective": 24.38205743079573,
+      "outcome": "无碰撞轨迹",
+      "passed": true,
+      "process_wall_s": 594.528458039,
+      "seed": 3,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/run/candidates/a75_f6_ours_3/result.json",
+      "termination_reason": "verified_solution",
+      "time_s": 24.382057148328528
+    },
+    {
+      "continued_iteration_limit_rounds": [
+        1
+      ],
+      "finite_calls": [
+        {
+          "iterations": 5000,
+          "minimum_constraint": 0.00022154462434046396,
+          "objective": 1714088.2246624457,
+          "round": 1,
+          "solver_s": 158.553011971,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": -0.00014390066526183133,
+          "objective": 81636.57598975464,
+          "round": 2,
+          "solver_s": 168.579615938,
+          "status": "Maximum_Iterations_Exceeded"
+        }
+      ],
+      "found": false,
+      "ground_collision": null,
+      "objective": null,
+      "outcome": "未找到",
+      "passed": false,
+      "process_wall_s": 329.042529849,
+      "seed": 4,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/run/candidates/a75_f6_ours_4/result.json",
+      "termination_reason": "finite_node_geometry_violation",
+      "time_s": null
+    },
+    {
+      "continued_iteration_limit_rounds": [
+        1
+      ],
+      "finite_calls": [
+        {
+          "iterations": 5000,
+          "minimum_constraint": 2.5153198301985924e-08,
+          "objective": 18.33297594184354,
+          "round": 1,
+          "solver_s": 178.836492364,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 609,
+          "minimum_constraint": 5.806588057599704e-09,
+          "objective": 18.33907573550777,
+          "round": 2,
+          "solver_s": 24.630509614,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 1628,
+          "minimum_constraint": -6.300457983110519e-08,
+          "objective": 20.448914777835192,
+          "round": 3,
+          "solver_s": 63.285429238,
+          "status": "Solved_To_Acceptable_Level"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": -0.3747541426026201,
+          "objective": 215.05182600483045,
+          "round": 4,
+          "solver_s": 168.047592542,
+          "status": "Maximum_Iterations_Exceeded"
+        }
+      ],
+      "found": false,
+      "ground_collision": null,
+      "objective": null,
+      "outcome": "未找到",
+      "passed": false,
+      "process_wall_s": 438.366847858,
+      "seed": 5,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/run/candidates/a75_f6_ours_5/result.json",
+      "termination_reason": "finite_node_geometry_violation",
+      "time_s": null
+    },
+    {
+      "continued_iteration_limit_rounds": [
+        1,
+        2,
+        3
+      ],
+      "finite_calls": [
+        {
+          "iterations": 5000,
+          "minimum_constraint": 0.0007562666815821295,
+          "objective": 253925.17950534748,
+          "round": 1,
+          "solver_s": 163.234456438,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": 0.0005038248349806054,
+          "objective": 484.3522338170545,
+          "round": 2,
+          "solver_s": 170.222209836,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": -2.153776811127106e-06,
+          "objective": 584.2516325542007,
+          "round": 3,
+          "solver_s": 168.61400914,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": -0.0017253015642801294,
+          "objective": 3828.398392257956,
+          "round": 4,
+          "solver_s": 151.596723249,
+          "status": "Maximum_Iterations_Exceeded"
+        }
+      ],
+      "found": false,
+      "ground_collision": null,
+      "objective": null,
+      "outcome": "未找到",
+      "passed": false,
+      "process_wall_s": 657.036819672,
+      "seed": 6,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/run/candidates/a75_f6_ours_6/result.json",
+      "termination_reason": "finite_node_geometry_violation",
+      "time_s": null
+    },
+    {
+      "continued_iteration_limit_rounds": [
+        1,
+        2
+      ],
+      "finite_calls": [
+        {
+          "iterations": 5000,
+          "minimum_constraint": 0.03686128506040354,
+          "objective": 547449.8392407723,
+          "round": 1,
+          "solver_s": 163.799726509,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": 0.000262286520792826,
+          "objective": 140.14343502198733,
+          "round": 2,
+          "solver_s": 166.806459409,
+          "status": "Maximum_Iterations_Exceeded"
+        },
+        {
+          "iterations": 1011,
+          "minimum_constraint": 4.250429119778687e-09,
+          "objective": 27.692673280381882,
+          "round": 3,
+          "solver_s": 35.76770531,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "iterations": 5000,
+          "minimum_constraint": -0.21566446576172402,
+          "objective": 127.65182741980796,
+          "round": 4,
+          "solver_s": 168.856998574,
+          "status": "Maximum_Iterations_Exceeded"
+        }
+      ],
+      "found": false,
+      "ground_collision": null,
+      "objective": null,
+      "outcome": "未找到",
+      "passed": false,
+      "process_wall_s": 538.600750171,
+      "seed": 7,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/run/candidates/a75_f6_ours_7/result.json",
+      "termination_reason": "finite_node_geometry_violation",
+      "time_s": null
+    }
+  ],
+  "starts": 8
+}

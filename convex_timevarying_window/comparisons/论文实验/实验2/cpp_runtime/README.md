@@ -253,3 +253,7 @@ cmake --build /tmp/window_cpp_runtime_build --target sip_planner matrix restored
 ```
 
 当前入口在C++中构造CasADi符号图并生成导数。八组归档时长与实验场景作为输入数据读取，正式试验的输入、协议、源码/二进制SHA和逐候选结果位于`../results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/`。该结果目录按仓库约定作为本地实验记录保存。
+
+## 原生MINCO整合目录
+
+2026-11-12按用户要求，当前PVAJ原生IPOPT运行链及必要依赖、输入与最近原始记录集中整理到同级目录`IPOPT的c++实现（原生minco版）/`。该目录自带CMake、来源与内容校验、十条件压缩输入和完整运行说明，可从自身源码独立构建。入口说明见该目录README.md。

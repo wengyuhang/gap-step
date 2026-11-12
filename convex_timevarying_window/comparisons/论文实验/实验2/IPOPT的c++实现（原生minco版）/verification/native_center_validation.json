@@ -1,0 +1,8 @@
+{
+  "constraint_rows": 2007,
+  "dynamic_kernel_relative_error": 2.1305635148652328e-15,
+  "frame_kernel_relative_error": 2.325973218995402e-14,
+  "gradient_relative_error": 4.458863702824956e-07,
+  "passed": true,
+  "trajectory_variables": 71
+}
