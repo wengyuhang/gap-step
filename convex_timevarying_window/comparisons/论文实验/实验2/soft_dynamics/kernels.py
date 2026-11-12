@@ -35,6 +35,12 @@ def local_options(name):
 
 @lru_cache(maxsize=1)
 def segment_coefficients():
+    """Generalized minimum-snap solve with both endpoint PVAJ prescribed.
+
+    MINCO Theorem 2 permits d_i=4 for s=4. Shared knot PVAJ then gives
+    C3 continuity, and the optimality system reduces to septic Hermite
+    interpolation on each piece. This holds for arbitrary prescribed VAJ.
+    """
     state = ca.SX.sym('segment_end_states', 25)
     duration = state[0]
     head, tail = ca.reshape(state[1:13], 3, 4), ca.reshape(state[13:], 3, 4)
@@ -60,7 +66,12 @@ def curve_coefficients(planner, x):
 
 @lru_cache(maxsize=4)
 def minco_states(pieces):
-    """Eliminate the internal derivatives using a 3(N-1) SPD snap system."""
+    """Position-only minimum-snap baseline from a 3(N-1) SPD system.
+
+    The finite NLP adds free VAJ deviations to this baseline as coordinates.
+    Each resulting PVAJ curve remains the minimum-snap curve conditional on
+    those node states, including when the deviations are nonzero.
+    """
     points = ca.MX.sym('minco_points', 3, pieces-1)
     times = ca.MX.sym('minco_times', pieces)
     endpoints = ca.MX.sym('minco_endpoints', 3, 2)

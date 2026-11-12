@@ -17,9 +17,12 @@ struct Evaluation {
 class Objective {
     Function geometry,penalty;
     int n;
+    double penalty_scale;
     Eigen::Matrix<double,3,4> head,tail;
 public:
-    Objective(const std::string& directory,const Json& metadata):n(metadata.at("n")) {
+    Objective(const std::string& directory,const Json& metadata):n(metadata.at("n")),
+        penalty_scale(metadata.value("dynamics_weight",1000.)/1000.) {
+        if(!std::isfinite(penalty_scale)||penalty_scale<0.)throw std::runtime_error("Invalid dynamics weight");
         geometry=Function::load(directory+"/geometry.casadi");penalty=Function::load(directory+"/penalty.casadi");
         head.setZero();tail.setZero();
         for(int axis=0;axis<3;++axis){head(axis,0)=metadata["start"][axis];tail(axis,0)=metadata["goal"][axis];}
@@ -41,8 +44,9 @@ public:
                 state[8*axis+power]=normalized(power,axis);
             }
             state[24]=times[piece];result.coefficients.push_back(normalized);
-            auto outputs=penalty(std::vector<DM>{DM(state)});result.cost+=static_cast<double>(outputs[0]);
-            const auto derivative=outputs[1].get_elements();direct_times[piece]=derivative[24];
+            auto outputs=penalty(std::vector<DM>{DM(state)});result.cost+=penalty_scale*static_cast<double>(outputs[0]);
+            auto derivative=outputs[1].get_elements();for(auto& value:derivative)value*=penalty_scale;
+            direct_times[piece]=derivative[24];
             for(int axis=0;axis<3;++axis)for(int power=0;power<8;++power) {
                 const double gradient=derivative[8*axis+power];
                 partial(8*piece+power,axis)=gradient*std::pow(times[piece],power);
@@ -105,6 +109,7 @@ int main(int argc,char** argv) {
             Json result{{"found",solved.success},{"solve_s",std::chrono::duration<double>(std::chrono::steady_clock::now()-began).count()},
                 {"method",manifest["method"]},{"case",Json{{"layout","togt_whole"},{"level",manifest["level"]}}},
                 {"initial_sample_index",index},{"initial_variables",initial},{"variables",solved.x},
+                {"time_weight",1.},{"dynamics_weight",manifest.value("dynamics_weight",1000.)},
                 {"iterations",solved.iterations},{"evaluations",solved.evaluations},{"status",solved.status},{"message",solved.message},
                 {"past_stop",solved.past_stop},{"invalid_trial_count",invalid_trials},{"runtime","C++ native MINCO adjoint and SciPy 1.15.3 C L-BFGS-B"}};
             if(solved.success) {

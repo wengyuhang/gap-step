@@ -1,0 +1,46 @@
+{
+  "mass": 2.0643076923076924,
+  "gravity": 9.8066,
+  "inertia": [
+    0.02383948,
+    0.02394241,
+    0.04399995
+  ],
+  "inverse_mixer": [
+    [
+      0.25,
+      -1.4367816091954024,
+      -1.4367816091954024,
+      -15.624999999999998
+    ],
+    [
+      0.25,
+      1.4367816091954024,
+      1.4367816091954024,
+      -15.625000000000002
+    ],
+    [
+      0.25,
+      1.4367816091954024,
+      -1.4367816091954024,
+      15.625000000000002
+    ],
+    [
+      0.25,
+      -1.4367816091954024,
+      1.4367816091954024,
+      15.625
+    ]
+  ],
+  "rate_squared_limits": [
+    13.305994508549999,
+    10.996688852975
+  ],
+  "rotor_min_n": 0.0,
+  "rotor_max_n": 8.121151,
+  "limit_fraction": 0.95,
+  "finite_safety_radius_m": 0.62594472,
+  "planning_proxy_radius_m": 0.38594472,
+  "description": "Current x500 mass, inertia, mixer and 95% rotor/rate limits. Cost weights and L-BFGS parameters are loaded from the static TOGT reproduction.",
+  "initial_speed_guess_mps": 6.5
+}

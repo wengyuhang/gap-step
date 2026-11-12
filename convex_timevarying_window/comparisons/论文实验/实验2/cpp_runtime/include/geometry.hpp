@@ -94,6 +94,14 @@ struct Window {
         const double angle=std::asin(amplitude/length)*sine;
         return Vector(length*(1.-std::cos(angle)),-length*std::sin(angle),0.);
     }
+    Vector motion_velocity(double t) const {
+        const double phase_at=2.*pi*frequency*t+phase;
+        const double rate=2.*pi*frequency;
+        if(!swing)return Vector(0.,-amplitude*rate*std::cos(phase_at),0.);
+        const double angle=std::asin(amplitude/length)*std::sin(phase_at);
+        const double angle_rate=std::asin(amplitude/length)*rate*std::cos(phase_at);
+        return Vector(length*std::sin(angle)*angle_rate,-length*std::cos(angle)*angle_rate,0.);
+    }
     std::pair<Vector,Vector> bounds(double a,double b) const {
         auto range=sine_range(2*pi*frequency*a+phase,2*pi*frequency*b+phase);
         if (!swing) return {Vector(0.,-amplitude*range.second,0.),Vector(0.,-amplitude*range.first,0.)};
@@ -141,6 +149,23 @@ Window load_window(const Json& row) {
         window.frame.push_back(value);
     }
     return window;
+}
+
+inline std::vector<Eigen::Vector2d> inset_frame_vertices(const Window& w,double radius) {
+    const int count=w.frame.size();
+    std::vector<Eigen::Vector2d> normals(count),result(count);
+    std::vector<double> limits(count);
+    for(int k=0;k<count;++k) {
+        const auto edge=(w.frame[(k+1)%count]-w.frame[k]).eval();
+        normals[k]=Eigen::Vector2d(edge[1],-edge[0]).normalized();
+        limits[k]=normals[k].dot(w.frame[k])-radius;
+    }
+    for(int k=0;k<count;++k) {
+        const int previous=(k+count-1)%count;
+        Eigen::Matrix2d pair;pair.row(0)=normals[previous];pair.row(1)=normals[k];
+        result[k]=pair.inverse()*Eigen::Vector2d(limits[previous],limits[k]);
+    }
+    return result;
 }
 
 struct Box {double bound,a,b;size_t serial;Curve control;};

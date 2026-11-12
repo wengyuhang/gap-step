@@ -72,9 +72,127 @@ endif()
 add_executable(numpy_frame_check tests/numpy_frame_check.cpp)
 target_include_directories(numpy_frame_check PRIVATE include "${CASADI_ROOT}/include/eigen3")
 target_compile_options(numpy_frame_check PRIVATE -O3)
-foreach(target sip_planner sip_probe numpy_frame_check)
+add_executable(dynamics_check src/dynamics_check.cpp)
+target_include_directories(dynamics_check PRIVATE include "${CASADI_ROOT}/include/eigen3")
+target_compile_options(dynamics_check PRIVATE -O3)
+foreach(target sip_planner sip_probe numpy_frame_check dynamics_check)
   target_link_libraries(${target} PRIVATE "${NUMPY_BLAS}")
   target_compile_options(${target} PRIVATE -ffp-contract=off)
   set_target_properties(${target} PROPERTIES BUILD_RPATH "${CASADI_ROOT};${CASADI_ROOT}/../numpy.libs")
   target_link_options(${target} PRIVATE -Wl,--disable-new-dtags)
 endforeach()
+
+add_executable(minimum_thrust_check src/minimum_thrust_check.cpp)
+add_executable(minimum_thrust_unit tests/minimum_thrust_unit.cpp)
+foreach(target minimum_thrust_check minimum_thrust_unit)
+  target_include_directories(${target} PRIVATE include "${CASADI_ROOT}/include/eigen3")
+  target_compile_options(${target} PRIVATE -O3 -ffp-contract=off)
+  target_link_libraries(${target} PRIVATE "${NUMPY_BLAS}")
+  set_target_properties(${target} PROPERTIES BUILD_RPATH "${CASADI_ROOT}/../numpy.libs")
+  target_link_options(${target} PRIVATE -Wl,--disable-new-dtags)
+endforeach()
+add_test(NAME minimum_thrust_unit COMMAND minimum_thrust_unit)
+
+add_executable(stable_dynamics_unit tests/stable_dynamics_unit.cpp)
+target_include_directories(stable_dynamics_unit PRIVATE include "${CASADI_ROOT}/include" "${CASADI_ROOT}/include/eigen3")
+target_compile_options(stable_dynamics_unit PRIVATE -O3 -ffp-contract=off)
+target_link_libraries(stable_dynamics_unit PRIVATE "${CASADI_ROOT}/libcasadi.so" "${NUMPY_BLAS}")
+set_target_properties(stable_dynamics_unit PROPERTIES BUILD_RPATH "${CASADI_ROOT};${CASADI_ROOT}/../numpy.libs")
+add_test(NAME stable_dynamics_unit COMMAND stable_dynamics_unit)
+
+set(MINCO_PV_DIRECTORY "${REPO_ROOT}/静态凸窗口/复现/experiments/free_velocity")
+foreach(target sip_planner sip_probe)
+  target_sources(${target} PRIVATE "${MINCO_PV_DIRECTORY}/minco_pv.cpp")
+  target_include_directories(${target} PRIVATE "${MINCO_PV_DIRECTORY}" "${REPO_ROOT}/静态凸窗口/复现/TOGT-Planner-ICRA2024/include")
+endforeach()
+
+add_executable(native_minco_unit tests/native_minco_unit.cpp "${MINCO_PV_DIRECTORY}/minco_pv.cpp")
+target_include_directories(native_minco_unit PRIVATE include "${CASADI_ROOT}/include" "${CASADI_ROOT}/include/eigen3" "${MINCO_PV_DIRECTORY}" "${REPO_ROOT}/静态凸窗口/复现/TOGT-Planner-ICRA2024/include")
+target_compile_options(native_minco_unit PRIVATE -O3 -ffp-contract=off)
+target_link_libraries(native_minco_unit PRIVATE "${CASADI_ROOT}/libcasadi.so")
+set_target_properties(native_minco_unit PROPERTIES BUILD_RPATH "${CASADI_ROOT}")
+
+set(TOGT_UPSTREAM "${REPO_ROOT}/静态凸窗口/复现/TOGT-Planner-ICRA2024")
+add_library(dynamic_togt_upstream STATIC
+  "${TOGT_UPSTREAM}/src/base/parameter_base.cpp"
+  "${TOGT_UPSTREAM}/src/base/shape_base.cpp"
+  "${TOGT_UPSTREAM}/src/planner/traj_data.cpp"
+  "${TOGT_UPSTREAM}/src/planner/traj_params.cpp"
+  "${TOGT_UPSTREAM}/src/planner/traj_solver.cpp"
+  "${TOGT_UPSTREAM}/src/solver/lbfgs_params.cpp"
+  "${TOGT_UPSTREAM}/src/shape/ball.cpp"
+  "${TOGT_UPSTREAM}/src/shape/polyhedron.cpp"
+  "${TOGT_UPSTREAM}/src/system/quadrotor_manifold.cpp"
+  "${TOGT_UPSTREAM}/src/system/quadrotor_params.cpp"
+  "${TOGT_UPSTREAM}/src/type/quad_state.cpp"
+  "${TOGT_UPSTREAM}/src/type/command.cpp"
+  "${TOGT_UPSTREAM}/src/rotation/rotation_utils.cpp"
+  "${TOGT_UPSTREAM}/src/math/math_utils.cpp")
+target_include_directories(dynamic_togt_upstream PUBLIC "${TOGT_UPSTREAM}/include" "${CASADI_ROOT}/include/eigen3")
+target_compile_options(dynamic_togt_upstream PRIVATE -O3 -ffp-contract=off)
+target_compile_definitions(dynamic_togt_upstream PUBLIC EIGEN_STACK_ALLOCATION_LIMIT=1048576 EIGEN_DONT_PARALLELIZE)
+add_executable(dynamic_togt_planner src/dynamic_togt_planner.cpp)
+target_include_directories(dynamic_togt_planner PRIVATE include)
+target_link_libraries(dynamic_togt_planner PRIVATE dynamic_togt_upstream)
+target_compile_options(dynamic_togt_planner PRIVATE -O3 -ffp-contract=off)
+target_compile_definitions(dynamic_togt_planner PRIVATE TOGT_UPSTREAM_PARAMETER_DIR="${TOGT_UPSTREAM}/parameters/cpc" TOGT_X500_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/config/x500_togt.json")
+
+add_executable(dynamic_togt_unit tests/dynamic_togt_unit.cpp)
+target_include_directories(dynamic_togt_unit PRIVATE include)
+target_link_libraries(dynamic_togt_unit PRIVATE dynamic_togt_upstream)
+target_compile_options(dynamic_togt_unit PRIVATE -O3 -ffp-contract=off)
+target_compile_definitions(dynamic_togt_unit PRIVATE TOGT_UPSTREAM_PARAMETER_DIR="${TOGT_UPSTREAM}/parameters/cpc" TOGT_X500_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/config/x500_togt.json")
+
+add_test(NAME dynamic_togt_unit COMMAND dynamic_togt_unit
+  "${CMAKE_CURRENT_SOURCE_DIR}/results/assets_v1_20261110/a25_f6/scene.json"
+  "${CMAKE_CURRENT_BINARY_DIR}/dynamic_togt_validation.json")
+
+add_executable(prepare_togt_seed src/prepare_togt_seed.cpp "${MINCO_PV_DIRECTORY}/minco_pv.cpp")
+target_include_directories(prepare_togt_seed PRIVATE include "${CASADI_ROOT}/include/eigen3" "${MINCO_PV_DIRECTORY}" "${TOGT_UPSTREAM}/include")
+target_compile_options(prepare_togt_seed PRIVATE -O3 -ffp-contract=off)
+
+add_executable(direct_point_unit tests/direct_point_unit.cpp "${MINCO_PV_DIRECTORY}/minco_pv.cpp")
+target_include_directories(direct_point_unit PRIVATE include "${CASADI_ROOT}/include" "${CASADI_ROOT}/include/eigen3" "${MINCO_PV_DIRECTORY}" "${TOGT_UPSTREAM}/include")
+target_compile_options(direct_point_unit PRIVATE -O3 -ffp-contract=off)
+target_link_libraries(direct_point_unit PRIVATE "${CASADI_ROOT}/libcasadi.so")
+set_target_properties(direct_point_unit PROPERTIES BUILD_RPATH "${CASADI_ROOT}")
+
+add_executable(pv_minco_unit tests/pv_minco_unit.cpp "${MINCO_PV_DIRECTORY}/minco_pv.cpp")
+target_include_directories(pv_minco_unit PRIVATE include "${CASADI_ROOT}/include" "${CASADI_ROOT}/include/eigen3" "${MINCO_PV_DIRECTORY}" "${TOGT_UPSTREAM}/include")
+target_compile_options(pv_minco_unit PRIVATE -O3 -ffp-contract=off)
+target_link_libraries(pv_minco_unit PRIVATE "${CASADI_ROOT}/libcasadi.so")
+set_target_properties(pv_minco_unit PROPERTIES BUILD_RPATH "${CASADI_ROOT}")
+
+add_executable(restored_inputs src/restored_inputs.cpp)
+target_include_directories(restored_inputs PRIVATE include "${CASADI_ROOT}/include/eigen3" "${TOGT_UPSTREAM}/include")
+target_compile_options(restored_inputs PRIVATE -O3 -ffp-contract=off)
+
+add_executable(restored_experiment src/restored_experiment.cpp)
+target_include_directories(restored_experiment PRIVATE include)
+target_compile_options(restored_experiment PRIVATE -O3)
+
+add_executable(restored_unit tests/restored_unit.cpp "${MINCO_PV_DIRECTORY}/minco_pv.cpp")
+target_include_directories(restored_unit PRIVATE include "${CASADI_ROOT}/include" "${CASADI_ROOT}/include/eigen3" "${MINCO_PV_DIRECTORY}" "${TOGT_UPSTREAM}/include")
+target_compile_options(restored_unit PRIVATE -O3 -ffp-contract=off)
+target_link_libraries(restored_unit PRIVATE "${CASADI_ROOT}/libcasadi.so")
+set_target_properties(restored_unit PROPERTIES BUILD_RPATH "${CASADI_ROOT}")
+
+add_executable(restored_audit src/restored_audit.cpp)
+target_include_directories(restored_audit PRIVATE include "${CASADI_ROOT}/include/eigen3")
+target_compile_options(restored_audit PRIVATE -O3)
+
+add_executable(restored_parallel src/restored_parallel.cpp)
+target_include_directories(restored_parallel PRIVATE include)
+target_compile_options(restored_parallel PRIVATE -O3)
+
+add_executable(restored_recover src/restored_recover.cpp)
+target_include_directories(restored_recover PRIVATE include)
+target_compile_options(restored_recover PRIVATE -O3)
+
+add_executable(restored_two src/restored_two.cpp)
+target_include_directories(restored_two PRIVATE include)
+target_compile_options(restored_two PRIVATE -O3)
+
+add_executable(restored_release_trial src/restored_release_trial.cpp)
+target_include_directories(restored_release_trial PRIVATE include "${CASADI_ROOT}/include/eigen3")
+target_compile_options(restored_release_trial PRIVATE -O3)
