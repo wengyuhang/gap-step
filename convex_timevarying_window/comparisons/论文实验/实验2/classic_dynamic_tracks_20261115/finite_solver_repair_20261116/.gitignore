@@ -1,0 +1,16 @@
+/inputs/
+/results/**
+!/results/**/
+!/results/**/*.md
+!/results/**/*.rst
+!/results/**/*.tex
+!/results/**/*.pdf
+!/results/**/*.docx
+/*_initials/
+/curvature_batch/
+/before/
+/diagnostic_source/
+/last_diagnostic_source/
+/*.json
+/*.log
+/before_minco_pv.*

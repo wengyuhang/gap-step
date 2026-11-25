@@ -17,3 +17,10 @@ higher_swing.matrix将相同2.20米摆动规则用于静态与九个幅度/频�
 
 
 本批已完成340候选任务、50新规划与50正式实飞，墙钟85.07分钟。两个结果表和原始记录见[完整报告](../results/higher_swing_10x5_full_v1_20261109/REPORT.md)。本文自由8/10实际完成、零窗框碰撞、2执行保护中止，本文中心10/10；两个TOGT及Wang的碰撞和执行中止分别保留。完整源/世界/MPC/PX4、原生归档恢复及37条实际有限开口独立复核通过。
+
+
+## 2026-11-12 当前默认跟踪执行
+
+flight.configure统一注册gazebo_matrix.scheduled_mpc的MPC与ScheduledSession，matrix_flight及单条flight入口直接使用该实现。33状态、25×40ms模型、跟踪目标及输入范围继续使用，30迭代上限，独立进程求解，4ms发送、40ms求解请求、80ms约定生效提前量。发送端按当前时钟索引控制，接纳截止为生效前4ms。
+
+原两条新增碰撞、两条执行中断和最高档自由/中心共六条原参考全部无窗框接触完赛。两条16路CPU负载试验及一次标准matrix_flight入口实飞也通过。实际时间、误差、控制期限与原生校验见results/tracking_schedule_repair_v1_20261112/REPORT.md。旧完整矩阵继续保存在各原始结果目录。

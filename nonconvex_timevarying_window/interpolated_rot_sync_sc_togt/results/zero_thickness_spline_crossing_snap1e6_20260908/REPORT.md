@@ -1,0 +1,17 @@
+# 七阶 SC 穿窗曲线试验
+
+本试验只把当前两点线性 SC 穿窗段扩展为单段七阶 Bézier；前后段仍为 degree-7 MINCO。
+面内 8 个控制点逐时刻经过 SC 映射，法向 8 个有序控制值由正增量生成，因此局部点天然位于安全开口内且法向天然单调。
+先独立优化线性方法，再把它逐点等价地嵌入样条参数化；Fixed-WP 结果只作保留基线，没有用于构造或初始化样条。
+样条目标在 TOGT 动力学代价之外加入 1e-06 * integral_snap_squared，使自由控制点具有与 MINCO 一致的控制代价。
+
+- 线性解嵌入后的 0–4 阶最大误差：4.657e-10
+- 不计新增 snap 项时的嵌入目标误差：0.000e+00
+- 保留 Fixed-WP 基线时间：2.24591372307 s
+
+|method|solver stop|trajectory pass|T|J|dynamic penalty|TOGT-code violations|C3 jump|vs Fixed-WP time|
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+|Linear-SC-Crossing|True|False|6.60293847424|6.60293847424|0|42|3.767e-13|+193.998%|
+|Spline-SC-Crossing|True|False|6.60293847424|6.688683514|0|42|2.011e-13|+193.998%|
+
+动力学与碰撞结论来自最大 1 ms 网格的独立数值审计，不是连续域证书。

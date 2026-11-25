@@ -1,0 +1,6 @@
+inputs_*/
+initialization/
+state_*/
+*_verification*/
+*.casadi
+homotopy_initialization/

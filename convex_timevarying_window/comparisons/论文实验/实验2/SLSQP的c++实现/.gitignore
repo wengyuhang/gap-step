@@ -1,0 +1,12 @@
+/build/
+/outputs/**
+!/outputs/**/
+!/outputs/**/*.md
+!/outputs/**/*.rst
+!/outputs/**/*.tex
+!/outputs/**/*.pdf
+!/outputs/**/*.docx
+
+# Do not expose duplicate snapshot documents through output exceptions.
+/outputs/**/source_snapshot/
+/outputs/**/*_source_snapshot/

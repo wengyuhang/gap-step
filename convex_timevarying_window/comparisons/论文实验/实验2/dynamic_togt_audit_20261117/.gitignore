@@ -1,0 +1,16 @@
+**/results/**
+!**/results/**/
+!**/results/**/*.md
+!**/results/**/*.rst
+!**/results/**/*.tex
+!**/results/**/*.pdf
+!**/results/**/*.docx
+**/static_reference/**
+!**/static_reference/**/
+!**/static_reference/**/*.md
+!**/static_reference/**/*.rst
+!**/static_reference/**/*.tex
+!**/static_reference/**/*.pdf
+!**/static_reference/**/*.docx
+bin/
+source_snapshot/

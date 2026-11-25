@@ -1,0 +1,7 @@
+**/results/**
+!**/results/**/
+!**/results/**/*.md
+!**/results/**/*.rst
+!**/results/**/*.tex
+!**/results/**/*.pdf
+!**/results/**/*.docx

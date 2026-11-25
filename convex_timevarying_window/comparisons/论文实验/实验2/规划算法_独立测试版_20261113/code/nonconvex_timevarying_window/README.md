@@ -1,0 +1,63 @@
+# 非凸时变窗口穿越研究
+
+`nonconvex_timevarying_window/` 是整个研究任务的总目录。本项目在 TOGT 论文方法的基础上，研究四旋翼无人机如何按指定顺序穿越非凸且随时间变化的窗口。
+
+详细的研究背景、问题范围和数学定义见 [PROBLEM_DEFINITION.md](PROBLEM_DEFINITION.md)。该文档保留基础按序穿越定义；整机模型、连续域认证、固定平面假设和闭合赛道验收由各方法/实验协议进一步限定。跨研究线当前状态与负结果见 [PROJECT_CONTEXT](../docs/PROJECT_CONTEXT.md)。
+
+## 已有方法
+
+| 方法 | 状态 | 主要思路 |
+|---|---|---|
+| [AtlasDynaTOGT](atlas_dynatogt/README.md) | 已实现 | 将非凸窗口三角剖分为 chart atlas，联合优化穿越时间和穿越点 |
+| [SC-DynaTOGT](sc_dynatogt/README.md) | 已实现，default 实验完成 | Chang 仅做边界均匀采样，SC 圆盘映射负责内部点，接入原 TOGT/MINCO 联合优化；支持真实物理门框、分类结果目录、中文结果主页和可选 EGL/OpenGL 离线渲染，记录见 [TEST_RESULTS.md](sc_dynatogt/TEST_RESULTS.md) |
+| [Random-DK SC-DynaTOGT](random_dk_sc_dynatogt/README.md) | 单窗扩大范围后采样通过；三窗首轮失败 | 原始 SC 不合格后直接随机扰动 D/K；球体区间与全程动力学硬筛选，最终才做整机检测。单窗两组各 4000 候选后各 1 条合格，较快 T=3.16745 s；三窗 4000 候选中 4 个通过全部几何/顺序但均超速；均为采样证据 |
+| [Feasibility-Guided CEM SC-DynaTOGT](feasibility_guided_cem_sc_dynatogt/README.md) | 三窗单种子采样通过 | 用单窗安全相位构造多窗周期别名前端，再以 K 时间敏感度、D 极坐标和完整协方差 CEM 联合搜索；4612 次评估得到 3 条中间合格轨迹，T=7.39055 s 的最短者通过三窗最终整机采样审计 |
+| [RotSync-SC-TOGT](rot_sync_sc_togt/README.md) | 已实现 | 固定中心/固定平面窗口仅绕法向匀速旋转；SC 选择安全点，解析 Sync 段保持窗口坐标不变，PVAJ 严格连接相邻 degree-7 MINCO；使用扁平方柱整机可视化与碰撞率审计，含四条 D1–D4 正式闭合赛道、现实尺度极限场景及 L/U/star 单窗口固定点比较；D3/D4 正式结果保留超速失败，九对单窗比较未显示同步性能优势 |
+| [Interpolated-RotSync-SC-TOGT](interpolated_rot_sync_sc_togt/README.md) | 已实现，斜向单窗已运行 | 在入口/出口两组无约束 SC 输入间插值，再经圆盘与 SC 映射生成连续局部路径；解析到 snap 并用 PVAJ 连接 MINCO；目标、动力学限制与 L-BFGS 沿用 RotSync，整轨迹安全和动力学结论为密集采样验收 |
+| [Local Time-Warp SC Tracking](timewarp_sc_tracking/README.md) | 执行层基础组件，单窗碰撞回归已运行 | 只在当前窗附近改变 SC 轨迹进度，并在下一窗前回到原绝对时间轴；不允许无界等待。已在共享 U 形反例上消除采样碰撞，但该反例本身动力学超限，尚不是完整飞控可行方法 |
+| [MSR-DynaTOGT](msr_dynatogt/README.md) | 已实现，smoke/formal 完成 | 在 SC-DynaTOGT 外增加可复现多初值候选池、高密度采样动力学检查、uniform/local 时间修复、二分缩放和联合再优化；可行性优先于总时间，记录见 [TEST_RESULTS.md](msr_dynatogt/TEST_RESULTS.md) |
+| [SIP-DynaTOGT](sip_dynatogt/README.md) | 已实现 | 保留 `[K,D]` 与 MINCO，使用 SLSQP 活动 witness 和 Arb 区间细分求解整机半无限安全问题；只有完整连续域覆盖通过才返回 `CERTIFIED_FEASIBLE` |
+| [Planar-RS-DynaTOGT](planar_rs_dynatogt/README.md) | 已实现，有单窗与六窗认证记录 | 针对固定中心/固定平面、仅面内旋转与统一缩放；先用整机到平面的 Arb 支撑界排除时间段，再认证剩余原始曲线 |
+| [AVS-PPO](avs_ppo/README.md) | 已实现，正式训练与 ID/OOD 安全审计完成 | Action-masked Viability-Shielded PPO；以真实非凸动态门交点和门前制动备份 rollout 构造安全动作支持集；三窗简化平移/球形模型独立 400 回合 100% 完赛、0 违规；极难六窗出现盾牌接管，见方法报告 |
+| [PhaseGuard-RL](phaseguard_rl/README.md) | 精简核心已实现，待正式训练 | PPO 根据整机状态与窗口相位选择非中心穿越点和飞行时间；固定 MINCO/底层控制器执行，只有连续整机与动力学检查通过的轨迹才允许下发 |
+| [WBSC-DynaTOGT](废案/wb_sc_dynatogt/README.md) | 废案保留 | 联合优化 `[K,D,Y]` 的旧姿态长方体方案；不提供连续时间证书 |
+| [CWB-SC-DynaTOGT](废案/cwb_sc_dynatogt/README.md) | 废案保留 | 自适应数值截面验证；只能返回 `NUMERICALLY_VERIFIED`，不得称严格证书 |
+| [Exact-Area Whole-Body SC-DynaTOGT](废案/cwb_sc_dynatogt/exact_area_sc_dynatogt/README.md) | 废案反例保留 | 保留「名义中心安全但整机提前碰撞」的 Experiment B，作为新方法回归反例 |
+
+## 目录结构
+
+```text
+nonconvex_timevarying_window/
+  README.md                 总任务和方法索引
+  PROBLEM_DEFINITION.md     与具体算法无关的问题定义
+  atlas_dynatogt/           AtlasDynaTOGT 方法的完整实现
+  sc_dynatogt/              Schwarz–Christoffel DynaTOGT 方法的完整实现
+  random_dk_sc_dynatogt/    原始 SC 解邻域直接扰动 D/K，硬筛选后取最短时间
+  feasibility_guided_cem_sc_dynatogt/  安全相位前端 + 可行性引导完整协方差 CEM
+  rot_sync_sc_togt/         固定平面自旋窗口的解析同步穿越 + MINCO
+  interpolated_rot_sync_sc_togt/  双 SC 输入插值同步穿越 + MINCO
+  timewarp_sc_tracking/      有限时间补丁 + 下游时间回接
+  msr_dynatogt/             Multi-Start and Repair DynaTOGT 的完整实现
+  sip_dynatogt/             半无限约束生成 + Arb 连续域认证
+  planar_rs_dynatogt/       固定平面旋转/缩放的平面排除 + 原始曲线认证
+  avs_ppo/                  安全动作掩码 + 可恢复性盾牌 + PPO 闭环竞速
+  phaseguard_rl/            相位条件 PPO + 固定轨迹控制器 + 单一连续安全检查
+  comparisons/              不同方法的同场景压力对比与独立可视化
+  废案/                      旧整机数值验证与反例方案
+  <algorithm_name>/        后续新增的其他方法
+```
+
+每种方法都在以算法名称命名的独立子目录中维护，该目录内放置算法说明、源码、测试、图解和实验结果。
+
+SC/SIP 六窗口宽域压力对比见
+[`comparisons/sc_sip_fast_closed_loop/`](comparisons/sc_sip_fast_closed_loop/README.md)。该场景使用
+`27 x 26 x 10 m` 空间跨度、乱序穿越、快速平移/完整 RPY 旋转/大幅缩放以及直线、圆弧、
+Bézier 和 B-spline 边界。已有历史压力案例中 SC 整机碰撞且动力学越界，SIP 通过名义模型连续时间整机与动力学认证。该案例经过续跑和参数调整，不是冻结后一次运行的无偏基准。运动速率冻结基准另见 [对应目录](comparisons/sc_sip_motion_rate_benchmark/README.md)。
+
+SC-DynaTOGT 的可视化分为三层：预处理诊断图用于检查真实边界、内缩安全区和 SC 网格；Matplotlib 场景图只显示真实门框和四旋翼；可选 OpenGL 渲染器输出实体环境、追踪相机和 MP4。OpenGL 输出是已求解轨迹的离线渲染，不是 AirSim 动力学或传感器仿真。
+
+SC-DynaTOGT 的本地结果按 `experiments/`、`demos/`、`diagnostics/` 和 `work/` 分类；`results/index.html` 是统一浏览入口。历史结果通过带 SHA-256 的迁移清单无损保留，不与新时间戳运行混放。
+
+MSR-DynaTOGT 只在自己的 `results/<timestamp>_<suite>/` 下写入结果，不覆盖历史运行。它与 SC 共用 SC 映射、动态窗口、degree-7 MINCO 和四旋翼模型，但把优化后诊断提升为候选排序和时间修复环节。输出中的“可行”仅指高密度采样可行，不是连续时间严格证明；`optimizer_success` 与动力学可行性分别记录。
+
+2026-07-22 完成的 formal 套件覆盖 5 个场景、每场景 155 个种子（共 775 个任务、9,300 行比较记录）。A2/A3 的高密度采样动力学可行率均为 100%，A0 为 0%，A1 为 0.1%；A3 平均墙钟代价为 A0 的 10.05 倍。逐图解释与完整数值保存在 formal 结果目录和 MSR 的 `TEST_RESULTS.md`。

@@ -18,7 +18,14 @@ data/
 checkpoints/
 logs/
 runs/
-results/
+# Keep experiment documents versionable while excluding generated results.
+**/results/**
+!**/results/**/
+!**/results/**/*.md
+!**/results/**/*.rst
+!**/results/**/*.tex
+!**/results/**/*.pdf
+!**/results/**/*.docx
 
 # RotSync ICRA experiment outputs
 /nonconvex_timevarying_window/rot_sync_sc_togt/icra_experiments/03_sync_single/fixed_wp_u_search/
@@ -58,3 +65,33 @@ cmake_install.cmake
 /convex_timevarying_window/comparisons/论文实验/实验2/assets/build/Makefile
 /convex_timevarying_window/comparisons/论文实验/实验2/assets/container_build/
 /convex_timevarying_window/comparisons/论文实验/实验2/assets/dev_build/
+
+# Local runtime dependencies and compiled artifacts inside experiment copies
+.runtime/
+*.so
+*.so.*
+*.o
+*.a
+
+# Archived raw experiments stay on disk; retain code, summaries and provenance
+/convex_timevarying_window/comparisons/论文实验/实验2/POPT软约束_py版第一个正式结果/records/**
+!/convex_timevarying_window/comparisons/论文实验/实验2/POPT软约束_py版第一个正式结果/records/**/
+!/convex_timevarying_window/comparisons/论文实验/实验2/POPT软约束_py版第一个正式结果/records/**/*.md
+!/convex_timevarying_window/comparisons/论文实验/实验2/POPT软约束_py版第一个正式结果/records/**/*.rst
+!/convex_timevarying_window/comparisons/论文实验/实验2/POPT软约束_py版第一个正式结果/records/**/*.tex
+!/convex_timevarying_window/comparisons/论文实验/实验2/POPT软约束_py版第一个正式结果/records/**/*.pdf
+!/convex_timevarying_window/comparisons/论文实验/实验2/POPT软约束_py版第一个正式结果/records/**/*.docx
+/convex_timevarying_window/comparisons/论文实验/实验2/SLSQP原始实现/outputs/**
+!/convex_timevarying_window/comparisons/论文实验/实验2/SLSQP原始实现/outputs/**/
+!/convex_timevarying_window/comparisons/论文实验/实验2/SLSQP原始实现/outputs/**/*.md
+!/convex_timevarying_window/comparisons/论文实验/实验2/SLSQP原始实现/outputs/**/*.rst
+!/convex_timevarying_window/comparisons/论文实验/实验2/SLSQP原始实现/outputs/**/*.tex
+!/convex_timevarying_window/comparisons/论文实验/实验2/SLSQP原始实现/outputs/**/*.pdf
+!/convex_timevarying_window/comparisons/论文实验/实验2/SLSQP原始实现/outputs/**/*.docx
+
+# Superseded copy created before the user clarified they wanted the planner
+/跟踪代码_独立测试版_20261113/
+
+# Snapshot documentation inside raw runs is duplicated source, not a run report.
+**/results/**/source_snapshot/
+**/results/**/*_source_snapshot/

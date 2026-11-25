@@ -1,4 +1,51 @@
+
+## 2026-11-17 完成：本轮独立初值修复验证
+
+AirSim freq3同一细化原始初值族两方均8/8通过，每轮有限NLP严格成功；自由14.099452秒、中心15.140706秒。前2初值逐值未变引用，另12候选新算。额外freq4种子0自由14.219220秒、中心15.335772秒；中心扩展外层预算后第35轮通过，前24轮与旧结果一致。提供C++ --robust-ipopt-profile入口统一生成初值和数值设置（外层64），原模型/梯度审计和10CTest通过。无活动实验。仍分钟级离线求解，未实飞，不宣称任意初值或全局最优保证。来源classic_dynamic_tracks_20261115/ipopt_iterate_20261117/FINAL_REPORT.md。
+
+以下保留历史记录。
+
+## 2026-11-17：当前独立求解修复验证
+
+固定物理模型和同一配对原始初值，AirSim freq3自由点8/8、中心6/8通过；失败与所有原始日志保留。统一数值设置采用residual_epigraph、相对Bernstein等式中间量、Hermite导数求值、精确Hessian、theta_max_fact=1、关闭watchdog；续求保留原始变量并将五个warm push/fraction设为1e-9。原PVAJ、目标、动力学积分和安全判据未变。仅规划，不代表飞控结果或全局最优。
+
+可选初值命令 --finite-feasible-profile 从未优化中心MINCO曲线按1.25延长初始时长，每次重新计算真实运动与MINCO导数，检查原17节点动力学。--finite-feasible-refined-profile 为正在验证的8步可行端点细化对照；不是默认正式替换。两方共享原始曲线，不读取其他方法优化结果。初始化通过不代表整条曲线连续安全。
+
+manifest.maximum_exchange_rounds可配置外层预算，默认24；失败有限求解仍立即停止，不能靠增大外层预算跳过收敛要求。freq4中心24次有限求解全部成功但补点预算用完，64轮独立重跑正在验证。完整最新证据见 [本轮记录](../classic_dynamic_tracks_20261115/ipopt_iterate_20261117/REPORT.md)。以下均为历史阶段记录。
+
+## 2026-11-17：回到IPOPT独立求解（部分修复）
+
+当前`curvature_initials`生成同一规则八条原始轨迹，默认选择IPOPT、residual_epigraph软动力学、精确Hessian、gradient-based缩放；两方法独立优化。保留显式SLSQP/直接目标对照。PVAJ MINCO、TOGT时间映射、16区间、权重1/1000不变。
+
+修正当前原生软模型的姿态0.001退化切换，使用稳定等价分母和完整角速度/单桨恢复；历史restored模式保留原fallback，结果通过continuous_attitude_chart字段区分。真实零推力/倒置极点仍是定义域奇点，没有增加倾角限制。记录实际Hessian/缩放及最终候选姿态诊断，trace不再改变迭代预算。
+
+Split-S/AlphaPilot独立回归均通过，但AirSim freq4仍恢复失败；不能称全部收敛问题已解决。见[本轮报告](../classic_dynamic_tracks_20261115/ipopt_convergence_20261117/REPORT.md)。下文为历史阶段记录。
+
+## 2026-11-17：IPOPT/SLSQP当前模型已同步
+
+两后端现在共享`finite_nlp::Model`，只在有限求解器适配上分开；支持相同直接式或辅助变量软罚，使用相同初值、变量界、补点和验收。修复了空辅助尺度数组、旧辅助行resize和33节点旧标签。底层Kraft源码原样隔离到本目录`vendor/slsqp`，不调用旧SLSQP包的硬约束规划实现。8组模型对照差值0、8项单测通过、两条正常规划逐值回归通过。见[同步说明](SOLVER_ALIGNMENT.md)。这项同步不代表此前自由点速度问题已解决。
+
+## 2026-11-16：独立自由点数值诊断（实验选项）
+
+完整对照见 `../classic_dynamic_tracks_20261115/independent_speed_audit_20261116/REPORT.md`。本次没有中心优化解回灌；只代入中心曲线核对模型包含关系，不启动优化。等价变量单位调整后192候选179合格（自由84、中心95），但12档仍只有6档自由更快，因此尚未替换默认设置或宣称稳定提速。
+
+`SIP_DURATION_NORMALIZED_STATES=1` 启用按相邻段时间几何平均归一化实际V/A/J；`SIP_SLSQP_EQUILIBRATE=1` 启用每个有限问题固定的可逆对角变量预调理。二者不改变实际PVAJ曲线族、目标或约束，不是基线轨迹加偏移。原始初始化的物理曲线逐值保持，补点仍只用本方法上一轮原始变量。
+
+`SIP_SLSQP_COST_UNIT=1000` 仅用于整体目标单位对照：内部目标与acc同时除1000、返回值乘回1000，原目标权重不变。这一对照也没有稳定优于中心，而且合格率下降，未采纳为正式替换。`SIP_SLSQP_ACCURACY` 可显式指定原目标单位下精度，默认1e-8；单纯改成1e-12的负对照已保存。前两个开关按环境变量是否存在启用，关闭时移除变量。
+
+源码验证：`native_slsqp_unit` 检查变量界和目标单位变换；`native_state_units_unit INPUT SCENE OUTPUT` 在活跃动力学罚下检查原始/时间归一化坐标的曲线、目标及全变量梯度；`native_solution_audit INPUT SCENE CANDIDATE OUTPUT` 核对已完成轨迹（只求值，不优化）。正常SLSQP返回不等于KKT精度或全局最优。
+
 # 七窗轨迹规划 C++实现
+
+## 当前原生软动力学入口（2026-11-16）
+
+`--soft-mincopv SCENE 1000` 当前默认使用完整PVAJ MINCO、TOGT正时长映射、每段16区间的直接动力学软目标，以及原生编译Kraft SLSQP有限求解器。目标与原辅助变量写法等价；不增加倾角、snap或其他代价。原安全补点与最终独立验收保留。IPOPT对照仍可通过manifest显式设置`native_finite_solver: ipopt`；本轮没有把它的不收敛问题标记为已修复。
+
+初值由`curvature_initials INPUT_ROOT LEVEL OUTPUT`统一生成：两种速度上界×四档车辆加速度，初始点在中心，VAJ从初始MINCO曲线求导。自由点和中心共享八条原始曲线，不借用另一方法求解结果。`native_sip_matrix INPUTS SCENE OUTPUT SIP MESH`运行两方16个独立候选并保留失败。`--campaign`入口逐场景执行并统计包含初值生成的并行墙钟耗时。
+
+满PVAJ线性求解与反传在`vendor/native_minco_pv/`；当前原生入口的动力学、目标和约束图全部由C++构建，不依赖旧`symbolic.mx`或Python生成的动力学图。SLSQP底层数值库沿用同仓已有的Kraft内核，由gfortran原生编译；规划、导数、补点和调度均为C++，不调用Python优化器。
+
+冻结复测协议见[CONFIRMED_PROTOCOL.md](../classic_dynamic_tracks_20261115/finite_solver_repair_20261116/CONFIRMED_PROTOCOL.md)。下文保留其他入口及历史模式说明。
 
 本目录负责全局轨迹求解、几何复查、补点、候选调度与规划结果汇总。规划结果交给实验2已有的MPC/PX4执行链。
 
@@ -257,3 +304,46 @@ cmake --build /tmp/window_cpp_runtime_build --target sip_planner matrix restored
 ## 原生MINCO整合目录
 
 2026-11-12按用户要求，当前PVAJ原生IPOPT运行链及必要依赖、输入与最近原始记录集中整理到同级目录`IPOPT的c++实现（原生minco版）/`。该目录自带CMake、来源与内容校验、十条件压缩输入和完整运行说明，可从自身源码独立构建。入口说明见该目录README.md。
+
+
+## 2026-11-14 SIP外层修复
+
+本次代码修改叠加于原整理版本；SOURCE_MANIFEST.json继续保存原始整理来源，当前补丁见provenance/sip_outer_fix_20261114/PATCH_MANIFEST.json。历史实验记录和压缩输入不变。
+
+- 每轮只将Solve_Succeeded且几何节点最小值不低于−1e-5的候选纳入最佳有限incumbent，保存求解变量、原物理变量、上下界乘子、按约束键保存的乘子及真实目标。新候选与下一轮初值分开：先复查新候选，通过就直接返回；失败或目标更差时回退成功incumbent。
+- 失败和Solved_To_Acceptable_Level返回的乘子不进入热启动。没有成功来源时lam_x0/lam_g0显式为零，只保留primal；显式回退仅在上一轮实际状态也为Solve_Succeeded时使用成功incumbent的乘子，否则清零；previous_solve_status与dual_source_status分别记录两个状态。新增约束键乘子为零。
+- 有incumbent时，有限几何违反最多连续回退两次并重新build；第三次仍违反才以finite_node_geometry_violation终止。节点几何恢复后清零连续计数。原24轮总预算保留。
+- 每轮每个窗口最多新增一个可新增的最严重几何witness，按复查器返回的最小距离排名，跨所有轨迹段选择；重复点先跳过。一个witness可能产生多条边约束。动力学补点保持原规则。
+- config/x500_togt.json的finite_safety_radius_m改为0.63094472m，复查半径保持0.62094472m。原生入口从配置重建窗内映射、knot与frame表达式；restored_inputs及主目录离线导出同步。旧序列化图若仍固化旧半径会明确拒绝，需要重新导出，避免新旧半径混用。
+
+结果中的finite_incumbent只表示有限节点可行快照，未经完整验收不能当可飞轨迹。found仅在严格Solve_Succeeded且原完整几何/动力学复查通过时为true。
+
+测试：sip_outer_unit覆盖incumbent保持、两类非成功乘子清零、约束键重映射、两次几何回退、每窗最坏点及较慢但已验证候选的立即接纳。sip_result_unit可对真实result和SIP_DUMP_NLP输入逐项检查。新增结果单列在主cpp_runtime/results/sip_outer_fix_v1_20261114，无Gazebo实飞。
+
+### 半径变更后的输入准备
+
+压缩包保留历史输入。修改finite_safety_radius_m后，先用当前C++ restored_inputs重建初值，再运行matrix/restored_experiment；多边形中心映射参数随内缩半径变化，不能只更新轨迹图却继续使用旧参数。八组归档段时间和初始MINCO PVAJ保持不变。示例：
+
+```sh
+"$build/restored_inputs" "$build/cases/inputs" "$build/cases/assets" \
+  "$build/cases/inputs/a25_f6_ours/exchange_dynamics.json" NEW_INPUTS 3
+"$build/restored_experiment" "$build" NEW_INPUTS "$build/cases/assets" \
+  NEW_RESULTS 16 3 a25_f6 a50_f6 a75_f6
+```
+
+2026-11-14修正后真实中心嵌入预检系数相对误差2.32e-13、目标误差3.55e-15，原始时间与VAJ逐值相等。见cpp_runtime/results/sip_outer_rerun_3pairs_v2_20261114。
+
+### 2026-11-14 上一轮状态门控纠正
+
+三组重跑发现旧分支把成功incumbent的来源状态当成上一轮状态，导致上一轮失败后仍用非零乘子；该解释已纠正。当前只有“上一轮实际Solve_Succeeded且乘子来源也Solve_Succeeded”才复用乘子。失败后回退incumbent只取其变量，lam_g0/lam_x0均为零；成功但目标变差时可取incumbent变量及乘子。日志新增previous_solve_status，保留dual_source_status以分别审计。旧v2记录与对应源码哈希快照保留，旧段落中不区分上一轮状态的回退乘子说明由此条取代。
+
+
+## 2026-11-14 当前主实验入口
+
+当前主实验按[MAIN_EXPERIMENT.md](MAIN_EXPERIMENT.md)使用四个方门、三个圆门、显式缩放xy和有限问题先验收再补点。`main_course_inputs`生成新场景及双方八初值，`matrix ... LEVEL --main-xy-eight`运行双方独立初值；本文主方法不使用TOGT选点映射或gauge。新数据独立保存，旧结果仍按原协议解释。
+
+## 2026-11-16 连续几何复查与安全补点修复
+
+numpy_passage在同一轨迹上继续细分，默认最多16384次；移除原512次误截止、1微秒宽度截止及0.2毫米违反死区。预算或精度未解决时违反见证为空，最小采样位置独立保留。sip_planner仅补实际违反复查距离阈值的点，未解决且无新违反点时明确停止。原物理/规划球、点域内缩、目标及MINCO保持。
+
+C++ passage_unit和sip_outer_unit提供针对性回归。紧凑交错7窗同初值重跑自由7/8通过，最佳4.051446919秒，中心0/8，详见[修复报告](../classic_dynamic_tracks_20261115/compact_slalom_20261116/verifier_repair_20261116/REPORT.md)。

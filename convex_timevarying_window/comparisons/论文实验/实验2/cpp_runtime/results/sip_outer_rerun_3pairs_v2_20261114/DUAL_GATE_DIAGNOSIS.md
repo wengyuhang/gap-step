@@ -1,0 +1,1 @@
+实际偏差：a50_f6_ours_0第17/18/19轮均Infeasible_Problem_Detected，下一轮仍warm_start_used=true，dual_source_status=Solve_Succeeded；第20轮输入有2093个非零lam_g0。现有实现按incumbent来源状态放行，而用户第2点要求按上一轮实际状态放行。v2已停止，旧已完成/未完成原始记录保留，不作为修正后正式表；修正后必须上一轮及来源均Solve_Succeeded才复用乘子。未实飞。

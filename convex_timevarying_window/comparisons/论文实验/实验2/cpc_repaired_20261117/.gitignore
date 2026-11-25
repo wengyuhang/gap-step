@@ -1,0 +1,16 @@
+/development/**
+!/development/**/
+!/development/**/*.md
+!/development/**/*.rst
+!/development/**/*.tex
+!/development/**/*.pdf
+!/development/**/*.docx
+/results/**
+!/results/**/
+!/results/**/*.md
+!/results/**/*.rst
+!/results/**/*.tex
+!/results/**/*.pdf
+!/results/**/*.docx
+/bin/
+*.log

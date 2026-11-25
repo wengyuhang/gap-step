@@ -1,0 +1,11 @@
+*
+!.gitignore
+!PROTOCOL.md
+!REPORT.md
+
+!/**/
+!/**/*.md
+!/**/*.rst
+!/**/*.tex
+!/**/*.pdf
+!/**/*.docx
