@@ -51,11 +51,11 @@ inline casadi::Function dynamic_node(const Json& metadata) {
     for(int rotor=0;rotor<4;++rotor) {
         SX thrust=0.;
         for(int component=0;component<4;++component)thrust+=model.mixer[rotor][component]*wrench(component);
-        regular.push_back(SX::pow(thrust-model.midpoint,2)-model.midpoint*model.midpoint);
+        regular.push_back(SX::pow(thrust-model.midpoint,2)-model.radius*model.radius);
     }
     const SX collective=model.mass*magnitude-4.*model.midpoint;
     const SX fallback=SX::vertcat({SX::sumsqr(j(casadi::Slice(0,2)))/(magnitude*magnitude)-model.rate_limits[0],
-        SX(-1.),collective*collective-16.*model.midpoint*model.midpoint,SX(-1.),SX(-1.),SX(-1.)});
+        SX(-1.),collective*collective-16.*model.radius*model.radius,SX(-1.),SX(-1.),SX(-1.)});
     const SX physical=SX::if_else(SX::abs(denominator)>.001,SX::vertcat(regular),fallback);
     return casadi::Function("restored_dynamic_node",{state,u},
         {physical/SX(casadi::DM(std::vector<double>(model.scale.begin(),model.scale.end())))},

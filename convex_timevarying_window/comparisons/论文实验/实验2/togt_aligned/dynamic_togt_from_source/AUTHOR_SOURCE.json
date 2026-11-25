@@ -1,0 +1,9 @@
+{
+  "author_directory": "/home/jack/wyh/时变窗口/静态凸窗口/复现/TOGT-Planner-ICRA2024",
+  "files": {
+    "include/drolib/planner/traj_solver.hpp": "6ada802b50746fdb8275f06676d91671fc8af506b7864ab8a8823fea99c50477",
+    "src/planner/traj_solver.cpp": "763156cae687b7d64d81fdd23ffe02315b4551d75cad3382ec88b28db5c49ef6"
+  },
+  "entry": "RacePlanner::planTOGT -> TrajData::initData -> TrajSolver::solve",
+  "dynamic_extension": "update translated waypoint locations at cumulative segment times and add their time chain rule"
+}

@@ -1,0 +1,18 @@
+{
+  "date": "2026-11-16",
+  "completed_at": "2026-11-16T08:39:21.636995+00:00",
+  "task": "additional center-detour scene generation and fixed-protocol planning test",
+  "state": "complete",
+  "formal_planning_found": {
+    "ours": false,
+    "center": false
+  },
+  "formal_accepted_candidates": {
+    "ours": 0,
+    "center": 0
+  },
+  "diagnostic_snapshots_only": true,
+  "report": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/results/REPORT.md",
+  "audit": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/results/paired_v1/FINAL_AUDIT.json",
+  "active_processes": []
+}

@@ -1,0 +1,2334 @@
+[
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_02_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_03_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_06_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_08_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_07_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_pose.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_04_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/magnetometer_native.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_01_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/gate_05_contacts.pbtxt.gz",
+    "passed": true
+  },
+  {
+    "file": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/flight.ulg.gz",
+    "passed": true
+  }
+]

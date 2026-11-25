@@ -5,6 +5,7 @@
 #include "stable_dynamics.hpp"
 #include "native_minco_pvaj.hpp"
 #include "restored_kernels.hpp"
+#include "sip_exchange_policy.hpp"
 #include <filesystem>
 #include <iomanip>
 #include <map>
@@ -48,7 +49,7 @@ casadi::Dict solver_options(const Json& configuration) {
 class Planner {
     Json manifest;
     bool native_minco_enabled=false,native_soft_enabled=false,direct_points_enabled=false;
-    bool restored_soft=false;
+    bool restored_soft=false,xy_points=false,terminal_hover_contact=false;
     double native_dynamics_weight=1.;
     std::unique_ptr<native_minco::Graph> native_graph;
     std::string directory,destination;
@@ -121,7 +122,7 @@ class Planner {
                     (witness.kind=="after" && piece==gate+1);
                 // The input point map covers the opening eroded by finite_radius.
                 // Assigned-knot safety is therefore already enforced by the map.
-                if(norm_dynamics && manifest["free_points"].get<bool>() && at_knot)
+                if((norm_dynamics && manifest["free_points"].get<bool>() || xy_points) && at_knot)
                     unique.erase(std::remove(unique.begin(),unique.end(),0.),unique.end());
                 if(unique.empty())continue;
                 MX offsets=DM(unique).T();
@@ -259,20 +260,41 @@ public:
         if(minimum_thrust_enabled && !dynamic_exchange)throw std::runtime_error("Minimum thrust requires dynamics exchange");
         if(reset_togt_each_round && !sampled_hard)throw std::runtime_error("TOGT reset requires sampled-hard dynamics");
         std::ifstream(directory+"/manifest.json")>>manifest;
+        double finite_radius=sip_exchange::default_finite_radius;
+if(manifest.contains("vehicle")) {
+            finite_radius=manifest.at("vehicle").at("finite_safety_radius_m");
+        } else {
+#ifdef SIP_X500_CONFIG
+        Json x500_config;std::ifstream config_file(SIP_X500_CONFIG);
+        if(!config_file)throw std::runtime_error("Cannot read SIP x500 configuration");
+        config_file>>x500_config;finite_radius=x500_config.at("finite_safety_radius_m").get<double>();
+#endif
+        }
+        if(!std::isfinite(finite_radius) || finite_radius<=manifest["verification_radius"].get<double>())
+            throw std::runtime_error("Finite safety radius must exceed verification radius");
+        const double input_finite_radius=manifest["finite_radius"];
+        if(!native_scene.empty()) {
+            manifest["input_finite_radius"]=input_finite_radius;
+            manifest["finite_radius"]=finite_radius;
+            manifest["config"]["witness_slack"]=finite_radius-manifest["verification_radius"].get<double>();
+        } else if(std::abs(input_finite_radius-finite_radius)>1e-12) {
+            throw std::runtime_error("Serialized SIP graph has a stale finite radius; re-export it or use the native MINCO entry");
+        }
         n=manifest["n"];m=manifest["m"];nvar=manifest["nvar"];workspace_rows=manifest["workspace_rows"];
         if(!native_scene.empty()) {
             native_minco_enabled=true;native_soft_enabled=native_soft;native_dynamics_weight=native_weight;direct_pvaj=true;
             Json scene;std::ifstream(native_scene)>>scene;
+            terminal_hover_contact=!scene.value("stationary_terminal_contact_is_crossing",true);
             if(restored_soft)manifest["restore_historical_domain"]=true;
             else {native_minco::remove_domain_bounds(manifest);workspace_rows=0;}
-            direct_points_enabled=direct_points;
+            xy_points=manifest.value("point_coordinates",std::string())=="scaled_xy";
+            direct_points_enabled=direct_points && !xy_points;
             if(direct_points_enabled)native_minco::use_direct_point_coordinates(manifest);
             native_minco::use_derivative_order(manifest,derivative_order);nvar=manifest["nvar"];
             for(int gate=0;gate<m;++gate) {
                 windows.push_back(load_window(manifest["windows"][gate]));
                 for(const auto& kind:{"before","after","normalized"})
-                    frames[{gate,kind}]=restored_soft ? restored_kernels::frame_node(windows.back(),kind,manifest["finite_radius"]) :
-                        Function::load(directory+"/frame_"+std::to_string(gate)+"_"+kind+".casadi");
+                    frames[{gate,kind}]=restored_kernels::frame_node(windows.back(),kind,manifest["finite_radius"]);
             }
             std::ifstream(directory+"/exchange_dynamics.json")>>dynamics_metadata;
             exchange_node=restored_soft ? restored_kernels::dynamic_node(dynamics_metadata) :
@@ -300,6 +322,8 @@ public:
                 dynamics_metadata["minimum_collective_thrust_n"]=minimum_thrust::collective_floor;
             }
             const size_t geometry_size=expressions[6].numel();
+            if(native_soft_enabled && (manifest["lower_g"].size()!=geometry_size || manifest["upper_g"].size()!=geometry_size))
+                throw std::runtime_error("Native finite bounds and constraint rows do not align");
             auto low=manifest["lower_g"].get<std::vector<double>>();low.resize(geometry_size);manifest["lower_g"]=low;
             auto high=manifest["upper_g"].get<std::vector<Json>>();high.resize(geometry_size);manifest["upper_g"]=high;
             progress.open(output+"/progress.jsonl");
@@ -462,6 +486,8 @@ public:
         if(native_minco_enabled) {
             const auto initial=numbers(seed["original"]);
             std::copy(initial.begin(),initial.end(),current.begin());
+            if(xy_points && manifest["free_points"].get<bool>())for(int gate=0;gate<m;++gate)
+                for(int axis=0;axis<2;++axis)current[n+2*gate+axis]/=manifest["point_scale_m"][gate][axis].get<double>();
             for(int k=0;k<n;++k) {
                 const double t=std::exp(initial[k]);
                 current[k]=t>1.?std::sqrt(2.*t-1.)-1.:1.-std::sqrt(2./t-1.);
@@ -548,17 +574,22 @@ public:
         Json calls=Json::array(),records=Json::array(),projections=Json::array();bool found=false;
         std::string termination_reason="exchange_round_limit";
         Json selected;
+        sip_exchange::Incumbent incumbent;
+        std::string warm_dual_status="initial",last_solve_status="initial";
+        int constraint_revision=0;
         for(int round=0;round<24;++round) {
-            if(round>0 && reset_togt_each_round) {
+            const bool reset_initial=round>0 && reset_togt_each_round;
+            if(reset_initial) {
                 current=togt_initial;
                 lam_x.assign(current.size(),0.);
-                lam_g.clear();
+                lam_g.clear();warm_dual_status="initial_reset";
             }
-            const bool warm_start=round>0 && !reset_togt_each_round;
+            const std::string previous_status=last_solve_status;
+            const bool warm_start=round>0 && sip_exchange::dual_warm_start_allowed(previous_status,warm_dual_status);
             const auto build_begin=Clock::now();auto problem=build(witnesses,warm_start,dynamic_witnesses);
             const double build_s=std::chrono::duration<double>(Clock::now()-build_begin).count();
             Json canonicalized=Json::array();
-            if(round>0 && (!native_minco_enabled || restored_soft))for(int gate=0;gate<static_cast<int>(manifest["slices"].size());++gate) {
+            if(round>0 && !xy_points && (!native_minco_enabled || restored_soft))for(int gate=0;gate<static_cast<int>(manifest["slices"].size());++gate) {
                 const auto& selection=manifest["slices"][gate];
                 if(!selection["circle"].get<bool>())continue;
                 const int begin=selection["begin"],end=selection["end"];double squared=numpy_dot(current.data()+begin,current.data()+begin,end-begin);
@@ -585,7 +616,15 @@ public:
                     lower_x[begin+1]=0.;upper_x[begin+1]=2.*pi;
                 }
             }
-            auto starting=current,starting_lam_x=lam_x;
+            if(xy_points && manifest["free_points"].get<bool>())for(int gate=0;gate<m;++gate)
+                for(int axis=0;axis<2;++axis) {
+                    const int k=n+2*gate+axis;
+                    const double scale=manifest["point_scale_m"][gate][axis];
+                    lower_x[k]=manifest["point_lower_m"][gate][axis].get<double>()/scale;
+                    upper_x[k]=manifest["point_upper_m"][gate][axis].get<double>()/scale;
+                }
+            const sip_exchange::Snapshot warm_state{current,lam_x,physical,lam_g,0.,warm_dual_status,round-1};
+            auto starting=current,starting_lam_x=sip_exchange::bound_duals(warm_state,previous_status);
             if(lifted_thrust) {
                 const auto values=Function("thrust_initial_curve",{expressions[0],expressions[1]},
                     {expressions[4],MX::exp(expressions[2](casadi::Slice(0,n)))})
@@ -605,10 +644,10 @@ public:
             casadi::DMDict input{{"x0",DM(starting)},{"p",DM(parameters)},
                 {"lbx",DM(lower_x)},{"ubx",DM(upper_x)},
                 {"lbg",DM(problem.lower)},{"ubg",DM(problem.upper)}};
-            if(warm_start) {
-                std::vector<double> previous;for(const auto& key:problem.keys)previous.push_back(lam_g[key]);
-                input["lam_x0"]=DM(starting_lam_x);input["lam_g0"]=DM(previous);
-            }
+            // Never reuse multipliers returned by a non-Solve_Succeeded source.
+            // Incumbent rollback can supply duals only when the actual previous solve also succeeded.
+            input["lam_x0"]=DM(starting_lam_x);
+            input["lam_g0"]=DM(sip_exchange::constraint_duals(warm_state,problem.keys,previous_status));
             if(feasible_sqp) {
                 auto projection_input=input;projection_input.erase("lam_x0");projection_input.erase("lam_g0");
                 auto projection_parameters=parameters;
@@ -622,29 +661,47 @@ public:
                     {"compute_s",std::chrono::duration<double>(Clock::now()-projection_begin).count()}};
                 projections.push_back(record);progress<<Json{{"stage","feasible_initialization"},{"record",record}}.dump()<<std::endl;
                 if(!stats.at("success").to_bool())break;
-                input["x0"]=feasible.at("x");input["lam_x0"]=feasible.at("lam_x");input["lam_g0"]=feasible.at("lam_g");
+                input["x0"]=feasible.at("x");
+                const bool projection_converged=stats.at("return_status").to_string()=="Solve_Succeeded";
+                input["lam_x0"]=projection_converged?feasible.at("lam_x"):DM::zeros(feasible.at("x").numel());
+                input["lam_g0"]=projection_converged?feasible.at("lam_g"):DM::zeros(problem.keys.size());
             }
             if(std::getenv("SIP_DUMP_NLP"))
                 std::ofstream(destination+"/finite_input.json")<<Json{{"round",round},
                     {"x0",input.at("x0").get_elements()},{"parameters",parameters},
                     {"lower_x",lower_x},{"upper_x",upper_x},{"lower_g",problem.lower},{"upper_g",problem.upper},
-                    {"keys",problem.keys}}.dump(2)<<'\n';
+                    {"keys",problem.keys},{"lam_x0",input.at("lam_x0").get_elements()},
+                    {"lam_g0",input.at("lam_g0").get_elements()},{"dual_source_status",warm_dual_status},
+                    {"previous_solve_status",previous_status}}.dump(2)<<'\n';
             const auto solve_begin=Clock::now();const auto solution=problem.solver(input);
             const double solve_s=std::chrono::duration<double>(Clock::now()-solve_begin).count();
             const auto statistics=problem.solver.stats();
-            current=solution.at("x").nonzeros();lam_x=solution.at("lam_x").nonzeros();
-            if(lifted_thrust){current.resize(nvar);lam_x.resize(nvar);}
-            const auto multipliers=solution.at("lam_g").nonzeros();lam_g.clear();
-            for(size_t k=0;k<problem.keys.size();++k)lam_g[problem.keys[k]]=multipliers[k];
-            std::vector<double> report_variables=current;
+            auto candidate=solution.at("x").nonzeros(),candidate_lam_x=solution.at("lam_x").nonzeros();
+            if(lifted_thrust){candidate.resize(nvar);candidate_lam_x.resize(nvar);}
+            const std::string status=statistics.at("return_status").to_string();
+            last_solve_status=status;
+            const bool strict_success=status=="Solve_Succeeded";
+            const bool success=sip_exchange::optimizer_success(status);
+            const auto multipliers=solution.at("lam_g").nonzeros();std::map<std::string,double> candidate_lam_g;
+            if(strict_success)for(size_t k=0;k<problem.keys.size();++k)candidate_lam_g[problem.keys[k]]=multipliers[k];
+            else candidate_lam_x.assign(candidate.size(),0.);
+            if(!sip_exchange::finite(candidate)) {
+                Json call{{"stage","factorized_finite_ipopt"},{"round",round},{"status",status},{"success",success},
+                    {"solver_s",solve_s},{"problem_build_s",build_s},{"finite_primal",false}};
+                calls.push_back(call);progress<<call.dump()<<std::endl;
+
+                termination_reason="nonfinite_finite_solution";
+                break;
+            }
+            std::vector<double> report_variables=candidate;
             if(!exchange_to_original.is_null())report_variables=
-                exchange_to_original(std::vector<DM>{DM(current),DM(parameters)})[0].get_elements();
+                exchange_to_original(std::vector<DM>{DM(candidate),DM(parameters)})[0].get_elements();
             if(direct_soft || sampled_hard) {
                 if(direct_soft) {
-                    const auto r=residuals(std::vector<DM>{DM(current),DM(parameters)})[0].get_elements();
+                    const auto r=residuals(std::vector<DM>{DM(candidate),DM(parameters)})[0].get_elements();
                     const auto scale=numbers(manifest["slack_scale"]);
                     for(size_t k=0;k<r.size();++k)report_variables.push_back(std::max(r[k],0.)/scale[k]);
-                } else if(!native_minco_enabled)report_variables.resize(current.size()+numbers(manifest["slack_scale"]).size(),0.);
+                } else if(!native_minco_enabled)report_variables.resize(candidate.size()+numbers(manifest["slack_scale"]).size(),0.);
             }
             const auto values=trajectory(std::vector<DM>{DM(report_variables),DM(parameters)});
             const auto original=values[0].get_elements(),times=values[1].get_elements(),coefficient_values=values[2].get_elements();
@@ -665,14 +722,23 @@ public:
                     minimum=std::min({minimum,g[k]-problem.lower[k],problem.upper[k]-g[k]});
                 violation=std::max({violation,problem.lower[k]-g[k],g[k]-problem.upper[k]});
             }
-            const bool success=statistics.at("success").to_bool();
+            double variable_violation=0.;
+            const auto solved_variables=solution.at("x").get_elements();
+            for(size_t k=0;k<solved_variables.size();++k)
+                variable_violation=std::max({variable_violation,lower_x[k]-solved_variables[k],solved_variables[k]-upper_x[k]});
+            violation=std::max(violation,variable_violation);
+            const bool finite_curve=sip_exchange::finite(original) && sip_exchange::finite(times) &&
+                sip_exchange::finite(coefficient_values) && std::isfinite(actual_objective) && sip_exchange::finite(g) &&
+                std::all_of(times.begin(),times.end(),[](double t){return t>0.;});
             double maximum_dynamic_residual=-std::numeric_limits<double>::infinity();
             if(sampled_hard)for(size_t k=problem.dynamic_row_start;k<g.size();++k)
                 maximum_dynamic_residual=std::max(maximum_dynamic_residual,g[k]);
             Json call{{"stage","factorized_finite_ipopt"},{"round",round},{"success",success},
-                {"status",statistics.at("return_status").to_string()},{"iterations",statistics.at("iter_count").to_int()},
+                {"status",status},{"reported_success",statistics.at("success").to_bool()},{"iterations",statistics.at("iter_count").to_int()},
                 {"solver_s",solve_s},{"problem_build_s",build_s},{"warm_start_used",warm_start},
-                {"initial_reset_to_togt",round>0 && reset_togt_each_round},
+                {"strict_success",strict_success},{"constraint_revision",constraint_revision},{"variable_bound_violation_inf",variable_violation},
+                {"initial_reset_to_togt",reset_initial},{"dual_source_status",warm_dual_status},{"previous_solve_status",previous_status},
+                {"primal_warm_start_used",round>0},{"finite_curve",finite_curve},
                 {"native_objective",actual_objective},{"dynamic_soft_integral",penalty},{"dynamic_penalty_contribution",actual_objective-total_time},{"epigraph_gap",epigraph_gap},{"constraint_violation_inf",violation},
                 {"minimum_constraint",minimum},{"sampled_dynamic_max_residual",sampled_hard?Json(maximum_dynamic_residual):Json(nullptr)},
                 {"solver_variables",solution.at("x").numel()},{"constraint_rows",g.size()},
@@ -688,46 +754,65 @@ public:
             }
             calls.push_back(call);progress<<call.dump()<<std::endl;
             std::cout<<"ROUND "<<seed_index<<' '<<round<<' '<<call["status"]<<' '<<actual_objective<<' '<<solve_s<<std::endl;
-            if((!success && !restored_soft) || minimum < -1e-5 || (sampled_hard && violation>1e-5) ||
-                !std::all_of(current.begin(),current.end(),[](double value){return std::isfinite(value);})) {
-                termination_reason=minimum < -1e-5 ? "finite_node_geometry_violation" : "finite_solve_not_ready";
+            // No geometry oracle or exchange until the ENTIRE current finite NLP is feasible
+            // and its optimization has a success status. Failure terminates this initialization.
+            if(!sip_exchange::finite_ready(status,violation,finite_curve)) {
+                termination_reason=!finite_curve?"nonfinite_trajectory":violation>sip_exchange::geometry_tolerance?
+                    "finite_constraint_violation":"finite_optimizer_not_converged";
+                progress<<Json{{"stage","finite_problem_stopped"},{"round",round},{"reason",termination_reason},
+                    {"violation",violation},{"new_witnesses",0}}.dump()<<std::endl;
                 break;
             }
-            std::vector<double> physical_times=times;
+            std::vector<double> physical_times=times,candidate_physical=physical;
             if(native_minco_enabled) {
-                physical=original;
+                candidate_physical=original;
             } else {
                 // The original outer loop converts the physical result through its scaled coordinates.
-                for(size_t k=0;k<physical.size();++k) {
+                for(size_t k=0;k<candidate_physical.size();++k) {
                     double scale=1.;
-                    if(k<static_cast<size_t>(m))scale=1./std::max(1.,manifest["legacy_outer_omega"].get<double>()*std::exp(physical[k]));
+                    if(k<static_cast<size_t>(m))scale=1./std::max(1.,manifest["legacy_outer_omega"].get<double>()*std::exp(candidate_physical[k]));
                     else if(k>=static_cast<size_t>(manifest["velocity_start"].get<int>())) {
                         const size_t state=k-manifest["velocity_start"].get<int>();
                         scale=manifest["state_scale"][state];
                     }
-                    const double reduced=(original[k]-physical[k])/scale;
-                    physical[k]=physical[k]+scale*reduced;
+                    const double reduced=(original[k]-candidate_physical[k])/scale;
+                    candidate_physical[k]=candidate_physical[k]+scale*reduced;
                 }
-                physical_times.clear();for(int k=0;k<n;++k)physical_times.push_back(std::exp(physical[k]));
-                const auto physical_values=physical_curve(std::vector<DM>{DM(physical)})[0].get_elements();
+                physical_times.clear();for(int k=0;k<n;++k)physical_times.push_back(std::exp(candidate_physical[k]));
+                const auto physical_values=physical_curve(std::vector<DM>{DM(candidate_physical)})[0].get_elements();
                 for(int piece=0;piece<n;++piece)for(int axis=0;axis<3;++axis)for(int power=0;power<8;++power)
                     coefficients[piece](power,axis)=physical_values[24*piece+8*axis+power];
             }
+            sip_exchange::Snapshot proposed{candidate,candidate_lam_x,candidate_physical,
+                candidate_lam_g,actual_objective,status,round};
+            if(incumbent.consider(proposed,minimum,constraint_revision))
+                progress<<Json{{"stage","incumbent_updated"},{"round",round},{"objective",actual_objective}}.dump()<<std::endl;
             Json checks=Json::array();bool passed=true,added=false;
+            sip_exchange::WorstWitnessPerGate worst_witnesses;
+            Json geometry_added=Json::array();
             for(int gate=0;gate<m;++gate) {
                 double start=0.;
                 for(int piece=0;piece<n;++piece) {
-                    Json check=numpy_passage(coefficients[piece],physical_times[piece],start,windows[gate],manifest["verification_radius"]);
+                    Json check=numpy_passage(coefficients[piece],physical_times[piece],start,windows[gate],manifest["verification_radius"],terminal_hover_contact && piece==n-1);
                     check["gate"]=gate;check["piece"]=piece;checks.push_back(check);passed=passed&&check["passed"].get<bool>();
                     start+=physical_times[piece];
                     if(check["passed"].get<bool>() || check["witness_u"].is_null())continue;
-                    const WitnessKey key{gate,piece};if(!witnesses.count(key))witnesses[key]={"normalized",{}};
-                    auto& witness=witnesses[key];const double u=check["witness_u"];
-                    const double offset=witness.kind=="before"?(1.-u)*physical_times[piece]:witness.kind=="after"?u*physical_times[piece]:u;
-                    if(std::all_of(witness.values.begin(),witness.values.end(),[&](double value){return std::abs(value-offset)>1e-5;})) {
-                        witness.values.push_back(offset);added=true;
-                    }
+                    const WitnessKey key{gate,piece};const auto existing=witnesses.find(key);
+                    const std::string kind=existing==witnesses.end()?"normalized":existing->second.kind;
+                    const double u=check["witness_u"];
+                    const double offset=kind=="before"?(1.-u)*physical_times[piece]:kind=="after"?u*physical_times[piece]:u;
+                    if(existing!=witnesses.end() && !sip_exchange::new_witness(existing->second.values,offset))continue;
+                    if(!std::isfinite(offset))continue;
+                    const double distance=check["minimum_sample_distance_m"].is_number()?check["minimum_sample_distance_m"].get<double>():INFINITY;
+                    worst_witnesses.consider({gate,piece,kind,offset,u,manifest["verification_radius"].get<double>()-distance});
                 }
+            }
+            for(const auto& [gate,worst]:worst_witnesses.values()) {
+                const WitnessKey key{gate,worst.piece};
+                if(!witnesses.count(key))witnesses[key]={worst.kind,{}};
+                witnesses[key].values.push_back(worst.offset);added=true;
+                geometry_added.push_back(Json{{"gate",gate},{"piece",worst.piece},{"witness_u",worst.fraction},
+                    {"offset",worst.offset},{"violation_severity_m",worst.severity}});
             }
             Json dynamic_checks=Json::array();bool dynamic_passed=true;int dynamic_added=0;
             if(dynamic_exchange)for(int piece=0;piece<n;++piece) {
@@ -744,28 +829,42 @@ public:
                 }
                 dynamic_checks.push_back(check);
             }
-            Json record{{"round",round},{"optimizer_converged",success},{"global_passed",passed},
+            Json record{{"round",round},{"optimizer_converged",success},{"strict_optimizer_converged",strict_success},{"finite_constraint_violation_inf",violation},{"constraint_revision",constraint_revision},{"global_passed",passed},
                 {"dynamics_passed",dynamic_passed},{"dynamic_added_rows",dynamic_added},
+                {"geometry_added_witnesses",geometry_added},{"incumbent_objective",incumbent.has_value()?Json(incumbent.value().objective):Json(nullptr)},
                 {"checks",checks},{"dynamic_checks",dynamic_checks}};
             records.push_back(record);
             if(dynamic_exchange) {
                 progress<<Json{{"stage","continuous_checks"},{"record",record}}.dump()<<std::endl;
                 std::cout<<"DYNAMIC_CHECK "<<round<<' '<<dynamic_passed<<' '<<dynamic_added<<std::endl;
             }
-            if(passed && dynamic_passed && success) {
+            if(sip_exchange::accept_verified(proposed,minimum,passed,dynamic_passed)) {
                 termination_reason="verified_solution";found=true;Json points=Json::array();const auto point_values=values[3].get_elements();
                 for(int gate=0;gate<m;++gate)points.push_back({point_values[3*gate],point_values[3*gate+1],point_values[3*gate+2]});
                 std::vector<double> crossings;double total=0.;for(int k=0;k<n;++k){total+=physical_times[k];if(k<m)crossings.push_back(total);}
                 curves=Json::array();for(const auto& coefficient:coefficients)curves.push_back(matrix(coefficient));
-                selected={{"variables",physical},{"durations",physical_times},{"coefficients",curves},{"nominal_time_s",total},
+                selected={{"variables",candidate_physical},{"durations",physical_times},{"coefficients",curves},{"nominal_time_s",total},
                     {"objective",actual_objective},{"dynamic_soft_integral",penalty},{"crossing_times_s",crossings},{"crossing_points",points},{"made_at",0.}};
                 break;
             }
 
-            if(restored_soft && passed && !success)continue;
+            // New constraints may increase the optimum. Always keep the current finite
+            // solution; a cheaper solution from an earlier constraint set is archival only.
+            current=proposed.variables;lam_x=sip_exchange::bound_duals(proposed);
+            lam_g=proposed.constraint_duals;physical=proposed.physical;warm_dual_status=proposed.status;
             if(!added){termination_reason="no_new_witness";break;}
+            ++constraint_revision;
+
         }
         Json result=found?selected:Json::object();
+        if(incumbent.has_value()) {
+            const auto& best=incumbent.value();
+            result["finite_incumbent"]={{"round",best.round},{"status",best.status},{"objective",best.objective},
+                {"solver_variables",best.variables},{"variables",best.physical},{"lam_x",best.bound_duals},{"lam_g",best.constraint_duals},
+                {"acceptance","finite feasible snapshot only; not an executable verified trajectory"}};
+        }
+        result["exchange_policy"]={{"geometry_rollbacks_before_termination",0},{"finite_feasibility_gate",true},{"finite_failure_action","stop initialization before geometry checks or adding witnesses"},{"unchanged_problem_retry",false},{"objective_rollback_across_constraint_sets",false},{"maximum_new_geometry_witnesses_per_gate",1},
+            {"dual_source_requirement","Previous solve and multiplier source must both be Solve_Succeeded; otherwise zero duals"}};
         result.update(Json{{"found",found},{"termination_reason",termination_reason},{"solve_s",std::chrono::duration<double>(Clock::now()-began).count()},
             {"optimizer_calls",calls},{"records",records},{"feasible_initializations",projections},{"config",manifest["config"]},{"level",manifest["level"]},
             {"method",manifest["method"]},{"direct_soft_objective",direct_soft},{"unit_weight_epigraph",unit_epigraph},
@@ -778,12 +877,15 @@ public:
             {"direct_state_coordinates",direct_pvaj},
             {"native_minco_pvaj",native_minco_enabled && manifest.value("minco_derivative_order",3)==3},
             {"restored_historical_soft_workflow",restored_soft},
-            {"iteration_limit_action",restored_soft?"allow finite feasible candidate verification and exchange":"terminate initialization before verification and exchange"},
+            {"iteration_limit_action","stop initialization before verification and exchange"},
             {"native_minco_pv",native_minco_enabled && manifest.value("minco_derivative_order",3)==1},
             {"native_soft_dynamics",native_soft_enabled},
-            {"point_coordinates",direct_points_enabled?"direct_polar_polygon":"TOGT maps"},
+            {"point_coordinates",xy_points?"scaled_xy":direct_points_enabled?"direct_polar_polygon":"TOGT maps"},{"point_scale_m",xy_points?manifest["point_scale_m"]:Json(nullptr)},{"point_gauge_rows",xy_points?Json(0):Json(nullptr)},
+            {"point_erosion_radius_m",xy_points?manifest["point_erosion_radius_m"]:Json(nullptr)},
+            {"finite_safety_sphere_radius_m",xy_points?manifest["finite_safety_sphere_radius_m"]:Json(nullptr)},
+            {"verification_safety_sphere_radius_m",xy_points?manifest["verification_safety_sphere_radius_m"]:Json(nullptr)},
             {"point_slices",manifest["slices"]},{"trajectory_variable_count",nvar},
-            {"initial_angle_rule",direct_points_enabled?"negative physical objective gradient at zero radius":"legacy"},
+            {"initial_angle_rule",xy_points?"not used; physical xy centered":direct_points_enabled?"negative physical objective gradient at zero radius":"legacy"},
             {"workspace_constraints",!native_minco_enabled || restored_soft},
             {"segment_duration_bounds",native_minco_enabled && !restored_soft?Json(nullptr):Json("legacy bounds")},
             {"warm_start_raw_variables_preserved",native_minco_enabled && !restored_soft},
@@ -796,14 +898,14 @@ public:
             {"norm_form_dynamics",norm_dynamics},
             {"bundled_dynamic_constraints",norm_dynamics},
             {"lifted_positive_thrust",lifted_thrust},
-            {"redundant_knot_safety_eliminated",norm_dynamics && manifest["free_points"].get<bool>()},
+            {"redundant_knot_safety_eliminated",xy_points || norm_dynamics && manifest["free_points"].get<bool>()},
             {"minimum_thrust_at_all_dynamic_nodes",stable_dynamics_enabled},
             {"exact_hessian",stable_dynamics_enabled && !std::getenv("SIP_LIMITED_MEMORY")},
             {"stable_exchange_coordinates",!exchange_to_original.is_null()},
             {"dynamics_verification",dynamic_exchange?"numerical interval enclosure on every polynomial segment":native_soft_enabled?"soft penalty, 33 nodes per segment":"fixed temporal samples"},
             {"time_weight",1.},{"dynamics_weight",native_soft_enabled?native_dynamics_weight:sampled_hard?0.:(direct_soft || unit_epigraph)?1.:1000.},{"initial_sample_index",seed_index},{"initial_variables",seed["original"]},
             {"runtime","C++17 CasADi/IPOPT and native continuous frame exchange"},{"all_seven_joint",true},
-            {"replanning",false},{"dynamic_limit_fraction",.95},{"finite_safety_radius_m",manifest["finite_radius"]},
+            {"replanning",false},{"vehicle",manifest.value("vehicle",Json(nullptr))},{"dynamic_limit_fraction",dynamics_metadata.is_object()?dynamics_metadata.value("limit_fraction",.95):.95},{"finite_safety_radius_m",manifest["finite_radius"]},
             {"verification_safety_radius_m",manifest["verification_radius"]}});
         return result;
     }

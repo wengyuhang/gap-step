@@ -1,6 +1,6 @@
 """Offline mathematical graph export for the native, unchanged SIP algorithm."""
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict,replace
 import json
 from pathlib import Path
 import casadi as ca
@@ -18,7 +18,16 @@ parser.add_argument('--outdir',type=Path,required=True)
 args=parser.parse_args()
 out=args.outdir.resolve();out.mkdir(parents=True,exist_ok=False)
 track,_=scenario.build_case(scenario.Case(level=args.level))
-planner=run.make_planner(track,args.method=='ours')
+from convex_timevarying_window.global_gate_minco_probe import planner as core
+configuration=json.loads((Path(__file__).resolve().parents[1]/'config/x500_togt.json').read_text())
+original_config=core.Config
+def export_config():
+ config=original_config()
+ verification=config.radius+config.frame_thickness+config.passage_margin+.05
+ return replace(config,witness_slack=configuration['finite_safety_radius_m']-verification)
+core.Config=export_config
+try:planner=run.make_planner(track,args.method=='ours')
+finally:core.Config=original_config
 seeds=planner.seeds();first=seeds[0]
 planner._fast_time_origin=np.cumsum(np.exp(first[:planner.n]))
 planner._fast_normalization=float(np.exp(first[:planner.n]).sum())

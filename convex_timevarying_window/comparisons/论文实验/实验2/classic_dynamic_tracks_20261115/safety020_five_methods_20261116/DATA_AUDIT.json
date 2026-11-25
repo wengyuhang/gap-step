@@ -1,0 +1,229 @@
+{
+  "accepted_candidates": 136,
+  "candidates": 190,
+  "conditions": [
+    {
+      "level": "splits_moderate",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 4,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "splits_high",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 2,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "splits_freq3",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "splits_freq4",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "alphapilot_moderate",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "alphapilot_high",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "alphapilot_freq3",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "alphapilot_freq4",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "airsim_moderate",
+      "methods": {
+        "center": {
+          "accepted": 8,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 7,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "airsim_high",
+      "methods": {
+        "center": {
+          "accepted": 0,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 3,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "airsim_freq3",
+      "methods": {
+        "center": {
+          "accepted": 0,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 0,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    },
+    {
+      "level": "airsim_freq4",
+      "methods": {
+        "center": {
+          "accepted": 0,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        },
+        "ours": {
+          "accepted": 0,
+          "same_initialization_rule": true,
+          "target_motion_unchanged": true,
+          "tested": 8
+        }
+      },
+      "paired_physical_time_and_pvaj_equal": true
+    }
+  ],
+  "finite_acceptance_rule": "original optimizer_success plus finite feasibility, strict Solve_Succeeded only for multiplier reuse",
+  "finite_solver_calls": 665,
+  "initializer_failures": 1,
+  "initializers": 96,
+  "logical_method_attempts": 192,
+  "passed": true,
+  "solved_to_acceptable_level_calls": 0
+}

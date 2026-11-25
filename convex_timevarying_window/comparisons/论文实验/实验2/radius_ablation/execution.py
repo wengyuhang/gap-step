@@ -61,7 +61,7 @@ def audit(folder):
     return result
 
 
-def execute(source, variant, out):
+def execute(source, variant, out, tracker_factory=None):
     raw_plan = json.loads(source.read_text())
     if not raw_plan['found']:
         raise ValueError('A selected trajectory is required')
@@ -73,7 +73,7 @@ def execute(source, variant, out):
         workspace_lower=(-100., -120., .65), workspace_upper=(150., 120., 20.))
     progress = Progress(list(track.windows), route_signs(track), cfg.radius, cfg.frame_thickness)
     reference = Reference(track.start, plan)
-    mpc = MPC()
+    mpc = (MPC if tracker_factory is None else tracker_factory)()
     mpc.command(hover_state(track.start), -1., reference.sample)
     warmup_ms = mpc.logs[-1]['cycle_ms']
     mpc.logs.clear()
@@ -100,9 +100,11 @@ def execute(source, variant, out):
     state = hover_state(track.start)
 
     def feedback(x, at):
-        if mpc.last_time is None or at-mpc.last_time >= mpc.cfg.update_period-1e-6:
+        if getattr(mpc, 'uses_simulation_schedule', False) or mpc.last_time is None or at-mpc.last_time >= mpc.cfg.update_period-1e-6:
+            previous_count = len(mpc.logs)
             command = mpc.command(x, at, reference.sample)
-            control_log.write(json.dumps(mpc.logs[-1])+'\n')
+            for row in mpc.logs[previous_count:]:
+                control_log.write(json.dumps(row)+'\n')
             control_log.flush()
             return command
         return mpc.previous.copy()
@@ -155,6 +157,8 @@ def execute(source, variant, out):
         session.feedback = None
         session.hold = state[:3].copy()
         session.close()
+        if hasattr(mpc, 'close'):
+            mpc.close()
         for process, stream in recorders:
             process.terminate()
             try:

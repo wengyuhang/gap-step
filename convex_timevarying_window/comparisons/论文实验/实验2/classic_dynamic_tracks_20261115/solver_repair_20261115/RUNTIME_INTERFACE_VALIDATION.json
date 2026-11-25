@@ -1,0 +1,8 @@
+{
+  "static_center_manifest.json": true,
+  "static_center_scene.json": true,
+  "static_ours_manifest.json": true,
+  "static_ours_scene.json": true,
+  "final_center_interface_found": true,
+  "final_center_interface_one_iteration": true
+}

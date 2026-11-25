@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-11-16T07:20:49.820323+00:00",
+  "scope": "Uniform fixed-target initialization, three existing layouts times two frozen difficulty levels, planning only.",
+  "cases": 6,
+  "accepted_candidates": 81,
+  "logical_attempts": 96,
+  "actual_sip_candidates": 94,
+  "time_initializers": 48,
+  "initializer_failures": 1,
+  "solved_to_acceptable_level_calls": 1,
+  "hard_case": {
+    "free_found": true,
+    "free_selected": "ours_5",
+    "free_time_s": 14.292673147175176,
+    "free_successful_initializations": 1,
+    "center_found": false,
+    "center_successful_initializations": 0,
+    "time_initializer_failed_indices": [
+      6
+    ],
+    "all_rejected_sip_candidates_first_round_iteration_limit": true,
+    "selected_free_acceptable_rounds": [
+      3
+    ],
+    "selected_free_final_status": "Solve_Succeeded"
+  },
+  "per_course_rule_changes": false,
+  "run_frozen_file_checks": 57,
+  "historical_file_checks": 60,
+  "original_sip_checks": 81,
+  "motion": {
+    "splits": {
+      "gates": 7,
+      "moving": 4
+    },
+    "alphapilot": {
+      "gates": 11,
+      "moving": 6
+    },
+    "airsim": {
+      "gates": 21,
+      "moving": 10
+    }
+  },
+  "previous_amplitude_continuation_disposition": "Historical development record, excluded from this fixed-target test by user instruction",
+  "active_processes": 0
+}

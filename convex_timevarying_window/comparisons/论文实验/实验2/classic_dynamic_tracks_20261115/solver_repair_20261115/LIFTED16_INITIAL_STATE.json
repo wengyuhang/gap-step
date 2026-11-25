@@ -1,0 +1,55 @@
+{
+  "closest_branch": {
+    "denominator": 0.1508546899997213,
+    "jerk_norm": 7.802594943179261,
+    "magnitude": 13.625451491521606,
+    "node": 2,
+    "piece": 13,
+    "u": 0.0625
+  },
+  "closest_branch_boundary_distance": 0.1498546899997213,
+  "directional_gradient": 0.03433372186665512,
+  "fallback_nodes": 0,
+  "finite_difference": [
+    {
+      "numerical": 0.034852476678892685,
+      "relative_error": 0.000501535240774488,
+      "step": 0.001
+    },
+    {
+      "numerical": 0.03433372187444661,
+      "relative_error": 7.53285860351422e-12,
+      "step": 0.0001
+    },
+    {
+      "numerical": 0.03433372164352022,
+      "relative_error": 2.1572814917382216e-10,
+      "step": 1e-05
+    },
+    {
+      "numerical": 0.03433371809080654,
+      "relative_error": 3.6505128842097666e-09,
+      "step": 1e-06
+    },
+    {
+      "numerical": 0.034333709209022345,
+      "relative_error": 1.2237474721799627e-08,
+      "step": 1e-07
+    },
+    {
+      "numerical": 0.03433360262761198,
+      "relative_error": 1.1528101677287796e-07,
+      "step": 1e-08
+    },
+    {
+      "numerical": 0.03432987227824924,
+      "relative_error": 3.7218049885606193e-06,
+      "step": 1e-09
+    }
+  ],
+  "iteration": 0,
+  "minimum_north_chart_denominator": 0.1508546899997213,
+  "minimum_thrust_acceleration": 4.377295267116729,
+  "nominal_time_s": 28.516115259812505,
+  "true_objective": 28.516115259812505
+}

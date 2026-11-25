@@ -1,0 +1,17 @@
+{
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/CMakeLists.txt": "8dbb4eb763e00810f3b101ce403518f4d5bfa17c74b56fab76deb173c02a1854",
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_continuation_cached.cpp": "efd7f16fcbc1402516adc88f5bd323fff5a83f33a6c84c20226400d160402158",
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/homotopy_prepare_cached.cpp": "8d5cc334d1c6683dff4f8f8645426dac390ff674445af9890df717eae36e7bb8",
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/homotopy_adaptive.cpp": "28dd6afc9668ae604ddc31bd9fda3c41ad3cb061600f18c7dc818bce66aaba5c",
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/homotopy_run.cpp": "6939a12c530c2a28da29e530c20eea70ba57650ef989ac33b053c1de72077163",
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/homotopy_static_inputs.cpp": "fae4ea548ed87f25cf1c65836d994bfd68895ad6b2a66425b4f38282f9cbafee",
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/lift.cpp": "3080199fa7d25a18a0bd70152a63444bd4fe9e3652d47c4bf2aa9e55a98f6917",
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/config/time_seed/init/cpc_planning.yaml": "ed5bfa9ad8c9244d5f06c4a213b8f1350e841888cd0908754ddea014e2b2b63d",
+  "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/config/time_seed/init/cpc_lbfgs.yaml": "c1bae1165e77e937c58f436e54165eed02301e700f5e9df9cdf063a1f9f42b00",
+  "/tmp/classic_repair_build_20261115/repair_continuation_cached_sip": "58339e209c9c3a9c23712fafbcfd550e2bcbd85b2923466feca507cd08dd3f89",
+  "/tmp/classic_repair_build_20261115/homotopy_prepare_cached": "37bf9993e8a71bdefd8eabe279a9e8cf7a965022e01aeb3537af70fe24336872",
+  "/tmp/classic_repair_build_20261115/homotopy_adaptive": "8a59dcb3194c31968fd3e987f18e1f0294aa0bbc41bd994d0b5cb7a58c6abc1a",
+  "/tmp/classic_repair_build_20261115/homotopy_static_inputs": "09cbc1a238532186202b9f525fdf6a29139503f17e1da5880ef9f60924cab17c",
+  "/tmp/classic_repair_build_20261115/repair_lift": "018c943fe874ad0d68915284acfb3ebbef060648d138ed0cc8f1627ae570dd9b",
+  "/tmp/classic_homotopy_adaptive": "dddad8ecc9bcdb785f2657ee0103dfa78535570f4cb81bccc548f1a2ffb5b786"
+}

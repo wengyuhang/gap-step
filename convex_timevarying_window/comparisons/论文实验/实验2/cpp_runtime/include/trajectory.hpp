@@ -5,6 +5,7 @@
 struct Trajectory {
     double start=0.;
     std::vector<double> durations;
+    std::vector<double> crossing_times;
     std::vector<Curve> coefficients;
     double end()const{return start+std::accumulate(durations.begin(),durations.end(),0.);}
     Vector sample(double at,int derivative=0)const {
@@ -19,7 +20,7 @@ struct Trajectory {
         return value/std::pow(durations[piece],derivative);
     }
     static Trajectory load(const Json& input,double start=0.) {
-        Trajectory result;result.start=start;result.durations=input.at("durations").get<std::vector<double>>();
+        Trajectory result;result.start=start;if(input.contains("crossing_times_s"))result.crossing_times=input.at("crossing_times_s").get<std::vector<double>>();result.durations=input.at("durations").get<std::vector<double>>();
         for(const auto& rows:input.at("coefficients")) {
             Curve curve;for(int i=0;i<8;++i)for(int j=0;j<3;++j)curve(i,j)=rows[i][j];result.coefficients.push_back(curve);
         }

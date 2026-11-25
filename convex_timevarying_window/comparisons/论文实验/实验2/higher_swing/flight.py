@@ -3,7 +3,7 @@ import argparse
 from pathlib import Path
 
 from ..radius_ablation import execution
-from ..no_tilt_comparison.flight import RecordedSession
+from ..gazebo_matrix.scheduled_mpc import MPC, ScheduledSession
 from ..soft_dynamics.run import read
 from . import scenario
 
@@ -11,7 +11,8 @@ from . import scenario
 def configure():
     execution.scenario = scenario
     execution.world.launch = scenario.launch
-    execution.RecordedSession = RecordedSession
+    execution.RecordedSession = ScheduledSession
+    execution.MPC = MPC
 
 
 def audit(folder):

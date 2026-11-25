@@ -71,13 +71,13 @@ template<class Scalar> Vec<Scalar> cross(const Vec<Scalar>& a,const Vec<Scalar>&
 }
 
 struct Model {
-    double mass,gravity,midpoint;
+    double mass,gravity,midpoint,radius;
     std::array<double,3> inertia;
     std::array<double,2> rate_limits;
     std::array<double,6> scale;
     std::array<std::array<double,4>,4> mixer;
     explicit Model(const Json& metadata):mass(metadata.at("mass")),gravity(metadata.at("gravity")),
-        midpoint(metadata.at("rotor_midpoint")),inertia(metadata.at("inertia").get<decltype(inertia)>()),
+        midpoint(metadata.at("rotor_midpoint")),radius(metadata.value("rotor_radius",metadata.at("rotor_midpoint").get<double>())),inertia(metadata.at("inertia").get<decltype(inertia)>()),
         rate_limits(metadata.at("rate_squared_limits").get<decltype(rate_limits)>()),
         scale(metadata.at("residual_scale").get<decltype(scale)>()),
         mixer(metadata.at("inverse_mixer").get<decltype(mixer)>()) {}
@@ -117,12 +117,12 @@ struct Model {
             out[1]=squared(omega[2])-Scalar(rate_limits[1]);
             for(int rotor=0;rotor<4;++rotor) {
                 Scalar thrust=0.;for(int k=0;k<4;++k)thrust=thrust+Scalar(mixer[rotor][k])*wrench[k];
-                out[rotor+2]=squared(thrust-Scalar(midpoint))-Scalar(midpoint*midpoint);
+                out[rotor+2]=squared(thrust-Scalar(midpoint))-Scalar(radius*radius);
             }
         } else if(upper(denominator)<=.001) {
             // Preserve the existing TOGT singular-chart fallback exactly.
             out={ (squared(j[0])+squared(j[1]))/r2-Scalar(rate_limits[0]),Scalar(-1.),
-                squared(Scalar(mass)*magnitude-Scalar(4.*midpoint))-Scalar(16.*midpoint*midpoint),
+                squared(Scalar(mass)*magnitude-Scalar(4.*midpoint))-Scalar(16.*radius*radius),
                 Scalar(-1.),Scalar(-1.),Scalar(-1.)};
         } else {
             for(auto& value:out)value=Scalar(INFINITY);

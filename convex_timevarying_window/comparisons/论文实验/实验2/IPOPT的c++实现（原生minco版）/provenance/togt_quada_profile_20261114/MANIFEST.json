@@ -1,0 +1,64 @@
+{
+  "files": [
+    {
+      "file": "include/geometry.hpp",
+      "sha256": "2dfab0bfa7dc79ecfd10b312fdc09e7b5e5b99a3b03b1912a1db6bf6c168b191"
+    },
+    {
+      "file": "include/mesh.hpp",
+      "sha256": "a4abdb869a9be9f149fda1a5ef9504e59e4ed9d93a167362d62fa3f1743ec298"
+    },
+    {
+      "file": "include/numpy_passage.hpp",
+      "sha256": "c482454e18b941121b0cd5de12674d659a6383d1bbedc9c72686138215befa30"
+    },
+    {
+      "file": "include/dynamics_exchange.hpp",
+      "sha256": "8a4caadacd353521299d576c1d19d7054e76b162fbbc37424902445c2a229aa3"
+    },
+    {
+      "file": "include/restored_kernels.hpp",
+      "sha256": "a659718e10417ecb5b70ebed374ee830870ac86a58d02afd124191fba5aba4cb"
+    },
+    {
+      "file": "include/native_minco_pvaj.hpp",
+      "sha256": "9129d50f77d1f44bf4551769bb81413eda671c546c5fe2092f6b70a43d33fc02"
+    },
+    {
+      "file": "include/planar_points.hpp",
+      "sha256": "609e3934a62b163946bdd8495170aa3e7263a884c9be67ae75adc719259c1bad"
+    },
+    {
+      "file": "src/sip_planner.cpp",
+      "sha256": "8b46711a64bba24e0f62c94db357262e7ffd5af7735713fb7e72019a66a3acbc"
+    },
+    {
+      "file": "src/matrix.cpp",
+      "sha256": "f2744909100de870b4eba96dace9a8ef3f73a8dadc8c3c7336e4a570164915b3"
+    },
+    {
+      "file": "tests/planar_points_unit.cpp",
+      "sha256": "b301403eeb81e78c00d55383c933fbe3214087e3acb0b1d6d6518103172d03bb"
+    },
+    {
+      "file": "tests/sip_result_unit.cpp",
+      "sha256": "9158c40ae09d75b43251f6722ea1306c7dc67b91d60ccb7c093447908a437ea7"
+    }
+  ],
+  "data_profile": "TOGT_QuadA; old absent-vehicle input retains historical fallback",
+  "generator_location": "../togt_aligned/generate.cpp",
+  "planning_only": true,
+  "package_checksum_regenerated": true,
+  "before_source_hashes": {
+    "provenance/togt_quada_profile_20261114/before/include/dynamics_exchange.hpp": "cc553fb2b018f5d8deb380e6639b46eb801ea0b14c7338e431d3559763d585f3",
+    "provenance/togt_quada_profile_20261114/before/include/geometry.hpp": "f71a029a8d76a688946dc5350ee0d9ff10a1f544a8541d5495e585e13c692a23",
+    "provenance/togt_quada_profile_20261114/before/include/mesh.hpp": "8d8c845535070217c8cb8905afaa6bfc6af467588d458c4f1f9728f1eecba3cf",
+    "provenance/togt_quada_profile_20261114/before/include/native_minco_pvaj.hpp": "3e733a2d98b519c0e5680add955c12cd82aa97f5260af3e6b0c4f0fdb60c886d",
+    "provenance/togt_quada_profile_20261114/before/include/numpy_passage.hpp": "c0e2654321b8390970ada5a048054aa08b5db38224f7dee632a69143d9d9924f",
+    "provenance/togt_quada_profile_20261114/before/include/planar_points.hpp": "b491f2ced41c8b6bfaae1181f75542885b84f8be4726b21df6ea1155f2723afb",
+    "provenance/togt_quada_profile_20261114/before/include/restored_kernels.hpp": "b1ec0540c5338ace25588ebf6e43c6ad14ed2bf04f2749222420d725aa133753",
+    "provenance/togt_quada_profile_20261114/before/src/matrix.cpp": "ee86ac6c6c4396992a7b8613de096e977e34ff4843676a8ccfd01e08e7dc69a3",
+    "provenance/togt_quada_profile_20261114/before/src/sip_planner.cpp": "1ab1e2dd9e8b9fdab32dddf0ab7ffe8d40ed518921ad9023d56aad6ada2cbd0b",
+    "provenance/togt_quada_profile_20261114/before/tests/planar_points_unit.cpp": "d5e45554181f4838b5618a31a1d06c2a8e9d140970bfd824aa5dcb73e20ebf5e"
+  }
+}

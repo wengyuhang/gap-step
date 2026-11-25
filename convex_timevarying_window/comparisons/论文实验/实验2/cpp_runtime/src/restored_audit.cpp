@@ -68,8 +68,9 @@ int main(int argc,char** argv) {
                     failed_finite+=!call["success"].get<bool>();
                     finite.push_back(Json{{"level",level},{"job",candidate["job"]},{"round",call["round"]},
                         {"status",call["status"]},{"success",call["success"]},{"iterations",call["iterations"]},
-                        {"solver_s",call["solver_s"]},{"primal",call.value("final_inf_pr",Json(nullptr))},
-                        {"dual",call.value("final_inf_du",Json(nullptr))}});
+                        {"solver_s",call["solver_s"]},{"primal",call.value("returned_finite_constraint_violation_inf",call.value("constraint_violation_inf",Json(nullptr)))},
+                        {"dual",call.value("returned_nlp_stationarity_inf",Json(nullptr))},
+                        {"last_iteration_dual",call.value("last_iteration_inf_du",call.value("final_inf_du",Json(nullptr)))}});
                 }
                 if(candidate["passed"].get<bool>()) {
                     Json limits=Json::array();const auto& calls=raw["optimizer_calls"];

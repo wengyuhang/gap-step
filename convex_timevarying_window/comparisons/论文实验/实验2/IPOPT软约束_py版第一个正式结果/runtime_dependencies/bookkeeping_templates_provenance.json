@@ -1,0 +1,1444 @@
+[
+  {
+    "file": "AGENTS.md",
+    "source": "/home/jack/wyh/时变窗口/AGENTS.md",
+    "sha256": "78007ef2c0c9269d7a67e92988357b51bbe684f1aa8d076bd8058286de9ac51a",
+    "git_blob": "e84d3fb378491c98ad0913106e90255a5ec5b03e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "CLAUDE.md",
+    "source": "/home/jack/wyh/时变窗口/CLAUDE.md",
+    "sha256": "78007ef2c0c9269d7a67e92988357b51bbe684f1aa8d076bd8058286de9ac51a",
+    "git_blob": "e84d3fb378491c98ad0913106e90255a5ec5b03e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "README.md",
+    "source": "/home/jack/wyh/时变窗口/README.md",
+    "sha256": "d25e6a2e49448d765fdae7d3a2d206e55a5f13f20b1eff9d82d1025c373d50d4",
+    "git_blob": "59accfba4c41c94116edd789f00265c4ee28dcc8",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_dynamic_seven_window_gazebo/GEOMETRY_ALIGNMENT.md",
+    "source": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/GEOMETRY_ALIGNMENT.md",
+    "sha256": "db97dd9429cd5771bd0ed614c65d1b640d58035561342b28ae592498e4c7269c",
+    "git_blob": "a80ee4bf956b7e48b928478d8221f887cc7d831a",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_dynamic_seven_window_gazebo/MPPI_REPLANNING_DESIGN.md",
+    "source": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/MPPI_REPLANNING_DESIGN.md",
+    "sha256": "040c11df751ae219452f98f233ce846d1645ecf1396cd2e35bb6a169eb3f836b",
+    "git_blob": "5bb073899f34177939819296df57a2a93ff9d755",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_dynamic_seven_window_gazebo/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/README.md",
+    "sha256": "529f86c6f18bf76c6488da4e045d298914cfe5d1b5a3292fb3b8125371562559",
+    "git_blob": "fa327c44a5ad3a05f736207bb9b926cfc9e3a977",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_dynamic_seven_window_gazebo/cpp_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_dynamic_seven_window_gazebo/cpp_mpc/README.md",
+    "sha256": "0c605d938cb451da890a23ab3017d2b3052b7b427fbd8bd969c640d30396d415",
+    "git_blob": "ccb844542c45dbce0ee80494ae962f8ab517e81b",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/PROBLEM_DEFINITION.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/PROBLEM_DEFINITION.md",
+    "sha256": "9d138707213030d5a7bee5c3bdb1794ccd1dc58841ad5e0c2875ad1a752347ff",
+    "git_blob": "1a0ce2831ec9a0aa56211254c83264b25569fdfb",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/README.md",
+    "sha256": "90dd6d961bf263097fb9ef276a0dbe0eb8681fa1378dda24286b1d38e952f063",
+    "git_blob": "d49e01d4588e5767ab6969450725ab773e566da0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/anytime_continuation_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/anytime_continuation_mpc/README.md",
+    "sha256": "406fb35fc53fcceb8ab78efd8f9d598e422e59e978a63fc3bd5f13ebb861608e",
+    "git_blob": "ce73224e0d71d03212954bc96b17b06e63649091",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/center_continuation_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/center_continuation_mpc/README.md",
+    "sha256": "32e783afc696173b2a26f2fb09a42cb3b6440a7523b4caf89163ab320c0512d9",
+    "git_blob": "5d4f18dbf9b18e24cead7c1d858c5490e8e33fbe",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/center_initialized_minco/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/center_initialized_minco/README.md",
+    "sha256": "5786f9d9ff65dc7eb8af3806df1ba151c2ef6a29128176ef333351ae16e2bed6",
+    "git_blob": "557109d54cfe95cad4c475e10ac8a2ad2c3b87a6",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/checked_soft_mpc_isolated/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/checked_soft_mpc_isolated/README.md",
+    "sha256": "089b97024f3a4989d2b7963516cf5e791a412a743f9f5b18bd149b40cda93d4e",
+    "git_blob": "252eacd08e12e7a318fb9c1a1b21ea0e1fb80623",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/checked_soft_mpc_racing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/checked_soft_mpc_racing/README.md",
+    "sha256": "a7fd83394a1b2844cc417842d0893b44843d6e4170b6a58ed3b70787d13df7e4",
+    "git_blob": "e83dda9e7fa0368e0784edddbadcc4c4eef52e3a",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/checked_soft_racing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/checked_soft_racing/README.md",
+    "sha256": "f3c993628ea2942684e3ba604895e47e97988712b85b38334a2845640ad23e47",
+    "git_blob": "0b61ee0d83fd95b8cc90c706d9fd3be0cd1f8914",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/amplitude_racing/CENTER_MOTION_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/amplitude_racing/CENTER_MOTION_PROTOCOL.md",
+    "sha256": "17858ef49f6cc2a64dbda902cb4c80ae34a38c7e39ca8d343e9ed1a3fe85e239",
+    "git_blob": "6244444844a161bd8ac5107f3cb35221372346ec",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/amplitude_racing/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/amplitude_racing/PROTOCOL.md",
+    "sha256": "660ad756a4b93cc61349002e747bafcd53c2684cbe558ef90954d58ec3f7f580",
+    "git_blob": "2f9e3a5480a73a7da3cd00ce4899355675008b7d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/amplitude_racing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/amplitude_racing/README.md",
+    "sha256": "f615759f4e3f93d4fe035781565e280ce0d35020bef329cab1ba6cca472ac2e5",
+    "git_blob": "03e7d5e9de681a888b2b1ee779ade1ac76aaf738",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/checked_soft_mpc_optimized/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/checked_soft_mpc_optimized/PROTOCOL.md",
+    "sha256": "57aafcb5940c9c142486d079b2ec73640ebc613caf9d128b35f7ae426d04db8d",
+    "git_blob": "3c929260d70c45b75efed9014e3ed0fbbe80e446",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/checked_soft_mpc_optimized/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/checked_soft_mpc_optimized/README.md",
+    "sha256": "4705028e752ca4171cbdcd395f1fdd5c0f5385e818f51bef16579603d134e8d7",
+    "git_blob": "0bfb6e25b63a1e8ffcbd9d31440a890b90daec3d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/checked_soft_mpc_racing/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/checked_soft_mpc_racing/PROTOCOL.md",
+    "sha256": "1fca34d8b97bd7596e946fc560863c713a9edc9136213b0aa753ccf1e97f2c32",
+    "git_blob": "bd171f378ca028e1331f043a4ece9edeedc26e93",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/checked_soft_mpc_racing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/checked_soft_mpc_racing/README.md",
+    "sha256": "899a52448952f7f95ab6891f025ae5b7229ebc55d691c516d4660096e2073834",
+    "git_blob": "8b41392c728a95d37981aea8a80d8fe7404b51e5",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/checked_soft_mpc_racing/SLOWDOWN_DIAGNOSIS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/checked_soft_mpc_racing/SLOWDOWN_DIAGNOSIS.md",
+    "sha256": "4c56a5953c102155dcae1910ec5d4248b732cbcadb7787b16ce72929b286616d",
+    "git_blob": "f8af558e0df702b747ee24f20fb44fac9ff4b2cc",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/checked_soft_racing/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/checked_soft_racing/PROTOCOL.md",
+    "sha256": "f09fb78d0d343d38916791762138ce1faa60e8806680bd594c25754d98eb60a0",
+    "git_blob": "8221efd3edaba49e17cb0ddd238ea53e1e2af589",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/comprehensive_wang/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/comprehensive_wang/PROTOCOL.md",
+    "sha256": "94d17744149225e3871065dc7c11fda9cc238d0106fa55362b3227ce95f2d79b",
+    "git_blob": "1e8f2abcc8d445c96b60e8a9e2bda6df714596eb",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/conditional_cem_vs_togt/PLANAR_ABLATION.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/conditional_cem_vs_togt/PLANAR_ABLATION.md",
+    "sha256": "c0690bfccc7a1982095c9c9653884db9509dc059373107c675a1adedf18e7ac1",
+    "git_blob": "e0f33a273fe48c32b23aa1dc4adedba9b211695b",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/conditional_cem_vs_togt/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/conditional_cem_vs_togt/README.md",
+    "sha256": "6dad1ce6b3717492723064b9d10f7834bb85e4dcd1a88885beb0e8774286d87a",
+    "git_blob": "b1effcaecb3cae420054716341cc065a09657aad",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/direct_ctbr_center_motion/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/direct_ctbr_center_motion/PROTOCOL.md",
+    "sha256": "927c47bbffba634f90f413c00ed82cd7a97355dfea2ca997f43eb4b075572335",
+    "git_blob": "87db88fabfbcd2d1bc33f82385bd9e7d7490b063",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/direct_ctbr_center_motion/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/direct_ctbr_center_motion/README.md",
+    "sha256": "d4c9ab3a0edab1cdfec13e16980320c6960ebbf2a7c99f50c12e8c43c21656d2",
+    "git_blob": "4ac3589615bdd88f7616a330068dcfea79012db0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/fixed_plane_wang/DIAGNOSIS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/fixed_plane_wang/DIAGNOSIS.md",
+    "sha256": "63272da4f049b14589b330156aa11ddf42bbe2df6f1997943ae247be903a9ab0",
+    "git_blob": "6f41b07c408c672186f460f7813008237f41a47b",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/fixed_plane_wang/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/fixed_plane_wang/PROTOCOL.md",
+    "sha256": "41db6bc9cab6e38ed6d1df09762ecb2d80ca2a94708c49474507e68dc0ec23d5",
+    "git_blob": "37911fcca1a0e2b99058d2a889cd77976916b403",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/fixed_plane_wang/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/fixed_plane_wang/README.md",
+    "sha256": "d4ebc4e8b64396385ec2452948d184c796054a4dd42a28e0c04e5ed192368f26",
+    "git_blob": "d34a98271c542c2af3471dd2174b74b408b31bc0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/large_window_sweep/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/large_window_sweep/PROTOCOL.md",
+    "sha256": "0e8c16e25f524cc94bce6d665debfdb014e0f3631cbb82116f6920bbc9dbfced",
+    "git_blob": "b672260b7544730fd237b82479ca563bf6eb7288",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/motion_rate_racing/BASELINE.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/motion_rate_racing/BASELINE.md",
+    "sha256": "b8cddf7be9a000533ec10e231fca3e8a6aedddfd676b3abd79d59203d9068cae",
+    "git_blob": "e9c9210d5a69868ce4457083dea982586170bdea",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/motion_rate_racing/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/motion_rate_racing/PROTOCOL.md",
+    "sha256": "870313164715521050a291dcd84fbddca1b87295580d806122515e68355be6a2",
+    "git_blob": "43bfea4ab679aae81f63965622c2a31b81aa3dee",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/motion_rate_racing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/motion_rate_racing/README.md",
+    "sha256": "b4291e309c10dba7c85305a79800f960db6dbe430e04ea9eb8df2d3c9bd9c52a",
+    "git_blob": "350fa4616910557fdf16e3661a6775b02df929d4",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/original_fixed_plane_checked/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/original_fixed_plane_checked/PROTOCOL.md",
+    "sha256": "de1d8315f14127a98231a92f6755535db129eca61413054ebd953bcef96e6ec7",
+    "git_blob": "b28212ddb95e4f93fc3884c4acc7f732bc089921",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/original_fixed_plane_crossing_resolved/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/original_fixed_plane_crossing_resolved/PROTOCOL.md",
+    "sha256": "da1c2e45c4283a2b193adaefce7df86afa2e1493e6cb5391aa33d5b92fdd6ed0",
+    "git_blob": "648b43a0a546a06c1acdee24451d9c5d6549ae5e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/original_fixed_plane_deadline/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/original_fixed_plane_deadline/PROTOCOL.md",
+    "sha256": "86afb14bfc83a9e0d7b7a048f290da95b967a9b3792bf332450a95dd313d177d",
+    "git_blob": "3411d6f11b27ff025a109618ea6dc52aedc71b5f",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/original_fixed_plane_deadline_no_postcheck/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/original_fixed_plane_deadline_no_postcheck/PROTOCOL.md",
+    "sha256": "0bfdded8cfa50bac8ff05c2bb92bdb3833785f7c498a0455c8d2b2a854ded020",
+    "git_blob": "98f3a222c5226d85657b6b1b4559cdc1b96170bb",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/original_fixed_plane_deadline_soft_conservative/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/original_fixed_plane_deadline_soft_conservative/PROTOCOL.md",
+    "sha256": "d1733dbeab414a8564f8696df08695609944838d1745fad320f3e76b7fb32107",
+    "git_blob": "1a3964b30279337f66830c817c8019070dc95317",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/original_fixed_plane_ours/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/original_fixed_plane_ours/PROTOCOL.md",
+    "sha256": "316d3a8aab1288b9e46e11bed6ca1dd2682593a569cb742df08f64e78d13ba3b",
+    "git_blob": "9c4db2d847460e82663472f4e5fba90bd862ab12",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/original_fixed_plane_ours/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/original_fixed_plane_ours/README.md",
+    "sha256": "8aaf2195dcbb31afb6fef6fe171bd482a7642e4ab04c8558228e3d4eff2dd530",
+    "git_blob": "5a94ddf4e2fafa59e1771b182475a8f2b9023bc5",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/paper_baselines_2026/CENTER_MOTION_WANG2023_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/paper_baselines_2026/CENTER_MOTION_WANG2023_PROTOCOL.md",
+    "sha256": "d9114962f0a928565cf8be50f1a807bfc512fd7231bd6d3eee72c3d176c30133",
+    "git_blob": "d32555ff1aca9775eea67274243179bca72325e8",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/paper_baselines_2026/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/paper_baselines_2026/PROTOCOL.md",
+    "sha256": "dcd3bfa5c3f5e8c8a9b792f58278c7dc827cb8bba7c8d4323863c5d06a68b76e",
+    "git_blob": "0218b47cd1f0d33c06f4eaaf00d46f6e12822777",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/paper_baselines_2026/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/paper_baselines_2026/README.md",
+    "sha256": "7103b2b5c643ba7525fda826a00cbd46342a058afeb8cd3e49b1ebfc86b15fa0",
+    "git_blob": "4aa53f3a2315d59e83ecb0516d72f5a60e54897d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/paper_baselines_2026/V3_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/paper_baselines_2026/V3_PROTOCOL.md",
+    "sha256": "224260abae134a606d08538d77c19cdd5bab78fe2d3bc14b76ec2b61c5664062",
+    "git_blob": "3c159cb3c45aba720975c8c325cf62961819fd53",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/simple_difficulty_sweep/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/simple_difficulty_sweep/PROTOCOL.md",
+    "sha256": "4d8b518d0dad69085c31089064457657f10258489fc300957e3b93b7ea4c4c0b",
+    "git_blob": "d92bece708b16696e8f0e4fa2e64d48ae1203dc9",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/simple_difficulty_sweep/SIMULATION_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/simple_difficulty_sweep/SIMULATION_PROTOCOL.md",
+    "sha256": "bb90fd19f85b3f5f73573458778bc377647114f0585b313a73b102ac14cff580",
+    "git_blob": "016e6f5b8ffd1c3268f145c77abb97f16d8069fa",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/single_gate_constant_velocity/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/single_gate_constant_velocity/README.md",
+    "sha256": "1db7a09f805f8fa92fce7bc1f3bb2a2bb854bcf306ed0a96667b76b22334a63c",
+    "git_blob": "aae33334ffa355020de32c281cf7d82f3b2deef1",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/single_gate_linear_approach/OFFLINE_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/single_gate_linear_approach/OFFLINE_PROTOCOL.md",
+    "sha256": "22a7e37426830f7f7141ef36ddf6cfdcdcab1fbdd645e3b76b7e6e64cdb7901b",
+    "git_blob": "749e3a3158b2bf13f2bc5c074d96c55dd28b088e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/single_gate_linear_approach/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/single_gate_linear_approach/README.md",
+    "sha256": "55897d327f08c7c49f9cce0b18a698190999069450af3c0f140a401299c620f5",
+    "git_blob": "b036db5a8728212727d53c792b32629fb58537a8",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/single_gate_swing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/single_gate_swing/README.md",
+    "sha256": "cfd6b9715ead61176b566cc7759b73fef4bb004b64d27ae7f6726cf706810bbd",
+    "git_blob": "72b5f9fdc6ffbe0acea49443ec445c6c3ab10138",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/single_gate_translation/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/single_gate_translation/PROTOCOL.md",
+    "sha256": "91ab36a34134abb26f3cae676fa83e2f633ffc06fdc9c8ae0d511abaff20291c",
+    "git_blob": "23c893bbf08a310743833d3ac7145db974411a9c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/single_gate_translation/SWEEP_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/single_gate_translation/SWEEP_PROTOCOL.md",
+    "sha256": "9f68fac217c93f09c941037dec77a9ee9cd2850099ad35cb06be7fe8bfecf11b",
+    "git_blob": "956a4693409fda7ba3f0a9326d602837fbb377a8",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/spaced_large_window_sweep/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/spaced_large_window_sweep/PROTOCOL.md",
+    "sha256": "dd980906b441b482fea95039f9c563cfa246b5c3419615b0a96c3d2a73bad920",
+    "git_blob": "d402f25ecc76dfd924b62e79cf6e0f71bf0adcf0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/wang_free_state_mpc/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/wang_free_state_mpc/PROTOCOL.md",
+    "sha256": "5dd08483f8f7894cd52d6d8f7b3c3b1f7a8d79f333985cdb42724b560a2057d0",
+    "git_blob": "f5ed21d5550b930c469580db2938bbeab372c34e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/wang_free_state_mpc/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/wang_free_state_mpc/RESULTS.md",
+    "sha256": "7edb81e3072e2fbc55eabea747679aed7d5d06bc6972a615ea69ae2a41b2954b",
+    "git_blob": "3c6db36a0a14a52570ef0caf182ce5d915d6fff0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/README.md",
+    "sha256": "109d240f7eae443b9f5f5f3b68eaa90a45f56f5575ba4e51e01856263f15c80c",
+    "git_blob": "77119ce18a5ca1184dd3c00b38c6753cdad5c012",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/BASELINE_SCOPE.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/BASELINE_SCOPE.md",
+    "sha256": "1b5a6405b8adf82534ed839ce78f5390bb9f95a9f90101b0262cf5244b6bf73f",
+    "git_blob": "f2032aa76955a8f1351ef28b686cc57605ba397f",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/PENDULUM_GEOMETRY.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/PENDULUM_GEOMETRY.md",
+    "sha256": "ecc17ef271300622a42c0c095f26b1e377c48338c4baee275876891993249e83",
+    "git_blob": "760343ca69d24395a16090a752b3e5fc52e2b86b",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/PROTOCOL.md",
+    "sha256": "2ee266ad3a7ff549de36a817272fb7f1ce95d452bdfeec70f250d90074eda445",
+    "git_blob": "e21b49ec685be765ac956e583d349453629510af",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/README.md",
+    "sha256": "e7f26e46476936b5aaac158bab7688225fc399ad336b1d98faefda2fc69c933b",
+    "git_blob": "091f120150bb7c624cebd7fc0e07377929fb119d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/RESULTS.md",
+    "sha256": "b430ac4c1956ecc229f4db0ee6ea81579e0cef174dba07651c0b6dd4a7a9a008",
+    "git_blob": "de0140ff507888d5087c7cc27c825baebab01fc0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/center_initialized/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/center_initialized/README.md",
+    "sha256": "69c89c34bfa3b8cb93b10c234c8b410335b05c81e3567e1071daaf33074c665d",
+    "git_blob": "2a733b8df0b32d5a26810d90c5f3333da1883a70",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/multistart/FULL_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/multistart/FULL_PROTOCOL.md",
+    "sha256": "6861d4cd3493b88bdee12d67f4e5ba10442634592e96c6e62f7154d326e91416",
+    "git_blob": "201149b9936547d32cec7eb251d7fb71d2594114",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/multistart/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/multistart/README.md",
+    "sha256": "543bf30bc29af8812f0aecbb2b740c69db837c0720b4e1c31f14af96f624c28f",
+    "git_blob": "821918b5089a80e9852accc1377a0ca82bb5858c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验1/pendulum/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验1/pendulum/PROTOCOL.md",
+    "sha256": "6e8d62eca93a22f420abe671b256e4a8bd4b82cf088c5961eb5df40e41996153",
+    "git_blob": "e558b01bfc254bd6b8c3d4678f6cd396a561a304",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/FOUR_METHOD_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/FOUR_METHOD_PROTOCOL.md",
+    "sha256": "5b8427bed344884a4eb517915c28ea1f56d7e546dc35239f21868548f0492b93",
+    "git_blob": "4d4de94dceebc148687c408d8ebc9af9f3409ff0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/PROTOCOL.md",
+    "sha256": "9a369f1f88c78d3568bf47549a86e88d5601f92af3de97c8c4dc33ff2a893c51",
+    "git_blob": "5a61b80c086a5b90c5886f57b37865987295a064",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/README.md",
+    "sha256": "6534248c5d6f4b0bac0a8277489976cfda6a17f1de485b3f0882d9c0fc456a53",
+    "git_blob": "72ca22d8f04eb688a3f8b00450fdeef8a7b0ec71",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/RESULTS.md",
+    "sha256": "1f84c0793202ae6101612c10caf7b3302276bf84c60f9968a88a32a999f91be4",
+    "git_blob": "00af06f0d7074f877ac12a5b0cfa7db41b5b7109",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/STORAGE.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/STORAGE.md",
+    "sha256": "70e00346899647da6fcef0d465b55d23e01e4417b5bdab994801f535b25c9f4b",
+    "git_blob": "6e9c6a6ea77a0f85d4ca6f8fa2f4dea8b65e4025",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/attitude_repair/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/attitude_repair/PROTOCOL.md",
+    "sha256": "ffde7953432eaabde9c6ff6ab5a7a8b70e9d00631f9c1ec5a61ef86b1e87989f",
+    "git_blob": "5877093980861e8e20770504b2aa102a7bb5f5fd",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/attitude_repair/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/attitude_repair/README.md",
+    "sha256": "2fe41599cd35a60f1fabe051f1b401c483c755862c32fe612dab86de192fcff4",
+    "git_blob": "3c0b05076312a9d28f53dcae25a17233aa763e86",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/attitude_repair/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/attitude_repair/RESULTS.md",
+    "sha256": "11c9d79c5a7265aa28d29a97bc53541948a9cbb1629dff710090a8c4ae139097",
+    "git_blob": "36cc3e01bdc7b161f592bd20ba3f7668ef114c55",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/PROTOCOL.md",
+    "sha256": "9777ae86dd1cc4dbdb7fd4093eeba6e57a3b1f828daeaa33009f61a55f24be05",
+    "git_blob": "d25b64690f154d6b84166800c81cf8ec5682ef9a",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/README.md",
+    "sha256": "b0ba00d0ed853f86ab8ae9438d4f1bd9844fb06d10df4420ec91052d5a83464a",
+    "git_blob": "5dcfc6b8609169ee51209300d591d4edea65ae11",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/RESULTS.md",
+    "sha256": "4de8503a50b437d18b10ac4155f06ea1b766211093f06d43b1725289c2539f61",
+    "git_blob": "26e4b84753872ebb8cc7c70534d9d18b862fc168",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/separated_course/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/separated_course/PROTOCOL.md",
+    "sha256": "de882fe41434b5fa5ca27a82e1b4df7ce8fe52bfa6c7927a6490cdb299056421",
+    "git_blob": "5ac05a63b01d28e8118fd48aee216185779797e0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/separated_course/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/separated_course/README.md",
+    "sha256": "25f4c06ef3df355a3c6cb7a6b8ae242a1300769c41fc5a763d0d94bcbecb462f",
+    "git_blob": "0e65d3f0b37e39b2a6e70f4e9428594dc238c689",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/togt_course/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/togt_course/PROTOCOL.md",
+    "sha256": "e39cc980c08ea04c78911a671a516ef2d7a544ba53c8da22e070700c2f296275",
+    "git_blob": "842157ccc8e30939de9ba6927240c06f298e7540",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/togt_course/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/togt_course/README.md",
+    "sha256": "610303c938417a00d9135914311df1a73c1129bbcba8bb5e9215946dcfff0963",
+    "git_blob": "70e0a9be3d5c2d90293b8cd7a78a7b2541267024",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/trajectory_only/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/trajectory_only/PROTOCOL.md",
+    "sha256": "c43c28155ed3e8d82a1fd0c78c38ec3f66a470c40182b912c7acdc0e88a545ff",
+    "git_blob": "5a431a50cecfc3512a9e7e288d184ea36be3358c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/trajectory_only/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/trajectory_only/README.md",
+    "sha256": "d3d34604b5efd15560828fe7cbaf4d95229b40a39a8b8d6b9de9199b8263fbf1",
+    "git_blob": "a82ad516f66f2cba04180054114c4bdb41824bdd",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/whole_course_difficulty/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/whole_course_difficulty/PROTOCOL.md",
+    "sha256": "174104616ef7d0b002c05943d21052556811c55285dd736cb3b2c5c5fc93a7b0",
+    "git_blob": "d59c3427797aa52e8dc13ec31bf2ca490d32c4e5",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/basic_group/whole_course_difficulty/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/basic_group/whole_course_difficulty/README.md",
+    "sha256": "49ed315645a79ecd00777106f6e59fe5fcf972768e2ace9704fa4a9b079ce272",
+    "git_blob": "4dff01657e30d1090adf6490a70871ec582e3fe7",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/compact_calibration/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/compact_calibration/README.md",
+    "sha256": "1f0425602c052666b218e07d636d654580e0910a31f6f75d8226e70be3e9f431",
+    "git_blob": "92b70591d2cb228d21363a394318936d941c1cd4",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/compact_calibration/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/compact_calibration/RESULTS.md",
+    "sha256": "eb27050ba05a5d0a252deba4dec6b99f54e7c6ceb5f64d2e28d767f36864d533",
+    "git_blob": "37e2dca101a0210963f20ec37d5081cf2de1f138",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/gazebo_matrix/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/gazebo_matrix/PROTOCOL.md",
+    "sha256": "7a5047ec825be5b893ecf8318de62ada82413bac13a0eda468ae3e9082b810e5",
+    "git_blob": "9383a03d94743b1091d301a95b103ed190819676",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/gazebo_matrix/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/gazebo_matrix/README.md",
+    "sha256": "96e8006c4c77430c7a569a3ccb80987464926e6ab769eccbb84891b4b5b12d29",
+    "git_blob": "d828fcbab9168ef13f6c17c84c1cd500d5fbafbf",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/higher_swing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/higher_swing/README.md",
+    "sha256": "8498f173c29a8d9b23f0ab6057d2e17259cc0eb2de28ef025804096869a988bd",
+    "git_blob": "0226469c5047042091884fefcc5625babdd78068",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/independent_free_solve/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/independent_free_solve/PROTOCOL.md",
+    "sha256": "e8fd6557d65a3fc518d51cf77db59b4d7a9c0b46978ace4b3bf5b65ee1b37d02",
+    "git_blob": "6b446782ac9fa892763b17c5917193d8d5fe0863",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/independent_free_solve/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/independent_free_solve/README.md",
+    "sha256": "92f36e1042a5c44d8f9eae1b2dc86f119be14dfe154d197b8550a69219de32bc",
+    "git_blob": "38ad698b97f1db30e310604c6a05bbff3829e0e2",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/independent_full_matrix/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/independent_full_matrix/PROTOCOL.md",
+    "sha256": "c97ddcac366de7a97d88661f5eeb28c087656b870e4a8da6ae3cd02868c0253c",
+    "git_blob": "31a515012206db57436d411e6722f235399b75a8",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/independent_full_matrix/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/independent_full_matrix/README.md",
+    "sha256": "18a9960f7fc3b2b82211eb1341b578b868d92f9398fd48ee11b266862de3c2e8",
+    "git_blob": "b39661a02e2f5a76e2f7ed0e44613fdbccc0397c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/independent_repair/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/independent_repair/PROTOCOL.md",
+    "sha256": "4941f04b6d57563b751b3f376e36725044ea7934900ed78fa9b20ad60bb10e1e",
+    "git_blob": "e7f5f21cb8d478e931d6f347cad0e21bf8d6d3af",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/independent_repair/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/independent_repair/README.md",
+    "sha256": "6b0ce475eb2797b567bd2545ec85940f7eebf9e573aeb2a194ea459ebaee6325",
+    "git_blob": "7075498477686c43db362a1f4ff9dab670e5c03b",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/interlaced_calibration/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/interlaced_calibration/README.md",
+    "sha256": "25ae842a179943f152dde1e4ff257970d6bec91e8dd2e306d162ca377a2bc6a8",
+    "git_blob": "b4ec353dcbe27416fb44b00da87f2d42b597c59e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/interlaced_calibration/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/interlaced_calibration/RESULTS.md",
+    "sha256": "6431ee7d95460eeeacf4d7605f983106f2c9ef7b5160be56e2ba45801f8be425",
+    "git_blob": "f8277d3a7090081b0d72068024979372bce021af",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/iteration_limit_only/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/iteration_limit_only/PROTOCOL.md",
+    "sha256": "f7161bc59dbebdca1c95c1cbbbd732c7e73af3349134f5809cf4ebc3e23104e4",
+    "git_blob": "8a8442a4228cf9bcbb822dfbaf3cf59dbff3972c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/iteration_limit_only/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/iteration_limit_only/README.md",
+    "sha256": "0a66121d5815d48844a1007e5fa2a89905a359f6eb185263a7b779c2268cbb9e",
+    "git_blob": "878260d504cf50d0ac3fb1b6928bc67c502f6cca",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/matched_full_matrix/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/matched_full_matrix/PROTOCOL.md",
+    "sha256": "1fd16f5f009bd45a4f1d57972bf0bab42a0e7924ef057844cec71c4769f0362c",
+    "git_blob": "eee80840f6035b7f508c516d5a6f4c7ca8acc47c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/no_tilt_comparison/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/no_tilt_comparison/PROTOCOL.md",
+    "sha256": "a4316670ed211e381e8e9b20a31fd96e2d9882a86b20374c983832fe25320822",
+    "git_blob": "ae4d389090a404511f428ec464711b900e8ad6ce",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/no_tilt_comparison/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/no_tilt_comparison/README.md",
+    "sha256": "2de3e3e42a2b192138ea5eb12fda636bd41bc3044febf3e2561d15314cc6c24a",
+    "git_blob": "14588d76f1907ad6fa01b372330c0aa8d7b4e451",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/radius_ablation/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/radius_ablation/PROTOCOL.md",
+    "sha256": "25dcfc40846967f9dcdb464ab7bbbb33fa7aa405fcd4d42408e479eccb70e74f",
+    "git_blob": "0161f1ab3c438c916ad006fd4649b9b03ee4c194",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/radius_ablation/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/radius_ablation/README.md",
+    "sha256": "94e81bc69fbc2562cca1b6c4c7f9287bcd006d617d31690f6a72e93a4cc7bcf8",
+    "git_blob": "b9bbad3bb73963269198a9b294458eb0c10191ac",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/same_course_center_recovery/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/same_course_center_recovery/PROTOCOL.md",
+    "sha256": "47986c4e8bc4d34fab9ebcccd462384207dc4f47533527759e63c429e2271b44",
+    "git_blob": "9ce2cc215e66a48c7c7f6cde87aaaaf0a7e68445",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/same_course_center_recovery/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/same_course_center_recovery/README.md",
+    "sha256": "e002876da065a91224c1b9c0acc60f1a5bcb1e26846c8b16a3197013fb805dae",
+    "git_blob": "93fa5b98d7b67279f844a88eaff2a6b3c9fd4d52",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/soft_dynamics/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/soft_dynamics/PROTOCOL.md",
+    "sha256": "2b361bc40c98c98fea95015551be9e6ca4ee53f6976b3f5b64adcb5b184b1cc6",
+    "git_blob": "9f352763fe687cc62f326d09e06ac33c649c8dc5",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/soft_dynamics/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/soft_dynamics/README.md",
+    "sha256": "821703956d3d5cec17b3d247e59d8d3bf4c8ca3ea216842e97c30b94cf0fcdfa",
+    "git_blob": "89a80df7d464ac1cb7b0355f0d10709497e583f2",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/static_calibration/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/static_calibration/README.md",
+    "sha256": "ea4a7034eaa234ecf005965cc91093a39bb5071f07ef2c92c4af34d0eef699f7",
+    "git_blob": "d24094f91c963bce3346677c35a825fe6798f8af",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/static_calibration/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/static_calibration/RESULTS.md",
+    "sha256": "a3529454598cb5228a9ef93bb0bf1206f1c2290b555f4ab3b95262df5f53106e",
+    "git_blob": "4941fc0833227813ed044ea4bbb0fa64d00b6cac",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/time_unlimited/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/time_unlimited/PROTOCOL.md",
+    "sha256": "229e7822c15a4e0183d52ce319bc0bd20e25d6cac3264e5d35bff3421fd0d563",
+    "git_blob": "2aaf1b3a37148cb1fadfa1cda18d2c78ffb3cb04",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/time_unlimited/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/time_unlimited/README.md",
+    "sha256": "e7e5fbff2fefd8e930c4fc5b47cd2388450fffaa0d4539371af46ae270c921ef",
+    "git_blob": "5ace4735101b224673837a852aee15bc46721306",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/comparisons/论文实验/实验2/wang2023/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/wang2023/PROTOCOL.md",
+    "sha256": "8b99f58080c6d1154272787c92cb23be28ab56f8cec989c9f9e17248ee4d2e0e",
+    "git_blob": "29c49e8c6e080319ba6cd21e95e496b28fb69c10",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/conditional_dual_constraint_cem/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/conditional_dual_constraint_cem/README.md",
+    "sha256": "d1129f782de8939a87581e1d7c497c4c97351345e8685bcdc537f06c3000b80d",
+    "git_blob": "33bb31f8ae9949248589a125f79406e96908dbe3",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/continuation_racing/ALGORITHM.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/continuation_racing/ALGORITHM.md",
+    "sha256": "b81bad0fbd7a8505711620431a44c88f8dd08adc30dc90a07411b91f29f47c65",
+    "git_blob": "01f24e803c71b9a8a332d4cc7fc89efef9d50268",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/continuation_racing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/continuation_racing/README.md",
+    "sha256": "f2210063ea1e165d32ea8420ac6f1b6f27773eed427600ebd611c9e60f166584",
+    "git_blob": "89f96c15b3814f7e63c11d582c782fa70f8c62d1",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/continuation_racing/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/continuation_racing/RESULTS.md",
+    "sha256": "31fba5f64aefa10d57eb043f430643e9f61f3bc5ad990876634531c55cc18439",
+    "git_blob": "83b34c040ed53fb326dacc7b8208e9876dc6cd33",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/crossing_resolved_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/crossing_resolved_mpc/README.md",
+    "sha256": "ef009945cc09c896b83f41e801a66ad124ef6f845b526e0bb82d7069dd6d5d60",
+    "git_blob": "d312e14825d3fdd0bacd0d9f1f710ae995fa165c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/COMMITMENT_RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/COMMITMENT_RESULTS.md",
+    "sha256": "59b1b0b520ee0afff4e4cfebb7690ab10295adc5470b7b396a4553bc09a62985",
+    "git_blob": "5b7ca406db4ccc0a9bd7a46c7eaccdf972438bd8",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/CONTRACT_REVISION.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/CONTRACT_REVISION.md",
+    "sha256": "6d52d09b7934db7f89b5b07a37a6012b69d45bca68ca705a46819a906ebea2bc",
+    "git_blob": "9a67504a69eae80e0ba21dc7c8e996ac93446167",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/GPU_REPORT.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/GPU_REPORT.md",
+    "sha256": "3bbbc8aad2839af3fa3b465f1fafd6b9f9948e9a317fbb8b76b2b0006085e2da",
+    "git_blob": "4aeca29fd0e49b84a5419159a3a3af274583c6c2",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/PASSAGE_COMMITMENT_DESIGN.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/PASSAGE_COMMITMENT_DESIGN.md",
+    "sha256": "458ec933d0c3242577ed63cdae7c1556f62f94a06fce66fc91866caf90f77ab1",
+    "git_blob": "7aefa3a346e5354a0e71ea31718ea832f3a6bcb9",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/PASSAGE_COMMITMENT_PLAN.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/PASSAGE_COMMITMENT_PLAN.md",
+    "sha256": "e4357fd7d850b804cb389010a809c5b9abbaa652010c5de8544de9213bf6d5a5",
+    "git_blob": "b806882bd4e3b7a8f027e5edfbfaa9a5d2cb9cd9",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/PASSAGE_CONTROL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/PASSAGE_CONTROL.md",
+    "sha256": "68f9f8f4066e9d8bfd7e928e97c708ab9e4c26590e199510e0360896359d4e44",
+    "git_blob": "0e2420505f5168019576a219d0c4f10f35e28c6f",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/PASSAGE_REVISION.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/PASSAGE_REVISION.md",
+    "sha256": "e0a987280bcebc2e87df8008ca1265f6b2a414da56f3ac3534f93881bb45532c",
+    "git_blob": "694fea6da98abd38ae683a76c992d71e771e867d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/README.md",
+    "sha256": "874872fae249ee77b0c87ab8b29f2a8e18a49c5213f7cf3919125e234beba3b9",
+    "git_blob": "5d676b6886b1f2cd19aba587604b6f1524623de0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/RESULTS.md",
+    "sha256": "ab170b947ea35744002132c65df3bb8cb96e7e5078e193633aa55c61a6ba7f93",
+    "git_blob": "43878dfe240461703bce41eeda6867f0f8938799",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_gate_mppi_v3/TRACKING_REPLAN_REPORT.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_gate_mppi_v3/TRACKING_REPLAN_REPORT.md",
+    "sha256": "8ae47a88f9c8866e7a2c62f66b3ecace218f385bc2ad16fa7a13a87c34aa3009",
+    "git_blob": "71b66ba4141029a7991a5b6f5769a2814ba003f1",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_passage_minco/ALGORITHM.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_passage_minco/ALGORITHM.md",
+    "sha256": "6dcfbecd6b166f5559a37199f1d3b831625f2ef1653d45a4b81edf6b272d6321",
+    "git_blob": "3db6ee85166a92aa9c16dc783621814634276f16",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_passage_minco/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_passage_minco/README.md",
+    "sha256": "f535a3ddf3dd3f948cd3f58a216ca4b928feec6e8d8e6c2a2cc4bb572dae9515",
+    "git_blob": "6393044283488d42ba8abbce9d8fdf37b920a08e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_passage_velocity_minco/EXPERIMENT_SUMMARY_20261009.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_passage_velocity_minco/EXPERIMENT_SUMMARY_20261009.md",
+    "sha256": "95d7b5695bfbe1beab8789106da809f3f3e4a65f41576aedcabd29a809eab3bd",
+    "git_blob": "2d25c2a27fc46081ad2dca463b78b4cd87c50370",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_passage_velocity_minco/HARD_DYNAMICS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_passage_velocity_minco/HARD_DYNAMICS.md",
+    "sha256": "f3779f3777e3767f9453be3ebd510801ee622f32ef78d824f348f089441abcc0",
+    "git_blob": "a4d794bf85d75e006d2f77c5513108e96ce5badd",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/dynamic_passage_velocity_minco/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/dynamic_passage_velocity_minco/README.md",
+    "sha256": "6a6be264116ac24820ae3e64ddd7186775f0bab11b0b31972093b23619d484ee",
+    "git_blob": "0be4b504c5ce482a320e41e24a4c9710010dbaed",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/event_free_terminal_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/event_free_terminal_mpc/README.md",
+    "sha256": "27df2de2d4a9c69d06f7902a2855c3e5630062e332ca4bf90f32723207289054",
+    "git_blob": "5e20d1beb08cd254b95c33a11edf8d7308dd6f6d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/event_triggered_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/event_triggered_mpc/README.md",
+    "sha256": "ac888add830412f145edb8c4e837cdef0a4ed029b35cc50540c57712d17580c4",
+    "git_blob": "66d477363e11d79de9d28f03a5dc19162ca4b641",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/exit_value_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/exit_value_mpc/README.md",
+    "sha256": "cad7bd3aec0908ffea5d98e37bf0d4b56efd8c77e7c1f1f23270e30c63cee3c3",
+    "git_blob": "b3c4eab1dcb41a15d27a2ef42d7e6e3819d95e58",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/fast_global_corridor_togt/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/fast_global_corridor_togt/README.md",
+    "sha256": "c387633112f3ef2b03ed50808fbf9f32b7a136a419d209e86d746211165b8072",
+    "git_blob": "0368c9272a7cf2bdcbc2edee7a7b803e0b2261f1",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/global_gate_minco_probe/ARRIVAL_ABLATION_20261011.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/global_gate_minco_probe/ARRIVAL_ABLATION_20261011.md",
+    "sha256": "020fa2a7a78a594415a0657e11ba52c11fb816ae6665237084a89f96a1014da6",
+    "git_blob": "33b45e2fdcc8d99065ab4415536aa2f6b7d033a8",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/global_gate_minco_probe/DETOUR_ANALYSIS_20261011.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/global_gate_minco_probe/DETOUR_ANALYSIS_20261011.md",
+    "sha256": "a60bc0fb04a44c5d547b9ea42050f04eba8413fdc0b249576d4a5457ce1b5b29",
+    "git_blob": "66a2bbd591f6c859a738b57105961e13bac0fadd",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/global_gate_minco_probe/POSITION_ONLY_20261011.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/global_gate_minco_probe/POSITION_ONLY_20261011.md",
+    "sha256": "f8b49edcff0cbdb3f2baefae9ae522ee9d47da427acc35e4591c05b08476c9a4",
+    "git_blob": "36fe6c6cfb389c3baff46f6d68aa63a44ce63821",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/global_gate_minco_probe/PVAJ_ABLATION_20261011.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/global_gate_minco_probe/PVAJ_ABLATION_20261011.md",
+    "sha256": "aef0514e0a616393cbfd78eab310aec7c85dd6b2425de31fed145ff7cac98dcc",
+    "git_blob": "0d4a955ddfdb0a39fc3b5d9c78ae5f7b07285a3f",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/global_gate_minco_probe/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/global_gate_minco_probe/README.md",
+    "sha256": "f4991f448152121b4afd0791d53d6c0c15eb4486997c3d29e1e9f55b0507323f",
+    "git_blob": "686067682233a7c75f4b11424e176b6f4bfb4297",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/global_gate_minco_probe/RESULTS_20261010.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/global_gate_minco_probe/RESULTS_20261010.md",
+    "sha256": "3d3a5e9c021a1e0fcb95ddabe8cbd96cb2cd1f633e28dd16b7012db6ba98db83",
+    "git_blob": "a7e18004d16359ce139bc11afb011b4c582cc291",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/gs_mppi/DESIGN.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/gs_mppi/DESIGN.md",
+    "sha256": "6decd7bb66615ec46256089413ead3eee4c7181cda56fb296b3346bbfcf52440",
+    "git_blob": "de337987ec7bc66f6979fc7f09daa74f9662cedb",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/gs_mppi/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/gs_mppi/README.md",
+    "sha256": "b2b6165287b65066cca72dfe2729818cb127084ef1443dc4719af676f1ce2e5e",
+    "git_blob": "bcf3005e3068675e558ed302c940ecc79a26cd84",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/gs_mppi/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/gs_mppi/RESULTS.md",
+    "sha256": "2553ea5038be2e175b71c3120ee826ee6feafafaf41507d97e8f788bca0afbf8",
+    "git_blob": "5ced6ef250948b520284d5398698af4bab657e85",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/gs_mppi/direct_ctbr/COUPLED_RACING.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/gs_mppi/direct_ctbr/COUPLED_RACING.md",
+    "sha256": "38cf3a8c95d7ec3f12a6a701f7d014c75d927008bf27e83c65a8404af0ae3da3",
+    "git_blob": "83c51593453f7fa231d168de65d371224eab48e1",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/gs_mppi/direct_ctbr/METHOD.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/gs_mppi/direct_ctbr/METHOD.md",
+    "sha256": "6025e3f90903cc08c48b557f67caa9eaa51b23505b75956f3703c7348c665e2a",
+    "git_blob": "32b97f9fab3c36970db2485ffd6b219ba353b533",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/gs_mppi/direct_ctbr/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/gs_mppi/direct_ctbr/README.md",
+    "sha256": "7b2c1725e9f0f78337bd2be9e29b16fa860d82f3ddf2b05e2ecc299acf8833ab",
+    "git_blob": "87e261c8a1dbce1c90d49e5bba6302201a72d272",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/gs_mppi/direct_ctbr/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/gs_mppi/direct_ctbr/RESULTS.md",
+    "sha256": "8a178a1c68dec080b5aec86743a7a2676d8a93062f9754cb4d398ad42f4ae701",
+    "git_blob": "9846d597db2a81c1cef1e3a73f8913d1b76a9120",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/joint_feasible_time_refinement/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/joint_feasible_time_refinement/README.md",
+    "sha256": "906f858b6f25760493b45f48a17d1aa3d00f595d355f7bec7e17d9865ab0adfd",
+    "git_blob": "b88cc248dc9bd4029380266f9345db91039fb404",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/multistart_minco/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/multistart_minco/README.md",
+    "sha256": "906b8b24ecc4749592c0eb04f99ace985fd2baf72fb46254002ee871fcb5dc0a",
+    "git_blob": "b7233fbef05397e23a529b46f96502a34ab7568b",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/online_safe_mppi/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/online_safe_mppi/README.md",
+    "sha256": "65f071c6c37330f635eb6b9d21037f0ef7c2eeb52fe2c7c5b93fbc91db1c1401",
+    "git_blob": "99907ec4cfed148714215c2f7376c93053c6e03c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/online_safe_mppi/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/online_safe_mppi/RESULTS.md",
+    "sha256": "b51930068db0e98f3286e8cd47aed4db82683e4e9d9fd1caa0d938efa2fdbc84",
+    "git_blob": "8bc1a0ec55c544e5d953f9b6dd59b202a563b0e0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/privileged_safe_teacher/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/privileged_safe_teacher/README.md",
+    "sha256": "878e9b272731b8c6a91597305928b8380b386e2847ffd5d485cde83bf2f0ef44",
+    "git_blob": "f3d5fd5d4800a80fe111d3330eb8fd8432ef9ac3",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/race_to_go_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/race_to_go_mpc/README.md",
+    "sha256": "0bd6079ab8bcbf245c6b5dea972e434f1ea35523c937222c52d9a133fb24d042",
+    "git_blob": "8448d6371d2738570588a54ef2bdc13bd5026a02",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/receding_gate_racing/LOCAL_SWEEP.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/receding_gate_racing/LOCAL_SWEEP.md",
+    "sha256": "e6b963848190b2ed6b906b00282da2d5db9877ea5ba33507a7de6c21e974aba3",
+    "git_blob": "ee543b90710204dffb78452a60b94ae982a44668",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/receding_gate_racing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/receding_gate_racing/README.md",
+    "sha256": "fddb7ebabe721fd841d760d62cf54a119b85bdb0cfa68d8633f65579630ca593",
+    "git_blob": "4626a8b794ec9c1651655f9e0315091eb18aa7b6",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/receding_gate_racing/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/receding_gate_racing/RESULTS.md",
+    "sha256": "04f694ea1aa3a2efc54a59a1e4de01e32498d97560104032f3da2015f4a8e26f",
+    "git_blob": "681600bdfa2f27d26565f976c9d4a25184f53e37",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/simple_two_gate_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/simple_two_gate_mpc/README.md",
+    "sha256": "2cb9ed82554cbe2a1dc00d757b5d40bca088af20c22d85834e3fda9883970bbc",
+    "git_blob": "594777780ca2bc2efc24abeacd153c6a46de4bec",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/simple_two_gate_soft_only_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/simple_two_gate_soft_only_mpc/README.md",
+    "sha256": "e3d44fcd87472a359767e4ab9a4bc5d3c658004ea879a5bc736a1c411a82b18c",
+    "git_blob": "7b617f73b0d71275377e6aacba392b02de95f24f",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/single_gate_stop_racing/ARRIVAL_ABLATION_20261011.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/single_gate_stop_racing/ARRIVAL_ABLATION_20261011.md",
+    "sha256": "ed7a0c0ca5869af1eb1c9f79a90fb1d5ec76e353f3278f1f3e9b7b06229df37c",
+    "git_blob": "0cbb3dbbf90e7bfe8f94a0d758eadfad7d38960e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/single_gate_stop_racing/EXPERIMENT_REPORT_20261009.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/single_gate_stop_racing/EXPERIMENT_REPORT_20261009.md",
+    "sha256": "0462318b52269cff51080b05f2d0dc4c3006c08378c31fc1fad23fbd04e183ea",
+    "git_blob": "22e72233741e5c735529445c32c55386d9dd2568",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/single_gate_stop_racing/MODEL_ALIGNMENT_20261010.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/single_gate_stop_racing/MODEL_ALIGNMENT_20261010.md",
+    "sha256": "451d42678eef588335df35cfc051e5f6bea74102b43fcbe892ff198da8cfacc7",
+    "git_blob": "706750b89f483a7d67fc9a262c9134ff2c3d0c87",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/single_gate_stop_racing/PX4_MODEL_SOURCES.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/single_gate_stop_racing/PX4_MODEL_SOURCES.md",
+    "sha256": "cd04268bf625f129b19de947fe876212df55f6aa4129c30efe51096d5b476b20",
+    "git_blob": "620a37555ce2024cb2e654f9e978d176367872e2",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/single_gate_stop_racing/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/single_gate_stop_racing/README.md",
+    "sha256": "08b560aac6a1b0e881073e7018b7d793ad4cf8f21f9ad095aa73a5d32c14ce4d",
+    "git_blob": "40a6abe6a61437ed8066ac7139bdf9b31663a487",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/single_gate_stop_racing/REPAIR_REPORT_20261010.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/single_gate_stop_racing/REPAIR_REPORT_20261010.md",
+    "sha256": "3dafd02c85f3693f789663ed6aaae58ad84edf2dd3c85efb3ed173b0070e351a",
+    "git_blob": "66aae19a5abe143d5340a4d99b311873fdd97f01",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/single_gate_stop_racing/TRACKING_ANALYSIS_20261010.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/single_gate_stop_racing/TRACKING_ANALYSIS_20261010.md",
+    "sha256": "f354489599cc5c9590636dcfd5c76f86fb59089dd6bd87a9060f57e95595c418",
+    "git_blob": "3947d5500d7620ed2773867758ede9bb06645998",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/single_gate_stop_racing/airsim_port/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/single_gate_stop_racing/airsim_port/README.md",
+    "sha256": "c82dac91a1934920fad93eceb02c744abd433852cefffa41e6aeb8f6aa531846",
+    "git_blob": "ed6d471e9dfd5fa88770e3c7f904e2fb2fb7bf37",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/third_gate_racing_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/third_gate_racing_mpc/README.md",
+    "sha256": "be9b53059041c74f8a6669c001a0aa209a1e9e72d41e0fc95d1522e9c6025d7b",
+    "git_blob": "3aebd9eaf0428efc7124405f05c8cccb7a6fa1c4",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/third_gate_stop_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/third_gate_stop_mpc/README.md",
+    "sha256": "88237f167377cd74d7e0d5780d29763e83027a8257ca1ab57642b47cda19894b",
+    "git_blob": "68032e9b0d917bb4ded0cfe2cfb18b0e0cf80bcc",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/third_gate_time_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/third_gate_time_mpc/README.md",
+    "sha256": "cfdf91a8166e9a8ec5afd17102836a63682c850ba4735e2139cd41cc43161667",
+    "git_blob": "ceb7c09b28f228ebd5b89f54cec4610900b1161b",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/three_phase_mppi/DESIGN.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/three_phase_mppi/DESIGN.md",
+    "sha256": "46c6718798e4e656670013357ccc3a2181d3a5aae10c96aa99fcc5cb30b5c2de",
+    "git_blob": "70c6e4496e67a396eca24b5163327080f1f05621",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/three_phase_mppi/PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/three_phase_mppi/PROTOCOL.md",
+    "sha256": "2aa7321c271bcedd0e453639ab1642a463dba86b2e8ad969829ac2d6609f3b52",
+    "git_blob": "06d61dfe8abecd72d825f8793ad624170c64b184",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/three_phase_mppi/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/three_phase_mppi/README.md",
+    "sha256": "6e42937d19220c778b286a3b5b829d3cc07b30b0899cb03c9c7d190ca1725485",
+    "git_blob": "2d3def6b4d57e1ba56d71524b5d65bebde7d801f",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/three_phase_mppi/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/three_phase_mppi/RESULTS.md",
+    "sha256": "efff1ecb7ced4679b31e9d087b3a3f514f9919b654a3df8e6dfd52b0b8430c84",
+    "git_blob": "e3cf4af0d7eedff093e7a29cd9f9f53a91f7084c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/tilt_heading_minco/CONTINUATION.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/tilt_heading_minco/CONTINUATION.md",
+    "sha256": "054fb200f11146a2777fcc34159fb990203244eb873f4d2c4265b9ac592507fc",
+    "git_blob": "f9d94458ec85e822646cb835182bbfcbc790258d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/tilt_heading_minco/FINAL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/tilt_heading_minco/FINAL.md",
+    "sha256": "d58fa271ce1a50f65c989c4f1fd167a8b8b46f53ca04e3cfbde89f27fc5940fe",
+    "git_blob": "5bc6802ec505f641228b337ea53011b9d21e2858",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/tilt_heading_minco/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/tilt_heading_minco/README.md",
+    "sha256": "345b8a772030e5bb57c7684fda61d2a340686878df7752081be1eee67efee10f",
+    "git_blob": "6fc91635a5d435f4d9cf56ee9974c47c4204af15",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt/ANALYTIC_BACKEND.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt/ANALYTIC_BACKEND.md",
+    "sha256": "c2a52ffc5064ff1c529c7fcb4e4c7bd3a58cf1a64f3d118be6d785064931b1b9",
+    "git_blob": "80bd25a7e488c67a7e14b9f74e851f997bff55b8",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt/README.md",
+    "sha256": "a59ff208ba9a1b552f8134e484509cb9cdc79f4daa83ef0c167ee4835795a20c",
+    "git_blob": "fe79d9a869ef1c33fc425290d508bbcd99985525",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt_minco_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt_minco_mpc/README.md",
+    "sha256": "d407908b9d45c6b8541c27031de21ef73f859b16e45776977c7b67adb457c188",
+    "git_blob": "5fb9f131ac181dac3b14fac444a1e9cfba4efef9",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt_minco_mpc/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt_minco_mpc/RESULTS.md",
+    "sha256": "4d810b05344cd5ce99b04a34e248910de114d903b9d860118c57c9167e2b6208",
+    "git_blob": "2248d9773c2c4f8bf60cc2820c3ea0eb53ace6f9",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt_point_only_mpc/NO_INSET_PROBE.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt_point_only_mpc/NO_INSET_PROBE.md",
+    "sha256": "404379e763a4bf1a7f6a12eb84bf82cc198571f73d43081d5af52c0fe422237e",
+    "git_blob": "0d2ca9f128c5aa018eb055bdd1a46373b45ae71d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt_point_only_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt_point_only_mpc/README.md",
+    "sha256": "8d1a801b55ddc72718517308afd49ea3dcd3ebad525a19bec393a91fd6566e7b",
+    "git_blob": "5424819ceb126a74123980052dbd3be8ccac34de",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt_point_only_mpc/SWEEP_PROTOCOL.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt_point_only_mpc/SWEEP_PROTOCOL.md",
+    "sha256": "485b9ff2b2e8030abea2167042366b18c34b9d630d770072a96818ec35048ffd",
+    "git_blob": "747e47c71938529a58993b0183f351bcb80acfd2",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt_style_mpc/DIAGNOSIS_20261012.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt_style_mpc/DIAGNOSIS_20261012.md",
+    "sha256": "ac33e271a93e7e636dfaead123ebba8e1768f3e52bd2c42af226b5266635da30",
+    "git_blob": "bda6c7a907e68404bef91ae2bc3a21307a8d144e",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/togt_style_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/togt_style_mpc/README.md",
+    "sha256": "18076c7e71bc00a5b4874f92fa9dbf2d203d516731301830a275b5a28932a5af",
+    "git_blob": "6d98e402af0caf5b5f2615fa45dcf1463cc4de07",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/two_gate_hard_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/two_gate_hard_mpc/README.md",
+    "sha256": "3477aad8b17b5166d0f23fb46d81c8ecb8297c8b0bc44e0fb63cc4ff1bae939e",
+    "git_blob": "83ef63184929de2cbc80a528d6cb569d1d02b386",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/wang_center_seed_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/wang_center_seed_mpc/README.md",
+    "sha256": "67cd5085bf1b5973c7b5d5abf3627e06030005c40f16a26f708d3fbcd6375dca",
+    "git_blob": "3fad8034e5d5d510bcc5a418c05dd7b68d19b9e0",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/wang_free_state_mpc/HIGH_RATE_DIAGNOSIS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/wang_free_state_mpc/HIGH_RATE_DIAGNOSIS.md",
+    "sha256": "e30b99f460b91f6c7be45a16069f9052b74463fbf8addb1f4016d1157abe2545",
+    "git_blob": "07eec1246661ce6738370dcde1cbf048324c45e7",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/wang_free_state_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/wang_free_state_mpc/README.md",
+    "sha256": "8b1d0b3e35d01a053555018168ef5b57735e8add256a04f67b4812b9ad432957",
+    "git_blob": "9a10e23cc1df37a204b0f1668d4e161021b21190",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/wang_free_state_mpc/RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/wang_free_state_mpc/RESULTS.md",
+    "sha256": "4ec89734a1b477e5a3d7d09d9989fa9c079030afb86e52f4c24dee112e3933ae",
+    "git_blob": "a51d03cf961797763d01f122391188558fdb45bb",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/wang_free_terminal_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/wang_free_terminal_mpc/README.md",
+    "sha256": "a97356c3f053dbadd26f8cdd85c43a3cc4309b053dfdac33e664b02b6d37bc71",
+    "git_blob": "563e152347d3ad10c6ad0659cbcd24ce80835060",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/wang_paper_aligned_mpc/ALIGNMENT.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/wang_paper_aligned_mpc/ALIGNMENT.md",
+    "sha256": "5a3f068c6d32c74948c79376548942797eeade42b59aa14d758105599a0392c7",
+    "git_blob": "28c4f116ab27071f2c3633f3cc6f82166c3f008d",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/wang_paper_aligned_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/wang_paper_aligned_mpc/README.md",
+    "sha256": "7c7fffa95c81a51af0bca923cce188f921324a1d21420ee310e4a8cbdfafb452",
+    "git_blob": "395055d21cdb76cddef3706568e1e4b9b0be46d5",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "convex_timevarying_window/wang_progress_mpc/README.md",
+    "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/wang_progress_mpc/README.md",
+    "sha256": "028df8fd3120d7cf6b4c6bddcbe802a119aa77019d7c12828b5d1f1e15e1b3f9",
+    "git_blob": "9e2a9994640a7d483bec47205bfb50e2ef40f22f",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "nonconvex_timevarying_window/PROBLEM_DEFINITION.md",
+    "source": "/home/jack/wyh/时变窗口/nonconvex_timevarying_window/PROBLEM_DEFINITION.md",
+    "sha256": "ab7b098d895052789b0c1aaae325c190d5f2faf02cc04f78b795a6a25c04c92d",
+    "git_blob": "0f9fc7e4d02f6f93650a45747046973168adf43c",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "nonconvex_timevarying_window/README.md",
+    "source": "/home/jack/wyh/时变窗口/nonconvex_timevarying_window/README.md",
+    "sha256": "9c9dda6fd002148178ab1d7b72f12b51d51608a003bfc6bb8ccc3adf73496ed2",
+    "git_blob": "b5817c871f3f84804ce185f9987883a5dd52bd17",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "nonconvex_timevarying_window/sc_dynatogt/EXPERIMENTS_AND_TERMS.md",
+    "source": "/home/jack/wyh/时变窗口/nonconvex_timevarying_window/sc_dynatogt/EXPERIMENTS_AND_TERMS.md",
+    "sha256": "529a41b97abc6d9f07e3f7335942baefd7bc95cd1b508638c5dd1ba77d578d0d",
+    "git_blob": "d14fdf13c9d7d0e287ed2d089f3d5096b6aba4cd",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "nonconvex_timevarying_window/sc_dynatogt/FIGURE_GUIDE.md",
+    "source": "/home/jack/wyh/时变窗口/nonconvex_timevarying_window/sc_dynatogt/FIGURE_GUIDE.md",
+    "sha256": "7a0abf0ca64f1be473efc79a5d6ea390c6f00e50197675ccd90b55c6578f3d2a",
+    "git_blob": "dfce0e1098d3c235643dfa5857ff92e0b2fdf766",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "nonconvex_timevarying_window/sc_dynatogt/README.md",
+    "source": "/home/jack/wyh/时变窗口/nonconvex_timevarying_window/sc_dynatogt/README.md",
+    "sha256": "b277e9d704eb86b381c3e16e7cac529cd60acce088d87c42ac16f56d370dda01",
+    "git_blob": "b0823125a485dfb2f6893b48055c0ab2d1d1cc4a",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  },
+  {
+    "file": "nonconvex_timevarying_window/sc_dynatogt/TEST_RESULTS.md",
+    "source": "/home/jack/wyh/时变窗口/nonconvex_timevarying_window/sc_dynatogt/TEST_RESULTS.md",
+    "sha256": "1080d02662969295a21982cf8827546d384a42c9bc05d1892c65caf82babf8ff",
+    "git_blob": "48f778fb55a6fad9f734cb35b3fa0b9a50dad46f",
+    "role": "Bookkeeping Markdown dependency, excluded by historical matched_full_matrix.sources filter"
+  }
+]

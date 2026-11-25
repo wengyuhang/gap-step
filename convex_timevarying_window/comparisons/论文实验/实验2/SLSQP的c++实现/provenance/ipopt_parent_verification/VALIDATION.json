@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-12",
+  "source_copies_checked": 57,
+  "source_hashes_matched": true,
+  "independent_package_build_passed": true,
+  "numerical_kernel_and_gradient_tests_passed": 2,
+  "numerical_kernel_and_gradient_tests_total": 2,
+  "new_optimization_runs": 0,
+  "cmake_build_directory": "/tmp/ipopt_native_minco_package_build_20261112"
+}

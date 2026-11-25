@@ -1,0 +1,216 @@
+\documentclass[journal]{IEEEtran}
+
+% 中文支持：scheme=plain 仅启用中文字体与断行，完整保留 IEEEtran 原生双栏与罗马数字章节样式
+% 请在 Overleaf 左上角 Menu 中将 Compiler 设置为 XeLaTeX
+\usepackage[UTF8,scheme=plain]{ctex}
+
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\hyphenation{semi-infinite quad-rotor}
+
+\begin{document}
+
+\title{基于半无限规划的动态门四旋翼时间最优轨迹规划\\
+{\large Time-Optimal Quadrotor Flight Through Dynamic Gates via Semi-Infinite Programming}}
+
+\author{作者姓名,~\IEEEmembership{Member,~IEEE}%
+\thanks{手稿初稿框架。后续在此补充基金资助信息与作者单位通信地址。}}
+
+\markboth{IEEE TRANSACTIONS ON ROBOTICS (DRAFT)}%
+{Time-Optimal Quadrotor Flight Through Dynamic Gates via Semi-Infinite Programming}
+
+\maketitle
+
+\begin{abstract}
+% [待完善：按“背景与痛点 -> 建模与方法 -> 理论支撑 -> 实验与量化结果”四步闭环撰写中文摘要]
+面向动态门的自主四旋翼时间最优飞行要求同时决定每扇门的到达时刻、门内穿越位置与过门运动状态。由于门位姿随比赛时钟持续变化，质心在过面瞬间落入开口内并不能保证有限尺寸机体在进门与出门过程中与移动门框保持分离，从而构成一类带有连续时间非凸碰撞约束的半无限规划（Semi-Infinite Programming, SIP）问题。本文提出一种基于半无限规划的全赛道轨迹规划方法，联合优化各航段时长、门内穿越坐标与显式节点高阶导数状态，并通过右端项收紧交换与连续时间区间包络分离求解连续净空约束。（完整实验量化结果待后续章节完成后统一填入。）
+\end{abstract}
+
+\begin{IEEEkeywords}
+四旋翼竞速，动态门，半无限规划（SIP），轨迹优化，连续时间避碰。
+\end{IEEEkeywords}
+
+% ============================================================================
+\section{引言}
+% [待撰写：1) 任务背景与“过面但仍相交”物理现象；2) 现有范式局限；3) 四大核心挑战；4) 本文 SIP 规划框架总览]
+
+\subsection{主要贡献}
+% [待撰写：1) 动态门时间最优飞行的 SIP 建模；2) 显式节点 PVAJ 块稀疏参数化与右端收紧交换求解器；3) 有限终止与可行性分析；4) 22 条件六方法基准对比与双维度机制消融]
+
+\subsection{符号约定}
+% [待补充：正文统一记号约定及表 I 核心数学符号汇总]
+
+\subsection{全文结构}
+% [待补充：第 II 至 VIII 节及附录组织说明]
+
+% ============================================================================
+\section{相关工作}
+
+\subsection{四旋翼竞速时间最优轨迹规划}
+% [待撰写：最小 Snap / 自由导数多项式、MINCO、CPC、TOGT 等演进与局限]
+
+\subsection{动态门穿越与移动窄缝飞行}
+% [待撰写：滚动局部重规划（Wang 等）、端到端动态窄缝控制（Bianco 等）及全赛道时空协同需求]
+
+\subsection{碰撞约束优化中的半无限规划}
+% [待撰写：经典交换法、保守细分内点法（Zhang 等, T-RO 2024）、局部约化与外部主动集（Gao 等, T-RO 2026）及右端项收紧理论]
+
+\subsection{本文与相关工作的区别}
+% [待撰写：从无限索引来源、轨迹节点自由度及连续时间分离机制三个维度明确本文边界]
+
+% ============================================================================
+\section{系统模型与问题表述}
+
+本章建立面向动态门的全赛道四旋翼轨迹规划模型。给定起终状态、穿越顺序以及各门相对比赛时钟的已知运动规律，目标是联合求解到达时刻、过门位置与全程轨迹，在保持整机与移动门框无碰撞分离的前提下最小化飞行时间。
+
+\subsection{四旋翼模型}
+
+取竖直向上的右手惯性坐标系 $\mathcal{W}$（$\mathbf{e}_3 = [0, 0, 1]^\top$）与原点位于质心的机体坐标系 $\mathcal{B}$。记 $\mathbf{p}, \mathbf{v} \in \mathbb{R}^3$ 为惯性系下的质心位置与速度，$\mathbf{R} \in SO(3)$ 为机体系到惯性系的旋转矩阵，$\boldsymbol{\omega} = [\omega_x, \omega_y, \omega_z]^\top \in \mathbb{R}^3$ 为机体系角速度，$\mathbf{f} = [f_1, f_2, f_3, f_4]^\top \in \mathbb{R}^4$ 为四个旋翼的单桨推力。在忽略气动阻力的名义刚体模型下，四旋翼动力学写为
+\begin{equation}
+\begin{aligned}
+\dot{\mathbf{p}} &= \mathbf{v}, &
+m\dot{\mathbf{v}} &= f_\Sigma \mathbf{R}\mathbf{e}_3 - m g \mathbf{e}_3, \\
+\dot{\mathbf{R}} &= \mathbf{R}[\boldsymbol{\omega}]_\times, &
+\mathbf{J}\dot{\boldsymbol{\omega}} &= \boldsymbol{\tau} - \boldsymbol{\omega} \times (\mathbf{J}\boldsymbol{\omega}),
+\end{aligned}
+\label{eq:quad_dynamics}
+\end{equation}
+其中 $m$ 为质量，$g$ 为重力加速度，$\mathbf{J} \in \mathbb{R}^{3 \times 3}$ 为机体系惯量矩阵，$[\cdot]_\times$ 为反对称叉乘算子；总推力 $f_\Sigma$ 与机体系力矩 $\boldsymbol{\tau}$ 由常值控制分配矩阵 $\mathbf{B} \in \mathbb{R}^{4 \times 4}$ 确定，满足 $[f_\Sigma, \boldsymbol{\tau}^\top]^\top = \mathbf{B}\mathbf{f}$。
+
+利用四旋翼的微分平坦性，系统状态与输入可由三维位置轨迹 $\mathbf{p}(t)$ 及其高阶时间导数代数恢复。当 $\ddot{\mathbf{p}} + g\mathbf{e}_3 \neq \mathbf{0}$ 时，机体推力轴方向与总推力分别为
+\begin{equation}
+\mathbf{R}\mathbf{e}_3 = \frac{\ddot{\mathbf{p}} + g\mathbf{e}_3}{\|\ddot{\mathbf{p}} + g\mathbf{e}_3\|_2}, \qquad
+f_\Sigma = m\|\ddot{\mathbf{p}} + g\mathbf{e}_3\|_2.
+\label{eq:flat_thrust}
+\end{equation}
+由于球形机体包络与推力约束均关于 $\mathbf{R}\mathbf{e}_3$ 旋转对称，规划固定零偏航角。在此约定下，对式~\eqref{eq:flat_thrust} 求一阶与二阶导数即可由三阶导数 $\mathbf{p}^{(3)}$ 和四阶导数 $\mathbf{p}^{(4)}$ 解析求得角速度 $\boldsymbol{\omega}$、角加速度 $\dot{\boldsymbol{\omega}}$ 及单桨推力 $\mathbf{f}$。物理可行性要求合成横滚俯仰角速度、偏航角速度与单桨推力分别满足 $\omega_x^2 + \omega_y^2 \le \bar{\omega}_{xy}^2$、$|\omega_z| \le \bar{\omega}_z$ 以及 $f_\ell \in [f_{\min}, f_{\max}]$（$\ell = 1, \ldots, 4$）。
+
+\subsection{动态门与穿越条件}
+
+设赛道按规定顺序包含 $M$ 个中间节点 $\mathcal{I} = \{1, \ldots, M\}$，分为动态实体门集合 $\mathcal{I}_{\mathrm{gate}} \subseteq \mathcal{I}$ 与可选无边框导航航点集合 $\mathcal{I}_{\mathrm{wp}} = \mathcal{I} \setminus \mathcal{I}_{\mathrm{gate}}$。对每扇实体门 $i \in \mathcal{I}_{\mathrm{gate}}$，记其名义中心为 $\bar{\mathbf{c}}_i \in \mathbb{R}^3$，固定门平面的正交单位基为 $\mathbf{E}_i = [\mathbf{e}_{i1}, \mathbf{e}_{i2}] \in \mathbb{R}^{3 \times 2}$，指向正向穿越一侧的单位法向量为 $\mathbf{n}_i = \mathbf{e}_{i1} \times \mathbf{e}_{i2}$。各门在与飞行轨迹共享的比赛时钟 $t \ge 0$ 下沿门平面做已知运动，中心位置表示为 $\mathbf{c}_i(t) = \bar{\mathbf{c}}_i + \mathbf{E}_i \mathbf{A}_i \mathbf{s}_i(t)$，其中 $\mathbf{A}_i \in SO(2)$ 定义面内运动方向。除静止门（$\mathbf{s}_i(t) = \mathbf{0}$）外，正弦平移与绕外部支点的弧线摆动分别由下式给出：
+\begin{equation}
+\begin{aligned}
+\mathbf{s}_i^{\mathrm{lin}}(t) &= [0,\, -a_i \sin(2\pi \nu_i t + \phi_i)]^\top, \\
+\mathbf{s}_i^{\mathrm{arc}}(t) &= [\ell_i(1 - \cos\theta_i(t)),\, -\ell_i \sin\theta_i(t)]^\top, \\
+\theta_i(t) &= \arcsin(a_i / \ell_i)\sin(2\pi \nu_i t + \phi_i),
+\end{aligned}
+\label{eq:gate_motion}
+\end{equation}
+其中 $a_i, \nu_i, \phi_i$ 分别为各门独立配置的幅度、频率与初相，$\ell_i > a_i$ 为摆长。
+
+在门平面局部坐标系中，第 $i$ 扇门的净开口记为包含原点的紧致凸集 $\mathcal{A}_i \subset \mathbb{R}^2$：圆形门由净半径 $R_i^{\mathrm{op}}$ 定义为 $\|\boldsymbol{\xi}\|_2 \le R_i^{\mathrm{op}}$，凸四边形门由单位外法向量 $\mathbf{b}_{ik}$ 与常数 $d_{ik}$ 定义为 $\mathbf{b}_{ik}^\top \boldsymbol{\xi} \le d_{ik}$（$k = 1, \ldots, 4$）。设四旋翼规划包络球半径为 $r_s$，将 $\mathcal{A}_i$ 各边界向内腐蚀 $r_s$ 得到非空凸可行域 $\mathcal{A}_i^-$（即圆门满足 $\|\boldsymbol{\xi}\|_2 \le R_i^{\mathrm{op}} - r_s$，四边形门满足 $\mathbf{b}_{ik}^\top \boldsymbol{\xi} \le d_{ik} - r_s$）。记 $t_i$ 为第 $i$ 个节点的计划到达时刻，$\boldsymbol{\xi}_i \in \mathbb{R}^2$ 为门内穿越坐标，则有序穿越条件为
+\begin{equation}
+\mathbf{p}(t_i) = \mathbf{c}_i(t_i) + \mathbf{E}_i \boldsymbol{\xi}_i, \quad
+\boldsymbol{\xi}_i \in \mathcal{A}_i^-, \quad
+0 < t_1 < \cdots < t_M < T,
+\label{eq:crossing_cond}
+\end{equation}
+其中 $T$ 为飞抵任务终点的全程时间（含末节点后的终段航程）。式~\eqref{eq:crossing_cond} 体现了动态门规划的时空耦合：改变到达时刻 $t_i$ 会移动开口在世界系中的位置 $\mathbf{c}_i(t_i)$，改变 $\boldsymbol{\xi}_i$ 则影响出窗姿态与后续航段转向；强制中心基准对应令 $\boldsymbol{\xi}_i = \mathbf{0}$。为保证单次正向过门，在实体门节点施加最小法向速度约束 $\mathbf{n}_i^\top \dot{\mathbf{p}}(t_i) \ge v_{\min} > 0$，并要求全程内有符号法向距离 $h_i(t) = \mathbf{n}_i^\top[\mathbf{p}(t) - \mathbf{c}_i(t)]$ 仅在 $t_i$ 处穿过净开口 $\mathcal{A}_i$。对导航航点 $i \in \mathcal{I}_{\mathrm{wp}}$，不设门框，仅要求 $\mathbf{p}(t_i) - \mathbf{c}_i(t_i) \in \mathcal{Z}_i$（$\mathcal{Z}_i \subset \mathbb{R}^3$ 为给定邻域）。
+
+\begin{figure}[t]
+\centering
+\fbox{\parbox{0.92\columnwidth}{\centering\vspace{1.8cm}
+图 1 占位：动态门的穿越几何与整机扫掠净空示意\\
+（a）门正面开口与内缩可行域 $\mathcal{A}_i^-$；（b）进门、过面与出门法向截面
+\vspace{1.8cm}}}
+\caption{动态门的穿越几何与整机净空示意。（a）门正面视图：标出净开口 $\mathcal{A}_i$、内缩选点域 $\mathcal{A}_i^-$、中心 $\mathbf{c}_i(t_i)$ 与门内坐标 $\boldsymbol{\xi}_i$。（b）法向截面视图：对比进门、质心过面与出门三个时刻的机体包络与移动门框，标出质心过面后仍可能发生的边框扫碰及最小净空时刻。}
+\label{fig:gate_geometry}
+\end{figure}
+
+\subsection{连续时间整机净空}
+
+式~\eqref{eq:crossing_cond} 仅约束了质心过面时刻 $t_i$ 的瞬时位置。由于机体具有有限体积且门框持续运动，在 $|h_i(t)|$ 较小的进出门过渡时段内，移动边框仍可能扫过机体（见图~\ref{fig:gate_geometry}b）。将环绕 $\mathcal{A}_i$ 的实体门框建模为半径 $r_f$ 的圆管，其闭合管中心线在时刻 $t$ 记为 $\mathcal{L}_i(t) \subset \mathbb{R}^3$（圆门对应半径 $R_i^{\mathrm{op}} + r_f$ 的圆周，四边形门对应向外偏置 $r_f$ 的四条边线段并集）。半径为 $r_s$ 的机体球包络与移动门框在全程保持无碰撞分离，等价于质心到 $\mathcal{L}_i(t)$ 的最短欧氏距离在任意时刻均不小于 $r = r_s + r_f$：
+\begin{equation}
+d_i(t) = \operatorname{dist}\!\left(\mathbf{p}(t),\, \mathcal{L}_i(t)\right) - r \ge 0, \quad
+\forall i \in \mathcal{I}_{\mathrm{gate}}, \; \forall t \in [0, T].
+\label{eq:continuous_clearance}
+\end{equation}
+
+由于门在固定平面内运动，$h_i(t) = \mathbf{n}_i^\top[\mathbf{p}(t) - \bar{\mathbf{c}}_i]$ 与面内相对位移正交，故有 $\operatorname{dist}(\mathbf{p}(t), \mathcal{L}_i(t)) \ge |h_i(t)|$。当 $|h_i(t)| \ge r$ 时式~\eqref{eq:continuous_clearance} 自然成立；在 $|h_i(t)| < r$ 的穿越区间内，面内相对运动共同决定真实净空，最小净空时刻一般偏离 $t_i$。
+
+\subsection{半无限规划表述}
+
+设分段光滑轨迹 $\mathbf{p}(t; \boldsymbol{\theta})$ 由有限维决策向量 $\boldsymbol{\theta} \in \Theta \subset \mathbb{R}^{n_\theta}$ 参数化，其中 $\boldsymbol{\theta}$ 联合包含各段时长参数、中间节点选点坐标以及内部节点的一至三阶导数，两端固定为给定起终边界状态 $\mathcal{X}_0$ 与 $\mathcal{X}_f$（具体参数化与积分形式见第 IV 节）。令 $J_{\mathrm{dyn}}(\boldsymbol{\theta})$ 表示对角速度与单桨推力越限量的时间积分平滑惩罚，$w_{\mathrm{dyn}} > 0$ 为惩罚权重，全赛道动态门时间最优轨迹规划归结为如下半无限规划（SIP）问题：
+\begin{equation}
+\begin{aligned}
+\min_{\boldsymbol{\theta} \in \Theta} \quad & J(\boldsymbol{\theta}) = T(\boldsymbol{\theta}) + w_{\mathrm{dyn}} J_{\mathrm{dyn}}(\boldsymbol{\theta}) \\
+\mathrm{s.t.} \quad & \mathcal{D}_3 \mathbf{p}(0; \boldsymbol{\theta}) = \mathcal{X}_0, \quad \mathcal{D}_3 \mathbf{p}(T(\boldsymbol{\theta}); \boldsymbol{\theta}) = \mathcal{X}_f, \\
+& \mathbf{p}(t_i(\boldsymbol{\theta}); \boldsymbol{\theta}) = \mathbf{c}_i(t_i(\boldsymbol{\theta})) + \mathbf{E}_i \boldsymbol{\xi}_i(\boldsymbol{\theta}), \; \boldsymbol{\xi}_i(\boldsymbol{\theta}) \in \mathcal{A}_i^-, \; \forall i \in \mathcal{I}_{\mathrm{gate}}, \\
+& \mathbf{p}(t_i(\boldsymbol{\theta}); \boldsymbol{\theta}) - \mathbf{c}_i(t_i(\boldsymbol{\theta})) \in \mathcal{Z}_i, \quad \forall i \in \mathcal{I}_{\mathrm{wp}}, \\
+& \mathbf{n}_i^\top \dot{\mathbf{p}}(t_i(\boldsymbol{\theta}); \boldsymbol{\theta}) \ge v_{\min}, \quad \forall i \in \mathcal{I}_{\mathrm{gate}}, \\
+& d_i(\boldsymbol{\theta}, t) = \operatorname{dist}\!\left(\mathbf{p}(t; \boldsymbol{\theta}),\, \mathcal{L}_i(t)\right) - r \ge 0, \\
+& \qquad\qquad\qquad\qquad \forall i \in \mathcal{I}_{\mathrm{gate}}, \; \forall t \in [0, T(\boldsymbol{\theta})],
+\end{aligned}
+\label{eq:sip_problem}
+\end{equation}
+其中 $\mathcal{D}_3 \mathbf{p} = (\mathbf{p}, \dot{\mathbf{p}}, \ddot{\mathbf{p}}, \mathbf{p}^{(3)})$ 表示位置至三阶导数组成的边界状态算子。
+
+式~\eqref{eq:sip_problem} 具有有限维决策变量 $\boldsymbol{\theta}$，但净空约束遍及连续时间区间 $[0, T(\boldsymbol{\theta})]$ 内的无穷多个时刻，且时间域上界与各门中心线 $\mathcal{L}_i(t)$ 均随时间分配动态变化。直接在固定离散网格上采样该约束可能遗漏采样间隔内的高速门框扫碰；而采用传统无收紧交换法逐轮添加违反时刻，既缺乏排除安全时段的连续下界，又容易在切触点附近产生无限密集的约束积聚而丧失有限终止性。下一节将给出显式节点导数的稀疏轨迹表示，并通过右端项收紧与连续时间区间分离求解式~\eqref{eq:sip_problem}。
+
+% ============================================================================
+\section{基于右端收紧交换的半无限规划求解器}
+
+\subsection{显式节点 PVAJ 轨迹参数化与软动力学上镜图}
+% [待撰写：C^6 -> C^3 节点导数释放、局部 Hermite-Bernstein 等式、正时间映射、缩放门内坐标与残差上镜图]
+
+\subsection{右端项收紧的有限维 NLP 子问题}
+% [待撰写：有限时间索引集 S_i^{(k)}、收紧量 delta_r 与有效正余量条件]
+
+\subsection{基于法向求根裁剪与 Bernstein 包络的连续时间分离}
+% [待撰写：重复过面检测、法向多项式求根裁剪、时空包围盒自适应二分与算法 1]
+
+\subsection{时变索引参数化与原始-对偶热启动交换}
+% [待撰写：邻段相对过门偏移与段内归一化坐标、单门最严重见证更新、热启动与算法 2]
+
+% ============================================================================
+\section{理论分析与实现细节}
+
+\subsection{可行性与有限终止分析}
+% [待撰写：有界子水平集等度连续性引理、输出连续可行性定理与有限轮次终止定理]
+
+\subsection{曲率驱动的独立多初值构造}
+% [待撰写：曲率限速前后向传播、1.25 时长退让与 8 步可行括区二分细化]
+
+\subsection{计算复杂度与工程实现细节}
+% [待撰写：块稀疏 KKT 结构、分离复杂度、IPOPT 二阶配置与独立 STL 终验链]
+
+% ============================================================================
+\section{数值评估与消融实验}
+
+\subsection{实验设置与评估协议}
+% [待撰写：4 种布局 22 个动态条件、QuadA 参数表、6 种对比方法协议]
+
+\subsection{单门穿越机理分析}
+% [待撰写：过面时刻与最小净空时刻错位、门内偏移对相对运动与净空的作用]
+
+\subsection{全赛道多方法基准对比}
+% [待撰写：22 条件竞速时间与任务结果主表、Split-S 速度与净空权衡案例剖析]
+
+\subsection{系统化消融实验}
+% [待撰写：1) 门内自由选点 vs 固定中心消融；2) 显式节点 PVAJ vs 仅位置 C^6 MINCO 消融]
+
+\subsection{计算性能与收敛行为分析}
+% [待撰写：计算墙钟表、外层轮次约束数与几何违反量演化曲线、分项耗时占比]
+
+% ============================================================================
+\section{局限性与实际部署考量}
+% [待撰写：离线计算耗时、浮点包络数值证据与严格区间算术证书边界、软动力学与闭环跟踪差异、已知门运动假设]
+
+% ============================================================================
+\section{结论}
+% [待撰写：总结全文核心贡献、量化增益与未来研究方向]
+
+% ============================================================================
+\appendices
+\section{理论结果的证明}
+% [待补充：引理 1、定理 1 与定理 2 的完整证明]
+
+\section{赛道布局与动态门运动参数}
+% [待补充：四种赛道几何尺寸、位置、法向与各门运动参数表]
+
+\end{document}

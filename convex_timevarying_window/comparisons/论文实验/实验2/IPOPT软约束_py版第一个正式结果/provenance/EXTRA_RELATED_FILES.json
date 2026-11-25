@@ -1,0 +1,8 @@
+[
+  {
+    "file": "code/convex_timevarying_window/comparisons/论文实验/实验2/higher_swing/MATRIX_PROTOCOL.md",
+    "source": "records/higher_swing_10x5_full_v1_20261109/PROTOCOL.md",
+    "reason": "Original matrix.initialize copies this protocol template into each result directory",
+    "sha256": "ac40e985636e58dbd034c557738f6b57b4f4f38cf9a1842664f49b27b85a7568"
+  }
+]

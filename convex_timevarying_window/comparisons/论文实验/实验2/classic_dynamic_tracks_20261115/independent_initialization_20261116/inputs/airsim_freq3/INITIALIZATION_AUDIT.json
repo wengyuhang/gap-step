@@ -1,0 +1,54 @@
+{
+  "no_optimizer_calls": true,
+  "paired_time_point_pvaj_identical": true,
+  "seeds": [
+    {
+      "curve_error": 5.1029049041861896e-11,
+      "duration_s": 116.43377979223604,
+      "seed": 0,
+      "speed_mps": 3.0
+    },
+    {
+      "curve_error": 9.289781166543776e-10,
+      "duration_s": 116.4200943367285,
+      "seed": 1,
+      "speed_mps": 3.0
+    },
+    {
+      "curve_error": 1.9821304597655853e-09,
+      "duration_s": 52.849615569802936,
+      "seed": 2,
+      "speed_mps": 6.0
+    },
+    {
+      "curve_error": 9.274967183170446e-10,
+      "duration_s": 58.66036671894575,
+      "seed": 3,
+      "speed_mps": 6.0
+    },
+    {
+      "curve_error": 1.2155699291582778e-07,
+      "duration_s": 38.63111103244178,
+      "seed": 4,
+      "speed_mps": 9.0
+    },
+    {
+      "curve_error": 7.196210560778127e-08,
+      "duration_s": 36.26177318969176,
+      "seed": 5,
+      "speed_mps": 9.0
+    },
+    {
+      "curve_error": 3.4355845102140847e-07,
+      "duration_s": 28.610098720574214,
+      "seed": 6,
+      "speed_mps": 12.0
+    },
+    {
+      "curve_error": 2.574331228188953e-07,
+      "duration_s": 29.28364625690852,
+      "seed": 7,
+      "speed_mps": 12.0
+    }
+  ]
+}

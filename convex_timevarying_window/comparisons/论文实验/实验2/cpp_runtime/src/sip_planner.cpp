@@ -5,6 +5,12 @@
 #include "stable_dynamics.hpp"
 #include "native_minco_pvaj.hpp"
 #include "restored_kernels.hpp"
+#include "sip_exchange_policy.hpp"
+#include "native_slsqp.hpp"
+#include "finite_nlp.hpp"
+#include "ipopt_iteration_trace.hpp"
+#include "damped_bfgs.hpp"
+#include "minco_tangent_metric.hpp"
 #include <filesystem>
 #include <iomanip>
 #include <map>
@@ -20,7 +26,14 @@ using WitnessKey=std::pair<int,int>;
 using DynamicWitnesses=std::map<std::pair<int,int>,std::vector<double>>;
 struct Witness {std::string kind;std::vector<double> values;};
 struct FiniteProblem {
-    Function solver,projector;
+    std::string hessian_approximation, nlp_scaling_method, linear_solver;
+    std::unique_ptr<IpoptIterationTrace> iteration_trace;
+    std::unique_ptr<DampedBfgs> damped_bfgs;
+    std::unique_ptr<MincoTangentMetric> minco_metric;
+    Function solver,projector,slsqp_values,slsqp_derivatives,slsqp_original_g;
+    std::unique_ptr<finite_nlp::Model> model;
+    finite_nlp::SlsqpView slsqp_view;
+    int slsqp_equalities=0;
     std::vector<std::string> keys;
     std::vector<double> lower,upper;
     int geometry_rows;
@@ -45,10 +58,25 @@ casadi::Dict solver_options(const Json& configuration) {
     return options;
 }
 
+double slsqp_accuracy() {
+    const char* text=std::getenv("SIP_SLSQP_ACCURACY");
+    const double value=text?std::stod(text):1e-8;
+    if(!std::isfinite(value) || value<=0. || value>1e-4)throw std::runtime_error("Invalid SLSQP accuracy");
+    return value;
+}
+
+double slsqp_cost_unit() {
+    const char* text=std::getenv("SIP_SLSQP_COST_UNIT");
+    const double value=text?std::stod(text):1.;
+    if(!std::isfinite(value) || value<=0.)throw std::runtime_error("Invalid SLSQP cost unit");
+    return value;
+}
+
 class Planner {
     Json manifest;
-    bool native_minco_enabled=false,native_soft_enabled=false,direct_points_enabled=false;
-    bool restored_soft=false;
+    Json native_scene_metadata;
+    bool native_minco_enabled=false,native_soft_enabled=false,direct_points_enabled=false,native_direct_objective=false;
+    bool restored_soft=false,xy_points=false,terminal_hover_contact=false;
     double native_dynamics_weight=1.;
     std::unique_ptr<native_minco::Graph> native_graph;
     std::string directory,destination;
@@ -67,6 +95,13 @@ class Planner {
     std::vector<MX> expressions;
     Function physical_curve;
     std::ofstream progress;
+    std::vector<double> residual_coordinate_scale;
+    DM residual_coordinate_matrix,residual_coordinate_inverse,residual_coordinate_origin;
+
+    bool uses_slsqp() const {
+        return native_minco_enabled && native_soft_enabled &&
+            manifest.value("native_finite_solver",std::string("ipopt"))=="slsqp";
+    }
 
     int dynamic_components() const { return minimum_thrust_enabled ? 7 : 6; }
 
@@ -121,7 +156,7 @@ class Planner {
                     (witness.kind=="after" && piece==gate+1);
                 // The input point map covers the opening eroded by finite_radius.
                 // Assigned-knot safety is therefore already enforced by the map.
-                if(norm_dynamics && manifest["free_points"].get<bool>() && at_knot)
+                if((norm_dynamics && manifest["free_points"].get<bool>() || xy_points) && at_knot)
                     unique.erase(std::remove(unique.begin(),unique.end(),0.),unique.end());
                 if(unique.empty())continue;
                 MX offsets=DM(unique).T();
@@ -195,16 +230,107 @@ class Planner {
         }
         if(direct_soft && std::getenv("SIP_IPOPT_TRACE")) {
             options["ipopt.print_level"]=5;
-            options["ipopt.max_iter"]=1000;
         }
         if(stable_dynamics_enabled) {
             options["ipopt.hessian_approximation"]=std::getenv("SIP_LIMITED_MEMORY") ? "limited-memory" : "exact";
         }
         if(dynamic_exchange && std::getenv("SIP_IPOPT_TRACE"))options["ipopt.print_level"]=5;
         if(warm)options["ipopt.warm_start_init_point"]="yes";
+        if(warm && manifest.contains("warm_start_push")) {
+            const double push=manifest["warm_start_push"];
+            if(!std::isfinite(push) || push<=0. || push>=.5)throw std::runtime_error("Invalid warm-start interior push");
+            for(const char* key:{"ipopt.warm_start_bound_push","ipopt.warm_start_bound_frac","ipopt.warm_start_slack_bound_push","ipopt.warm_start_slack_bound_frac","ipopt.warm_start_mult_bound_push"})options[key]=push;
+        }
+        problem.hessian_approximation=options.count("ipopt.hessian_approximation") ? options.at("ipopt.hessian_approximation").to_string() : "exact";
+        problem.nlp_scaling_method=options.count("ipopt.nlp_scaling_method") ? options.at("ipopt.nlp_scaling_method").to_string() : "gradient-based";
+        problem.linear_solver=options.count("ipopt.linear_solver") ? options.at("ipopt.linear_solver").to_string() : "default (see IPOPT log)";
         // The original high-swing runner removes the three tiny warm-push overrides.
-        casadi::MXDict formulation{{"x",MX::vertcat(optimization_variables)},{"p",parameters},
-            {"f",objective},{"g",MX::vertcat(rows)}};
+        problem.model=std::make_unique<finite_nlp::Model>(MX::vertcat(optimization_variables),parameters,
+            objective,MX::vertcat(rows),problem.lower,problem.upper);
+        auto formulation=problem.model->formulation();
+        if(!residual_coordinate_scale.empty()) {
+            const MX y=MX::sym("equilibrated_finite_variables",variables.numel());
+            MX mapped=residual_coordinate_matrix.is_empty()?DM(residual_coordinate_scale)*y:MX::mtimes(residual_coordinate_matrix,y);
+            if(!residual_coordinate_origin.is_empty())mapped+=residual_coordinate_origin;
+            const auto value=problem.model->values(std::vector<MX>{mapped,parameters});
+            formulation={{"x",y},{"p",parameters},{"f",value[0]},{"g",value[1]}};
+            options["ipopt.nlp_scaling_method"]="none";
+            problem.nlp_scaling_method="none (explicit residual Jacobian coordinate transform)";
+            if(!manifest.value("feature_coordinate_equilibration",false)) {
+                options["ipopt.tol"]=1e-12;
+                options["ipopt.dual_inf_tol"]=1e-12;
+                options["ipopt.compl_inf_tol"]=1e-12;
+            }
+            if(manifest.value("explicit_coordinate_hessian",false)) {
+                const DM transform=residual_coordinate_matrix.is_empty()?DM::diag(DM(residual_coordinate_scale)):residual_coordinate_matrix;
+                const MX lf=MX::sym("mapped_lam_f"),lg=MX::sym("mapped_lam_g",problem.model->g.numel());
+                const MX lag=lf*problem.model->f+MX::dot(lg,problem.model->g);
+                const Function original_hessian("original_sparse_lagrangian_hessian",{variables,parameters,lf,lg},{MX::hessian(lag,variables)},{{"never_inline",true}});
+                const MX h=original_hessian(std::vector<MX>{mapped,parameters,lf,lg})[0];
+                const MX transformed=MX::mtimes(MX(transform.T()),MX::mtimes(h,MX(transform)));
+                options["hess_lag"]=Function("explicit_affine_hessian",{y,parameters,lf,lg},{MX::triu(transformed)});
+                options["ipopt.hessian_approximation"]="exact";
+                problem.hessian_approximation="exact (explicit affine Hessian pullback)";
+            }
+        }
+        if(std::getenv("SIP_ITERATION_TRACE") && !uses_slsqp()) {
+            problem.iteration_trace=std::make_unique<IpoptIterationTrace>(
+                problem.model->x.numel(),problem.model->g.numel(),parameters.numel(),destination+"/iterations.jsonl");
+            options["iteration_callback"]=Function(*problem.iteration_trace);
+            options["iteration_callback_step"]=1;
+        }
+        if(manifest.value("native_hessian",std::string())=="powell_bfgs") {
+            if(!native_direct_objective || uses_slsqp() || !residual_coordinate_scale.empty())
+                throw std::runtime_error("Damped BFGS diagnostic requires untransformed direct IPOPT");
+            problem.damped_bfgs=std::make_unique<DampedBfgs>(problem.model->derivatives,variables.numel(),parameters.numel(),problem.model->g.numel());
+            options["hess_lag"]=Function(*problem.damped_bfgs);
+            options["ipopt.hessian_approximation"]="exact"; // invoke supplied approximation
+            if(!options.count("ipopt.recalc_y"))options["ipopt.recalc_y"]="yes";
+            problem.hessian_approximation="Powell-damped full BFGS (user-supplied approximation)";
+        }
+        if(manifest.value("native_hessian",std::string())=="generalized_gauss_newton") {
+            if(!native_direct_objective || uses_slsqp() || !residual_coordinate_scale.empty())
+                throw std::runtime_error("Generalized Gauss-Newton requires untransformed direct IPOPT");
+            const MX lf=MX::sym("lam_f"),lg=MX::sym("lam_g",problem.model->g.numel());
+            const MX h=lf*native_graph->gauss_newton_hessian(std::vector<MX>{variables,parameters})[0]+.01*MX::eye(variables.numel());
+            options["hess_lag"]=Function("generalized_gauss_newton_hessian",{variables,parameters,lf,lg},{MX::triu(h)});
+            options["ipopt.hessian_approximation"]="exact"; // supplied PSD approximation
+            options["ipopt.recalc_y"]="yes";
+            problem.hessian_approximation="generalized Gauss-Newton plus "+std::to_string(manifest.value("native_gn_residual_metric",0.))+" J_res^T J_res plus 0.01 I (Hessian only)";
+        }
+        if(manifest.value("native_hessian",std::string())=="eigen_clip") {
+            if(!native_direct_objective || uses_slsqp() || !residual_coordinate_scale.empty() || manifest.value("lift_minco_coefficients",false) || manifest.value("lift_world_points",false))
+                throw std::runtime_error("Eigen-clipping diagnostic requires direct original coordinates");
+            const MX lf=MX::sym("lam_f"),lg=MX::sym("lam_g",problem.model->g.numel());
+            const MX h=MX::hessian(lf*problem.model->f+MX::dot(lg,problem.model->g),variables);
+            const MX modified=MX::convexify(h,{{"strategy","eigen-clip"},{"margin",.01},{"max_iter_eig",10000}});
+            options["hess_lag"]=Function("eigen_clipped_hessian",{variables,parameters,lf,lg},{MX::triu(modified)});
+            options["ipopt.hessian_approximation"]="exact";
+            options["ipopt.recalc_y"]="yes";
+            problem.hessian_approximation="eigen-clipped Lagrangian Hessian (floor 0.01; approximation)";
+        }
+        if(manifest.value("native_hessian",std::string())=="minco_tangent") {
+            if(!native_direct_objective || uses_slsqp() || !residual_coordinate_scale.empty() || manifest.value("lift_minco_coefficients",false) || manifest.value("lift_world_points",false))
+                throw std::runtime_error("MINCO tangent metric requires original direct full-PVAJ variables");
+            problem.minco_metric=std::make_unique<MincoTangentMetric>(native_graph->interpolation_inputs,native_graph->gauss_newton_hessian,manifest,native_scene_metadata,parameters.numel(),problem.model->g.numel());
+            options["hess_lag"]=Function(*problem.minco_metric);options["ipopt.hessian_approximation"]="exact";options["ipopt.recalc_y"]="yes";
+            problem.hessian_approximation="MINCO tangent metric plus generalized Gauss-Newton (solver only)";
+            if(manifest.value("minco_tangent_exact_curvature",false)) {
+                const MX lf=MX::sym("lam_f"),lg=MX::sym("lam_g",problem.model->g.numel());
+                const MX h=MX::hessian(lf*problem.model->f+MX::dot(lg,problem.model->g),variables);
+                const bool absolute=manifest.value("minco_tangent_absolute_curvature",false);
+                problem.minco_metric->set_exact_hessian(Function("tangent_exact_lagrangian",{variables,parameters,lf,lg},{MX::densify(h)}),absolute);
+                problem.hessian_approximation=absolute?"MINCO-tangent absolute-spectrum Lagrangian Hessian (floor 1; solver approximation)":"MINCO-tangent eigen-clipped full Lagrangian Hessian (floor 1; solver approximation)";
+            }
+        }
+        if(uses_slsqp()) {
+            problem.slsqp_view=problem.model->slsqp(slsqp_cost_unit());
+            problem.slsqp_equalities=problem.slsqp_view.equalities;
+            problem.slsqp_values=problem.slsqp_view.values;
+            problem.slsqp_derivatives=problem.slsqp_view.derivatives;
+            problem.slsqp_original_g=Function("finite_slsqp_original_g",{variables,parameters},{problem.model->g});
+            return problem;
+        }
         if(std::getenv("SIP_DUMP_NLP"))
             Function("frozen_finite_nlp",{formulation.at("x"),parameters},{objective,formulation.at("g")})
                 .save(destination+"/finite_nlp.casadi");
@@ -228,6 +354,49 @@ class Planner {
             else problem.solver=casadi::nlpsol("finite_feasible_sqp","feasiblesqpmethod",formulation,sqp_options);
         } else problem.solver=casadi::nlpsol("factorized_finite_sip","ipopt",formulation,options);
         return problem;
+    }
+
+    void audit_finite_model(const FiniteProblem& problem,const std::vector<double>& initial,
+                            const std::vector<double>& parameters,const std::vector<double>& lower_x,
+                            const std::vector<double>& upper_x) const {
+        auto sparse=[](const DM& value) {
+            std::vector<casadi_int> rows,columns;value.sparsity().get_triplet(rows,columns);
+            return Json{{"rows",value.size1()},{"cols",value.size2()},{"row",rows},{"column",columns},{"values",value.nonzeros()}};
+        };
+        auto bounds=[](const std::vector<double>& values){Json out=Json::array();for(double v:values)out.push_back(std::isfinite(v)?Json(v):Json(nullptr));return out;};
+        const auto view=problem.model->slsqp(slsqp_cost_unit());
+        Json probes=Json::array();
+        for(int sample=0;sample<3;++sample) {
+            auto x=initial;
+            if(sample)for(size_t j=0;j<x.size();++j)
+                x[j]=std::clamp(x[j]+.0007*std::sin(double((sample+1)*(j+1)))*(1.+std::abs(x[j])),lower_x[j],upper_x[j]);
+            const auto values=problem.model->values(std::vector<DM>{DM(x),DM(parameters)});
+            const auto derivatives=problem.model->derivatives(std::vector<DM>{DM(x),DM(parameters)});
+            const auto adapted=view.values(std::vector<DM>{DM(x),DM(parameters)});
+            const auto ad=view.derivatives(std::vector<DM>{DM(x),DM(parameters)});
+            const auto curve=trajectory(std::vector<DM>{DM(x),DM(parameters)});
+            probes.push_back({{"sample",sample},{"x",x},{"f",double(values[0])},{"g",values[1].get_elements()},
+                {"gradient",derivatives[0].get_elements()},{"jacobian",sparse(derivatives[1])},
+                {"slsqp_f",double(adapted[0])},{"slsqp_g",adapted[1].get_elements()},
+                {"slsqp_gradient",ad[0].get_elements()},{"slsqp_jacobian",sparse(ad[1])},
+                {"physical_variables",curve[0].get_elements()},{"durations",curve[1].get_elements()},
+                {"coefficients",curve[2].get_elements()}});
+        }
+        const Json result{{"schema",1},{"audit_only",true},{"optimization_executed",false},
+            {"backend",uses_slsqp()?"slsqp":"ipopt"},{"formulation",manifest["native_soft_formulation"]},
+            {"nvar",problem.model->x.numel()},{"constraint_rows",problem.model->g.numel()},
+            {"parameters",parameters},{"lower_x",bounds(lower_x)},{"upper_x",bounds(upper_x)},
+            {"lower_g",bounds(problem.lower)},{"upper_g",bounds(problem.upper)},{"keys",problem.keys},
+            {"windows",manifest["windows"]},{"vehicle",manifest["vehicle"]},{"dynamics_model",dynamics_metadata},
+            {"finite_radius",manifest["finite_radius"]},{"verification_radius",manifest["verification_radius"]},
+            {"workspace_constraints",restored_soft},{"duration_bounds",restored_soft},
+            {"pvaj_order",manifest.value("minco_derivative_order",3)},{"point_coordinates",manifest["point_coordinates"]},
+            {"point_erosion_radius_m",manifest["point_erosion_radius_m"]},
+            {"time_weight",1.},{"dynamics_weight",native_dynamics_weight},{"quadrature_intervals",16},
+            {"slsqp_cost_unit",slsqp_cost_unit()},{"slsqp_equalities",view.equalities},
+            {"slsqp_original_rows",view.original_rows},{"slsqp_signs",view.signs},{"slsqp_offsets",view.offsets},
+            {"probes",probes}};
+        std::ofstream(destination+"/finite_model_audit.json")<<result.dump()<<'\n';
     }
 
 public:
@@ -259,29 +428,83 @@ public:
         if(minimum_thrust_enabled && !dynamic_exchange)throw std::runtime_error("Minimum thrust requires dynamics exchange");
         if(reset_togt_each_round && !sampled_hard)throw std::runtime_error("TOGT reset requires sampled-hard dynamics");
         std::ifstream(directory+"/manifest.json")>>manifest;
+        double finite_radius=sip_exchange::default_finite_radius;
+if(manifest.contains("vehicle")) {
+            finite_radius=manifest.at("vehicle").at("finite_safety_radius_m");
+        } else {
+#ifdef SIP_X500_CONFIG
+        Json x500_config;std::ifstream config_file(SIP_X500_CONFIG);
+        if(!config_file)throw std::runtime_error("Cannot read SIP x500 configuration");
+        config_file>>x500_config;finite_radius=x500_config.at("finite_safety_radius_m").get<double>();
+#endif
+        }
+        if(!std::isfinite(finite_radius) || finite_radius<=manifest["verification_radius"].get<double>())
+            throw std::runtime_error("Finite safety radius must exceed verification radius");
+        const double input_finite_radius=manifest["finite_radius"];
+        if(!native_scene.empty()) {
+            manifest["input_finite_radius"]=input_finite_radius;
+            manifest["finite_radius"]=finite_radius;
+            manifest["config"]["witness_slack"]=finite_radius-manifest["verification_radius"].get<double>();
+        } else if(std::abs(input_finite_radius-finite_radius)>1e-12) {
+            throw std::runtime_error("Serialized SIP graph has a stale finite radius; re-export it or use the native MINCO entry");
+        }
         n=manifest["n"];m=manifest["m"];nvar=manifest["nvar"];workspace_rows=manifest["workspace_rows"];
         if(!native_scene.empty()) {
             native_minco_enabled=true;native_soft_enabled=native_soft;native_dynamics_weight=native_weight;direct_pvaj=true;
             Json scene;std::ifstream(native_scene)>>scene;
+            native_scene_metadata=scene;
+            terminal_hover_contact=!scene.value("stationary_terminal_contact_is_crossing",true);
             if(restored_soft)manifest["restore_historical_domain"]=true;
             else {native_minco::remove_domain_bounds(manifest);workspace_rows=0;}
-            direct_points_enabled=direct_points;
+            xy_points=manifest.value("point_coordinates",std::string())=="scaled_xy";
+            direct_points_enabled=direct_points && !xy_points;
             if(direct_points_enabled)native_minco::use_direct_point_coordinates(manifest);
             native_minco::use_derivative_order(manifest,derivative_order);nvar=manifest["nvar"];
             for(int gate=0;gate<m;++gate) {
                 windows.push_back(load_window(manifest["windows"][gate]));
-                for(const auto& kind:{"before","after","normalized"})
-                    frames[{gate,kind}]=restored_soft ? restored_kernels::frame_node(windows.back(),kind,manifest["finite_radius"]) :
-                        Function::load(directory+"/frame_"+std::to_string(gate)+"_"+kind+".casadi");
+                if (!windows.back().waypoint)
+                    for (const auto &kind : {"before", "after", "normalized"})
+                        frames[{gate, kind}] = restored_kernels::frame_node(
+                            windows.back(), kind, manifest["finite_radius"]);
             }
             std::ifstream(directory+"/exchange_dynamics.json")>>dynamics_metadata;
-            exchange_node=restored_soft ? restored_kernels::dynamic_node(dynamics_metadata) :
-                Function::load(directory+"/exchange_dynamic_node.casadi");
+            if(native_soft_enabled && !restored_soft)dynamics_metadata["continuous_attitude_chart"]=true;
+            exchange_node=restored_kernels::dynamic_node(dynamics_metadata,native_soft_enabled && manifest.value("hermite_dynamics_evaluation",false));
             dynamics_model=std::make_unique<dynamics_exchange::Model>(dynamics_metadata);
-            if(native_soft_enabled)manifest["dynamic_residual_scale"]=dynamics_metadata["residual_scale"];
+            if(native_soft_enabled) {
+                if(!manifest.contains("native_soft_formulation"))manifest["native_soft_formulation"]="residual_epigraph";
+                const std::string formulation=manifest["native_soft_formulation"];
+                if(formulation!="direct" && formulation!="residual_epigraph" && formulation!="residual_equality" && formulation!="cost_epigraph")
+                    throw std::runtime_error("Unknown native soft formulation: "+formulation);
+                native_direct_objective=manifest["native_soft_formulation"]=="direct";
+                if(!manifest.contains("native_finite_solver"))manifest["native_finite_solver"]="ipopt";
+                const std::string finite_solver=manifest["native_finite_solver"];
+                if(finite_solver!="ipopt" && finite_solver!="slsqp")
+                    throw std::runtime_error("Unknown native finite solver: "+finite_solver);
+                manifest["dynamic_residual_scale"]=dynamics_metadata["residual_scale"];
+                manifest["dynamics_quadrature_intervals"]=16;
+                std::vector<double> scales;
+                if(!native_direct_objective) {
+                    const auto residual_units=numbers(dynamics_metadata["residual_scale"]);
+                    if(residual_units.size()!=6)throw std::runtime_error("Expected six soft dynamics residual units");
+                    for(int k=0;k<n*17*6;++k) {
+                        const double unit=residual_units[k%6];
+                        if(!std::isfinite(unit) || unit<=0.)throw std::runtime_error("Invalid soft residual unit");
+                        // Both choices describe exactly the same residual.  The
+                        // normalized unit makes the auxiliary Jacobian an identity.
+                        scales.push_back(formulation=="cost_epigraph"?.01:manifest.value("normalized_auxiliary_units",false)?1.:.01/unit);
+                    }
+                }
+                manifest["slack_scale"]=scales;
+            }
+            if(std::getenv("SIP_DURATION_NORMALIZED_STATES"))manifest["duration_normalized_states"]=true;
             native_graph=std::make_unique<native_minco::Graph>(manifest,scene,windows,
                 native_soft_enabled ? exchange_node : Function(),native_dynamics_weight);
             expressions=native_graph->expressions;trajectory=native_graph->trajectory;
+            if(!native_graph->canonical_lift.is_null()) {
+                const MX z=expressions[0],p=expressions[1];
+                trajectory=Function("canonical_lifted_trajectory",{z,p},trajectory(std::vector<MX>{native_graph->canonical_lift(std::vector<MX>{z,p})[0],p}));
+            }
             if(native_soft_enabled)residuals=native_graph->residuals;
             else {
                 const MX state=MX::sym("minimum_thrust_segment",25),u=MX::sym("minimum_thrust_fraction");
@@ -300,8 +523,18 @@ public:
                 dynamics_metadata["minimum_collective_thrust_n"]=minimum_thrust::collective_floor;
             }
             const size_t geometry_size=expressions[6].numel();
-            auto low=manifest["lower_g"].get<std::vector<double>>();low.resize(geometry_size);manifest["lower_g"]=low;
-            auto high=manifest["upper_g"].get<std::vector<Json>>();high.resize(geometry_size);manifest["upper_g"]=high;
+            // Keep the current base constraints, then explicitly append the
+            // epigraph rows of THIS graph. Never inherit old 32-interval rows.
+            const size_t dynamic_rows=native_soft_enabled && !native_direct_objective?manifest["slack_scale"].size():0;
+            const size_t coefficient_rows=(manifest.value("lift_minco_coefficients",false)?24*n:manifest.value("lift_world_points",false)?3*m:0)+(manifest.value("lift_arrival_times",false)?n:0);
+            const size_t base_rows=geometry_size-dynamic_rows-coefficient_rows;
+            if(manifest["lower_g"].size()<base_rows || manifest["upper_g"].size()<base_rows)
+                throw std::runtime_error("Native base constraint bounds are incomplete");
+            Json low=Json::array(),high=Json::array();
+            for(size_t k=0;k<base_rows;++k){low.push_back(manifest["lower_g"][k]);high.push_back(manifest["upper_g"][k]);}
+            for(size_t k=0;k<dynamic_rows;++k){low.push_back(0.);high.push_back(manifest["native_soft_formulation"]=="residual_equality"?Json(0.):Json(nullptr));}
+            for(size_t k=0;k<coefficient_rows;++k){low.push_back(0.);high.push_back(0.);}
+            manifest["lower_g"]=low;manifest["upper_g"]=high;
             progress.open(output+"/progress.jsonl");
             return;
         }
@@ -459,9 +692,16 @@ public:
         }
         std::vector<double> current=numbers(seed["finite"]),parameters=numbers(seed["parameters"]);
         if(direct_soft || sampled_hard)current.resize(nvar);
+        else if(native_soft_enabled)current.resize(nvar+manifest["slack_scale"].size());
+        if(manifest.value("lift_minco_coefficients",false))current.resize(nvar+manifest["slack_scale"].size()+24*n+(manifest.value("lift_arrival_times",false)?n:0),0.);
+        if(manifest.value("lift_world_points",false))current.resize(nvar+3*m+(manifest.value("lift_arrival_times",false)?n:0),0.);
         if(native_minco_enabled) {
             const auto initial=numbers(seed["original"]);
             std::copy(initial.begin(),initial.end(),current.begin());
+            if(xy_points && manifest["free_points"].get<bool>())for(int gate=0;gate<m;++gate)
+                    for (int axis = 0; axis < manifest["point_scale_m"][gate].size(); ++axis)
+                        current[manifest["slices"][gate]["begin"].get<int>() + axis] /=
+                            manifest["point_scale_m"][gate][axis].get<double>();
             for(int k=0;k<n;++k) {
                 const double t=std::exp(initial[k]);
                 current[k]=t>1.?std::sqrt(2.*t-1.)-1.:1.-std::sqrt(2./t-1.);
@@ -497,10 +737,15 @@ public:
             }
             seed["original"]=physical;
         }
-        if(native_soft_enabled) {
+        if(native_graph && !native_graph->canonical_lift.is_null())current=native_graph->canonical_lift(std::vector<DM>{DM(current),DM(parameters)})[0].get_elements();
+        if(native_soft_enabled && !native_direct_objective) {
             const auto values=residuals(std::vector<DM>{DM(current),DM(parameters)})[0].get_elements();
             const auto scaling=numbers(manifest["slack_scale"]);
-            for(size_t k=0;k<values.size();++k)current[nvar+k]=std::max(values[k],0.)/scaling[k];
+            for(size_t k=0;k<values.size();++k)current[nvar+k]=(manifest["native_soft_formulation"]=="residual_equality"?values[k]:std::max(values[k],0.))/scaling[k];
+            if(manifest["native_soft_formulation"]=="cost_epigraph")for(size_t k=0;k<values.size();++k) {
+                const double v=values[k]*manifest["dynamic_residual_scale"][k%6].get<double>();
+                current[nvar+k]=(v<=0.?0.:v>=.01?v-.005:(.01-.5*v)*std::pow(v/.01,3))/scaling[k];
+            }
         }
         if(restored_soft && !center.is_null()) {
             const auto initial=trajectory(std::vector<DM>{DM(current),DM(parameters)});
@@ -521,7 +766,50 @@ public:
                 {"free_initial_objective",initial_objective}}.dump(2)<<'\n';
             if(!passed)throw std::runtime_error("Center embedding does not preserve initial trajectory");
         }
+        if(native_graph && !native_graph->canonical_lift.is_null())current=native_graph->canonical_lift(std::vector<DM>{DM(current),DM(parameters)})[0].get_elements();
         const std::vector<double> togt_initial=current;
+        if(manifest.value("residual_coordinate_equilibration",false)) {
+            if(!native_direct_objective || uses_slsqp())throw std::runtime_error("Residual equilibration requires direct native IPOPT");
+            const MX x=expressions[0],p=expressions[1];
+            const MX r=manifest.value("feature_coordinate_equilibration",false)?native_graph->control_features(std::vector<MX>{x,p})[0]:residuals(std::vector<MX>{x,p})[0];
+            const DM jac=Function("initial_residual_jacobian",{x,p},{MX::jacobian(r,x)})(std::vector<DM>{DM(current),DM(parameters)})[0];
+            residual_coordinate_scale.assign(current.size(),1.);
+            std::vector<casadi_int> row,col;jac.sparsity().get_triplet(row,col);
+            const auto values=jac.nonzeros();
+            std::vector<double> norms(current.size(),1.);
+            for(size_t k=0;k<values.size();++k) {
+                if(!std::isfinite(values[k]))throw std::runtime_error("Nonfinite initial residual Jacobian");
+                norms[col[k]]=std::max(norms[col[k]],std::abs(values[k]));
+            }
+            for(size_t k=0;k<norms.size();++k)residual_coordinate_scale[k]=std::max(1e-6,1./norms[k]);
+            if(manifest.value("centered_coordinate_equilibration",false))residual_coordinate_origin=DM(current);
+            if(manifest.value("residual_full_equilibration",false)) {
+                // Fixed invertible preconditioner from THIS raw initial curve.
+                // Leave point coordinates unchanged, so their original box
+                // bounds remain exact.  Whiten coupled time/VAJ sensitivities.
+                std::vector<int> active;
+                const int state_start=manifest["velocity_start"];
+                for(int k=0;k<nvar;++k)if(k<n || k>=state_start)active.push_back(k);
+                Eigen::MatrixXd j=Eigen::MatrixXd::Zero(jac.size1(),active.size());
+                std::vector<int> index(nvar,-1);for(int k=0;k<active.size();++k)index[active[k]]=k;
+                for(size_t k=0;k<values.size();++k)if(index[col[k]]>=0)j(row[k],index[col[k]])=values[k];
+                const Eigen::MatrixXd gram=j.transpose()*j+Eigen::MatrixXd::Identity(active.size(),active.size());
+                Eigen::LLT<Eigen::MatrixXd> factor(gram);
+                if(factor.info()!=Eigen::Success)throw std::runtime_error("Initial residual equilibration Cholesky failed");
+                const Eigen::MatrixXd inverse= factor.matrixU();
+                const Eigen::MatrixXd transform=factor.matrixU().solve(Eigen::MatrixXd::Identity(active.size(),active.size()));
+                residual_coordinate_matrix=DM::eye(nvar);residual_coordinate_inverse=DM::eye(nvar);
+                for(int i=0;i<active.size();++i)for(int k=0;k<active.size();++k) {
+                    residual_coordinate_matrix(active[i],active[k])=transform(i,k);
+                    residual_coordinate_inverse(active[i],active[k])=inverse(i,k);
+                }
+            }
+            std::ofstream(destination+"/coordinate_scaling.json")<<Json{{"scale",residual_coordinate_scale},
+                {"full_time_state_preconditioner",!residual_coordinate_matrix.is_empty()},
+                {"origin",residual_coordinate_origin.get_elements()},
+                {"source",manifest.value("feature_coordinate_equilibration",false)?"raw initial normalized angular-rate and rotor-thrust Jacobian; no optimization":"raw initial normalized dynamics residual Jacobian; no optimization"},
+                {"original_stationarity_tolerance",1e-5}}.dump(2)<<'\n';
+        }
         std::vector<double> physical=numbers(seed["original"]);
         std::vector<double> lam_x(current.size(),0.);std::map<std::string,double> lam_g;
         std::map<WitnessKey,Witness> witnesses;
@@ -544,21 +832,39 @@ public:
                 }
             }
         }
-        for(int gate=0;gate<m;++gate){witnesses[{gate,gate}]={"before",{0.}};witnesses[{gate,gate+1}]={"after",{}};}
+        for (int gate = 0; gate < m; ++gate)
+            if (!windows[gate].waypoint) {
+                witnesses[{gate, gate}] = {"before", {0.}};
+                witnesses[{gate, gate + 1}] = {"after", {}};
+            }
+        if(std::getenv("SIP_FINITE_MODEL_AUDIT")) {
+            if(!native_soft_enabled)throw std::runtime_error("Model audit requires the current native soft planner");
+            for(int gate=0;gate<m;++gate)if(!windows[gate].waypoint) {
+                witnesses[{gate,gate}].values.push_back(.01);
+                witnesses[{gate,gate+1}].values.push_back(.01);
+            }
+        }
         Json calls=Json::array(),records=Json::array(),projections=Json::array();bool found=false;
         std::string termination_reason="exchange_round_limit";
         Json selected;
-        for(int round=0;round<24;++round) {
-            if(round>0 && reset_togt_each_round) {
+        sip_exchange::Incumbent incumbent;
+        std::string warm_dual_status="initial",last_solve_status="initial";
+        int constraint_revision=0;
+        const int maximum_exchange_rounds=manifest.value("maximum_exchange_rounds",24);
+        if(maximum_exchange_rounds<1)throw std::runtime_error("maximum_exchange_rounds must be positive");
+        for(int round=0;round<maximum_exchange_rounds;++round) {
+            const bool reset_initial=round>0 && reset_togt_each_round;
+            if(reset_initial) {
                 current=togt_initial;
                 lam_x.assign(current.size(),0.);
-                lam_g.clear();
+                lam_g.clear();warm_dual_status="initial_reset";
             }
-            const bool warm_start=round>0 && !reset_togt_each_round;
+            const std::string previous_status=last_solve_status;
+            const bool warm_start=round>0 && sip_exchange::dual_warm_start_allowed(previous_status,warm_dual_status);
             const auto build_begin=Clock::now();auto problem=build(witnesses,warm_start,dynamic_witnesses);
             const double build_s=std::chrono::duration<double>(Clock::now()-build_begin).count();
             Json canonicalized=Json::array();
-            if(round>0 && (!native_minco_enabled || restored_soft))for(int gate=0;gate<static_cast<int>(manifest["slices"].size());++gate) {
+            if(round>0 && !xy_points && (!native_minco_enabled || restored_soft))for(int gate=0;gate<static_cast<int>(manifest["slices"].size());++gate) {
                 const auto& selection=manifest["slices"][gate];
                 if(!selection["circle"].get<bool>())continue;
                 const int begin=selection["begin"],end=selection["end"];double squared=numpy_dot(current.data()+begin,current.data()+begin,end-begin);
@@ -566,7 +872,8 @@ public:
             }
             std::vector<double> lower_x(current.size(),-std::numeric_limits<double>::infinity());
             std::vector<double> upper_x(current.size(),std::numeric_limits<double>::infinity());
-            if(!direct_soft && !sampled_hard)std::fill(lower_x.begin()+nvar,lower_x.end(),0.);
+            if(!direct_soft && !sampled_hard && !native_direct_objective && !(native_soft_enabled && (manifest["native_soft_formulation"]=="residual_equality" || manifest["native_soft_formulation"]=="cost_epigraph")))std::fill(lower_x.begin()+nvar,
+                native_soft_enabled?lower_x.begin()+nvar+manifest["slack_scale"].size():lower_x.end(),0.);
             if(dynamic_exchange && !native_minco_enabled) {
                 if(!exchange_to_original.is_null())for(int k=0;k<n;++k) {
                     auto inverse=[](double value){return value>1.?std::sqrt(2.*value-1.)-1.:1.-std::sqrt(2./value-1.);};
@@ -585,7 +892,15 @@ public:
                     lower_x[begin+1]=0.;upper_x[begin+1]=2.*pi;
                 }
             }
-            auto starting=current,starting_lam_x=lam_x;
+            if(xy_points && manifest["free_points"].get<bool>())for(int gate=0;gate<m;++gate)
+                    for (int axis = 0; axis < manifest["point_scale_m"][gate].size(); ++axis) {
+                        const int k = manifest["slices"][gate]["begin"].get<int>() + axis;
+                        const double scale = manifest["point_scale_m"][gate][axis];
+                        lower_x[k] = manifest["point_lower_m"][gate][axis].get<double>() / scale;
+                        upper_x[k] = manifest["point_upper_m"][gate][axis].get<double>() / scale;
+                    }
+            const sip_exchange::Snapshot warm_state{current,lam_x,physical,lam_g,0.,warm_dual_status,round-1};
+            auto starting=current,starting_lam_x=sip_exchange::bound_duals(warm_state,previous_status);
             if(lifted_thrust) {
                 const auto values=Function("thrust_initial_curve",{expressions[0],expressions[1]},
                     {expressions[4],MX::exp(expressions[2](casadi::Slice(0,n)))})
@@ -605,10 +920,10 @@ public:
             casadi::DMDict input{{"x0",DM(starting)},{"p",DM(parameters)},
                 {"lbx",DM(lower_x)},{"ubx",DM(upper_x)},
                 {"lbg",DM(problem.lower)},{"ubg",DM(problem.upper)}};
-            if(warm_start) {
-                std::vector<double> previous;for(const auto& key:problem.keys)previous.push_back(lam_g[key]);
-                input["lam_x0"]=DM(starting_lam_x);input["lam_g0"]=DM(previous);
-            }
+            // Never reuse multipliers returned by a non-Solve_Succeeded source.
+            // Incumbent rollback can supply duals only when the actual previous solve also succeeded.
+            input["lam_x0"]=DM(starting_lam_x);
+            input["lam_g0"]=DM(sip_exchange::constraint_duals(warm_state,problem.keys,previous_status));
             if(feasible_sqp) {
                 auto projection_input=input;projection_input.erase("lam_x0");projection_input.erase("lam_g0");
                 auto projection_parameters=parameters;
@@ -622,29 +937,114 @@ public:
                     {"compute_s",std::chrono::duration<double>(Clock::now()-projection_begin).count()}};
                 projections.push_back(record);progress<<Json{{"stage","feasible_initialization"},{"record",record}}.dump()<<std::endl;
                 if(!stats.at("success").to_bool())break;
-                input["x0"]=feasible.at("x");input["lam_x0"]=feasible.at("lam_x");input["lam_g0"]=feasible.at("lam_g");
+                input["x0"]=feasible.at("x");
+                const bool projection_converged=stats.at("return_status").to_string()=="Solve_Succeeded";
+                input["lam_x0"]=projection_converged?feasible.at("lam_x"):DM::zeros(feasible.at("x").numel());
+                input["lam_g0"]=projection_converged?feasible.at("lam_g"):DM::zeros(problem.keys.size());
             }
-            if(std::getenv("SIP_DUMP_NLP"))
-                std::ofstream(destination+"/finite_input.json")<<Json{{"round",round},
+            if(std::getenv("SIP_DUMP_NLP") || std::getenv("SIP_DUMP_INPUT")) {
+                const Json snapshot{{"round",round},
                     {"x0",input.at("x0").get_elements()},{"parameters",parameters},
                     {"lower_x",lower_x},{"upper_x",upper_x},{"lower_g",problem.lower},{"upper_g",problem.upper},
-                    {"keys",problem.keys}}.dump(2)<<'\n';
-            const auto solve_begin=Clock::now();const auto solution=problem.solver(input);
+                    {"keys",problem.keys},{"lam_x0",input.at("lam_x0").get_elements()},
+                    {"lam_g0",input.at("lam_g0").get_elements()},{"dual_source_status",warm_dual_status},
+                    {"previous_solve_status",previous_status}};
+                std::ofstream(destination+"/finite_input.json")<<snapshot.dump(2)<<'\n';
+                if(std::getenv("SIP_ITERATION_TRACE"))std::ofstream(destination+"/finite_input_round_"+std::to_string(round)+".json")<<snapshot.dump(2)<<'\n';
+            }
+            if(std::getenv("SIP_FINITE_MODEL_AUDIT")) {
+                audit_finite_model(problem,starting,parameters,lower_x,upper_x);
+                termination_reason="finite_model_audit_only_no_optimization";
+                break;
+            }
+            const auto solve_begin=Clock::now();casadi::DMDict solution;casadi::Dict statistics;
+            if(!problem.slsqp_values.is_null()) {
+                const auto solved=native_slsqp::minimize(problem.slsqp_values,problem.slsqp_derivatives,
+                    DM(parameters),starting,problem.slsqp_equalities,5000,slsqp_accuracy()/slsqp_cost_unit(),
+                    [&](int iteration,double value){if(iteration%100==0)std::cout<<"SLSQP "<<round<<' '<<iteration<<' '<<value<<std::endl;},lower_x,upper_x,std::getenv("SIP_SLSQP_EQUILIBRATE")!=nullptr);
+                solution={{"x",DM(solved.x)},{"f",DM(solved.objective*slsqp_cost_unit())},
+                    {"g",problem.slsqp_original_g(std::vector<DM>{DM(solved.x),DM(parameters)})[0]},
+                    {"lam_x",DM::zeros(starting.size())},{"lam_g",DM::zeros(problem.keys.size())}};
+                statistics={{"return_status",native_slsqp::status(solved.mode)},{"success",solved.mode==0},{"iter_count",solved.iterations}};
+            } else {
+                if(!residual_coordinate_scale.empty()) {
+                    const DM d(residual_coordinate_scale);
+                    if(!residual_coordinate_origin.is_empty()){input["x0"]-=residual_coordinate_origin;input["lbx"]-=residual_coordinate_origin;input["ubx"]-=residual_coordinate_origin;}
+                    if(residual_coordinate_matrix.is_empty()) {
+                        input["x0"]/=d;input["lbx"]/=d;input["ubx"]/=d;input["lam_x0"]*=d;
+                    } else {
+                        const int state_start=manifest["velocity_start"];
+                        for(int k=0;k<nvar;++k)if((k<n || k>=state_start) && (std::isfinite(lower_x[k]) || std::isfinite(upper_x[k])))
+                            throw std::runtime_error("Full preconditioner cannot rotate finite box bounds");
+                        input["x0"]=DM::mtimes(residual_coordinate_inverse,input.at("x0"));
+                        input["lam_x0"]=DM::mtimes(residual_coordinate_matrix.T(),input.at("lam_x0"));
+                        DM roundtrip=DM::mtimes(residual_coordinate_matrix,input.at("x0"));
+                        if(!residual_coordinate_origin.is_empty())roundtrip+=residual_coordinate_origin;
+                        double roundtrip_error=0.;const auto restored=roundtrip.get_elements();
+                        for(size_t k=0;k<starting.size();++k)roundtrip_error=std::max(roundtrip_error,std::abs(restored[k]-starting[k])/(1.+std::abs(starting[k])));
+                        if(roundtrip_error>1e-10)throw std::runtime_error("Preconditioner changed original initial variables");
+                        progress<<Json{{"stage","coordinate_roundtrip_audit"},{"round",round},{"relative_error",roundtrip_error}}.dump()<<std::endl;
+                    }
+                }
+                solution=problem.solver(input);statistics=problem.solver.stats();
+                if(native_graph && !native_graph->canonical_lift.is_null()) {
+                    const MX z=expressions[0],p=expressions[1];
+                    const auto values=problem.model->values(std::vector<MX>{native_graph->canonical_lift(std::vector<MX>{z,p})[0],p});
+                    const MX lg=MX::sym("original_constraint_multipliers",problem.model->g.numel());
+                    const Function audit("eliminated_minco_kkt",{z,p,lg},{values[0],values[1],MX::gradient(values[0]+MX::dot(lg,values[1]),z)});
+                    const auto checked=audit(std::vector<DM>{solution.at("x"),DM(parameters),solution.at("lam_g")});
+                    const auto grad=checked[2].get_elements(),bound=solution.at("lam_x").get_elements();
+                    double error=0.;for(int k=0;k<nvar;++k)error=std::isfinite(grad[k]+bound[k])?std::max(error,std::abs(grad[k]+bound[k])):INFINITY;
+                    solution["g"]=checked[1];
+                    progress<<Json{{"stage","eliminated_minco_original_stationarity"},{"round",round},{"residual_inf",error}}.dump()<<std::endl;
+                    if(statistics.at("return_status").to_string()=="Solve_Succeeded" && (!std::isfinite(error) || error>1e-5)) {
+                        statistics["return_status"]="Original_KKT_Not_Converged";statistics["success"]=false;
+                    }
+                }
+                if(!residual_coordinate_scale.empty()) {
+                    const DM d(residual_coordinate_scale);
+                    if(residual_coordinate_matrix.is_empty()){solution["x"]*=d;solution["lam_x"]/=d;}
+                    else {
+                        solution["x"]=DM::mtimes(residual_coordinate_matrix,solution.at("x"));
+                        solution["lam_x"]=DM::mtimes(residual_coordinate_inverse.T(),solution.at("lam_x"));
+                    }
+                    if(!residual_coordinate_origin.is_empty())solution["x"]+=residual_coordinate_origin;
+                    const auto derivatives=problem.model->derivatives(std::vector<DM>{solution.at("x"),DM(parameters)});
+                    const DM stationarity=derivatives[0]+DM::mtimes(derivatives[1].T(),solution.at("lam_g"))+solution.at("lam_x");
+                    double error=0.;for(double v:stationarity.get_elements())error=std::isfinite(v)?std::max(error,std::abs(v)):INFINITY;
+                    progress<<Json{{"stage","original_coordinate_stationarity"},{"round",round},{"residual_inf",error}}.dump()<<std::endl;
+                    if(statistics.at("return_status").to_string()=="Solve_Succeeded" && (!std::isfinite(error) || error>1e-5)) {
+                        statistics["return_status"]="Original_KKT_Not_Converged";statistics["success"]=false;
+                    }
+                }
+            }
             const double solve_s=std::chrono::duration<double>(Clock::now()-solve_begin).count();
-            const auto statistics=problem.solver.stats();
-            current=solution.at("x").nonzeros();lam_x=solution.at("lam_x").nonzeros();
-            if(lifted_thrust){current.resize(nvar);lam_x.resize(nvar);}
-            const auto multipliers=solution.at("lam_g").nonzeros();lam_g.clear();
-            for(size_t k=0;k<problem.keys.size();++k)lam_g[problem.keys[k]]=multipliers[k];
-            std::vector<double> report_variables=current;
+            auto candidate=solution.at("x").nonzeros(),candidate_lam_x=solution.at("lam_x").nonzeros();
+            if(lifted_thrust){candidate.resize(nvar);candidate_lam_x.resize(nvar);}
+            const std::string status=statistics.at("return_status").to_string();
+            last_solve_status=status;
+            const bool strict_success=status=="Solve_Succeeded";
+            const bool success=sip_exchange::optimizer_success(status);
+            const auto multipliers=solution.at("lam_g").nonzeros();std::map<std::string,double> candidate_lam_g;
+            if(strict_success)for(size_t k=0;k<problem.keys.size();++k)candidate_lam_g[problem.keys[k]]=multipliers[k];
+            else candidate_lam_x.assign(candidate.size(),0.);
+            if(!sip_exchange::finite(candidate)) {
+                Json call{{"stage",problem.slsqp_values.is_null()?"factorized_finite_ipopt":"finite_native_slsqp"},{"round",round},{"status",status},{"success",success},
+                    {"solver_s",solve_s},{"problem_build_s",build_s},{"finite_primal",false}};
+                calls.push_back(call);progress<<call.dump()<<std::endl;
+
+                termination_reason="nonfinite_finite_solution";
+                break;
+            }
+            std::vector<double> report_variables=candidate;
             if(!exchange_to_original.is_null())report_variables=
-                exchange_to_original(std::vector<DM>{DM(current),DM(parameters)})[0].get_elements();
+                exchange_to_original(std::vector<DM>{DM(candidate),DM(parameters)})[0].get_elements();
             if(direct_soft || sampled_hard) {
                 if(direct_soft) {
-                    const auto r=residuals(std::vector<DM>{DM(current),DM(parameters)})[0].get_elements();
+                    const auto r=residuals(std::vector<DM>{DM(candidate),DM(parameters)})[0].get_elements();
                     const auto scale=numbers(manifest["slack_scale"]);
                     for(size_t k=0;k<r.size();++k)report_variables.push_back(std::max(r[k],0.)/scale[k]);
-                } else if(!native_minco_enabled)report_variables.resize(current.size()+numbers(manifest["slack_scale"]).size(),0.);
+                } else if(!native_minco_enabled)report_variables.resize(candidate.size()+numbers(manifest["slack_scale"]).size(),0.);
             }
             const auto values=trajectory(std::vector<DM>{DM(report_variables),DM(parameters)});
             const auto original=values[0].get_elements(),times=values[1].get_elements(),coefficient_values=values[2].get_elements();
@@ -659,21 +1059,32 @@ public:
             const double actual_objective=sampled_hard?total_time:(direct_soft || unit_epigraph)?total_time+penalty:static_cast<double>(values[4]);
             const double epigraph_gap=native_soft_enabled?static_cast<double>(solution.at("f"))*parameters[0]-actual_objective:sampled_hard?static_cast<double>(solution.at("f"))*parameters[0]-actual_objective:
                 (direct_soft || unit_epigraph)?static_cast<double>(solution.at("f"))*parameters[0]-actual_objective:0.;
-            const auto g=solution.at("g").nonzeros();double minimum=std::numeric_limits<double>::infinity(),violation=0.;
+            const auto g=solution.at("g").get_elements();double minimum=std::numeric_limits<double>::infinity(),violation=0.;
+            if(g.size()!=problem.lower.size() || g.size()!=problem.upper.size())
+                throw std::runtime_error("Returned constraint vector has incorrect dimension");
             for(size_t k=0;k<g.size();++k) {
                 if(static_cast<int>(k)<problem.geometry_rows)
                     minimum=std::min({minimum,g[k]-problem.lower[k],problem.upper[k]-g[k]});
                 violation=std::max({violation,problem.lower[k]-g[k],g[k]-problem.upper[k]});
             }
-            const bool success=statistics.at("success").to_bool();
+            double variable_violation=0.;
+            const auto solved_variables=solution.at("x").get_elements();
+            for(size_t k=0;k<solved_variables.size();++k)
+                variable_violation=std::max({variable_violation,lower_x[k]-solved_variables[k],solved_variables[k]-upper_x[k]});
+            violation=std::max(violation,variable_violation);
+            const bool finite_curve=sip_exchange::finite(original) && sip_exchange::finite(times) &&
+                sip_exchange::finite(coefficient_values) && std::isfinite(actual_objective) && sip_exchange::finite(g) &&
+                std::all_of(times.begin(),times.end(),[](double t){return t>0.;});
             double maximum_dynamic_residual=-std::numeric_limits<double>::infinity();
             if(sampled_hard)for(size_t k=problem.dynamic_row_start;k<g.size();++k)
                 maximum_dynamic_residual=std::max(maximum_dynamic_residual,g[k]);
-            Json call{{"stage","factorized_finite_ipopt"},{"round",round},{"success",success},
-                {"status",statistics.at("return_status").to_string()},{"iterations",statistics.at("iter_count").to_int()},
-                {"solver_s",solve_s},{"problem_build_s",build_s},{"warm_start_used",warm_start},
-                {"initial_reset_to_togt",round>0 && reset_togt_each_round},
-                {"native_objective",actual_objective},{"dynamic_soft_integral",penalty},{"dynamic_penalty_contribution",actual_objective-total_time},{"epigraph_gap",epigraph_gap},{"constraint_violation_inf",violation},
+            Json call{{"stage",problem.slsqp_values.is_null()?"factorized_finite_ipopt":"finite_native_slsqp"},{"round",round},{"success",success},
+                {"status",status},{"reported_success",statistics.at("success").to_bool()},{"iterations",statistics.at("iter_count").to_int()},
+                {"solver_s",solve_s},{"problem_build_s",build_s},{"warm_start_used",warm_start && problem.slsqp_values.is_null()},
+                {"strict_success",strict_success},{"constraint_revision",constraint_revision},{"variable_bound_violation_inf",variable_violation},
+                {"initial_reset_to_togt",reset_initial},{"dual_source_status",warm_dual_status},{"previous_solve_status",previous_status},
+                {"primal_warm_start_used",round>0},{"finite_curve",finite_curve},
+                {"slsqp_cost_unit",slsqp_cost_unit()},{"slsqp_coordinate_equilibration",std::getenv("SIP_SLSQP_EQUILIBRATE")!=nullptr},{"slsqp_accuracy",problem.slsqp_values.is_null()?Json(nullptr):Json(slsqp_accuracy())},{"finite_solver",problem.slsqp_values.is_null()?"IPOPT":"native Kraft SLSQP"},{"dynamics_quadrature_intervals",native_soft_enabled?16:32},{"native_objective",actual_objective},{"dynamic_soft_integral",penalty},{"dynamic_penalty_contribution",actual_objective-total_time},{"epigraph_gap",epigraph_gap},{"constraint_violation_inf",violation},
                 {"minimum_constraint",minimum},{"sampled_dynamic_max_residual",sampled_hard?Json(maximum_dynamic_residual):Json(nullptr)},
                 {"solver_variables",solution.at("x").numel()},{"constraint_rows",g.size()},
                 {"lifted_thrust_variables",problem.thrust_nodes.size()},
@@ -683,51 +1094,115 @@ public:
                 const auto history=statistics.at("iterations").to_dict();
                 for(const auto& key:{"inf_pr","inf_du","mu","obj"})if(history.count(key)) {
                     const auto values=history.at(key).to_double_vector();
-                    if(!values.empty())call[std::string("final_")+key]=values.back();
+                    if(!values.empty())call[std::string("last_iteration_")+key]=values.back();
                 }
+            }
+            // IPOPT may restore an older iterate before returning. Its iteration
+            // history then describes a different point; evaluate returned KKT here.
+            const auto returned_derivatives=problem.model->derivatives(std::vector<DM>{solution.at("x"),DM(parameters)});
+            const DM returned_stationarity=returned_derivatives[0]+DM::mtimes(returned_derivatives[1].T(),solution.at("lam_g"))+solution.at("lam_x");
+            double returned_stationarity_inf=0.;
+            for(double value:returned_stationarity.get_elements())returned_stationarity_inf=std::isfinite(value)?std::max(returned_stationarity_inf,std::abs(value)):INFINITY;
+            call["returned_nlp_stationarity_inf"]=returned_stationarity_inf;
+            call["returned_finite_constraint_violation_inf"]=violation;
+            call["hessian_approximation"]=problem.slsqp_values.is_null()?Json(problem.hessian_approximation):Json(nullptr);
+            call["nlp_scaling_method"]=problem.slsqp_values.is_null()?Json(problem.nlp_scaling_method):Json(nullptr);
+            call["linear_solver"]=problem.slsqp_values.is_null()?Json(problem.linear_solver):Json(nullptr);
+            if(native_soft_enabled && finite_curve) {
+                double min_force=INFINITY,min_chart=INFINITY;
+                for(int piece=0;piece<n;++piece)for(int node=0;node<=16;++node) {
+                    Vector acceleration=Vector::Zero();const double u=double(node)/16.;
+                    for(int power=7;power>=2;--power)
+                        acceleration=acceleration*u+power*(power-1.)*coefficients[piece].row(power).transpose();
+                    acceleration/=times[piece]*times[piece];
+                    acceleration[2]+=dynamics_model->gravity;
+                    const double norm=acceleration.norm();
+                    min_force=std::min(min_force,dynamics_model->mass*norm);
+                    if(norm>0.)min_chart=std::min(min_chart,1.+acceleration[2]/norm);
+                }
+                call["sampled_min_collective_thrust_n"]=min_force;
+                call["sampled_min_attitude_chart_denominator"]=min_chart;
             }
             calls.push_back(call);progress<<call.dump()<<std::endl;
             std::cout<<"ROUND "<<seed_index<<' '<<round<<' '<<call["status"]<<' '<<actual_objective<<' '<<solve_s<<std::endl;
-            if((!success && !restored_soft) || minimum < -1e-5 || (sampled_hard && violation>1e-5) ||
-                !std::all_of(current.begin(),current.end(),[](double value){return std::isfinite(value);})) {
-                termination_reason=minimum < -1e-5 ? "finite_node_geometry_violation" : "finite_solve_not_ready";
+            // No geometry oracle or exchange until the ENTIRE current finite NLP is feasible
+            // and its optimization has a success status. Failure terminates this initialization.
+            if(!sip_exchange::finite_ready(status,violation,finite_curve)) {
+                termination_reason=!finite_curve?"nonfinite_trajectory":violation>sip_exchange::geometry_tolerance?
+                    "finite_constraint_violation":"finite_optimizer_not_converged";
+                progress<<Json{{"stage","finite_problem_stopped"},{"round",round},{"reason",termination_reason},
+                    {"violation",violation},{"new_witnesses",0}}.dump()<<std::endl;
                 break;
             }
-            std::vector<double> physical_times=times;
+            std::vector<double> physical_times=times,candidate_physical=physical;
             if(native_minco_enabled) {
-                physical=original;
+                candidate_physical=original;
             } else {
                 // The original outer loop converts the physical result through its scaled coordinates.
-                for(size_t k=0;k<physical.size();++k) {
+                for(size_t k=0;k<candidate_physical.size();++k) {
                     double scale=1.;
-                    if(k<static_cast<size_t>(m))scale=1./std::max(1.,manifest["legacy_outer_omega"].get<double>()*std::exp(physical[k]));
+                    if(k<static_cast<size_t>(m))scale=1./std::max(1.,manifest["legacy_outer_omega"].get<double>()*std::exp(candidate_physical[k]));
                     else if(k>=static_cast<size_t>(manifest["velocity_start"].get<int>())) {
                         const size_t state=k-manifest["velocity_start"].get<int>();
                         scale=manifest["state_scale"][state];
                     }
-                    const double reduced=(original[k]-physical[k])/scale;
-                    physical[k]=physical[k]+scale*reduced;
+                    const double reduced=(original[k]-candidate_physical[k])/scale;
+                    candidate_physical[k]=candidate_physical[k]+scale*reduced;
                 }
-                physical_times.clear();for(int k=0;k<n;++k)physical_times.push_back(std::exp(physical[k]));
-                const auto physical_values=physical_curve(std::vector<DM>{DM(physical)})[0].get_elements();
+                physical_times.clear();for(int k=0;k<n;++k)physical_times.push_back(std::exp(candidate_physical[k]));
+                const auto physical_values=physical_curve(std::vector<DM>{DM(candidate_physical)})[0].get_elements();
                 for(int piece=0;piece<n;++piece)for(int axis=0;axis<3;++axis)for(int power=0;power<8;++power)
                     coefficients[piece](power,axis)=physical_values[24*piece+8*axis+power];
             }
-            Json checks=Json::array();bool passed=true,added=false;
+            sip_exchange::Snapshot proposed{candidate,candidate_lam_x,candidate_physical,
+                candidate_lam_g,actual_objective,status,round};
+            if(incumbent.consider(proposed,minimum,constraint_revision))
+                progress<<Json{{"stage","incumbent_updated"},{"round",round},{"objective",actual_objective}}.dump()<<std::endl;
+            Json checks=Json::array();bool passed=true,added=false;bool geometry_unresolved=false;
+            sip_exchange::WorstWitnessPerGate worst_witnesses;
+            Json geometry_added=Json::array();
             for(int gate=0;gate<m;++gate) {
+                if (windows[gate].waypoint) {
+                    double at = 0.;
+                    for (int k = 0; k <= gate; ++k)
+                        at += physical_times[k];
+                    const Vector q = evaluate(coefficients[gate], 1.) - windows[gate].center -
+                                     windows[gate].rotation * windows[gate].motion(at);
+                    const bool reached = q.norm() <= windows[gate].waypoint_radius + 1e-5;
+                    checks.push_back(Json{{"gate", gate},
+                                          {"piece", gate},
+                                          {"passed", reached},
+                                          {"outcome", reached ? "navigation_waypoint_reached"
+                                                              : "navigation_waypoint_missed"},
+                                          {"distance_to_center_m", q.norm()},
+                                          {"witness_u", nullptr}});
+                    passed = passed && reached;
+                    continue;
+                }
                 double start=0.;
                 for(int piece=0;piece<n;++piece) {
-                    Json check=numpy_passage(coefficients[piece],physical_times[piece],start,windows[gate],manifest["verification_radius"]);
+                    Json check=numpy_passage(coefficients[piece],physical_times[piece],start,windows[gate],manifest["verification_radius"],terminal_hover_contact && piece==n-1);
                     check["gate"]=gate;check["piece"]=piece;checks.push_back(check);passed=passed&&check["passed"].get<bool>();
+                    const std::string outcome=check.at("outcome");
+                    geometry_unresolved=geometry_unresolved || outcome=="budget_unresolved" || outcome=="unresolved";
                     start+=physical_times[piece];
-                    if(check["passed"].get<bool>() || check["witness_u"].is_null())continue;
-                    const WitnessKey key{gate,piece};if(!witnesses.count(key))witnesses[key]={"normalized",{}};
-                    auto& witness=witnesses[key];const double u=check["witness_u"];
-                    const double offset=witness.kind=="before"?(1.-u)*physical_times[piece]:witness.kind=="after"?u*physical_times[piece]:u;
-                    if(std::all_of(witness.values.begin(),witness.values.end(),[&](double value){return std::abs(value-offset)>1e-5;})) {
-                        witness.values.push_back(offset);added=true;
-                    }
+                    const double distance=check["minimum_sample_distance_m"].is_number()?check["minimum_sample_distance_m"].get<double>():INFINITY;
+                    if(!sip_exchange::geometry_witness_violates(outcome,distance,manifest["verification_radius"]) || check["witness_u"].is_null())continue;
+                    const WitnessKey key{gate,piece};const auto existing=witnesses.find(key);
+                    const std::string kind=existing==witnesses.end()?"normalized":existing->second.kind;
+                    const double u=check["witness_u"];
+                    const double offset=kind=="before"?(1.-u)*physical_times[piece]:kind=="after"?u*physical_times[piece]:u;
+                    if(existing!=witnesses.end() && !sip_exchange::new_witness(existing->second.values,offset))continue;
+                    if(!std::isfinite(offset))continue;
+                    worst_witnesses.consider({gate,piece,kind,offset,u,manifest["verification_radius"].get<double>()-distance});
                 }
+            }
+            for(const auto& [gate,worst]:worst_witnesses.values()) {
+                const WitnessKey key{gate,worst.piece};
+                if(!witnesses.count(key))witnesses[key]={worst.kind,{}};
+                witnesses[key].values.push_back(worst.offset);added=true;
+                geometry_added.push_back(Json{{"gate",gate},{"piece",worst.piece},{"witness_u",worst.fraction},
+                    {"offset",worst.offset},{"violation_severity_m",worst.severity}});
             }
             Json dynamic_checks=Json::array();bool dynamic_passed=true;int dynamic_added=0;
             if(dynamic_exchange)for(int piece=0;piece<n;++piece) {
@@ -744,50 +1219,71 @@ public:
                 }
                 dynamic_checks.push_back(check);
             }
-            Json record{{"round",round},{"optimizer_converged",success},{"global_passed",passed},
+            Json record{{"round",round},{"optimizer_converged",success},{"strict_optimizer_converged",strict_success},{"finite_constraint_violation_inf",violation},{"constraint_revision",constraint_revision},{"global_passed",passed},
                 {"dynamics_passed",dynamic_passed},{"dynamic_added_rows",dynamic_added},
+                {"geometry_added_witnesses",geometry_added},{"incumbent_objective",incumbent.has_value()?Json(incumbent.value().objective):Json(nullptr)},
                 {"checks",checks},{"dynamic_checks",dynamic_checks}};
             records.push_back(record);
             if(dynamic_exchange) {
                 progress<<Json{{"stage","continuous_checks"},{"record",record}}.dump()<<std::endl;
                 std::cout<<"DYNAMIC_CHECK "<<round<<' '<<dynamic_passed<<' '<<dynamic_added<<std::endl;
             }
-            if(passed && dynamic_passed && success) {
+            if(sip_exchange::accept_verified(proposed,minimum,passed,dynamic_passed)) {
                 termination_reason="verified_solution";found=true;Json points=Json::array();const auto point_values=values[3].get_elements();
                 for(int gate=0;gate<m;++gate)points.push_back({point_values[3*gate],point_values[3*gate+1],point_values[3*gate+2]});
                 std::vector<double> crossings;double total=0.;for(int k=0;k<n;++k){total+=physical_times[k];if(k<m)crossings.push_back(total);}
                 curves=Json::array();for(const auto& coefficient:coefficients)curves.push_back(matrix(coefficient));
-                selected={{"variables",physical},{"durations",physical_times},{"coefficients",curves},{"nominal_time_s",total},
+                selected={{"variables",candidate_physical},{"durations",physical_times},{"coefficients",curves},{"nominal_time_s",total},
                     {"objective",actual_objective},{"dynamic_soft_integral",penalty},{"crossing_times_s",crossings},{"crossing_points",points},{"made_at",0.}};
                 break;
             }
 
-            if(restored_soft && passed && !success)continue;
-            if(!added){termination_reason="no_new_witness";break;}
+            // New constraints may increase the optimum. Always keep the current finite
+            // solution; a cheaper solution from an earlier constraint set is archival only.
+            current=proposed.variables;lam_x=sip_exchange::bound_duals(proposed);
+            lam_g=proposed.constraint_duals;physical=proposed.physical;warm_dual_status=proposed.status;
+            if(!added){termination_reason=geometry_unresolved?"geometry_verification_unresolved":"no_new_witness";break;}
+            ++constraint_revision;
+
         }
         Json result=found?selected:Json::object();
-        result.update(Json{{"found",found},{"termination_reason",termination_reason},{"solve_s",std::chrono::duration<double>(Clock::now()-began).count()},
+        if(incumbent.has_value()) {
+            const auto& best=incumbent.value();
+            result["finite_incumbent"]={{"round",best.round},{"status",best.status},{"objective",best.objective},
+                {"solver_variables",best.variables},{"variables",best.physical},{"lam_x",best.bound_duals},{"lam_g",best.constraint_duals},
+                {"acceptance","finite feasible snapshot only; not an executable verified trajectory"}};
+        }
+        result["exchange_policy"]={{"maximum_exchange_rounds",maximum_exchange_rounds},{"geometry_rollbacks_before_termination",0},{"finite_feasibility_gate",true},{"finite_failure_action","stop initialization before geometry checks or adding witnesses"},{"unchanged_problem_retry",false},{"objective_rollback_across_constraint_sets",false},{"maximum_new_geometry_witnesses_per_gate",1},
+            {"dual_source_requirement","Previous solve and multiplier source must both be Solve_Succeeded; otherwise zero duals"}};
+        result.update(Json{{"finite_problem_model","shared_canonical_v1"},{"found",found},{"termination_reason",termination_reason},{"solve_s",std::chrono::duration<double>(Clock::now()-began).count()},
             {"optimizer_calls",calls},{"records",records},{"feasible_initializations",projections},{"config",manifest["config"]},{"level",manifest["level"]},
-            {"method",manifest["method"]},{"direct_soft_objective",direct_soft},{"unit_weight_epigraph",unit_epigraph},
+            {"method",manifest["method"]},{"direct_soft_objective",direct_soft || native_direct_objective},{"unit_weight_epigraph",unit_epigraph},
             {"sampled_hard_dynamics",sampled_hard},{"global_uniform_sample_count",hard_nodes},
             {"reset_to_togt_after_exchange",reset_togt_each_round},
             {"semi_infinite_dynamics",dynamic_exchange},
             {"minimum_collective_thrust_n",minimum_thrust_enabled?Json(minimum_thrust::collective_floor):Json(nullptr)},
             {"stable_dynamics_extension",stable_dynamics_enabled},
-            {"direct_pvaj_coordinates",direct_pvaj && manifest.value("minco_derivative_order",3)==3},
+            {"duration_normalized_states",manifest.value("duration_normalized_states",false)},{"direct_pvaj_coordinates",direct_pvaj && manifest.value("minco_derivative_order",3)==3},
             {"direct_state_coordinates",direct_pvaj},
             {"native_minco_pvaj",native_minco_enabled && manifest.value("minco_derivative_order",3)==3},
             {"restored_historical_soft_workflow",restored_soft},
-            {"iteration_limit_action",restored_soft?"allow finite feasible candidate verification and exchange":"terminate initialization before verification and exchange"},
+            {"iteration_limit_action","stop initialization before verification and exchange"},
             {"native_minco_pv",native_minco_enabled && manifest.value("minco_derivative_order",3)==1},
             {"native_soft_dynamics",native_soft_enabled},
-            {"point_coordinates",direct_points_enabled?"direct_polar_polygon":"TOGT maps"},
+            {"continuous_attitude_chart",native_soft_enabled && !restored_soft},
+            {"point_coordinates",xy_points?"scaled_xy":direct_points_enabled?"direct_polar_polygon":"TOGT maps"},{"point_scale_m",xy_points?manifest["point_scale_m"]:Json(nullptr)},{"point_gauge_rows",xy_points?Json(0):Json(nullptr)},
+            {"point_erosion_radius_m",xy_points?manifest["point_erosion_radius_m"]:Json(nullptr)},
+            {"finite_safety_sphere_radius_m",xy_points?manifest["finite_safety_sphere_radius_m"]:Json(nullptr)},
+            {"verification_safety_sphere_radius_m",xy_points?manifest["verification_safety_sphere_radius_m"]:Json(nullptr)},
             {"point_slices",manifest["slices"]},{"trajectory_variable_count",nvar},
-            {"initial_angle_rule",direct_points_enabled?"negative physical objective gradient at zero radius":"legacy"},
+            {"initial_angle_rule",xy_points?"not used; physical xy centered":direct_points_enabled?"negative physical objective gradient at zero radius":"legacy"},
             {"workspace_constraints",!native_minco_enabled || restored_soft},
             {"segment_duration_bounds",native_minco_enabled && !restored_soft?Json(nullptr):Json("legacy bounds")},
             {"warm_start_raw_variables_preserved",native_minco_enabled && !restored_soft},
-            {"dynamic_auxiliary_variables",native_soft_enabled ? n*33*6 : 0},
+            {"dynamic_auxiliary_variables",native_soft_enabled && !native_direct_objective ? n*17*6 : 0},
+            {"minco_coefficient_auxiliary_variables",manifest.value("lift_minco_coefficients",false)?24*n:0},
+            {"world_point_auxiliary_variables",manifest.value("lift_world_points",false)?3*m:0},
+            {"arrival_time_auxiliary_variables",manifest.value("lift_arrival_times",false)?n:0},
             {"minco_derivative_order",native_minco_enabled?Json(manifest.value("minco_derivative_order",3)):Json(nullptr)},
             {"baseline_offset_used",!native_minco_enabled && !direct_pvaj},
             {"legacy_trajectory_conversion_used",!native_minco_enabled},
@@ -796,14 +1292,18 @@ public:
             {"norm_form_dynamics",norm_dynamics},
             {"bundled_dynamic_constraints",norm_dynamics},
             {"lifted_positive_thrust",lifted_thrust},
-            {"redundant_knot_safety_eliminated",norm_dynamics && manifest["free_points"].get<bool>()},
+            {"redundant_knot_safety_eliminated",xy_points || norm_dynamics && manifest["free_points"].get<bool>()},
             {"minimum_thrust_at_all_dynamic_nodes",stable_dynamics_enabled},
-            {"exact_hessian",stable_dynamics_enabled && !std::getenv("SIP_LIMITED_MEMORY")},
+            {"exact_hessian",!calls.empty() && (calls.back().value("hessian_approximation",Json())=="exact" || calls.back().value("hessian_approximation",Json())=="exact (explicit affine Hessian pullback)")},
+            {"hermite_dynamics_evaluation",manifest.value("hermite_dynamics_evaluation",false)},
+            {"bernstein_coefficient_coordinates",manifest.value("bernstein_coefficient_coordinates",false)},
             {"stable_exchange_coordinates",!exchange_to_original.is_null()},
-            {"dynamics_verification",dynamic_exchange?"numerical interval enclosure on every polynomial segment":native_soft_enabled?"soft penalty, 33 nodes per segment":"fixed temporal samples"},
-            {"time_weight",1.},{"dynamics_weight",native_soft_enabled?native_dynamics_weight:sampled_hard?0.:(direct_soft || unit_epigraph)?1.:1000.},{"initial_sample_index",seed_index},{"initial_variables",seed["original"]},
-            {"runtime","C++17 CasADi/IPOPT and native continuous frame exchange"},{"all_seven_joint",true},
-            {"replanning",false},{"dynamic_limit_fraction",.95},{"finite_safety_radius_m",manifest["finite_radius"]},
+            {"dynamics_verification",dynamic_exchange?"numerical interval enclosure on every polynomial segment":native_soft_enabled?"soft penalty, 17 nodes per segment (16 intervals)":"fixed temporal samples"},
+            {"dynamics_quadrature_intervals",native_soft_enabled?Json(16):Json(nullptr)},{"native_soft_formulation",native_soft_enabled?manifest["native_soft_formulation"]:Json(nullptr)},{"time_weight",1.},{"dynamics_weight",native_soft_enabled?native_dynamics_weight:sampled_hard?0.:(direct_soft || unit_epigraph)?1.:1000.},{"initial_sample_index",seed_index},{"initial_variables",seed["original"]},
+            {"runtime",uses_slsqp()?"C++17 CasADi/native Kraft SLSQP and continuous frame exchange":"C++17 CasADi/IPOPT and continuous frame exchange"},
+            {"finite_solver",uses_slsqp()?"slsqp":"ipopt"},
+            {"all_seven_joint",m==7},{"all_gates_joint",true},{"window_count",m},
+            {"replanning",false},{"vehicle",manifest.value("vehicle",Json(nullptr))},{"dynamic_limit_fraction",dynamics_metadata.is_object()?dynamics_metadata.value("limit_fraction",.95):.95},{"finite_safety_radius_m",manifest["finite_radius"]},
             {"verification_safety_radius_m",manifest["verification_radius"]}});
         return result;
     }

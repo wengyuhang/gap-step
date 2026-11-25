@@ -1,0 +1,532 @@
+[
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "static",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 17.101,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/static_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "static",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 19.351999999999997,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "static",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 20.433,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/static_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "mixed_base",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 17.076,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "mixed_base",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 19.494,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "mixed_base",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 20.589,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "static",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.441000000000003,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/static_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "static",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 21.299999999999997,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/static_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f3",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 17.060000000000002,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f3",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 19.317,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "mixed_base",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 21.174999999999997,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f3",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 20.395000000000003,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f6",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 20.402,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f6",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f3",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.296999999999997,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f3",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 21.494,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f3_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f6",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.966,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f1",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 17.083,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f6",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 22.281,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a25_f6",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.436,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a25_f6_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f1",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 19.658,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f1",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 20.648000000000003,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f3",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 20.354999999999997,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f1",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 21.183999999999997,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "mixed_base",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "not_completed",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/mixed_base_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f1",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "not_completed",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f1_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f3",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f3",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 22.399,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f3",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 17.151000000000003,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f3",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.203000000000003,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f3_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f6",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f6",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 17.817,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f6",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "not_completed",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f6",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f1",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 20.631,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f1",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 19.499000000000002,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f1",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 17.121000000000002,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f1",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 21.25,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a50_f6",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 17.296,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a50_f6_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f3",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f3",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f3",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f1",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.366,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f1_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f6",
+    "method": "dynamic_togt",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f6",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_dynamic_togt_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f6",
+    "method": "wang2023",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": null,
+    "verdict": "collision",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_wang2023/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f3",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 18.182000000000002,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f3",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.311,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f3_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f6",
+    "method": "center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 20.134,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_center/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_10x5_full_v1_20261109",
+    "level": "a75_f6",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 19.179000000000002,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_10x5_full_v1_20261109/flights/a75_f6_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_incomplete_completion_v1_20261109",
+    "level": "mixed_base",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.415999999999997,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_incomplete_completion_v1_20261109/flights/mixed_base_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_incomplete_completion_v1_20261109",
+    "level": "a50_f1",
+    "method": "ours",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 16.423000000000002,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f1_ours/attempt_1/source_result.json"
+  },
+  {
+    "batch": "higher_swing_incomplete_completion_v1_20261109",
+    "level": "a50_f6",
+    "method": "dynamic_togt_center",
+    "same_durations_and_coefficients": true,
+    "source_sha256_matches": true,
+    "actual_time_s": 21.955,
+    "verdict": "complete_reference_no_frame_contact",
+    "reference": "records/higher_swing_incomplete_completion_v1_20261109/flights/a50_f6_dynamic_togt_center/attempt_1/source_result.json"
+  }
+]

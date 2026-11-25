@@ -1,0 +1,111 @@
+{
+  "checks": [
+    {
+      "level": "static",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.2674196341413459e-16,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "mixed_base",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.1102230246251565e-16,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "a25_f3",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.1102230246251565e-16,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "a25_f6",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.7719159473017498e-13,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "a50_f1",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.1102230246251565e-16,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "a50_f3",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 7.234879362272295e-12,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "a50_f6",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 7.040146243753043e-12,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "a75_f1",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.1102230246251565e-16,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "a75_f3",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 7.138734048339757e-14,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "splits_moderate",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 2.489425040543887e-11,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "splits_high",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.5917873716496556e-10,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    },
+    {
+      "level": "splits_freq3",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.282794003309272e-10,
+      "reconstructed_author_tau_constraint_violation": 2.2579482771672024e-10,
+      "reported_found": true
+    },
+    {
+      "level": "splits_freq4",
+      "packing_max_error": 0.0,
+      "passed": true,
+      "progress_equality_violation": 1.1102230246251565e-16,
+      "reconstructed_author_tau_constraint_violation": 0.0,
+      "reported_found": true
+    }
+  ],
+  "completed": 13,
+  "passed": true,
+  "scope": "Packing and original CPC tau feasibility reconstruction; separate from task safety"
+}

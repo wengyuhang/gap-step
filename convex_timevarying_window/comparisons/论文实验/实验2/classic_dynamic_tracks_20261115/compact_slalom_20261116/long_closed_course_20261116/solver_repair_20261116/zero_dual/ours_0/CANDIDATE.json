@@ -1,0 +1,24 @@
+{
+  "accepted": false,
+  "classification": "not_found",
+  "optimizer_calls": [
+    {
+      "finite_violation": 0.0,
+      "iterations": 918,
+      "round": 0,
+      "solver_s": 58.157503268,
+      "status": "Solve_Succeeded"
+    },
+    {
+      "finite_violation": 2.923053282401408,
+      "iterations": 5000,
+      "round": 1,
+      "solver_s": 341.465473376,
+      "status": "Maximum_Iterations_Exceeded"
+    }
+  ],
+  "sip_exit_code": 0,
+  "sip_found": false,
+  "termination_reason": "finite_constraint_violation",
+  "wall_s": 402.269413499
+}

@@ -40,8 +40,8 @@ struct Mesh {
 };
 
 inline Json mesh_piece(const Curve& coefficients,double duration,double start,const Window& window,const Mesh& mesh,
-    const std::chrono::steady_clock::time_point& deadline) {
-    constexpr double radius=.3859447197013662,guard=1e-8;
+    const std::chrono::steady_clock::time_point& deadline,double radius=.3859447197013662) {
+    constexpr double guard=1e-8;
     Curve local=coefficients*window.rotation;local.row(0)-=window.center.transpose()*window.rotation;
     struct Interval {double a,b;Curve controls;};
     std::vector<Interval> stack{{0.,1.,bernstein(local)}};int boxes=0;double minimum=INFINITY,lower_bound=INFINITY;
@@ -78,17 +78,47 @@ inline Json mesh_piece(const Curve& coefficients,double duration,double start,co
 
 inline Json mesh_evaluate(const Trajectory& trajectory,const Json& scene) {
     const auto began=std::chrono::steady_clock::now();const auto deadline=began+std::chrono::seconds(120);
+    const double collision_radius=scene.value("collision_radius_m",.3859447197013662);
     Json checks=Json::array(),events=Json::array(),ground=Json::array();bool collision=false,unresolved=false,ordered=true;
     double previous=-INFINITY;
+    int route_index = 0;
     for(const auto& row:scene["windows"]) {
-        const auto window=load_window(row);Mesh mesh(row["mesh"]);double start=0.;Json crossings=Json::array();bool degenerate=false;
+        const int index = route_index++;
+        const auto window = load_window(row);
+        if (window.waypoint) {
+            double at = 0.;
+            if (index < static_cast<int>(trajectory.crossing_times.size()))
+                at = trajectory.crossing_times[index];
+            else for (int k = 0; k <= index; ++k)
+                at += trajectory.durations.at(k);
+            const Vector delta =
+                trajectory.sample(at) - window.center - window.rotation * window.motion(at);
+            const bool reached = delta.norm() <= window.waypoint_radius + 1e-5;
+            ordered = ordered && reached && at > previous;
+            previous = at;
+            events.push_back(Json{
+                {"gate", row["name"]},
+                {"kind", "navigation_waypoint"},
+                {"radius_m", window.waypoint_radius},
+                {"distance_to_center_m", delta.norm()},
+                {"passed", reached},
+                {"events",
+                 Json::array({Json{
+                     {"time_s", at}, {"piece", index}, {"kind", "scheduled_waypoint_reach"}}})}});
+            continue;
+        }
+        Mesh mesh(row["mesh"]);
+        double start = 0.;
+        Json crossings = Json::array();
+        bool degenerate = false;
         for(size_t piece=0;piece<trajectory.durations.size();++piece) {
-            Json check=mesh_piece(trajectory.coefficients[piece],trajectory.durations[piece],start,window,mesh,deadline);
+            Json check=mesh_piece(trajectory.coefficients[piece],trajectory.durations[piece],start,window,mesh,deadline,collision_radius);
             check["gate"]=row["name"];check["piece"]=piece;checks.push_back(check);
             collision=collision || check["outcome"]=="collision";unresolved=unresolved || check["outcome"]=="unresolved";
             Curve local=trajectory.coefficients[piece]*window.rotation;local.row(0)-=window.center.transpose()*window.rotation;
             if(local.col(2).cwiseAbs().maxCoeff()<1e-10)degenerate=true;
-            else for(double root:roots(local.col(2))) {
+            else for(double root:roots(without_terminal_hover_contact(local.col(2),
+                !scene.value("stationary_terminal_contact_is_crossing",true) && piece+1==trajectory.durations.size()))) {
                 if(root < -1e-8 || root > 1.+1e-8)continue;
                 const double u=std::clamp(root,0.,1.),at=start+u*trajectory.durations[piece];
                 const Vector q=evaluate(local,u)-window.motion(at);if(!window.contains(q.head<2>()))continue;
@@ -111,7 +141,7 @@ inline Json mesh_evaluate(const Trajectory& trajectory,const Json& scene) {
         Eigen::VectorXd derivative(7);for(int k=1;k<8;++k)derivative[k-1]=k*trajectory.coefficients[piece](k,2);
         std::vector<double> candidates{0.,1.};for(double root:roots(derivative))if(root>0. && root<1.)candidates.push_back(root);
         double minimum=INFINITY,witness=0.;for(double u:candidates) {
-            const double value=evaluate(trajectory.coefficients[piece],u).z()-.3859447197013662;
+            const double value=evaluate(trajectory.coefficients[piece],u).z()-collision_radius;
             if(value<minimum){minimum=value;witness=u;}
         }
         const std::string outcome=minimum < -1e-8?"collision":minimum>1e-8?"clear":"unresolved";

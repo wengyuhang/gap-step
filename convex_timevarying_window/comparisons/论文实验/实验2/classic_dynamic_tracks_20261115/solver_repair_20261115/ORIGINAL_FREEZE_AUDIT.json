@@ -1,0 +1,365 @@
+{
+  "passed": true,
+  "files": [
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/run_baselines.cpp",
+      "expected": "d7571f1294e5168d27570b4e8d5cf441693178ba81b5befc33b39f7c479a0209",
+      "actual": "d7571f1294e5168d27570b4e8d5cf441693178ba81b5befc33b39f7c479a0209",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/motion_verify.cpp",
+      "expected": "13f065a54fbf233a9a0809e8751b85ebd43e00ba65eb11c965419a7bedaf05bf",
+      "actual": "13f065a54fbf233a9a0809e8751b85ebd43e00ba65eb11c965419a7bedaf05bf",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/report.cpp",
+      "expected": "68d97f396d59fc48286e0ba101e64cd2b5f6cfe92a00a14abeb36a3fc8c5d922",
+      "actual": "68d97f396d59fc48286e0ba101e64cd2b5f6cfe92a00a14abeb36a3fc8c5d922",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/run_ours.cpp",
+      "expected": "357569c92872d2b67ab6fb7687f3b2d708eff0b70ec169370f4317cdf7bf4abe",
+      "actual": "357569c92872d2b67ab6fb7687f3b2d708eff0b70ec169370f4317cdf7bf4abe",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/togt_motion_verify.cpp",
+      "expected": "1f400e0a8c6fb85f2615a36a18047488087fc6c71557a04f870b0aed2cd5e887",
+      "actual": "1f400e0a8c6fb85f2615a36a18047488087fc6c71557a04f870b0aed2cd5e887",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/generate.cpp",
+      "expected": "274d4497b960b1f0a851c4281afa0656ca8230f082d79f24cf0f42b93cec7586",
+      "actual": "274d4497b960b1f0a851c4281afa0656ca8230f082d79f24cf0f42b93cec7586",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/frame_mesh.hpp",
+      "expected": "34c1963b0357f2d9272cccf5bb3bc0b6fe6c247777be419283b979e2c33b0936",
+      "actual": "34c1963b0357f2d9272cccf5bb3bc0b6fe6c247777be419283b979e2c33b0936",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/PROTOCOL.md",
+      "expected": "9c6256bd741ba30e66d8df2bb18966e5b68e7624a8c1897eb7a69f183c0feec1",
+      "actual": "9c6256bd741ba30e66d8df2bb18966e5b68e7624a8c1897eb7a69f183c0feec1",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/sip_planner.cpp",
+      "expected": "975f62e6ed1400bb5a64cb4148be618b725afa4722f3a22cdc6d99fbeacc2e12",
+      "actual": "975f62e6ed1400bb5a64cb4148be618b725afa4722f3a22cdc6d99fbeacc2e12",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/matrix.cpp",
+      "expected": "60f8b3929d8feb9d0ca6819d84846846a7a467b0947bafbf285cd20711bb7a70",
+      "actual": "60f8b3929d8feb9d0ca6819d84846846a7a467b0947bafbf285cd20711bb7a70",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/wang_planner.cpp",
+      "expected": "03c1038f9aa1437afdaf8a6bbf481261f35c57bdec9aad6212aa4dd99ca2fb60",
+      "actual": "03c1038f9aa1437afdaf8a6bbf481261f35c57bdec9aad6212aa4dd99ca2fb60",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/geometry.hpp",
+      "expected": "86b761ca5c2e7724c04c5e8ae5f2dc413def854281e44d5f7f898dc3e9700e75",
+      "actual": "86b761ca5c2e7724c04c5e8ae5f2dc413def854281e44d5f7f898dc3e9700e75",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/mesh.hpp",
+      "expected": "7167665aa973a6356656f63b984836513daf908698a8e528a818fc9383d7d892",
+      "actual": "7167665aa973a6356656f63b984836513daf908698a8e528a818fc9383d7d892",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/trajectory.hpp",
+      "expected": "46d962bc349a9be966c49ffeb10aa29bb819781a6c5abcb1ec6d47c08c9c589f",
+      "actual": "46d962bc349a9be966c49ffeb10aa29bb819781a6c5abcb1ec6d47c08c9c589f",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/native_minco_pvaj.hpp",
+      "expected": "7e01564f3508bf57f7374de4ffb59e0158b7b086acacb1f377464a9214989957",
+      "actual": "7e01564f3508bf57f7374de4ffb59e0158b7b086acacb1f377464a9214989957",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/restored_kernels.hpp",
+      "expected": "4dd8d2372d88bb2afadb61a260decf8025b608e4b2d67979afff22527caa870f",
+      "actual": "4dd8d2372d88bb2afadb61a260decf8025b608e4b2d67979afff22527caa870f",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/planar_points.hpp",
+      "expected": "ff627795cbc0855858381d4ad44872ca3d5ba6168039ff4a9f618a4bd089fd3b",
+      "actual": "ff627795cbc0855858381d4ad44872ca3d5ba6168039ff4a9f618a4bd089fd3b",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/togt_aligned/five_method_safety030/wang_inputs.cpp",
+      "expected": "4ff47829d1afc664562760afad7f81b9bfd7a1aa03c71e5099227c40d381160d",
+      "actual": "4ff47829d1afc664562760afad7f81b9bfd7a1aa03c71e5099227c40d381160d",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/togt_aligned/five_method_safety030/wang_verify.cpp",
+      "expected": "c2eb1cc6da16207bc6ed2858ac1ffe8f927586f3577b1d9003841a686b57d1d5",
+      "actual": "c2eb1cc6da16207bc6ed2858ac1ffe8f927586f3577b1d9003841a686b57d1d5",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/togt_aligned/dynamic_togt_from_source/adapter.hpp",
+      "expected": "9b078260830134e348594a67efa651a329ac5a0ee65ecbac08db81be8ef00f70",
+      "actual": "9b078260830134e348594a67efa651a329ac5a0ee65ecbac08db81be8ef00f70",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/togt_aligned/dynamic_togt_from_source/main.cpp",
+      "expected": "4150c06c880fb4c5701b2c17799977d4a750f5abd37f44f01591095bef0e7448",
+      "actual": "4150c06c880fb4c5701b2c17799977d4a750f5abd37f44f01591095bef0e7448",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/togt_aligned/dynamic_togt_from_source/author_source/src/planner/traj_solver.cpp",
+      "expected": "831b87af0f785cbece0c4b824b748528bf13153acfa1ee3e289cbbc3587f7ce7",
+      "actual": "831b87af0f785cbece0c4b824b748528bf13153acfa1ee3e289cbbc3587f7ce7",
+      "passed": true
+    },
+    {
+      "path": "/tmp/classic_course_build_20261115/sip_planner",
+      "expected": "522a087156a79a4eb33a05e97019eca14886952e4dd7ce2d09d0e5b09065c53c",
+      "actual": "522a087156a79a4eb33a05e97019eca14886952e4dd7ce2d09d0e5b09065c53c",
+      "passed": true
+    },
+    {
+      "path": "/tmp/classic_course_build_20261115/matrix",
+      "expected": "517148c605051708645512d03c2b1954ca33b46a7616eb134dca01112e2f71cb",
+      "actual": "517148c605051708645512d03c2b1954ca33b46a7616eb134dca01112e2f71cb",
+      "passed": true
+    },
+    {
+      "path": "/tmp/classic_course_build_20261115/wang_planner",
+      "expected": "620dd9e9ac95509df19b6fa21ea901bf250264ff18be95616272e680a3fcf397",
+      "actual": "620dd9e9ac95509df19b6fa21ea901bf250264ff18be95616272e680a3fcf397",
+      "passed": true
+    },
+    {
+      "path": "/tmp/classic_course_build_20261115/dynamic_togt_planner",
+      "expected": "bcada5d95608be7dc7fa54fdb0c5fbec153e2feb10ef0d35edad5156dc6302cb",
+      "actual": "bcada5d95608be7dc7fa54fdb0c5fbec153e2feb10ef0d35edad5156dc6302cb",
+      "passed": true
+    },
+    {
+      "path": "/tmp/classic_course_build_20261115/classic_course_inputs",
+      "expected": "d95ba4ee772e20327c2139e841f8fcfb2bfd0c6d364b32eac5c008d42e4971c8",
+      "actual": "d95ba4ee772e20327c2139e841f8fcfb2bfd0c6d364b32eac5c008d42e4971c8",
+      "passed": true
+    },
+    {
+      "path": "/tmp/classic_course_build_20261115/classic_course_run_ours",
+      "expected": "cd9e70e8cc3858f8c833741e8d0332a936d39b451b962c6247a474ad4ff56560",
+      "actual": "cd9e70e8cc3858f8c833741e8d0332a936d39b451b962c6247a474ad4ff56560",
+      "passed": true
+    },
+    {
+      "path": "/tmp/classic_course_build_20261115/classic_course_run_baselines",
+      "expected": "72afd854bcceb97378e400a52a1f8e05ab1a8ac3a40597b2e5c5d22bba9991ff",
+      "actual": "72afd854bcceb97378e400a52a1f8e05ab1a8ac3a40597b2e5c5d22bba9991ff",
+      "passed": true
+    },
+    {
+      "path": "/tmp/classic_course_build_20261115/classic_course_report",
+      "expected": "e3a20d6770e74ce37a7f211bbc5909e3f8ce29b09eaa1207132b3d0e9fbdb32c",
+      "actual": "e3a20d6770e74ce37a7f211bbc5909e3f8ce29b09eaa1207132b3d0e9fbdb32c",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/alphapilot_high_center/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/alphapilot_high_center/manifest.json",
+      "expected": "dffdc35f482077e16498b6f96c76d6ad91b0993f1a2825010e40547845d3aeba",
+      "actual": "dffdc35f482077e16498b6f96c76d6ad91b0993f1a2825010e40547845d3aeba",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/splits_moderate_center/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/splits_moderate_center/manifest.json",
+      "expected": "5c449e9f486d65fc56033863a274019ceea13790320f763b3495e8d9820e9620",
+      "actual": "5c449e9f486d65fc56033863a274019ceea13790320f763b3495e8d9820e9620",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/airsim_moderate_ours/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/airsim_moderate_ours/manifest.json",
+      "expected": "e57103a1bf07171c397ea5cc097a7cc79b7358ed4c4c24aafe5b6ea178b41396",
+      "actual": "e57103a1bf07171c397ea5cc097a7cc79b7358ed4c4c24aafe5b6ea178b41396",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/splits_high_ours/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/splits_high_ours/manifest.json",
+      "expected": "f9c6f60c5654e9dfe168aca6f49b97be091fdf14a53ad85e0dc8ac4393151f5b",
+      "actual": "f9c6f60c5654e9dfe168aca6f49b97be091fdf14a53ad85e0dc8ac4393151f5b",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/splits_high_center/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/splits_high_center/manifest.json",
+      "expected": "6be199d3dd342cb183086c04c1846aec5e9b84e2fcb8353025398052af043c0b",
+      "actual": "6be199d3dd342cb183086c04c1846aec5e9b84e2fcb8353025398052af043c0b",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/alphapilot_moderate_center/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/alphapilot_moderate_center/manifest.json",
+      "expected": "01d6d7488c23a85d8bc42c3162639111d6b3375d2b127cf7af0ef2db7c558a9a",
+      "actual": "01d6d7488c23a85d8bc42c3162639111d6b3375d2b127cf7af0ef2db7c558a9a",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/airsim_high_ours/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/airsim_high_ours/manifest.json",
+      "expected": "8372c1de8d67b07ca2ff558e6970d98cbf53efc7da415934affc961bb7798a20",
+      "actual": "8372c1de8d67b07ca2ff558e6970d98cbf53efc7da415934affc961bb7798a20",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/airsim_high_center/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/airsim_high_center/manifest.json",
+      "expected": "fa15992e75dd983f87492568047a9b769910352e3a2c2e280ccfee055f2bacb5",
+      "actual": "fa15992e75dd983f87492568047a9b769910352e3a2c2e280ccfee055f2bacb5",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/splits_moderate_ours/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/splits_moderate_ours/manifest.json",
+      "expected": "8ce5118c426cc2ddaa319f367ec3077fa77e2dea88a4f9a178b6e1749c5c6d93",
+      "actual": "8ce5118c426cc2ddaa319f367ec3077fa77e2dea88a4f9a178b6e1749c5c6d93",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/airsim_moderate_center/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/airsim_moderate_center/manifest.json",
+      "expected": "b1c99606e60ca4b088a2f9e031a26fa5abebb1817e5b71d72e158dbbf72a647e",
+      "actual": "b1c99606e60ca4b088a2f9e031a26fa5abebb1817e5b71d72e158dbbf72a647e",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/alphapilot_moderate_ours/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/alphapilot_moderate_ours/manifest.json",
+      "expected": "0d7bffedd97113acce3261522a3bb277b033b21e49c18dae0bab515c073a68b1",
+      "actual": "0d7bffedd97113acce3261522a3bb277b033b21e49c18dae0bab515c073a68b1",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/alphapilot_high_ours/exchange_dynamics.json",
+      "expected": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "actual": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/inputs/alphapilot_high_ours/manifest.json",
+      "expected": "6a1882a42769e78fe6c83f3fb8dc130b2c42db2424f910cfe27ae242080455b5",
+      "actual": "6a1882a42769e78fe6c83f3fb8dc130b2c42db2424f910cfe27ae242080455b5",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_moderate/scene.json",
+      "expected": "2b204a827ef1a027561677fe9079408d0bb3ac30b06854d898f2fdc091ca7ee8",
+      "actual": "2b204a827ef1a027561677fe9079408d0bb3ac30b06854d898f2fdc091ca7ee8",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_high/scene.json",
+      "expected": "ab6b5a7aeb6072a42fd354e80215761473668684f52beed69e6c9a77bc666f34",
+      "actual": "ab6b5a7aeb6072a42fd354e80215761473668684f52beed69e6c9a77bc666f34",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/alphapilot_high/scene.json",
+      "expected": "ef7d93a9bdaed7d758eae6c70c7683126a2d6725de4f6dc402b91cc3761e458b",
+      "actual": "ef7d93a9bdaed7d758eae6c70c7683126a2d6725de4f6dc402b91cc3761e458b",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/splits_high/scene.json",
+      "expected": "8daa2b61de300eb88843bd295db655fe9e99918fd286328ef882b2e24eea94e7",
+      "actual": "8daa2b61de300eb88843bd295db655fe9e99918fd286328ef882b2e24eea94e7",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/splits_moderate/scene.json",
+      "expected": "1d062373ac132886c858bf80151b2913eed1242ec2870a64e80475c20a870dab",
+      "actual": "1d062373ac132886c858bf80151b2913eed1242ec2870a64e80475c20a870dab",
+      "passed": true
+    },
+    {
+      "path": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/alphapilot_moderate/scene.json",
+      "expected": "47a0afa1e2d2b218e615a0cbf4e2d92c7b76270707817d574310082d8cd08d34",
+      "actual": "47a0afa1e2d2b218e615a0cbf4e2d92c7b76270707817d574310082d8cd08d34",
+      "passed": true
+    }
+  ]
+}

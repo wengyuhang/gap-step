@@ -42,6 +42,24 @@ std::vector<double> roots(const Eigen::VectorXd& polynomial) {
     return values;
 }
 
+// A zero-PVAJ hover endpoint on a gate plane is a root of multiplicity >=4.
+// Remove only this known terminal contact; preserve every other plane crossing.
+inline Eigen::VectorXd without_terminal_hover_contact(Eigen::VectorXd p,bool enabled) {
+    if(!enabled || p.size()<5)return p;
+    const double tolerance=1e-8*(1.+p.cwiseAbs().maxCoeff());
+    for(int d=0;d<4;++d) {
+        double value=0.;for(int k=p.size()-1;k>=d;--k) {
+            double factor=1.;for(int i=0;i<d;++i)factor*=k-i;value+=factor*p[k];
+        }
+        if(std::abs(value)>tolerance)return p;
+    }
+    for(int d=0;d<4;++d) {
+        Eigen::VectorXd q(p.size()-1);q[q.size()-1]=p[p.size()-1];
+        for(int k=q.size()-2;k>=0;--k)q[k]=p[k+1]+q[k+1];p=q;
+    }
+    return p;
+}
+
 double binomial(int n,int k) {
     double value=1.;
     for (int i=1;i<=k;++i) value*=static_cast<double>(n-i+1)/i;
@@ -86,30 +104,52 @@ struct Window {
     Vector center;
     Eigen::Matrix3d rotation;
     bool circle,swing;
+    bool waypoint = false;
+    double waypoint_radius = 0.;
     double opening_radius,frequency,amplitude,length,phase;
+    double motion_angle = 0.;
+    Vector rotate_motion(const Vector& value) const {
+        if(motion_angle==0.)return value;
+        const double c=std::cos(motion_angle),s=std::sin(motion_angle);
+        return Vector(c*value.x()-s*value.y(),s*value.x()+c*value.y(),value.z());
+    }
+    std::pair<Vector,Vector> rotate_motion_bounds(const Vector& low,const Vector& high) const {
+        if(motion_angle==0.)return {low,high};
+        const double c=std::cos(motion_angle),s=std::sin(motion_angle);
+        const double a[2][2]={{c,-s},{s,c}};
+        Vector lower=low,upper=high;
+        for(int i=0;i<2;++i) {
+            lower[i]=0.;upper[i]=0.;
+            for(int j=0;j<2;++j) {
+                lower[i]+=std::min(a[i][j]*low[j],a[i][j]*high[j]);
+                upper[i]+=std::max(a[i][j]*low[j],a[i][j]*high[j]);
+            }
+        }
+        return {lower,upper};
+    }
     std::vector<Eigen::Vector2d> physical,frame;
     Vector motion(double at) const {
         const double sine=std::sin(2*pi*frequency*at+phase);
-        if (!swing) return Vector(0.,-amplitude*sine,0.);
+        if (!swing) return rotate_motion(Vector(0.,-amplitude*sine,0.));
         const double angle=std::asin(amplitude/length)*sine;
-        return Vector(length*(1.-std::cos(angle)),-length*std::sin(angle),0.);
+        return rotate_motion(Vector(length*(1.-std::cos(angle)),-length*std::sin(angle),0.));
     }
     Vector motion_velocity(double t) const {
         const double phase_at=2.*pi*frequency*t+phase;
         const double rate=2.*pi*frequency;
-        if(!swing)return Vector(0.,-amplitude*rate*std::cos(phase_at),0.);
+        if(!swing)return rotate_motion(Vector(0.,-amplitude*rate*std::cos(phase_at),0.));
         const double angle=std::asin(amplitude/length)*std::sin(phase_at);
         const double angle_rate=std::asin(amplitude/length)*rate*std::cos(phase_at);
-        return Vector(length*std::sin(angle)*angle_rate,-length*std::cos(angle)*angle_rate,0.);
+        return rotate_motion(Vector(length*std::sin(angle)*angle_rate,-length*std::cos(angle)*angle_rate,0.));
     }
     std::pair<Vector,Vector> bounds(double a,double b) const {
         auto range=sine_range(2*pi*frequency*a+phase,2*pi*frequency*b+phase);
-        if (!swing) return {Vector(0.,-amplitude*range.second,0.),Vector(0.,-amplitude*range.first,0.)};
+        if (!swing) return rotate_motion_bounds(Vector(0.,-amplitude*range.second,0.),Vector(0.,-amplitude*range.first,0.));
         const double angle=std::asin(amplitude/length);
         auto horizontal=sine_range(angle*range.first,angle*range.second);
         auto vertical=sine_range(angle*range.first+pi/2,angle*range.second+pi/2);
-        return {Vector(length*(1.-vertical.second),-length*horizontal.second,0.),
-                Vector(length*(1.-vertical.first),-length*horizontal.first,0.)};
+        return rotate_motion_bounds(Vector(length*(1.-vertical.second),-length*horizontal.second,0.),
+                Vector(length*(1.-vertical.first),-length*horizontal.first,0.));
     }
     bool contains(const Eigen::Vector2d& q) const {
         if (circle) return q.norm()<=opening_radius+1e-10;
@@ -139,8 +179,13 @@ Window load_window(const Json& row) {
         window.center[i]=row.at("center")[i];
         for(int j=0;j<3;++j) window.rotation(i,j)=row.at("rotation")[i][j];
     }
+    window.waypoint = row.value("navigation_waypoint", false);
+    window.waypoint_radius = row.value("waypoint_radius_m", 0.);
+    if (window.waypoint && !(window.waypoint_radius > 0.))
+        throw std::runtime_error("Invalid navigation waypoint radius");
     window.circle=row.at("circle");window.swing=row.at("swing");
     window.frequency=row.at("frequency");window.amplitude=row.at("amplitude");
+    window.motion_angle=row.value("motion_angle_rad",0.);
     window.length=row.at("length");window.phase=row.at("phase");
     window.opening_radius=window.circle?row.at("opening_radius").get<double>():0.;
     if (!window.circle) for(const auto& vertex:row.at("vertices")) {

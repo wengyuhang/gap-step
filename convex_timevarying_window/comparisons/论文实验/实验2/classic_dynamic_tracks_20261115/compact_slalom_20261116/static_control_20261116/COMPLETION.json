@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-16",
+  "state": "complete",
+  "static_reference": "original nominal centers, amplitudes zero",
+  "static_methods": {
+    "center": {
+      "all_preparation_wall_s": 1.429656818,
+      "elapsed_to_final_selection_s": 121.216270682,
+      "found": true,
+      "nominal_time_s": 4.564935442863163,
+      "objective": 4.564936226723832,
+      "parallel_candidate_wait_wall_s": 119.587903131,
+      "result_directory": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/center_4",
+      "selected": "center_4",
+      "shared_target_initialization_wall_s": 0.198710733,
+      "successful_candidates": 6
+    },
+    "ours": {
+      "all_preparation_wall_s": 1.429656818,
+      "elapsed_to_final_selection_s": 100.124571323,
+      "found": true,
+      "nominal_time_s": 4.020986189742238,
+      "objective": 4.020986958999739,
+      "parallel_candidate_wait_wall_s": 98.496203772,
+      "result_directory": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/ours_0",
+      "selected": "ours_0",
+      "shared_target_initialization_wall_s": 0.198710733,
+      "successful_candidates": 7
+    }
+  },
+  "static_time_reduction_percent": 11.915814800214488,
+  "audit_passed": true,
+  "dynamic_failure_has_unencoded_single_crossing_constraint": true,
+  "gazebo_runs": 0,
+  "active_processes": []
+}

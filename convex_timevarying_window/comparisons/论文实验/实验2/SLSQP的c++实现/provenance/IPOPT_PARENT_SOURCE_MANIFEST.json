@@ -1,0 +1,291 @@
+{
+  "source_commit": "f3ca9736a8a9a2508b8b63302c70876bca2ba653",
+  "date": "2026-11-12",
+  "files": [
+    {
+      "file": "src/sip_planner.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/sip_planner.cpp",
+      "sha256": "6b955dad2b8156dee1ad82727bf00128162f1b29fbb25d5fed34e14d31c94dfa"
+    },
+    {
+      "file": "src/matrix.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/matrix.cpp",
+      "sha256": "ad918f436d8a5f2bcb5d3a492c508d96b4d6049f4a910f96d8f3bd12005dc894"
+    },
+    {
+      "file": "src/restored_inputs.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/restored_inputs.cpp",
+      "sha256": "23999bde99cd40664df63cc5d8f7e5687b848ab48ccad7281a91327d7afc4f84"
+    },
+    {
+      "file": "src/restored_experiment.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/restored_experiment.cpp",
+      "sha256": "19bafcdf47851913b119a5383d46d1129421d7701f102b2b09819e54565f41ee"
+    },
+    {
+      "file": "src/restored_release_trial.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/restored_release_trial.cpp",
+      "sha256": "597d8d0d0975e058b66e6fff9c942162c6b7f62123efd6ae0f85039e1290c7fa"
+    },
+    {
+      "file": "src/mesh_check.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/src/mesh_check.cpp",
+      "sha256": "4684a22e8ee3c589b553a0c19192c79e6c5d442b5b2ceba4def4de2f83cf60b6"
+    },
+    {
+      "file": "include/json.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/json.hpp",
+      "sha256": "9bea4c8066ef4a1c206b2be5a36302f8926f7fdc6087af5d20b417d0cf103ea6"
+    },
+    {
+      "file": "include/geometry.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/geometry.hpp",
+      "sha256": "f71a029a8d76a688946dc5350ee0d9ff10a1f544a8541d5495e585e13c692a23"
+    },
+    {
+      "file": "include/trajectory.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/trajectory.hpp",
+      "sha256": "09ad4597d51a704fce318780f64ece8d14ac9183fe5ac1fae0cd2e175e4f2073"
+    },
+    {
+      "file": "include/mesh.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/mesh.hpp",
+      "sha256": "8d8c845535070217c8cb8905afaa6bfc6af467588d458c4f1f9728f1eecba3cf"
+    },
+    {
+      "file": "include/numpy_passage.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/numpy_passage.hpp",
+      "sha256": "c0e2654321b8390970ada5a048054aa08b5db38224f7dee632a69143d9d9924f"
+    },
+    {
+      "file": "include/native_minco_pvaj.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/native_minco_pvaj.hpp",
+      "sha256": "fddccb62477b5507befdd9d373e363c80a41884081042a64574fef6368ba5402"
+    },
+    {
+      "file": "include/restored_kernels.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/restored_kernels.hpp",
+      "sha256": "b1ec0540c5338ace25588ebf6e43c6ad14ed2bf04f2749222420d725aa133753"
+    },
+    {
+      "file": "include/dynamics_exchange.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/dynamics_exchange.hpp",
+      "sha256": "cc553fb2b018f5d8deb380e6639b46eb801ea0b14c7338e431d3559763d585f3"
+    },
+    {
+      "file": "include/minimum_thrust.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/minimum_thrust.hpp",
+      "sha256": "f8594482944569b99a48269a253517c6bff2a3581bf229c03b4867d0e5ca9764"
+    },
+    {
+      "file": "include/stable_dynamics.hpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/include/stable_dynamics.hpp",
+      "sha256": "e678c128e225b97905d0cc346ac61fea993caed19b2cfbb90ad6ed8268ef1770"
+    },
+    {
+      "file": "tests/restored_unit.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/tests/restored_unit.cpp",
+      "sha256": "8269b5794c0c81306ce35e20c2f56fa6ead06a2a9a7b30e1a0f48bc8980118ce"
+    },
+    {
+      "file": "tests/numpy_frame_check.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/tests/numpy_frame_check.cpp",
+      "sha256": "1b8618f494d18c3d718c99c5157478bd17ef14f387ed9be4617e85e554faef4b"
+    },
+    {
+      "file": "config/x500_togt.json",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/config/x500_togt.json",
+      "sha256": "f912e9614471042154483980b8e0d501deacfa6d307604c4f7a280f3b7b07033"
+    },
+    {
+      "file": "vendor/minco_pv/minco_pv.cpp",
+      "source": "静态凸窗口/复现/experiments/free_velocity/minco_pv.cpp",
+      "sha256": "dc1a675927341a7ce09709436e1edc356af05573c21b3872ca73f82727734145"
+    },
+    {
+      "file": "vendor/minco_pv/minco_pv.hpp",
+      "source": "静态凸窗口/复现/experiments/free_velocity/minco_pv.hpp",
+      "sha256": "b098664f2f79e5a71fc4ddb2858363165f52765a59fcb7fdc7768abea7f680ec"
+    },
+    {
+      "file": "vendor/togt/include/drolib/base/parameter_base.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/base/parameter_base.hpp",
+      "sha256": "02b9c432b1ce183b403a24eb3d9a78bb3a4464e5303ae2123ef4846ac4392c9d"
+    },
+    {
+      "file": "vendor/togt/include/drolib/base/shape_base.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/base/shape_base.hpp",
+      "sha256": "2cf2a51ed6484952e4b6e986d5809f11f08b263130948e8d46f4fc985b6ae98a"
+    },
+    {
+      "file": "vendor/togt/include/drolib/file/filesystem.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/file/filesystem.hpp",
+      "sha256": "33e76feca1e26eb5f752cafe6d081593e734c1e25dfff11f8522cd2ae3798479"
+    },
+    {
+      "file": "vendor/togt/include/drolib/file/yaml.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/file/yaml.hpp",
+      "sha256": "b8d5ba24026f19acb7feacb50103eb80b565a697d22aabc11ef99976918084bb"
+    },
+    {
+      "file": "vendor/togt/include/drolib/math/gravity.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/math/gravity.hpp",
+      "sha256": "f5dfcc8a7abadf5ae75bfe8f51e53ec7a85bcb2b98062f2bc7ef3b266ae45c25"
+    },
+    {
+      "file": "vendor/togt/include/drolib/math/math_utils.h",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/math/math_utils.h",
+      "sha256": "420136ecb48c0aedde2cdd4036bd4a39bf3e5c92792e1739bff7125671c0d3d5"
+    },
+    {
+      "file": "vendor/togt/include/drolib/planner/angle.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/planner/angle.hpp",
+      "sha256": "d064264a9fb7aab55c6cc09cb1cb10a05e188b277656c37787b33083655fb853"
+    },
+    {
+      "file": "vendor/togt/include/drolib/planner/traj_data.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/planner/traj_data.hpp",
+      "sha256": "a3730a2c91aee8cb3551ce17678a187589dba24aceec9bee103ece949d10a709"
+    },
+    {
+      "file": "vendor/togt/include/drolib/planner/traj_params.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/planner/traj_params.hpp",
+      "sha256": "6d0cef4fd9eb9c662fd16a2d2049fcd19852b464df828fda3d28cf7494128029"
+    },
+    {
+      "file": "vendor/togt/include/drolib/planner/traj_solver.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/planner/traj_solver.hpp",
+      "sha256": "6ada802b50746fdb8275f06676d91671fc8af506b7864ab8a8823fea99c50477"
+    },
+    {
+      "file": "vendor/togt/include/drolib/planner/waypoint.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/planner/waypoint.hpp",
+      "sha256": "70c9a2510f7efe96694826594b8bec95cb4a319de5671aa2e819aa1437697138"
+    },
+    {
+      "file": "vendor/togt/include/drolib/polynomial/cubic_spline.h",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/polynomial/cubic_spline.h",
+      "sha256": "c4b72c4c0b06c3e08c71a2b5033529cc3a014eddb562da804dac972ca66bfbcb"
+    },
+    {
+      "file": "vendor/togt/include/drolib/polynomial/piecewise_polynomial.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/polynomial/piecewise_polynomial.hpp",
+      "sha256": "5f77e3e0b6b6818c04899a0f42f4922f90369ee77a33757c9ede81a44e1aeadd"
+    },
+    {
+      "file": "vendor/togt/include/drolib/polynomial/polynomial.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/polynomial/polynomial.hpp",
+      "sha256": "536089f527c58372f65050be07795c88249f946a8dbc1491c31534a05c5776af"
+    },
+    {
+      "file": "vendor/togt/include/drolib/rotation/rotation_utils.h",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/rotation/rotation_utils.h",
+      "sha256": "ef85bf94c3d571c432adda2fc2d9d570c6daf141a6c3820b44ea4262aa857159"
+    },
+    {
+      "file": "vendor/togt/include/drolib/shape/ball.h",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/shape/ball.h",
+      "sha256": "c4f6e2a35f3a3a4e6b19b424617478aad13a34edcec68f6ac10882470fe6dfd2"
+    },
+    {
+      "file": "vendor/togt/include/drolib/shape/polyhedron.h",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/shape/polyhedron.h",
+      "sha256": "8d9f1c17f2341d43b90e22d84acec3ce3ac27d1a02318da8fcaf7fb88f51a16f"
+    },
+    {
+      "file": "vendor/togt/include/drolib/solver/banded_system.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/solver/banded_system.hpp",
+      "sha256": "54388b582fbd6d741e1f623e981e94e07ee5d60d36946c4f9db7c73dd18c2a76"
+    },
+    {
+      "file": "vendor/togt/include/drolib/solver/lbfgs.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/solver/lbfgs.hpp",
+      "sha256": "5a4be0bc315204d2fee6c6bedc365c2274f622e84e20f89db731703eefeb3b2f"
+    },
+    {
+      "file": "vendor/togt/include/drolib/solver/lbfgs_params.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/solver/lbfgs_params.hpp",
+      "sha256": "ff3a52c8096fc584bbfc4247dd8af2837c4d53662f11136dd62eb64969d20d56"
+    },
+    {
+      "file": "vendor/togt/include/drolib/solver/minco_snap.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/solver/minco_snap.hpp",
+      "sha256": "d275b3e117896c80f8cced9b02b37d0f0fd6f16880348dfd32a13b40e348a1f2"
+    },
+    {
+      "file": "vendor/togt/include/drolib/solver/root_finder.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/solver/root_finder.hpp",
+      "sha256": "13bca4994943d206385d6d5024a5d195844d759d37d43188773426501da65b53"
+    },
+    {
+      "file": "vendor/togt/include/drolib/system/quadrotor_manifold.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/system/quadrotor_manifold.hpp",
+      "sha256": "5c716cc86d8b78b509ce422ed3b4273d79ecec2c514de1c12facd013ef4fed20"
+    },
+    {
+      "file": "vendor/togt/include/drolib/system/quadrotor_params.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/system/quadrotor_params.hpp",
+      "sha256": "cd8cdd2bcda54b2d3fe2131d6ec7eba3fd9859c90551756714cf29c74fed7e28"
+    },
+    {
+      "file": "vendor/togt/include/drolib/type/command.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/type/command.hpp",
+      "sha256": "2a2e39efae656afee0dc0fc25fa836858169d0be97104743115a7a1128a47947"
+    },
+    {
+      "file": "vendor/togt/include/drolib/type/quad_state.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/type/quad_state.hpp",
+      "sha256": "1b37a36a7733ce872b90b0530821a73559c179a88b25721e4811b5033d84cc4d"
+    },
+    {
+      "file": "vendor/togt/include/drolib/type/set_point.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/type/set_point.hpp",
+      "sha256": "a87fe75fbf359813dfa17413f2e4d9ec0812155144be18dd5aec68d3ff44816c"
+    },
+    {
+      "file": "vendor/togt/include/drolib/type/types.hpp",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/include/drolib/type/types.hpp",
+      "sha256": "31a1e1c5c178ff7aab06d361d666a0c3e2cb87f8e2b779afc92a72419110da60"
+    },
+    {
+      "file": "vendor/togt/LICENSE",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/LICENSE",
+      "sha256": "97c4e2a6275456f72acaf82fd31c75f933407ee2c4e407bcf4135b6e7a8a5721"
+    },
+    {
+      "file": "vendor/togt/UPSTREAM_README.md",
+      "source": "静态凸窗口/复现/TOGT-Planner-ICRA2024/README.md",
+      "sha256": "20dde0fd91c7f3f5cf0997418cced9b5dca6590f773c68a226489ae3a1b60ee5"
+    },
+    {
+      "file": "records/a75_f6_free8_20261112/PROTOCOL.json",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/PROTOCOL.json",
+      "sha256": "5649031eb78af52ae813930ed198ee628b320d7c7844cc100916f8f68104e01d"
+    },
+    {
+      "file": "records/a75_f6_free8_20261112/SUMMARY.json",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/SUMMARY.json",
+      "sha256": "3be53e89ebedfaaf5933d533f7079728e5cf18dea629e17cdc57690d7e058168"
+    },
+    {
+      "file": "records/a75_f6_free8_20261112/VALIDATION.json",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/VALIDATION.json",
+      "sha256": "bba28dc7e3ffbb2b901ecd45d6634f86a4a65f6d3cbf6e181cfa7c44f39e61dc"
+    },
+    {
+      "file": "records/a75_f6_free8_20261112/REPORT.md",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/REPORT.md",
+      "sha256": "02c78b58466762800234100439ee0003ebd6b26484147709809449f1a8bd4835"
+    },
+    {
+      "file": "records/a75_f6_free8_20261112/SOURCE_COMMIT.txt",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/SOURCE_COMMIT.txt",
+      "sha256": "5dd0c24429ca3bcbf524df2b9e4833a31a898ba60d77c679e41ac491780cff75"
+    },
+    {
+      "file": "records/a75_f6_free8_20261112/final_report.cpp",
+      "source": "convex_timevarying_window/comparisons/论文实验/实验2/results/restored_cpp_pvaj_free8_a75_f6_v1_20261112/source_snapshot/final_report.cpp",
+      "sha256": "4584d9ab7b3b713198a9e97e06d5a1a93db5532a3798f0c45025ce138ca03fea"
+    }
+  ]
+}

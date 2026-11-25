@@ -1,0 +1,99 @@
+{
+  "max_step_s": 0.001,
+  "region": "physical aperture projection and absolute signed plane distance below planning safety sphere radius",
+  "results": [
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 32039,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/center_1/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 32039,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/center_3/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 32039,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/center_4/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 32039,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/center_5/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 32039,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/center_6/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 32039,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/center_7/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 28231,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/ours_0/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 28231,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/ours_1/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 28231,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/ours_2/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 28231,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/ours_4/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 28231,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/ours_5/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 28231,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/ours_6/result.json",
+      "violating_gates": []
+    },
+    {
+      "original_found": true,
+      "passed_sampled_proposal": true,
+      "samples": 28231,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/paired_v1/compact_slalom_static/candidates/ours_7/result.json",
+      "violating_gates": []
+    }
+  ],
+  "rule": "entry side through incoming piece; exit side from outgoing piece",
+  "scope": "read-only evaluation of proposed local side rule; no optimization"
+}

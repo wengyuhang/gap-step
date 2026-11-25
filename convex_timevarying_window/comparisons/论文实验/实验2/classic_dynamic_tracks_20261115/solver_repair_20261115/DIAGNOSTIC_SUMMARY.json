@@ -1,0 +1,854 @@
+{
+  "timestamp": "2026-11-16T05:17:32.137399+00:00",
+  "status": "diagnosis_recorded_repair_unresolved",
+  "qualified_repaired_trajectories": 0,
+  "completed_diagnostic_results": 50,
+  "interrupted_diagnostics": [
+    {
+      "diagnostic": "clock_damped_warm_ours_0",
+      "record": "results/clock_damped_warm_ours_0/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "clock_penalty_warm_center_0",
+      "record": "results/clock_penalty_warm_center_0/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "clock_units_cold_ours_0",
+      "record": "results/clock_units_cold_ours_0/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "clock_units_warm_ours_0",
+      "record": "results/clock_units_warm_ours_0/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "exact_speed1_ours_0",
+      "record": "results/exact_speed1_ours_0/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "exact_speed6p5_center_7",
+      "record": "results/exact_speed6p5_center_7/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "exact_speed6p5_ours_7",
+      "record": "results/exact_speed6p5_ours_7/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "natural_warm_ours_0",
+      "record": "results/natural_warm_ours_0/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "speed6p5_seed_v2_center_0",
+      "record": "results/speed6p5_seed_v2_center_0/INTERRUPTED.json"
+    },
+    {
+      "diagnostic": "speed6p5_seed_v2_ours_0",
+      "record": "results/speed6p5_seed_v2_ours_0/INTERRUPTED.json"
+    }
+  ],
+  "records": [
+    {
+      "diagnostic": "arrival_speed1_center_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 308.616085712,
+          "constraint_violation_inf": 88.86099958937282,
+          "nominal_time_s": null,
+          "native_objective": 73344.02840463187
+        }
+      ]
+    },
+    {
+      "diagnostic": "arrival_speed1_ours_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 335.375451349,
+          "constraint_violation_inf": 113.31407171157811,
+          "nominal_time_s": null,
+          "native_objective": 4713389.323039874
+        }
+      ]
+    },
+    {
+      "diagnostic": "arrival_speed6p5_center_7",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 296.802552577,
+          "constraint_violation_inf": 1.2225449862360491,
+          "nominal_time_s": null,
+          "native_objective": 59234.59214932368
+        }
+      ]
+    },
+    {
+      "diagnostic": "arrival_speed6p5_ours_7",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 336.489134406,
+          "constraint_violation_inf": 1419.6967274837698,
+          "nominal_time_s": null,
+          "native_objective": 682649.2467053327
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_center_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 257.715299922,
+          "constraint_violation_inf": 335406105.89453393,
+          "nominal_time_s": null,
+          "native_objective": 79445058221.91194
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_damped_warm_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 1539,
+          "solver_s": 689.017930121,
+          "constraint_violation_inf": 2.7623918504228365e-14,
+          "nominal_time_s": null,
+          "native_objective": 2173504.600207969
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_ours_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 357.226839303,
+          "constraint_violation_inf": 1433.845985532418,
+          "nominal_time_s": null,
+          "native_objective": 3749528.463755372
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_reduced_cold_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 4017,
+          "solver_s": 1210.647347363,
+          "constraint_violation_inf": 3.348353758088286e-13,
+          "nominal_time_s": null,
+          "native_objective": 416.8077204095472
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_reduced_cold_center_7",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 1572.784019532,
+          "constraint_violation_inf": 7.2059143096936396e-09,
+          "nominal_time_s": null,
+          "native_objective": 342.11996648342705
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_reduced_cold_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 1864.421568629,
+          "constraint_violation_inf": 4.4198269606765384e-13,
+          "nominal_time_s": null,
+          "native_objective": 341.04858113120076
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_reduced_cold_ours_7",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 3937,
+          "solver_s": 1439.286884158,
+          "constraint_violation_inf": 1.8750781045294404e-13,
+          "nominal_time_s": null,
+          "native_objective": 342.5210937983218
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_reduced_warm_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 1511.376500731,
+          "constraint_violation_inf": 1.470710775386408e-10,
+          "nominal_time_s": null,
+          "native_objective": 28.04836674640039
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_reduced_warm_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 1797.642421896,
+          "constraint_violation_inf": 4.707345624410664e-13,
+          "nominal_time_s": null,
+          "native_objective": 43.12507177964274
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_units_cold_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 1416,
+          "solver_s": 466.712429605,
+          "constraint_violation_inf": 1.1600387317400873e-11,
+          "nominal_time_s": null,
+          "native_objective": 294250.94885026244
+        }
+      ]
+    },
+    {
+      "diagnostic": "clock_units_warm_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 928,
+          "solver_s": 311.647339214,
+          "constraint_violation_inf": 4.8183679268731794e-14,
+          "nominal_time_s": null,
+          "native_objective": 28.3472156834419
+        }
+      ]
+    },
+    {
+      "diagnostic": "continuation_weight1_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 1812.444567615,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 126.37635103913593
+        }
+      ]
+    },
+    {
+      "diagnostic": "continuation_weight1_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 1597,
+          "solver_s": 687.324702378,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 55930.46012965533
+        }
+      ]
+    },
+    {
+      "diagnostic": "exact_speed1_center_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Restoration_Failed",
+          "raw_solver_status": null,
+          "iterations": 489,
+          "solver_s": 278.452537194,
+          "constraint_violation_inf": 1543.8731835585907,
+          "nominal_time_s": null,
+          "native_objective": 2466357.3433255614
+        }
+      ]
+    },
+    {
+      "diagnostic": "forward_center_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 296.797225206,
+          "constraint_violation_inf": 1.6941901808363036,
+          "nominal_time_s": null,
+          "native_objective": 18652.826281699905
+        }
+      ]
+    },
+    {
+      "diagnostic": "forward_ours_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 303.301244145,
+          "constraint_violation_inf": 35087.35716836723,
+          "nominal_time_s": null,
+          "native_objective": 1137760143.1417403
+        }
+      ]
+    },
+    {
+      "diagnostic": "history64_center_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 660.804747291,
+          "constraint_violation_inf": 5.102959321798774,
+          "nominal_time_s": null,
+          "native_objective": 2923.665520886967
+        }
+      ]
+    },
+    {
+      "diagnostic": "history64_ours_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 682.496620196,
+          "constraint_violation_inf": 2628.1413015097,
+          "nominal_time_s": null,
+          "native_objective": 2193988.7610387923
+        }
+      ]
+    },
+    {
+      "diagnostic": "lifted_metric_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 229,
+          "solver_s": 14.242884919,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 28.118434139340092
+        }
+      ]
+    },
+    {
+      "diagnostic": "lifted_metric_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 2842,
+          "solver_s": 126.539120409,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 35.36896612652402
+        }
+      ]
+    },
+    {
+      "diagnostic": "lifted_reduced_native_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 205,
+          "solver_s": 12.41792505,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 28.248272737570552
+        }
+      ]
+    },
+    {
+      "diagnostic": "lifted_reduced_native_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 41,
+          "solver_s": 2.890652891,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 28.46176165307959
+        }
+      ]
+    },
+    {
+      "diagnostic": "lifted_reduced_symbolic_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 4939,
+          "solver_s": 1745.242860463,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 27.68391660668835
+        }
+      ]
+    },
+    {
+      "diagnostic": "lifted_reduced_symbolic_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 1926.800568795,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 874439.654633113
+        }
+      ]
+    },
+    {
+      "diagnostic": "lifted_time_center_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 297.401669618,
+          "constraint_violation_inf": 542.9667570916203,
+          "nominal_time_s": null,
+          "native_objective": 597636.849200248
+        }
+      ]
+    },
+    {
+      "diagnostic": "lifted_time_ours_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 338.992590228,
+          "constraint_violation_inf": 560.4629578450384,
+          "nominal_time_s": null,
+          "native_objective": 153392.13760056847
+        }
+      ]
+    },
+    {
+      "diagnostic": "natural_cold_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 696,
+          "solver_s": 47.658638569,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 346454.1749441858
+        }
+      ]
+    },
+    {
+      "diagnostic": "natural_cold_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 328.856633192,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 91.77348703972858
+        }
+      ]
+    },
+    {
+      "diagnostic": "natural_warm_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 323.42995364,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 418301.5759215254
+        }
+      ]
+    },
+    {
+      "diagnostic": "observed_limited_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Search_Direction_Becomes_Too_Small",
+          "raw_solver_status": null,
+          "iterations": 2237,
+          "solver_s": 132.606077484,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 32.97708411732176
+        }
+      ]
+    },
+    {
+      "diagnostic": "observed_limited_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 284.444578262,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 41.94260765375635
+        }
+      ]
+    },
+    {
+      "diagnostic": "reduced_limited_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Search_Direction_Becomes_Too_Small",
+          "raw_solver_status": null,
+          "iterations": 2237,
+          "solver_s": 131.501080851,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 32.97708411732176
+        }
+      ]
+    },
+    {
+      "diagnostic": "reduced_limited_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 284.722165881,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 41.94260765375635
+        }
+      ]
+    },
+    {
+      "diagnostic": "reduced_v2_speed1_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 2827,
+          "solver_s": 1084.151314358,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 38.92803348335141
+        }
+      ]
+    },
+    {
+      "diagnostic": "reduced_v2_speed1_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 2090.660295026,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 754932.6062341362
+        }
+      ]
+    },
+    {
+      "diagnostic": "reduced_v2_speed6p5_center_7",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 1892.543757478,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 33.35193235877045
+        }
+      ]
+    },
+    {
+      "diagnostic": "reduced_v2_speed6p5_ours_7",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Error_In_Step_Computation",
+          "raw_solver_status": null,
+          "iterations": 3140,
+          "solver_s": 1314.608855113,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 34.89039756358337
+        }
+      ]
+    },
+    {
+      "diagnostic": "speed6p5_seed_v2_center_7",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 283.970730503,
+          "constraint_violation_inf": 1834.3700481681956,
+          "nominal_time_s": null,
+          "native_objective": 13642757.259926535
+        }
+      ]
+    },
+    {
+      "diagnostic": "speed6p5_seed_v2_ours_7",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 328.013388568,
+          "constraint_violation_inf": 228412512.04860994,
+          "nominal_time_s": null,
+          "native_objective": 2660588612171.525
+        }
+      ]
+    },
+    {
+      "diagnostic": "sqp_native_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 144.210008305,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 52.42046513912218
+        }
+      ]
+    },
+    {
+      "diagnostic": "sqp_native_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 208.964940774,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 71.30251689407356
+        }
+      ]
+    },
+    {
+      "diagnostic": "symbolic_center_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 1862.268088294,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 37.35095454206817
+        }
+      ]
+    },
+    {
+      "diagnostic": "symbolic_ours_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 2078.374482083,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 38.39793642031593
+        }
+      ]
+    },
+    {
+      "diagnostic": "trust_warm_center_v2_0",
+      "found": false,
+      "termination_reason": "finite_optimizer_not_converged",
+      "calls": [
+        {
+          "status": "iteration limit",
+          "raw_solver_status": "iteration limit",
+          "iterations": 5000,
+          "solver_s": 95.934144476,
+          "constraint_violation_inf": 0.0,
+          "nominal_time_s": null,
+          "native_objective": 28.514232156729157
+        }
+      ]
+    },
+    {
+      "diagnostic": "unscaled_objective_center_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 375.603929779,
+          "constraint_violation_inf": 81.75900931394875,
+          "nominal_time_s": null,
+          "native_objective": 1391440568.8067586
+        }
+      ]
+    },
+    {
+      "diagnostic": "unscaled_objective_ours_0",
+      "found": false,
+      "termination_reason": "finite_constraint_violation",
+      "calls": [
+        {
+          "status": "Maximum_Iterations_Exceeded",
+          "raw_solver_status": null,
+          "iterations": 5000,
+          "solver_s": 312.512913913,
+          "constraint_violation_inf": 14.833545068612061,
+          "nominal_time_s": null,
+          "native_objective": 3414298.635630234
+        }
+      ]
+    }
+  ],
+  "original_frozen_source_and_inputs_unchanged": true,
+  "active_diagnostic_processes": 0,
+  "official_results_replaced": false,
+  "snapshot_scope": "Earlier 50 unsuccessful development diagnostics only; adopted later repair is in REPAIR_SUMMARY.json."
+}

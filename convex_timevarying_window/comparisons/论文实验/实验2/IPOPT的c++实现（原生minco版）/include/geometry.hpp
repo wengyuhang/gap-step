@@ -42,6 +42,24 @@ std::vector<double> roots(const Eigen::VectorXd& polynomial) {
     return values;
 }
 
+// A zero-PVAJ hover endpoint on a gate plane is a root of multiplicity >=4.
+// Remove only this known terminal contact; preserve every other plane crossing.
+inline Eigen::VectorXd without_terminal_hover_contact(Eigen::VectorXd p,bool enabled) {
+    if(!enabled || p.size()<5)return p;
+    const double tolerance=1e-8*(1.+p.cwiseAbs().maxCoeff());
+    for(int d=0;d<4;++d) {
+        double value=0.;for(int k=p.size()-1;k>=d;--k) {
+            double factor=1.;for(int i=0;i<d;++i)factor*=k-i;value+=factor*p[k];
+        }
+        if(std::abs(value)>tolerance)return p;
+    }
+    for(int d=0;d<4;++d) {
+        Eigen::VectorXd q(p.size()-1);q[q.size()-1]=p[p.size()-1];
+        for(int k=q.size()-2;k>=0;--k)q[k]=p[k+1]+q[k+1];p=q;
+    }
+    return p;
+}
+
 double binomial(int n,int k) {
     double value=1.;
     for (int i=1;i<=k;++i) value*=static_cast<double>(n-i+1)/i;

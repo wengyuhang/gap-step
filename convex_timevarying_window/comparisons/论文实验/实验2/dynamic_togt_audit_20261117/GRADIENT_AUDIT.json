@@ -1,0 +1,23 @@
+{
+  "checks": [
+    {
+      "active_point_gradient": 332.9070315647646,
+      "center": false,
+      "dynamic_gradient_relative_error": 6.8902028011408125e-06,
+      "passed": true,
+      "pose_error_m": 1.3037820665340793e-15,
+      "stationary_gradient_error": 0.0,
+      "stationary_value_error": 0.0
+    },
+    {
+      "active_point_gradient": 0.0,
+      "center": true,
+      "dynamic_gradient_relative_error": 1.5922862185794446e-06,
+      "passed": true,
+      "pose_error_m": 8.672229490063184e-16,
+      "stationary_gradient_error": 0.0,
+      "stationary_value_error": 0.0
+    }
+  ],
+  "passed": true
+}

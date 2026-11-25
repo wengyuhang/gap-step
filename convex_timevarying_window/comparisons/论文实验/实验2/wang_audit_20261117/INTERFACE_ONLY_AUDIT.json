@@ -1,0 +1,20 @@
+{
+  "candidate_count": 840,
+  "complete": true,
+  "counts": {
+    "未完成": 4,
+    "碰撞": 7,
+    "通过": 11
+  },
+  "eligible_count": 807,
+  "failure_reasons": {
+    "no_converged_local_candidate": 1,
+    "no_task_valid_converged_local_candidate": 4
+  },
+  "maximum_C3_join_relative_error": 3.5525543625049005e-11,
+  "maximum_dynamic_center_error_m": 1.5553648033967683e-13,
+  "maximum_returned_objective_error": 0.0,
+  "passed": true,
+  "selected_candidates": 205,
+  "trial_evaluation_errors": 0
+}

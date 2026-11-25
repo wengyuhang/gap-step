@@ -1,0 +1,10 @@
+{
+  "state": "complete",
+  "accepted": {
+    "ours": 0,
+    "center": 0
+  },
+  "planning_comparison": "both not found",
+  "gazebo_runs": 0,
+  "frozen_integrity": true
+}

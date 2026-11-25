@@ -1,0 +1,9 @@
+{
+  "durations": [
+    0.3,
+    1.0,
+    3.0
+  ],
+  "maximum_endpoint_PVAJ_error": 2.2936987302749355e-10,
+  "passed": true
+}

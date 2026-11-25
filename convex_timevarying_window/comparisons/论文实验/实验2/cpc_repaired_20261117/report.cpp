@@ -1,0 +1,185 @@
+#include "json.hpp"
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+using J = nlohmann::json;
+namespace fs = std::filesystem;
+J read(const fs::path &p) {
+  std::ifstream f(p);
+  if (!f)
+    throw std::runtime_error(p.string());
+  J j;
+  f >> j;
+  return j;
+}
+std::string num(double t, int digits = 3) {
+  std::ostringstream o;
+  o << std::fixed << std::setprecision(digits) << t;
+  return o.str();
+}
+int main(int argc, char **argv) {
+  try {
+    fs::path e = fs::absolute(argv[1]),
+             out = e / "six_methods_cpc_repaired_20261117";
+    fs::create_directories(out);
+    auto ours = read(e / "robust_ipopt_full_20261117/results/SUMMARY.json"),
+         togt = read(e / "dynamic_togt_audit_20261117/results/SUMMARY.json"),
+         wang = read(e / "wang_audit_20261117/results_aligned/SUMMARY.json");
+    J rows = J::array(), counts = J::object();
+    int cpc_done = 0;
+    std::vector<std::string> methods = {
+        "ours_free", "ours_center", "togt_free", "togt_center", "wang", "cpc"};
+    for (auto &r : ours) {
+      std::string lv = r["level"];
+      J m = J::object();
+      for (auto pair : std::vector<std::pair<std::string, std::string>>{
+               {"ours_free", "ours"}, {"ours_center", "center"}}) {
+        auto d = r["methods"][pair.second];
+        auto selected = e / "robust_ipopt_full_20261117/results" / lv /
+                        d["selected"].get<std::string>();
+        auto assessment = read(selected / "mesh_assessment.json");
+        if (!d.value("found", false) || !assessment.value("passed", false))
+          throw std::runtime_error(
+              "Own-method source does not support success: " +
+              selected.string());
+        if (std::abs(assessment["full_trajectory_time_s"].get<double>() -
+                     d["nominal_time_s"].get<double>()) > 1e-6)
+          throw std::runtime_error("Own-method time mismatch: " +
+                                   selected.string());
+        m[pair.first] = {{"verdict", "通过"},
+                         {"trajectory_s", d["nominal_time_s"]},
+                         {"compute_s", d["total_planning_wall_s"]},
+                         {"compute_includes_validation", true},
+                         {"source", (e / "robust_ipopt_full_20261117/results" /
+                                     lv / "SUMMARY.json")
+                                        .string()}};
+      }
+      for (auto &t : togt)
+        if (t["level"] == lv) {
+          auto a = read(fs::path(t["result"].get<std::string>()).parent_path() /
+                        "assessment.json");
+          m[t["mode"] == "free" ? "togt_free" : "togt_center"] = {
+              {"verdict", t["verdict"]},
+              {"trajectory_s", t["trajectory_s"]},
+              {"compute_s",
+               t["compute_s"].get<double>() + a["check_s"].get<double>()},
+              {"optimization_s", t["compute_s"]},
+              {"check_s", a["check_s"]},
+              {"source", t["result"]}};
+        }
+      for (auto &w : wang)
+        if (w["level"] == lv) {
+          auto a = read(fs::path(w["result"].get<std::string>()).parent_path() /
+                        "assessment.json");
+          m["wang"] = {{"verdict", w["verdict"]},
+                       {"trajectory_s", w["trajectory_s"]},
+                       {"compute_s", w["compute_s"].get<double>() +
+                                         a["check_s"].get<double>()},
+                       {"optimization_s", w["compute_s"]},
+                       {"check_s", a["check_s"]},
+                       {"source", w["result"]}};
+        }
+      auto cp = e / "cpc_repaired_20261117/results" / lv;
+      if (fs::exists(cp / "result.json") &&
+          fs::exists(cp / "assessment.json")) {
+        auto c = read(cp / "result.json"), a = read(cp / "assessment.json");
+        ++cpc_done;
+        std::string cpcVerdict=a["verdict"];
+        if(a.contains("finer_rollout_max_position_drift_m") && a["finer_rollout_max_position_drift_m"].get<double>()>.01) cpcVerdict="未完成（积分未通过）";
+        m["cpc"] = {{"verdict", cpcVerdict}, {"raw_geometric_verdict",a["verdict"]},
+                    {"trajectory_s", c["nominal_time_s"]},
+                    {"compute_s", c["total_compute_s"].get<double>() +
+                                      a["check_s"].get<double>()},
+                    {"setup_s", c["setup_s"]},
+                    {"optimization_s", c["solve_s"]},
+                    {"check_s", a["check_s"]},
+                    {"optimizer_converged", c["optimizer_converged"]}, {"solver_status",c["status"]}, {"iterations",c["iterations"]},
+                    {"source", (cp / "result.json").string()}};
+      } else
+        m["cpc"] = {{"verdict", "待完成"},
+                    {"trajectory_s", nullptr},
+                    {"compute_s", nullptr}};
+      double best = INFINITY;
+      for (auto &name : methods)
+        if (m[name]["verdict"] == "通过" && !m[name]["trajectory_s"].is_null())
+          best = std::min(best, m[name]["trajectory_s"].get<double>());
+      for (auto &name : methods) {
+        std::string v = m[name]["verdict"];
+        if (!counts[name].contains(v))
+          counts[name][v] = 0;
+        counts[name][v] = counts[name][v].get<int>() + 1;
+        m[name]["best_valid"] =
+            v == "通过" && !m[name]["trajectory_s"].is_null() &&
+            std::abs(m[name]["trajectory_s"].get<double>() - best) < 1e-9;
+      }
+      rows.push_back({{"level", lv}, {"methods", m}});
+    }
+    std::ofstream(out / "SUMMARY.json") << J{{"complete", cpc_done == 22},
+                                             {"cpc_completed", cpc_done},
+                                             {"counts", counts},
+                                             {"rows", rows}}
+                                               .dump(2)
+                                        << '\n';
+    std::ofstream t(out / "PLANNING.md"), c(out / "COMPUTE_TIME.md");
+    t << "# 六方法规划竞速时间\n\n"
+      << (cpc_done == 22 ? "完整22条件。"
+                         : "进行中：CPC已复查 " + std::to_string(cpc_done) +
+                               "/22；待完成不算失败。")
+      << "单位秒；到各赛道原任务终点。**"
+         "粗体为该行无碰撞且任务完成结果中的最短时间**"
+         "，不是全局最优证明。碰撞仍列候选时间；未完成/"
+         "未找到不得计为有效成绩。仅规划、无实飞。\n\n|条件|本文自由点|"
+         "本文中心|动态TOGT自由点|动态TOGT中心|Wang独立复现|动态CPC中心邻域|\n|"
+         "---|---:|---:|---|---|---|---|\n";
+    c << "# "
+         "六方法计算墙钟（另表）\n\n单位秒。各方法从现成输入开始，到获得本次最"
+         "终规划及判定的墙钟：本文为8配置并行（两方法共16路）的初值生成+"
+         "全部候选+验收；TOGT为独立单次建模/"
+         "求解+几何复查；Wang为全程局部请求+复查，**不含离线符号图生成**"
+         "；CPC为建图/"
+         "创建求解器+单原始初值的积分与互补精度延续求解+"
+         "采样审查。并行候选CPU时间不累加。CPC静态先独立运行，其余最多7条件并行"
+         "、各单线程；硬件竞争和不同初始化数量均会影响墙钟，不能仅凭本表归因算"
+         "法复杂度。\n\n|条件|本文自由点|本文中心|动态TOGT自由点|动态TOGT中心|"
+         "Wang独立复现|动态CPC|\n|---|---:|---:|---:|---:|---:|---:|\n";
+    for (auto &r : rows) {
+      t << "|" << r["level"].get<std::string>();
+      c << "|" << r["level"].get<std::string>();
+      for (auto &name : methods) {
+        auto m = r["methods"][name];
+        std::string v = m["verdict"];
+        t << "|";
+        if (v == "通过") {
+          if (m["best_valid"].get<bool>())
+            t << "**";
+          t << num(m["trajectory_s"]);
+          if (m["best_valid"].get<bool>())
+            t << "**";
+        } else {
+          t << v;
+          if (!m["trajectory_s"].is_null())
+            t << "（" << num(m["trajectory_s"]) << "）";
+        }
+        c << "|" << (m["compute_s"].is_null() ? "待完成" : num(m["compute_s"]));
+      }
+      t << "|\n";
+      c << "|\n";
+    }
+    t << "\n共同布局、运动、QuadA、0.15m实体碰撞球、门序和终点。本文与TOGT/"
+         "Wang用浮点包络/STL复查，CPC用≤1ms原生RK4采样/"
+         "STL及开口括根；采样无碰撞不代表连续安全证书。TOGT作者权重1/"
+         "单初值，本文权重1000/"
+         "8配置；Wang含已注明的局部终态与初始化适配；CPC0.3m邻域与由0."
+         "01逐级收紧到1e-8的互补放宽及等价tau消元，不是强制过中心。六方法比较不是同目标、同求解预算或同动力"
+         "学可行域消融。本文及TOGT引用既有已完成批次，Wang使用统一PVAJ对齐最终"
+         "批次，CPC每条件单次新算。全部来源和细分耗时见SUMMARY.json。\n";
+    std::cout << "CPC assessed " << cpc_done << "/22\n"
+              << counts.dump(2) << '\n';
+    return 0;
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << '\n';
+    return 1;
+  }
+}

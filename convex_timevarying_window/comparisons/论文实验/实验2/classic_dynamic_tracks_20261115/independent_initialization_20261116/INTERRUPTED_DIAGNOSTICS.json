@@ -1,0 +1,12 @@
+{
+  "at": "2026-11-16T17:56:40.411581+00:00",
+  "records": [
+    {
+      "pid": 101223,
+      "elapsed": "38:42",
+      "arguments": "/tmp/long_solver_repair_build_20261116/sip_planner /home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/independent_initialization_20261116/inputs/airsim_freq3/center_6 /home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/independent_initialization_20261116/results/airsim_freq3/center_6 0 --soft-mincopv /home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/safety020_five_methods_20261116/inputs/assets/airsim_freq3/scene.json 1000",
+      "action": "SIGTERM",
+      "reason": "prolonged diagnostic, no finite solve return; kept as interrupted, not optimizer failure"
+    }
+  ]
+}

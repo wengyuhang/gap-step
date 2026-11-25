@@ -64,3 +64,23 @@ if(BUILD_TESTING)
       ENVIRONMENT "OPENBLAS_NUM_THREADS=1;OMP_NUM_THREADS=1;MKL_NUM_THREADS=1")
   endforeach()
 endif()
+
+# SIP outer-loop policy regression and shared current safety configuration.
+target_compile_definitions(sip_planner PRIVATE SIP_X500_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/config/x500_togt.json")
+target_compile_definitions(restored_inputs PRIVATE SIP_X500_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/config/x500_togt.json")
+add_executable(sip_outer_unit tests/sip_outer_unit.cpp)
+target_include_directories(sip_outer_unit PRIVATE include)
+add_test(NAME sip_outer_unit COMMAND sip_outer_unit)
+
+add_executable(sip_result_unit tests/sip_result_unit.cpp)
+target_include_directories(sip_result_unit PRIVATE include)
+
+# Explicit-xy main experiment, using only self-contained C++ dependencies.
+add_executable(main_course_inputs src/main_course_inputs.cpp)
+target_include_directories(main_course_inputs PRIVATE include "${CASADI_ROOT}/include/eigen3")
+target_compile_options(main_course_inputs PRIVATE -O3 -ffp-contract=off)
+add_executable(planar_points_unit tests/planar_points_unit.cpp)
+target_include_directories(planar_points_unit PRIVATE include "${CASADI_ROOT}/include")
+target_compile_options(planar_points_unit PRIVATE -O3 -ffp-contract=off)
+target_link_libraries(planar_points_unit PRIVATE native_minco_pv "${CASADI_ROOT}/libcasadi.so")
+set_target_properties(planar_points_unit PROPERTIES BUILD_RPATH "${CASADI_ROOT}")

@@ -1,0 +1,17 @@
+{
+  "frozen_source_files": 2558,
+  "frozen_source_failures": [],
+  "copied_files": 6780,
+  "copied_bytes": 702460549,
+  "all_copies_identical": true,
+  "planning_rows": 50,
+  "planning_source_hashes_passed": true,
+  "flight_reference_pairs": 53,
+  "all_flight_references_match_planning": true,
+  "native_compressed_archives": 583,
+  "native_archive_hashes_passed": true,
+  "followup_source_differences": [],
+  "new_planning_or_flights": 0,
+  "passed": true,
+  "additional_original_protocol_template": true
+}

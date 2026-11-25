@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.18)
+project(pareto_initialization LANGUAGES C CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_subdirectory("../heuristic_initialization" "shared")
+set(NATIVE_PACKAGE "${CMAKE_CURRENT_SOURCE_DIR}/../../SLSQP的c++实现")
+add_executable(generate_pareto src/generate_pareto.cpp)
+target_include_directories(generate_pareto PRIVATE
+  "${CASADI_ROOT}/include" "${CASADI_ROOT}/include/eigen3"
+  "${NATIVE_PACKAGE}/include" "${NATIVE_PACKAGE}/vendor/togt/include")
+target_link_libraries(generate_pareto PRIVATE libcmaes::cmaes "${CASADI_ROOT}/libcasadi.so")
+target_compile_options(generate_pareto PRIVATE -O3 -ffp-contract=off)
+set_target_properties(generate_pareto PROPERTIES BUILD_RPATH "${CASADI_ROOT}")
+enable_testing()
+add_test(NAME pareto_unit COMMAND generate_pareto --unit)

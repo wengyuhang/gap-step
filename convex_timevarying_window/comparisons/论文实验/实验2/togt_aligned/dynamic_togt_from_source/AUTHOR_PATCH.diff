@@ -1,0 +1,95 @@
+--- author/include/drolib/planner/traj_solver.hpp
++++ dynamic/include/drolib/planner/traj_solver.hpp
+@@ -10,6 +10,7 @@
+ #include "drolib/system/quadrotor_manifold.hpp"
+ #include "drolib/type/types.hpp"
+ #include <deque>
++#include <functional>
+ #include "drolib/planner/angle.hpp"
+ 
+ namespace drolib {
+@@ -46,6 +47,15 @@
+   // bool getWaypoints() const;
+ 
+  public:
++  // Optional moving-waypoint adapter. It updates the shape poses at cumulative
++  // arrival times and returns the world velocity of each waypoint position.
++  std::function<void(const Eigen::VectorXd&, Eigen::Matrix3Xd&)> updateWaypointMotion;
++  int optimizerReturnCode{0};
++  int optimizerIterations{0};
++  int functionEvaluations{0};
++  static int recordIteration(void* ptr, const Eigen::VectorXd&, const Eigen::VectorXd&,
++                             double, double, int iteration, int);
++
+   MincoSnap minco;
+   Status status{Status::LBFGS_FAILED};
+   TrajData data;
+--- author/src/planner/traj_solver.cpp
++++ dynamic/src/planner/traj_solver.cpp
+@@ -31,7 +31,12 @@
+   minco.setConditions(initState, endState, data.totalPieces);
+ 
+   double cost{0.0};
+-  int ret = lbfgs_optimize(data.x, cost, &TrajSolver::costFunction, nullptr, nullptr, this, lbfgs.params);
++  optimizerIterations = 0;
++  functionEvaluations = 0;
++  int ret = lbfgs_optimize(data.x, cost, &TrajSolver::costFunction, nullptr,
++                           &TrajSolver::recordIteration, this, lbfgs.params);
++
++  optimizerReturnCode = ret;
+ 
+   // std::cout << "minimum cost: " << cost << "\n";
+   if (ret < 0) {
+@@ -42,6 +47,10 @@
+   Eigen::Map<const Eigen::VectorXd> K(data.x.data(), data.temporalVarDim);
+   Eigen::Map<const Eigen::VectorXd> D(data.x.data() + data.temporalVarDim, data.spatialVarDim);
+   forwardT(K, data.T);
++  if (updateWaypointMotion) {
++    Eigen::Matrix3Xd ignoredVelocity;
++    updateWaypointMotion(data.T, ignoredVelocity);
++  }
+   forwardP(D, data.waypoints, data.P);
+ 
+   status = static_cast<Status>(ret);
+@@ -51,9 +60,16 @@
+   return true;
+ }
+ 
++int TrajSolver::recordIteration(void* ptr, const Eigen::VectorXd&, const Eigen::VectorXd&,
++                                double, double, int iteration, int) {
++  static_cast<TrajSolver*>(ptr)->optimizerIterations = iteration;
++  return 0;
++}
++
+ double TrajSolver::costFunction(void *ptr, const Eigen::VectorXd &x,
+                                   Eigen::VectorXd &g) {
+   TrajSolver *obj = reinterpret_cast<TrajSolver *>(ptr);
++  ++obj->functionEvaluations;
+   const int dimK = obj->data.temporalVarDim;
+   const int dimD = obj->data.spatialVarDim;
+ 
+@@ -64,6 +80,8 @@
+   Eigen::Map<Eigen::VectorXd> gradD(g.data() + dimK, dimD);
+ 
+   forwardT(K, obj->data.T);
++  Eigen::Matrix3Xd waypointVelocity;
++  if (obj->updateWaypointMotion) obj->updateWaypointMotion(obj->data.T, waypointVelocity);
+   forwardP(D, obj->data.waypoints, obj->data.P);
+ 
+   double cost{0.0};
+@@ -79,6 +97,15 @@
+ 
+   cost += addTimeCost(obj->data.T, obj->tparams, obj->data.gradByTimes);
+ 
++  // Arrival i = T_0 + ... + T_i. Motion of waypoint i contributes to
++  // every preceding segment time through dJ/dP_i dot dP_i/darrival_i.
++  if (obj->updateWaypointMotion) {
++    double suffix = 0.0;
++    for (int i = obj->data.getNumPoints() - 1; i >= 0; --i) {
++      suffix += obj->data.gradByPoints.col(i).dot(waypointVelocity.col(i));
++      obj->data.gradByTimes(i) += suffix;
++    }
++  }
+   backPropagateT(K, obj->data.gradByTimes, gradK);
+   backPropagateP(D, obj->data.gradByPoints, obj->data.waypoints, gradD);
+ 

@@ -1,0 +1,88 @@
+{
+  "arm_length_m": 0.15,
+  "collision_proxy_note": "existing simulation body collision sphere radius0.15m; planning safety sphere radius0.30m; full propeller-inclusive author geometry unavailable",
+  "extra_point_clearance_m": 0.15,
+  "finite_numerical_margin_m": 0.0001,
+  "finite_safety_radius_m": 0.3851,
+  "gravity": 9.8066,
+  "inertia": [
+    0.001,
+    0.001,
+    0.0017
+  ],
+  "initial_speed_guess_mps": 1.0,
+  "inverse_mixer": [
+    [
+      0.25,
+      -2.357022603955159,
+      -2.3570226039551585,
+      -4.999999999999999
+    ],
+    [
+      0.25,
+      2.357022603955159,
+      2.3570226039551585,
+      -5.000000000000001
+    ],
+    [
+      0.25,
+      -2.357022603955159,
+      2.3570226039551585,
+      5.000000000000001
+    ],
+    [
+      0.25,
+      2.357022603955159,
+      -2.3570226039551585,
+      5.0
+    ]
+  ],
+  "limit_fraction": 1.0,
+  "mass": 0.85,
+  "mixer": [
+    [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    [
+      -0.10606601717798211,
+      0.10606601717798211,
+      -0.10606601717798211,
+      0.10606601717798211
+    ],
+    [
+      -0.10606601717798213,
+      0.10606601717798213,
+      0.10606601717798213,
+      -0.10606601717798213
+    ],
+    [
+      -0.05,
+      -0.05,
+      0.05,
+      0.05
+    ]
+  ],
+  "name": "TOGT_QuadA",
+  "nominal_point_inset_m": 0.3,
+  "physical_body_rate_limits_rad_s": [
+    15.0,
+    15.0,
+    3.0
+  ],
+  "planning_proxy_radius_m": 0.3,
+  "rate_squared_limits": [
+    225.0,
+    8.940100000000001
+  ],
+  "rotor_max_n": 6.879,
+  "rotor_min_n": 0.1,
+  "rotor_physical_min_n": 0.0,
+  "torque_coefficient": 0.05,
+  "verification_safety_radius_m": 0.385,
+  "physical_collision_radius_m": 0.15,
+  "physical_collision_geometry": "sphere",
+  "planning_safety_sphere_radius_m": 0.3
+}

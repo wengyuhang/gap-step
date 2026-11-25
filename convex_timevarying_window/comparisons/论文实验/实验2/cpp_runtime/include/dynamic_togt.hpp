@@ -15,6 +15,16 @@ struct SafePoint {
     bool circle;
     int dimension;
     explicit SafePoint(const Window& window,double inset):circle(window.circle) {
+        if (window.waypoint) {
+            auto ball = std::make_shared<drolib::Ball>();
+            ball->position.setZero();
+            ball->radius = window.waypoint_radius;
+            ball->margin = 0.;
+            ball->initialize();
+            shape = ball;
+            dimension = 3;
+            return;
+        }
         if(circle) {
             auto disk=std::make_shared<drolib::Ball>();
             disk->position.setZero();disk->radius=window.opening_radius+.085-inset;disk->margin=0.;
@@ -103,7 +113,7 @@ public:
         if(!(params_.speedGuess>0.))
             throw std::runtime_error("Positive initial speed is required");
         drolib::QuadParams quad_params;
-        quad_params.name="x500";quad_params.mass=vehicle.at("mass");
+        quad_params.name=vehicle.value("name",std::string("x500"));quad_params.mass=vehicle.at("mass");
         for(int axis=0;axis<3;++axis)quad_params.inertia[axis]=vehicle.at("inertia")[axis];
         quad_params.T_mb.resize(4,4);
         for(int i=0;i<4;++i)for(int j=0;j<4;++j)quad_params.T_mb(i,j)=vehicle.at("inverse_mixer")[i][j];

@@ -27,8 +27,9 @@ int main(int argc,char** argv) {
     try {
         if(argc!=6 && argc!=8)throw std::runtime_error("Usage: matrix BINARY_DIRECTORY GRAPH_DIRECTORY ASSET_DIRECTORY RESULT_DIRECTORY CONCURRENCY [LEVEL --direct-soft|--native-soft-eight]");
         const bool paired_direct=argc==8 && (std::string(argv[7])=="--direct-soft" || std::string(argv[7])=="--epigraph-weight-one");
+        const bool main_xy=argc==8 && std::string(argv[7])=="--main-xy-eight";
         const bool free_only=argc==8 && std::string(argv[7])=="--restored-pvaj-free-eight";
-        const bool restored_eight=free_only || (argc==8 && (std::string(argv[7])=="--restored-pv" || std::string(argv[7])=="--restored-pvaj"));
+        const bool restored_eight=main_xy || free_only || (argc==8 && (std::string(argv[7])=="--restored-pv" || std::string(argv[7])=="--restored-pvaj"));
         const bool togt_eight=argc==8 && std::string(argv[7])=="--togt-center-eight";
         const bool direct_points=argc==8 && std::string(argv[7])=="--native-direct-eight";
         const bool native_eight=argc==8 && (std::string(argv[7])=="--native-soft-eight" || direct_points);
@@ -55,6 +56,7 @@ int main(int argc,char** argv) {
             Job job{level,method,seed,""};if(!completed.count(job_name(job)))queue.push_back(job);
         }
         std::map<pid_t,Running> running;std::set<std::string> released;
+        if(main_xy)released.insert(argv[6]);
         for(const auto& row:candidates)if(row["method"]=="release")released.insert(row["level"]);
         double elapsed_offset=0.;
         if(const char* offset=std::getenv("WINDOW_MATRIX_ELAPSED_OFFSET"))elapsed_offset=std::stod(offset);
@@ -79,7 +81,8 @@ int main(int argc,char** argv) {
             if(job.method=="dynamic_togt")
                 args.push_back("--center-result="+(out/"candidates"/(job.level+"_dynamic_togt_center_0")/"result.json").string());
             if(native_eight || restored_eight) {
-                args.push_back(free_only?"--restored-pvaj":restored_eight?argv[7]:direct_points?"--soft-mincopv-direct":"--soft-mincopv");
+                const auto profile=main_xy?read(fs::path(graph)/"manifest.json"):Json::object();
+                args.push_back(main_xy && profile.contains("vehicle")?"--soft-mincopv":free_only || main_xy?"--restored-pvaj":restored_eight?argv[7]:direct_points?"--soft-mincopv-direct":"--soft-mincopv");
                 args.push_back((assets/job.level/"scene.json").string());args.push_back("1000");
             }
             if(paired_direct && (job.method=="ours" || job.method=="center" || job.method=="release"))args.push_back(argv[7]);
@@ -125,7 +128,7 @@ int main(int argc,char** argv) {
                 const auto folder=out/"plans"/(level+"_"+method);fs::create_directories(folder);
                 Json raw=best.is_null()?Json{{"found",false}}:read(best["source"].get<std::string>());
                 raw["candidate_records"]=rows;raw["method"]=method;raw["case"]={{"layout","togt_whole"},{"level",level}};
-                raw["scenario_variant"]="higher_swing_length_2p20";raw["selected_candidate_job"]=best.is_null()?Json(nullptr):best["job"];
+                raw["scenario_variant"]=main_xy?read(assets/level/"scene.json").value("scenario_variant",std::string("four_quad_three_circle_v1")):"higher_swing_length_2p20";raw["selected_candidate_job"]=best.is_null()?Json(nullptr):best["job"];
                 double total=0.;for(const auto& row:rows)total+=row.value("solve_s",0.);
                 double wall=total;
                 if(native_eight || restored_eight)wall=method=="center" ? center_elapsed : free_elapsed;
@@ -185,7 +188,7 @@ int main(int argc,char** argv) {
                     }
                     const double elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-began).count();
                     if(centers==8 && center_elapsed<0.)center_elapsed=elapsed;
-                    if(frees==8 && (free_only || native_eight || (centers==8 && release_done)) && free_elapsed<0.)free_elapsed=elapsed;
+                    if(frees==8 && (free_only || main_xy || native_eight || (centers==8 && release_done)) && free_elapsed<0.)free_elapsed=elapsed;
                 }
                 std::cout<<"CANDIDATE "<<job_name(job)<<' '<<row["found"]<<' '<<row["passed"]<<std::endl;
                 if(code!=0)throw std::runtime_error("Candidate process failed. Preserved output at "+folder.string());
@@ -208,7 +211,7 @@ int main(int argc,char** argv) {
         if(paired_direct || native_eight || restored_eight) {
             if(free_elapsed<0.)free_elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-began).count();
             save(out/"PAIRED_WALL.json",Json{{"level",argv[6]},{"center_wall_s",center_elapsed},{"free_wall_s",free_elapsed},
-                {"definition",free_only ? "8 independent free-point starts in parallel, no center solves or release; wall includes all candidates and independent geometry checks" : native_eight ? "8 independent starts per method, 8 total workers, no center release; per-method wall from pair start through all eight results and geometry checks" : "center: 8 simultaneous center candidates; free: 16 simultaneous candidates plus best-center release; includes checks and scheduling"}});
+                {"definition",main_xy ? "8 independent starts per method; no center release; per-method wall from common launch through eight results and checks" : free_only ? "8 independent free-point starts in parallel, no center solves or release; wall includes all candidates and independent geometry checks" : native_eight ? "8 independent starts per method, 8 total workers, no center release; per-method wall from pair start through all eight results and geometry checks" : "center: 8 simultaneous center candidates; free: 16 simultaneous candidates plus best-center release; includes checks and scheduling"}});
         }
         if(togt_eight)save(out/"TOGT_WALL.json",Json{{"level",argv[6]},{"wall_s",togt_elapsed},
             {"definition","eight parallel original TOGT center solves, independent geometry assessments and objective-based selection"}});

@@ -1,0 +1,49 @@
+Start testing: Nov 12 13:57 EST
+----------------------------------------------------------
+1/2 Testing: native_ours_kernel_and_gradient
+1/2 Test: native_ours_kernel_and_gradient
+Command: "/tmp/ipopt_native_minco_package_build_20261112/restored_unit" "/tmp/ipopt_native_minco_package_build_20261112/cases/inputs/a25_f6_ours" "/tmp/ipopt_native_minco_package_build_20261112/cases/assets/a25_f6/scene.json" "/tmp/ipopt_native_minco_package_build_20261112/parity_fixtures/legacy" "/tmp/ipopt_native_minco_package_build_20261112/native_ours_validation.json"
+Directory: /tmp/ipopt_native_minco_package_build_20261112
+"native_ours_kernel_and_gradient" start time: Nov 12 13:57 EST
+Output:
+----------------------------------------------------------
+{
+  "constraint_rows": 2011,
+  "dynamic_kernel_relative_error": 2.1305635148652328e-15,
+  "frame_kernel_relative_error": 2.325973218995402e-14,
+  "gradient_relative_error": 2.9407037123045136e-07,
+  "passed": true,
+  "trajectory_variables": 96
+}
+<end of output>
+Test time =   1.12 sec
+----------------------------------------------------------
+Test Passed.
+"native_ours_kernel_and_gradient" end time: Nov 12 13:57 EST
+"native_ours_kernel_and_gradient" time elapsed: 00:00:01
+----------------------------------------------------------
+
+2/2 Testing: native_center_kernel_and_gradient
+2/2 Test: native_center_kernel_and_gradient
+Command: "/tmp/ipopt_native_minco_package_build_20261112/restored_unit" "/tmp/ipopt_native_minco_package_build_20261112/cases/inputs/a25_f6_center" "/tmp/ipopt_native_minco_package_build_20261112/cases/assets/a25_f6/scene.json" "/tmp/ipopt_native_minco_package_build_20261112/parity_fixtures/legacy" "/tmp/ipopt_native_minco_package_build_20261112/native_center_validation.json"
+Directory: /tmp/ipopt_native_minco_package_build_20261112
+"native_center_kernel_and_gradient" start time: Nov 12 13:57 EST
+Output:
+----------------------------------------------------------
+{
+  "constraint_rows": 2007,
+  "dynamic_kernel_relative_error": 2.1305635148652328e-15,
+  "frame_kernel_relative_error": 2.325973218995402e-14,
+  "gradient_relative_error": 4.458863702824956e-07,
+  "passed": true,
+  "trajectory_variables": 71
+}
+<end of output>
+Test time =   1.14 sec
+----------------------------------------------------------
+Test Passed.
+"native_center_kernel_and_gradient" end time: Nov 12 13:57 EST
+"native_center_kernel_and_gradient" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Nov 12 13:57 EST

@@ -96,12 +96,12 @@ inline double numpy_frame_distance(const Window& window, const Vector& point) {
 }
 
 inline Json numpy_passage(const Curve& world, double duration, double start,
-        const Window& window, double radius) {
+        const Window& window, double radius, bool terminal_hover_contact=false) {
     const Curve local = numpy_local_curve(world, window);
     auto position = [&](double fraction) -> Vector {
         return evaluate(local, fraction) - window.motion(start + fraction * duration);
     };
-    for (double fraction : numpy_roots(local.col(2))) {
+    for (double fraction : numpy_roots(without_terminal_hover_contact(local.col(2),terminal_hover_contact))) {
         if (fraction > 1e-6 && fraction < 1. - 1e-6 && window.contains(position(fraction).head<2>()))
             return Json{{"passed", false}, {"outcome", "repeat_aperture_crossing"},
                 {"witness_u", nullptr}, {"boxes", 0}, {"minimum_sample_distance_m", 0.}};

@@ -1,0 +1,12 @@
+{
+  "planning_safety_sphere_radius_m": 0.3,
+  "physical_collision_geometry": "sphere",
+  "physical_collision_radius_m": 0.15,
+  "physical_collision_diameter_m": 0.3,
+  "configured_model": "togt_quada",
+  "collision_element": "safety_proxy",
+  "geometry_source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/togt_aligned/results/inputs_v3_mesh512_20261114/assets/static/world.sdf",
+  "geometry_source_sha256": "13c22f72378de5fc4ad1c2ad6aa75034fc0a3cd9ed4e058a0d5d6041f678e36e",
+  "geometry_evidence": "existing simulation collision entity; full propeller-inclusive QuadA outer dimensions were not supplied by the author",
+  "ground_contact_separately_recorded": true
+}

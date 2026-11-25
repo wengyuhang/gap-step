@@ -96,12 +96,14 @@ inline double numpy_frame_distance(const Window& window, const Vector& point) {
 }
 
 inline Json numpy_passage(const Curve& world, double duration, double start,
-        const Window& window, double radius) {
+        const Window& window, double radius, bool terminal_hover_contact=false,
+        int maximum_subdivisions=16384) {
+    if (maximum_subdivisions < 0) throw std::invalid_argument("Negative passage subdivision budget");
     const Curve local = numpy_local_curve(world, window);
     auto position = [&](double fraction) -> Vector {
         return evaluate(local, fraction) - window.motion(start + fraction * duration);
     };
-    for (double fraction : numpy_roots(local.col(2))) {
+    for (double fraction : numpy_roots(without_terminal_hover_contact(local.col(2),terminal_hover_contact))) {
         if (fraction > 1e-6 && fraction < 1. - 1e-6 && window.contains(position(fraction).head<2>()))
             return Json{{"passed", false}, {"outcome", "repeat_aperture_crossing"},
                 {"witness_u", nullptr}, {"boxes", 0}, {"minimum_sample_distance_m", 0.}};
@@ -180,21 +182,30 @@ inline Json numpy_passage(const Curve& world, double duration, double start,
     }
     int boxes = 0;
     std::string outcome = "floating_local_bound";
-    while (!queue.empty() && boxes < 512) {
+    // Refine this fixed curve before requesting another optimization. A work-limit
+    // result has no violating witness and must never add an NLP constraint.
+    while (!queue.empty()) {
         const Box item = queue.top();
-        queue.pop();
-        if (item.bound >= radius * radius) { safe = std::min(safe, item.bound); continue; }
-        if (best < (radius - 2e-4) * (radius - 2e-4)) { outcome = "violated"; break; }
-        if ((item.b - item.a) * duration < 1e-6) { outcome = "unresolved"; break; }
-        const auto halves = split(item.control, .5);
+        if (best < radius * radius) { outcome = "violated"; break; }
+        if (item.bound >= radius * radius) {
+            safe = std::min(safe, item.bound);
+            queue.pop();
+            continue;
+        }
+        if (boxes >= maximum_subdivisions) { outcome = "budget_unresolved"; break; }
         const double middle = (item.a + item.b) / 2.;
+        if (!(item.a < middle && middle < item.b)) { outcome = "unresolved"; break; }
+        queue.pop();
+        const auto halves = split(item.control, .5);
         enqueue(item.a, middle, halves.first);
         enqueue(middle, item.b, halves.second);
         ++boxes;
     }
-    if (!queue.empty() && outcome == "floating_local_bound") outcome = "budget_unresolved";
+    const bool unresolved = outcome == "budget_unresolved" || outcome == "unresolved";
     return Json{{"passed", outcome == "floating_local_bound"}, {"outcome", outcome},
-        {"witness_u", have_witness ? Json(witness) : Json(nullptr)}, {"boxes", boxes},
+        {"witness_u", have_witness && !unresolved ? Json(witness) : Json(nullptr)},
+        {"minimum_sample_u", have_witness ? Json(witness) : Json(nullptr)},
+        {"boxes", boxes}, {"maximum_subdivisions", maximum_subdivisions},
         {"minimum_sample_distance_m", std::isfinite(best) ? Json(std::sqrt(best)) : Json(nullptr)},
         {"distance_lower_bound_m", outcome == "floating_local_bound" && std::isfinite(safe) ? Json(std::sqrt(safe)) : Json(nullptr)}};
 }

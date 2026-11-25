@@ -1,0 +1,106 @@
+{
+  "evidence": "read-only polynomial roots of restored finite snapshots, not accepted plans",
+  "geometry": [
+    {
+      "gate": 1,
+      "next_gate": 2,
+      "next_nominal_center_normal_distance_m": 0.11795614492756945
+    },
+    {
+      "gate": 2,
+      "next_gate": 3,
+      "next_nominal_center_normal_distance_m": 0.11795614492756945
+    },
+    {
+      "gate": 3,
+      "next_gate": 4,
+      "next_nominal_center_normal_distance_m": 0.11795614492756945
+    },
+    {
+      "gate": 4,
+      "next_gate": 5,
+      "next_nominal_center_normal_distance_m": 0.11795614492756945
+    },
+    {
+      "gate": 5,
+      "next_gate": 6,
+      "next_nominal_center_normal_distance_m": 0.11795614492756945
+    },
+    {
+      "gate": 6,
+      "next_gate": 7,
+      "next_nominal_center_normal_distance_m": 0.11795614492756945
+    }
+  ],
+  "snapshots": [
+    {
+      "additional_interior_opening_plane_roots": [
+        {
+          "after_planned_crossing_s": 0.16359246711630226,
+          "at_s": 1.2997181783670344,
+          "fraction": 0.3099389867122719,
+          "frame_centerline_distance_m": 0.48059852747019677,
+          "gate": 2,
+          "local_xy_m": [
+            -0.11670207405213905,
+            0.3346356670219448
+          ],
+          "piece": 2,
+          "plane_sign_change": true,
+          "plane_values_before_after_m": [
+            -5.481382536577234e-06,
+            5.481570385501891e-06
+          ],
+          "planned_crossing_s": 1.1361257112507321,
+          "relative_plane_normal_speed_mps": 1.0385094687115584
+        },
+        {
+          "after_planned_crossing_s": 0.05952250603260811,
+          "at_s": 3.453678048136943,
+          "fraction": 0.09974457079228008,
+          "frame_centerline_distance_m": 0.7548896252765295,
+          "gate": 6,
+          "local_xy_m": [
+            0.07692880991934828,
+            0.02235241245878486
+          ],
+          "piece": 6,
+          "plane_sign_change": true,
+          "plane_values_before_after_m": [
+            -3.4837707251417607e-06,
+            3.484445991738303e-06
+          ],
+          "planned_crossing_s": 3.394155542104335,
+          "relative_plane_normal_speed_mps": 0.5838478856560606
+        }
+      ],
+      "nominal_time_s": 4.5507839708235505,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/dynamic_diagnostics/center_0/result.json"
+    },
+    {
+      "additional_interior_opening_plane_roots": [
+        {
+          "after_planned_crossing_s": 0.012980640845289493,
+          "at_s": 3.454416856514997,
+          "fraction": 0.02240743024214961,
+          "frame_centerline_distance_m": 0.8134522845282713,
+          "gate": 6,
+          "local_xy_m": [
+            0.02142405934910732,
+            -0.0023051514172611892
+          ],
+          "piece": 6,
+          "plane_sign_change": true,
+          "plane_values_before_after_m": [
+            -7.717220881374147e-07,
+            7.724085122726882e-07
+          ],
+          "planned_crossing_s": 3.4414362156697074,
+          "relative_plane_normal_speed_mps": 0.1332753873938203
+        }
+      ],
+      "nominal_time_s": 4.56390767926268,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/dynamic_diagnostics/center_2/result.json"
+    }
+  ]
+}

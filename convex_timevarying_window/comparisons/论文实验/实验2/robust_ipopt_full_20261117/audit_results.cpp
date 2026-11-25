@@ -1,0 +1,18 @@
+#include "json.hpp"
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <set>
+#include <iomanip>
+namespace fs=std::filesystem;using Json=nlohmann::json;
+Json read(const fs::path&p){std::ifstream f(p);if(!f)throw std::runtime_error("Missing "+p.string());Json j;f>>j;return j;}
+int main(int argc,char**argv){try{if(argc!=2)throw std::runtime_error("CAMPAIGN_ROOT");const fs::path root=argv[1];auto levels=read(root/"source_inputs/PROTOCOL.json")["levels"];Json rows=Json::array();int accepted=0,candidates=0;
+std::ofstream report(root/"PLANNING.md");report<<"# 本文两方法完整规划复测\n\n仅规划；安全规划球0.20米、物理检查球0.15米。各组八配置共享原始曲线，独立优化；配置可能产生相同初值，因此另列不同曲线数。计算时间为生成初值加该方法八配置全部结束的并行墙钟，不累计CPU时间。七节点含原第7导航航点；所有完整时间包含原末节点至原终点。\n\n|条件|不同初值数|自由轨迹/s|中心轨迹/s|自由合格配置|中心合格配置|自由计算/s|中心计算/s|\n|---|---:|---:|---:|---:|---:|---:|---:|\n";
+report<<std::fixed<<std::setprecision(3);
+for(const auto&lv:levels){std::string level=lv;const auto dir=root/"results"/level;if(!fs::exists(dir/"SUMMARY.json"))continue;auto sum=read(dir/"SUMMARY.json"),initial=read(root/"results/inputs"/level/"center/manifest.json");std::set<std::string> distinct;for(auto&i:initial["initials"])distinct.insert(i["original"].dump());Json row{{"level",level},{"distinct_raw_initial_curves",distinct.size()},{"methods",sum["methods"]},{"candidates",Json::array()}};
+for(std::string method:{"ours","center"}){int good=0;double best=INFINITY;for(int i=0;i<8;++i){const auto name=method+"_"+std::to_string(i);auto c=read(dir/name/"CANDIDATE.json"),r=read(dir/name/"result.json");++candidates;const bool pass=c["accepted"];if(pass){++good;++accepted;best=std::min(best,c["objective"].get<double>());for(auto&call:r["optimizer_calls"])if(call["status"]!="Solve_Succeeded")throw std::runtime_error("Accepted non-strict "+level+name);if(!c["assessment"]["passed"].get<bool>()||c["assessment"]["collision_detected"].get<bool>())throw std::runtime_error("Accepted unsafe assessment");}
+row["candidates"].push_back({{"candidate",name},{"accepted",pass},{"classification",c["classification"]},{"nominal_time_s",c.value("nominal_time_s",Json(nullptr))},{"wall_s",c["wall_s"]},{"termination_reason",c["termination_reason"]},{"optimizer_calls",c["optimizer_calls"]}});
+}if(good!=sum["methods"][method]["successful_candidates"])throw std::runtime_error("Count mismatch");if(good && std::abs(best-sum["methods"][method]["objective"].get<double>())>1e-8)throw std::runtime_error("Selected objective not best");}
+auto cell=[](const Json&m){if(m["found"].get<bool>()){std::ostringstream s;s<<std::fixed<<std::setprecision(3)<<m["nominal_time_s"].get<double>();return s.str();}for(auto&f:m["failed_candidates"])if(f["classification"]=="collision")return std::string("碰撞");for(auto&f:m["failed_candidates"])if(f["classification"]=="task_incomplete")return std::string("未完成");return std::string("未找到");};auto a=sum["methods"]["ours"],b=sum["methods"]["center"];report<<'|'<<level<<'|'<<distinct.size()<<'|'<<cell(a)<<'|'<<cell(b)<<'|'<<a["successful_candidates"].get<int>()<<"/8|"<<b["successful_candidates"].get<int>()<<"/8|"<<a["total_planning_wall_s"].get<double>()<<'|'<<b["total_planning_wall_s"].get<double>()<<"|\n";rows.push_back(row);}
+Json audit{{"completed_conditions",rows.size()},{"expected_conditions",levels.size()},{"accepted_candidates",accepted},{"completed_candidates",candidates},{"accepted_all_strict_and_independently_checked",true},{"rows",rows}};std::ofstream(root/"AUDIT.json")<<audit.dump(2)<<'\n';std::cout<<rows.size()<<"/"<<levels.size()<<" conditions; "<<accepted<<"/"<<candidates<<" candidates accepted\n";
+}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "initialization_equal": true,
+  "finite_solver_options_equal": true,
+  "selection_equal": true,
+  "same_solver_and_coordinator_binaries": true,
+  "input_rule_template_max_error": 2.0796697697278432e-12
+}

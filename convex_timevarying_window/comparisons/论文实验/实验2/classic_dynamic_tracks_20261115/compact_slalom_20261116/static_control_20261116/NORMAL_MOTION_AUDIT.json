@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-16",
+  "scope": "read-only kinematic audit of rejected dynamic center seed2 finite snapshot",
+  "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/dynamic_diagnostics/center_2/result.json",
+  "gate": 6,
+  "forward_normal": [
+    0.766044443118978,
+    -0.6427876096865393,
+    0.0
+  ],
+  "forward_velocity_at_crossing_mps": 0.13369793734539032,
+  "forward_acceleration_at_crossing_mps2": -20.649865309486973,
+  "velocity_turnaround_after_crossing_s": 0.006485191225835612,
+  "maximum_forward_center_displacement_m": 0.0004332646691470442,
+  "physical_body_sphere_radius_m": 0.15,
+  "planning_safety_sphere_radius_m": 0.3,
+  "extra_opening_crossing_after_s": 0.012980640845289493,
+  "evaluated_samples": [
+    {
+      "after_s": 0.0,
+      "forward_displacement_m": 0.0,
+      "forward_velocity_mps": 0.13369793734539032
+    },
+    {
+      "after_s": 0.005,
+      "forward_displacement_m": 0.00041056503792261275,
+      "forward_velocity_mps": 0.030573185865189853
+    },
+    {
+      "after_s": 0.01,
+      "forward_displacement_m": 0.0003062920525189598,
+      "forward_velocity_mps": -0.07221529347889148
+    },
+    {
+      "after_s": 0.012980640845289493,
+      "forward_displacement_m": 1.980562313191961e-17,
+      "forward_velocity_mps": -0.13327538739381709
+    },
+    {
+      "after_s": 0.02,
+      "forward_displacement_m": -0.0014380278240358165,
+      "forward_velocity_mps": -0.27624292239594184
+    },
+    {
+      "after_s": 0.1,
+      "forward_displacement_m": -0.08381702155557588,
+      "forward_velocity_mps": -1.7002862189133512
+    },
+    {
+      "after_s": 0.2,
+      "forward_displacement_m": -0.2997399885562391,
+      "forward_velocity_mps": -2.34380945272673
+    }
+  ],
+  "formula": "s(t)=n^T[p(t_i+t)-p(t_i)], fixed gate plane; polynomial evaluation from stored coefficients"
+}

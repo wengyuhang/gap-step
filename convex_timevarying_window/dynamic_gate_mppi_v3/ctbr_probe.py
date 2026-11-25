@@ -125,7 +125,7 @@ class Session:
             except Exception as exc:
                 self.failure=repr(exc);self.failure_snapshot=(now,x.copy(),age)
                 self.hold=x[:3].copy();self.feedback=None
-            time.sleep(max(.001,.01-(time.monotonic()-wall)))
+            time.sleep(max(.001,getattr(self,'command_period_s',.01)-(time.monotonic()-wall)))
 
     def prepare(self):
         time.sleep(1.25)

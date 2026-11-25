@@ -1,0 +1,252 @@
+[
+  {
+    "level": "static",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "static",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "static",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "static",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "static",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "mixed_base",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "mixed_base",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "mixed_base",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "mixed_base",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "mixed_base",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "a25_f3",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "a25_f3",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "a25_f3",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "a25_f3",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "a25_f3",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "a25_f6",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "a25_f6",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "a25_f6",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "a25_f6",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "a25_f6",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "a50_f1",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "a50_f1",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "a50_f1",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "a50_f1",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "a50_f1",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "a50_f3",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "a50_f3",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "a50_f3",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "a50_f3",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "a50_f3",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "a50_f6",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "a50_f6",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "a50_f6",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "a50_f6",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "a50_f6",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "a75_f1",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "a75_f1",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "a75_f1",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "a75_f1",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "a75_f1",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "a75_f3",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "a75_f3",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "a75_f3",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "a75_f3",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "a75_f3",
+    "method": "wang2023",
+    "passed": true
+  },
+  {
+    "level": "a75_f6",
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "level": "a75_f6",
+    "method": "center",
+    "passed": true
+  },
+  {
+    "level": "a75_f6",
+    "method": "dynamic_togt",
+    "passed": true
+  },
+  {
+    "level": "a75_f6",
+    "method": "dynamic_togt_center",
+    "passed": true
+  },
+  {
+    "level": "a75_f6",
+    "method": "wang2023",
+    "passed": true
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "pid": 1166523,
+    "args": [
+      "/tmp/classic_repair_build_20261115/repair_clock_reduced_sip",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_clock_units_cold_v1/inputs/airsim_high_ours",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/clock_units_cold_ours_0",
+      "0",
+      "--soft-mincopv",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "timestamp": "2026-11-16T05:15:08.546547+00:00",
+    "classification": "diagnostic_interrupted_not_a_solver_terminal_result",
+    "reason": "Abandon unsuccessful isolated numerical reformulations; no qualified original-problem trajectory observed. Original experiment and solver remain unchanged."
+  },
+  {
+    "pid": 1166546,
+    "args": [
+      "/tmp/classic_repair_build_20261115/repair_clock_reduced_sip",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_clock_units_warm_v1/inputs/airsim_high_ours",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/clock_units_warm_ours_0",
+      "0",
+      "--soft-mincopv",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "timestamp": "2026-11-16T05:15:08.546696+00:00",
+    "classification": "diagnostic_interrupted_not_a_solver_terminal_result",
+    "reason": "Abandon unsuccessful isolated numerical reformulations; no qualified original-problem trajectory observed. Original experiment and solver remain unchanged."
+  },
+  {
+    "pid": 1170045,
+    "args": [
+      "/tmp/classic_repair_build_20261115/repair_clock_damped_sip",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_clock_damped_warm_v1/inputs/airsim_high_ours",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/clock_damped_warm_ours_0",
+      "0",
+      "--soft-mincopv",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "timestamp": "2026-11-16T05:15:08.546845+00:00",
+    "classification": "diagnostic_interrupted_not_a_solver_terminal_result",
+    "reason": "Abandon unsuccessful isolated numerical reformulations; no qualified original-problem trajectory observed. Original experiment and solver remain unchanged."
+  },
+  {
+    "pid": 1171922,
+    "args": [
+      "/tmp/classic_repair_build_20261115/repair_clock_reduced_sip",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_clock_penalty_warm_v1/inputs/airsim_high_center",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/clock_penalty_warm_center_0",
+      "0",
+      "--soft-mincopv",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "timestamp": "2026-11-16T05:15:08.546927+00:00",
+    "classification": "diagnostic_interrupted_not_a_solver_terminal_result",
+    "reason": "Abandon unsuccessful isolated numerical reformulations; no qualified original-problem trajectory observed. Original experiment and solver remain unchanged."
+  },
+  {
+    "pid": 1175367,
+    "args": [
+      "/tmp/classic_repair_build_20261115/repair_natural_sip",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_natural_warm_v1/inputs/airsim_high_ours",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/natural_warm_ours_0",
+      "0",
+      "--soft-mincopv",
+      "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "timestamp": "2026-11-16T05:15:08.547014+00:00",
+    "classification": "diagnostic_interrupted_not_a_solver_terminal_result",
+    "reason": "Abandon unsuccessful isolated numerical reformulations; no qualified original-problem trajectory observed. Original experiment and solver remain unchanged."
+  }
+]

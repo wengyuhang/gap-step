@@ -1,0 +1,95 @@
+[
+  {
+    "final_acceleration_norm": 1.6583693529526045e-07,
+    "final_quaternion_norm": 1.0000000084553737,
+    "h_s": 0.01846383572120289,
+    "integration": [
+      {
+        "max_local_state_defect": 3.0591919752964714e-07,
+        "max_position_difference_to_nodes_m": 5.013805730388032e-05,
+        "max_position_difference_to_previous_refinement_m": 0.0,
+        "substeps": 16
+      },
+      {
+        "max_local_state_defect": 3.070441962904624e-07,
+        "max_position_difference_to_nodes_m": 5.0322613476559e-05,
+        "max_position_difference_to_previous_refinement_m": 1.846403501907304e-07,
+        "substeps": 32
+      },
+      {
+        "max_local_state_defect": 3.0711450804687956e-07,
+        "max_position_difference_to_nodes_m": 5.033417057340173e-05,
+        "max_position_difference_to_previous_refinement_m": 1.156433817578106e-08,
+        "substeps": 64
+      }
+    ],
+    "progress": {
+      "last_waypoint_max_lambda": 0.10036573720158805,
+      "last_waypoint_nodes_lambda_above_1e4": 101,
+      "last_waypoint_sum_lambda": 0.9999999999999998
+    },
+    "result": "convex_timevarying_window/comparisons/论文实验/实验2/cpc_audit_20261117/results/static/result.json"
+  },
+  {
+    "final_acceleration_norm": 0.056654614265156056,
+    "final_quaternion_norm": 1.0028844361770215,
+    "h_s": 0.06795898280914615,
+    "integration": [
+      {
+        "max_local_state_defect": 0.00011287029907602886,
+        "max_position_difference_to_nodes_m": 7.885352941527132,
+        "max_position_difference_to_previous_refinement_m": 0.0,
+        "substeps": 16
+      },
+      {
+        "max_local_state_defect": 0.00011330459204872412,
+        "max_position_difference_to_nodes_m": 7.9151994880329,
+        "max_position_difference_to_previous_refinement_m": 0.029861055300182487,
+        "substeps": 32
+      },
+      {
+        "max_local_state_defect": 0.00011333193213935999,
+        "max_position_difference_to_nodes_m": 7.917077661201333,
+        "max_position_difference_to_previous_refinement_m": 0.001879446656695229,
+        "substeps": 64
+      }
+    ],
+    "progress": {
+      "last_waypoint_max_lambda": 0.9679033141976194,
+      "last_waypoint_nodes_lambda_above_1e4": 21,
+      "last_waypoint_sum_lambda": 1.0000000000000009
+    },
+    "result": "convex_timevarying_window/comparisons/论文实验/实验2/cpc_audit_20261117/results/alphapilot_moderate/result.json"
+  },
+  {
+    "final_acceleration_norm": 0.4739067970534325,
+    "final_quaternion_norm": 1.0238775760949135,
+    "h_s": 0.16075139664265034,
+    "integration": [
+      {
+        "max_local_state_defect": 0.003665248950765587,
+        "max_position_difference_to_nodes_m": 309.5066018064379,
+        "max_position_difference_to_previous_refinement_m": 0.0,
+        "substeps": 16
+      },
+      {
+        "max_local_state_defect": 0.003679469293278892,
+        "max_position_difference_to_nodes_m": 311.0234670504305,
+        "max_position_difference_to_previous_refinement_m": 1.5181455901760446,
+        "substeps": 32
+      },
+      {
+        "max_local_state_defect": 0.0036803638489333323,
+        "max_position_difference_to_nodes_m": 311.12347994019416,
+        "max_position_difference_to_previous_refinement_m": 0.10012336058526163,
+        "substeps": 64
+      }
+    ],
+    "progress": {
+      "last_waypoint_max_lambda": 0.9892722045341888,
+      "last_waypoint_nodes_lambda_above_1e4": 28,
+      "last_waypoint_sum_lambda": 0.9999999999999994
+    },
+    "result": "convex_timevarying_window/comparisons/论文实验/实验2/cpc_audit_20261117/results/airsim_moderate/result.json"
+  }
+]

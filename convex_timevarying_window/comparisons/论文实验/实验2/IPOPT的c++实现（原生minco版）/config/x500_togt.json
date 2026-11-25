@@ -39,7 +39,7 @@
   "rotor_min_n": 0.0,
   "rotor_max_n": 8.121151,
   "limit_fraction": 0.95,
-  "finite_safety_radius_m": 0.62594472,
+  "finite_safety_radius_m": 0.63094472,
   "planning_proxy_radius_m": 0.38594472,
   "description": "Current x500 mass, inertia, mixer and 95% rotor/rate limits. Cost weights and L-BFGS parameters are loaded from the static TOGT reproduction.",
   "initial_speed_guess_mps": 6.5

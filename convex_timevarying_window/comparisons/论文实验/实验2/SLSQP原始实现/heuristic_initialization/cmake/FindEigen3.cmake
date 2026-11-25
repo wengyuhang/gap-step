@@ -1,0 +1,13 @@
+set(EIGEN3_INCLUDE_DIRS "${CASADI_ROOT}/include/eigen3")
+file(STRINGS "${EIGEN3_INCLUDE_DIRS}/Eigen/src/Core/util/Macros.h" _version_lines
+  REGEX "^#define EIGEN_(WORLD|MAJOR|MINOR)_VERSION [0-9]+")
+foreach(_part WORLD MAJOR MINOR)
+  string(REGEX MATCH "EIGEN_${_part}_VERSION ([0-9]+)" _match "${_version_lines}")
+  set(_${_part} "${CMAKE_MATCH_1}")
+endforeach()
+set(Eigen3_VERSION "${_WORLD}.${_MAJOR}.${_MINOR}")
+set(Eigen3_FOUND TRUE)
+if(NOT TARGET Eigen3::Eigen)
+  add_library(Eigen3::Eigen INTERFACE IMPORTED)
+  set_target_properties(Eigen3::Eigen PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EIGEN3_INCLUDE_DIRS}")
+endif()

@@ -1,0 +1,12 @@
+{
+  "at": "2026-11-16T17:58:17.622517+00:00",
+  "records": [
+    {
+      "pid": 252084,
+      "elapsed": "06:30",
+      "arguments": "/tmp/independent_initial_20261116/runtime/sip_planner convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/independent_initialization_20261116/exact_inputs/airsim_freq3/ours_4 convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/independent_initialization_20261116/exact_results/airsim_freq3/ours_4 0 --soft-mincopv convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/safety020_five_methods_20261116/inputs/assets/airsim_freq3/scene.json 1000",
+      "action": "SIGTERM",
+      "reason": "end unproductive exact-Hessian diagnostic; unfinished, not optimizer failure"
+    }
+  ]
+}

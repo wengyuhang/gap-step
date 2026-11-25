@@ -55,13 +55,33 @@ Json crossing_event(const Trajectory& trajectory,const Window& window,const Vect
     return Json{{"passed",false},{"failure","no_complete_body_exit"},{"center_crossing_s",*center}};
 }
 
+// Match all boundary derivatives when transplanting a global reference fragment
+// to the actual replanning state. The correction is the unique septic Hermite
+// polynomial; it changes only the initial Q, never the optimization problem.
+Curve boundary_correction(const Trajectory& route,double a,double b,double duration,
+                          const Eigen::Matrix<double,3,4>& head,
+                          const Eigen::Matrix<double,3,4>& tail) {
+    Eigen::Matrix<double,8,8> matrix=Eigen::Matrix<double,8,8>::Zero();
+    Curve rhs;
+    for(int d=0;d<4;++d) {
+        for(int k=d;k<8;++k) {
+            double f=1.;for(int j=0;j<d;++j)f*=k-j;
+            matrix(d,k)=k==d?f:0.;matrix(4+d,k)=f;
+        }
+        rhs.row(d)=(head.col(d)*std::pow(duration,d)-route.sample(a,d)*std::pow(b-a,d)).transpose();
+        rhs.row(4+d)=(tail.col(d)*std::pow(duration,d)-route.sample(b,d)*std::pow(b-a,d)).transpose();
+    }
+    return matrix.partialPivLu().solve(rhs);
+}
+
 int main(int argc,char** argv) {
     try {
         if(argc!=4 && argc!=5)throw std::runtime_error("Usage: wang_planner GRAPH_DIRECTORY OUTPUT_DIRECTORY verify|solve [COMPILED_DIRECTORY]");
         const std::string directory=argv[1],output=argv[2],mode=argv[3];
         Json manifest;std::ifstream(directory+"/manifest.json")>>manifest;
+        const int gate_count=manifest.at("windows").size();
         std::filesystem::create_directories(output);std::vector<Function> functions,details;std::vector<Window> windows;
-        for(int gate=0;gate<7;++gate) {
+        for(int gate=0;gate<gate_count;++gate) {
                         if(argc==5)functions.push_back(casadi::external("paper_fg",std::string(argv[4])+"/fg_"+std::to_string(gate)+".so"));
             else functions.push_back(Function::load(directory+"/fg_"+std::to_string(gate)+".casadi"));
             details.push_back(Function::load(directory+"/details_"+std::to_string(gate)+".casadi"));
@@ -69,7 +89,7 @@ int main(int argc,char** argv) {
         }
         if(mode=="verify") {
             double maximum=0.;
-            for(int gate=0;gate<7;++gate) {
+            for(int gate=0;gate<gate_count;++gate) {
                 const auto& check=manifest["checks"][gate];
                 const auto values=functions[gate](std::vector<DM>{DM(check["seed"].get<std::vector<double>>()),DM(check["parameters"].get<std::vector<double>>())});
                 maximum=std::max(maximum,std::abs(static_cast<double>(values[0])-check["objective"].get<double>())/(1.+std::abs(check["objective"].get<double>())));
@@ -86,8 +106,8 @@ int main(int argc,char** argv) {
         const double derivative_scale=cfg["derivative_scale"],position_scale=cfg["position_scale"];
         const Trajectory route=Trajectory::load(reference);Trajectory complete;
         Eigen::Matrix<double,3,4> head=Eigen::Matrix<double,3,4>::Zero();head.col(0)=load_vector(manifest["start"]);
-        Json requests=Json::array();std::string failure;double now=0.;
-        for(int gate=0;gate<7;++gate) {
+        Json requests=Json::array(),crossing_times=Json::array();std::string failure;double now=0.;
+        for(int gate=0;gate<gate_count;++gate) {
             const auto request_begin=std::chrono::steady_clock::now();
             const auto tail=load_state(reference["tail_states"][gate]);
             std::vector<Trajectory> candidates;Json records=Json::array();std::vector<int> eligible;
@@ -105,10 +125,16 @@ int main(int argc,char** argv) {
                 for(int leg=0;leg<2;++leg) {
                     const double a=leg==0?begin:middle,b=leg==0?middle:end;
                     const Vector start=leg==0?Vector(head.col(0)):center,finish=leg==0?center:Vector(tail.col(0));
+                    Eigen::Matrix<double,3,4> cross;cross.col(0)=center;
+                    for(int d=1;d<4;++d)for(int axis=0;axis<3;++axis)cross(axis,d)=seed[2+3*(d-1)+axis]*derivative_scale;
+                    const bool align=manifest["settings"].value("align_reference_pvaj",false);
+                    Curve correction=Curve::Zero();
+                    if(align)correction=boundary_correction(route,a,b,durations[leg],leg==0?head:cross,leg==0?cross:tail);
                     for(int k=1;k<pieces;++k) {
                         const double fraction=static_cast<double>(k)/pieces;
                         const double blend=35*std::pow(fraction,4)-84*std::pow(fraction,5)+70*std::pow(fraction,6)-20*std::pow(fraction,7);
-                        const Vector point=(route.sample(a+fraction*(b-a))+(1.-blend)*(start-route.sample(a))+blend*(finish-route.sample(b)))/position_scale;
+                        const Vector adjustment=align?evaluate(correction,fraction):((1.-blend)*(start-route.sample(a))+blend*(finish-route.sample(b))).eval();
+                        const Vector point=(route.sample(a+fraction*(b-a))+adjustment)/position_scale;
                         for(int axis=0;axis<3;++axis)seed[state_end+3*(pieces-1)*leg+3*(k-1)+axis]=point[axis];
                     }
                 }
@@ -122,7 +148,14 @@ int main(int argc,char** argv) {
                     Curve c;for(int axis=0;axis<3;++axis)for(int power=0;power<8;++power)c(power,axis)=coefficient_values[axis*16*pieces+8*piece+power];
                     curve.coefficients.push_back(c);
                 }
-                bool finite=std::isfinite(summary[0])&&!evaluation_error;
+                const auto final_fg=functions[gate](std::vector<DM>{DM(x),DM(parameters)});
+                const double final_objective=static_cast<double>(final_fg[0]);
+                const auto final_gradient=final_fg[1].get_elements();
+                const bool trial_evaluation_error=evaluation_error;
+                bool finite=std::isfinite(final_objective);
+                for(double value:final_gradient)finite=finite && std::isfinite(value);
+                const double objective_consistency_error=std::abs(final_objective-summary[0]);
+                summary[0]=final_objective;
                 for(double value:terms)finite=finite&&std::isfinite(value);
                 for(double value:residuals)finite=finite&&std::isfinite(value);
                 for(double value:x)finite=finite&&std::isfinite(value);
@@ -133,21 +166,37 @@ int main(int argc,char** argv) {
                 Json coefficients=Json::array();for(const auto& c:curve.coefficients)coefficients.push_back(curve_json(c));
                 records.push_back(Json{{"stats",Json{{"seed",seed_index},{"scale",scale},{"eligible",valid},{"converged",status==0 || status==1},
                     {"code",status},{"status",wang_status(status)},{"finite",finite},{"objective_scaled",summary[0]},
+                    {"trial_evaluation_error",trial_evaluation_error},{"objective_consistency_error",objective_consistency_error},{"objective_terms",terms},{"dynamic_residuals",residuals},
                     {"evaluations",static_cast<int>(summary[1])},{"iterations",static_cast<int>(summary[2])},{"optimizer_ms",summary[3]},
                     {"variables",x},{"initial_variables",seed}}},{"durations",segment_times},{"coefficients",coefficients}});
                 candidates.push_back(curve);++seed_index;
             }
             std::optional<int> selected;
-            for(int index:eligible)if(!selected || records[index]["stats"]["objective_scaled"].get<double>()<records[*selected]["stats"]["objective_scaled"].get<double>())selected=index;
+            for(int index:eligible) {
+                Json event={{"passed",true}};
+                if(!windows[gate].waypoint)
+                    event=crossing_event(candidates[index],windows[gate],load_vector(reference["normals"][gate]),reference["body_exit_depths"][gate]);
+                records[index]["task_event"]=event;
+                if(!event["passed"].get<bool>())continue;
+                if(!selected || records[index]["stats"]["objective_scaled"].get<double>()<records[*selected]["stats"]["objective_scaled"].get<double>())selected=index;
+            }
             Json request{{"gate",gate+1},{"race_time_s",now},{"head_state",state_json(head)},{"tail_state",state_json(tail)},
                 {"terminal_choice",reference["tail_choices"][gate]},{"selected_seed",selected?Json(*selected):Json(nullptr)},{"candidates",records}};
-            if(!selected)failure="no_converged_local_candidate";
+            if(!selected)failure=eligible.empty()?"no_converged_local_candidate":"no_task_valid_converged_local_candidate";
             if(selected) {
                 const auto& trajectory=candidates[*selected];
-                auto event=crossing_event(trajectory,windows[gate],load_vector(reference["normals"][gate]),reference["body_exit_depths"][gate]);request["event"]=event;
+                Json event;
+                if(windows[gate].waypoint) {
+                    double at=trajectory.start;for(int k=0;k<pieces;++k)at+=trajectory.durations[k];
+                    const double error=(trajectory.sample(at)-windows[gate].center-windows[gate].rotation*windows[gate].motion(at)).norm();
+                    event={{"passed",error<=windows[gate].waypoint_radius+1e-5},{"center_crossing_s",at},{"body_exit_s",at},{"waypoint_distance_m",error}};
+                    if(!event["passed"].get<bool>())event["failure"]="navigation_waypoint_missed";
+                } else event=crossing_event(trajectory,windows[gate],load_vector(reference["normals"][gate]),reference["body_exit_depths"][gate]);
+                request["event"]=event;
                 if(!event["passed"].get<bool>())failure=event["failure"];
                 else {
-                    const double end=gate==6?trajectory.end():event["body_exit_s"].get<double>();double begin=trajectory.start;
+                    crossing_times.push_back(event["center_crossing_s"]);
+                    const double end=gate+1==gate_count?trajectory.end():event["body_exit_s"].get<double>();double begin=trajectory.start;
                     for(size_t piece=0;piece<trajectory.durations.size();++piece) {
                         const double stop=std::min(end,begin+trajectory.durations[piece]);
                         if(stop>begin+1e-10) {
@@ -168,9 +217,10 @@ int main(int argc,char** argv) {
             {"case",Json{{"layout","togt_whole"},{"level",manifest["level"]}}},{"method","wang2023"},
             {"solve_s",std::chrono::duration<double>(std::chrono::steady_clock::now()-began).count()},
             {"nominal_time_s",complete.end()},{"coefficients",coefficients},{"durations",complete.durations},{"requests",requests},
-            {"variables",Json::array()},{"reference_seed",reference},{"wang_config",cfg},{"config",cfg},
-            {"made_at",0.},{"scenario_variant","higher_swing_length_2p20"},{"runtime","C++ unchanged pinned LBFGS-Lite and paper model graphs"}};
-        result["config"]["radius"]=.3859447197013662;
+            {"crossing_times_s",crossing_times},{"variables",Json::array()},{"reference_seed",reference},{"wang_config",cfg},{"config",cfg},
+            {"made_at",0.},{"scenario_variant",manifest.value("scenario_variant",std::string("higher_swing_length_2p20"))},{"runtime","C++ pinned LBFGS-Lite and paper model graphs; task-valid candidate selection"},{"candidate_selection","minimum original objective among converged candidates with a forward aperture crossing and body exit"}};
+        result["config"]["radius"]=cfg.value("radius",.3859447197013662);
+        result["reference_initial_pvaj_aligned"]=manifest["settings"].value("align_reference_pvaj",false);
         result["code_generated_runtime"]=argc==5;
         if(argc==5){result["config"]["compile_functions"]=true;result["wang_config"]["compile_functions"]=true;}std::ofstream(output+"/result.json")<<result.dump(2)<<'\n';
     } catch(const std::exception& error){std::cerr<<error.what()<<'\n';return 1;}

@@ -1,0 +1,37 @@
+{
+  "directions": [
+    {
+      "column": 0,
+      "hessian_relative_error": 9.018954143350606e-05,
+      "jacobian_relative_error": 3.98378392949462e-08
+    },
+    {
+      "column": 21,
+      "hessian_relative_error": 2.621574634087059e-09,
+      "jacobian_relative_error": 5.344455784943235e-10
+    },
+    {
+      "column": 22,
+      "hessian_relative_error": 1.892480400493007e-05,
+      "jacobian_relative_error": 5.283803048856334e-09
+    },
+    {
+      "column": 85,
+      "hessian_relative_error": 9.64080969149523e-06,
+      "jacobian_relative_error": 2.69168794707788e-09
+    },
+    {
+      "column": 148,
+      "hessian_relative_error": 4.696986961619113e-06,
+      "jacobian_relative_error": 1.3113795531723612e-09
+    },
+    {
+      "column": 211,
+      "hessian_relative_error": 9.580811783557732e-07,
+      "jacobian_relative_error": 2.615857285291186e-10
+    }
+  ],
+  "max_hessian_error": 9.018954143350606e-05,
+  "max_jacobian_error": 3.98378392949462e-08,
+  "passed": true
+}

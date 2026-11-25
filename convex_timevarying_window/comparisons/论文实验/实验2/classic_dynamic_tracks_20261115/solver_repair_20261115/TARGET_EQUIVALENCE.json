@@ -1,0 +1,30 @@
+{
+  "center": {
+    "scene_exactly_equal": true,
+    "noninitialization_metadata_equal": true,
+    "solver_option_differences": {
+      "ipopt.print_level": 5,
+      "ipopt.warm_start_bound_push": 1e-09,
+      "ipopt.warm_start_mult_bound_push": 1e-09,
+      "ipopt.warm_start_slack_bound_push": 1e-09
+    },
+    "trajectory_variables": 211,
+    "dynamics_auxiliary_variables": 4356,
+    "finite_sphere_m": 0.3001,
+    "verification_sphere_m": 0.3
+  },
+  "ours": {
+    "scene_exactly_equal": true,
+    "noninitialization_metadata_equal": true,
+    "solver_option_differences": {
+      "ipopt.print_level": 5,
+      "ipopt.warm_start_bound_push": 1e-09,
+      "ipopt.warm_start_mult_bound_push": 1e-09,
+      "ipopt.warm_start_slack_bound_push": 1e-09
+    },
+    "trajectory_variables": 253,
+    "dynamics_auxiliary_variables": 4356,
+    "finite_sphere_m": 0.3001,
+    "verification_sphere_m": 0.3
+  }
+}

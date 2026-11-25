@@ -1,0 +1,10 @@
+{
+  "state": "complete",
+  "closed_loop_verified": true,
+  "accepted": 16,
+  "free_time_s": 3.1073554650195945,
+  "center_time_s": 3.3043246301060245,
+  "gain_percent": 5.960950788304053,
+  "nominal_center_polyline_m": 29.96845537060238,
+  "gazebo_runs": 0
+}

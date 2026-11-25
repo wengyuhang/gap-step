@@ -1,0 +1,527 @@
+{
+  "results": [
+    {
+      "all_passed": true,
+      "budget": 16384,
+      "candidate": "ours_0",
+      "failed_checks": [],
+      "maximum_subdivisions": 1531,
+      "total_subdivisions": 5167,
+      "wall_s": 0.010229829
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "ours_1",
+      "failed_checks": [
+        {
+          "boxes": 2,
+          "distance_lower_bound_m": null,
+          "gate": 1,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38495712450262476,
+          "minimum_sample_u": 0.049290908466341765,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 2,
+          "witness_u": 0.049290908466341765
+        }
+      ],
+      "maximum_subdivisions": 1463,
+      "total_subdivisions": 5069,
+      "wall_s": 0.009252091
+    },
+    {
+      "all_passed": true,
+      "budget": 16384,
+      "candidate": "ours_2",
+      "failed_checks": [],
+      "maximum_subdivisions": 1466,
+      "total_subdivisions": 5386,
+      "wall_s": 0.010204877
+    },
+    {
+      "all_passed": true,
+      "budget": 16384,
+      "candidate": "ours_3",
+      "failed_checks": [],
+      "maximum_subdivisions": 1485,
+      "total_subdivisions": 5367,
+      "wall_s": 0.009722663
+    },
+    {
+      "all_passed": true,
+      "budget": 16384,
+      "candidate": "ours_4",
+      "failed_checks": [],
+      "maximum_subdivisions": 1546,
+      "total_subdivisions": 5182,
+      "wall_s": 0.009164119
+    },
+    {
+      "all_passed": true,
+      "budget": 16384,
+      "candidate": "ours_5",
+      "failed_checks": [],
+      "maximum_subdivisions": 1492,
+      "total_subdivisions": 5296,
+      "wall_s": 0.009526325
+    },
+    {
+      "all_passed": true,
+      "budget": 16384,
+      "candidate": "ours_6",
+      "failed_checks": [],
+      "maximum_subdivisions": 1524,
+      "total_subdivisions": 5106,
+      "wall_s": 0.009742887
+    },
+    {
+      "all_passed": true,
+      "budget": 16384,
+      "candidate": "ours_7",
+      "failed_checks": [],
+      "maximum_subdivisions": 1534,
+      "total_subdivisions": 5312,
+      "wall_s": 0.009820123
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "center_0",
+      "failed_checks": [
+        {
+          "boxes": 2,
+          "distance_lower_bound_m": null,
+          "gate": 1,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38358901883898233,
+          "minimum_sample_u": 0.375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 2,
+          "witness_u": 0.375
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 2,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3840520260788479,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 3,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 10,
+          "distance_lower_bound_m": null,
+          "gate": 3,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38494623186120974,
+          "minimum_sample_u": 0.37448440838542946,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 4,
+          "witness_u": 0.37448440838542946
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 4,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3848758016858304,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 5,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 0,
+          "gate": 5,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 6,
+          "witness_u": null
+        }
+      ],
+      "maximum_subdivisions": 43,
+      "total_subdivisions": 68,
+      "wall_s": 0.002479703
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "center_1",
+      "failed_checks": [
+        {
+          "boxes": 2,
+          "distance_lower_bound_m": null,
+          "gate": 1,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3835889059918086,
+          "minimum_sample_u": 0.375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 2,
+          "witness_u": 0.375
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 2,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38405199057639255,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 3,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 10,
+          "distance_lower_bound_m": null,
+          "gate": 3,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38494613063285243,
+          "minimum_sample_u": 0.37448312350622004,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 4,
+          "witness_u": 0.37448312350622004
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 4,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.384875820085515,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 5,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 0,
+          "gate": 5,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 6,
+          "witness_u": null
+        }
+      ],
+      "maximum_subdivisions": 43,
+      "total_subdivisions": 68,
+      "wall_s": 0.002391721
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "center_2",
+      "failed_checks": [
+        {
+          "boxes": 7,
+          "distance_lower_bound_m": null,
+          "gate": 0,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3831375998869782,
+          "minimum_sample_u": 0.34035093921043746,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 1,
+          "witness_u": 0.34035093921043746
+        },
+        {
+          "boxes": 10,
+          "distance_lower_bound_m": null,
+          "gate": 1,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3847034016826865,
+          "minimum_sample_u": 0.3828125,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 2,
+          "witness_u": 0.3828125
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 2,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3849343380613181,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 3,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 0,
+          "gate": 5,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 6,
+          "witness_u": null
+        }
+      ],
+      "maximum_subdivisions": 23,
+      "total_subdivisions": 65,
+      "wall_s": 0.002498465
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "center_3",
+      "failed_checks": [
+        {
+          "boxes": 0,
+          "gate": 1,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 2,
+          "witness_u": null
+        },
+        {
+          "boxes": 0,
+          "gate": 5,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 6,
+          "witness_u": null
+        }
+      ],
+      "maximum_subdivisions": 80,
+      "total_subdivisions": 156,
+      "wall_s": 0.002466683
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "center_4",
+      "failed_checks": [
+        {
+          "boxes": 10,
+          "distance_lower_bound_m": null,
+          "gate": 2,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38498177439482095,
+          "minimum_sample_u": 0.3259961977324506,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 3,
+          "witness_u": 0.3259961977324506
+        },
+        {
+          "boxes": 0,
+          "gate": 5,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 6,
+          "witness_u": null
+        }
+      ],
+      "maximum_subdivisions": 42,
+      "total_subdivisions": 114,
+      "wall_s": 0.002473939
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "center_5",
+      "failed_checks": [
+        {
+          "boxes": 2,
+          "distance_lower_bound_m": null,
+          "gate": 1,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3835885765235624,
+          "minimum_sample_u": 0.375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 2,
+          "witness_u": 0.375
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 2,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3840521656686753,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 3,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 10,
+          "distance_lower_bound_m": null,
+          "gate": 3,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38494571559979807,
+          "minimum_sample_u": 0.374478000832534,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 4,
+          "witness_u": 0.374478000832534
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 4,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3848760344428734,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 5,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 0,
+          "gate": 5,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 6,
+          "witness_u": null
+        }
+      ],
+      "maximum_subdivisions": 43,
+      "total_subdivisions": 68,
+      "wall_s": 0.002412711
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "center_6",
+      "failed_checks": [
+        {
+          "boxes": 2,
+          "distance_lower_bound_m": null,
+          "gate": 1,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38358904549291917,
+          "minimum_sample_u": 0.375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 2,
+          "witness_u": 0.375
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 2,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3840520708462488,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 3,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 10,
+          "distance_lower_bound_m": null,
+          "gate": 3,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3849460777140829,
+          "minimum_sample_u": 0.3744824914493274,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 4,
+          "witness_u": 0.3744824914493274
+        },
+        {
+          "boxes": 6,
+          "distance_lower_bound_m": null,
+          "gate": 4,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3848756339699662,
+          "minimum_sample_u": 0.34375,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 5,
+          "witness_u": 0.34375
+        },
+        {
+          "boxes": 0,
+          "gate": 5,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 6,
+          "witness_u": null
+        }
+      ],
+      "maximum_subdivisions": 43,
+      "total_subdivisions": 68,
+      "wall_s": 0.002484848
+    },
+    {
+      "all_passed": false,
+      "budget": 16384,
+      "candidate": "center_7",
+      "failed_checks": [
+        {
+          "boxes": 7,
+          "distance_lower_bound_m": null,
+          "gate": 0,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38313628157991,
+          "minimum_sample_u": 0.34032917188669065,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 1,
+          "witness_u": 0.34032917188669065
+        },
+        {
+          "boxes": 10,
+          "distance_lower_bound_m": null,
+          "gate": 1,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.3847116715684374,
+          "minimum_sample_u": 0.3828125,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 2,
+          "witness_u": 0.3828125
+        },
+        {
+          "boxes": 11,
+          "distance_lower_bound_m": null,
+          "gate": 2,
+          "maximum_subdivisions": 16384,
+          "minimum_sample_distance_m": 0.38222338015810375,
+          "minimum_sample_u": 0.328125,
+          "outcome": "violated",
+          "passed": false,
+          "piece": 3,
+          "witness_u": 0.328125
+        },
+        {
+          "boxes": 0,
+          "gate": 5,
+          "minimum_sample_distance_m": 0.0,
+          "outcome": "repeat_aperture_crossing",
+          "passed": false,
+          "piece": 6,
+          "witness_u": null
+        }
+      ],
+      "maximum_subdivisions": 45,
+      "total_subdivisions": 92,
+      "wall_s": 0.002480925
+    }
+  ],
+  "scope": "same stored finite trajectories; changed verification work budget only; no new optimization"
+}

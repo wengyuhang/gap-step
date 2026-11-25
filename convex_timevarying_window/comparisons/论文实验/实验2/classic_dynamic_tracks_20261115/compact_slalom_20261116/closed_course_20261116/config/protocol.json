@@ -1,0 +1,56 @@
+{
+  "version": "fixed_target_v1_20261116",
+  "levels": [
+    "closed_course"
+  ],
+  "methods": [
+    "ours",
+    "center"
+  ],
+  "initialization": {
+    "count": 8,
+    "timing_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "rule": "Each archived independent segment timing is optimized once by target-scene dynamic TOGT MINCO center with fixed author stopping. Each output becomes the shared physical PVAJ initializer for its corresponding free/center SIP run. No selection among seeds before SIP.",
+    "point_initial": "center",
+    "no_prior_result_reads": true,
+    "all_queries_use_original_target_motion": true
+  },
+  "parallelism": {
+    "time_initializers": 8,
+    "sip_candidates": 16,
+    "condition_order": "one frozen new scene"
+  },
+  "finite_solver": {
+    "native_minco_derivative_order": 3,
+    "time_map": "original TOGT positive map",
+    "dynamics_weight": 1000,
+    "time_weight": 1,
+    "ipopt_max_iter": 5000,
+    "sip_max_rounds": 24,
+    "finite_failure": "stop that seed before verification or adding constraints",
+    "ipopt_bound_push": 1e-09,
+    "ipopt_bound_frac": 1e-09,
+    "ipopt_slack_bound_push": 1e-09,
+    "ipopt_slack_bound_frac": 1e-09,
+    "ipopt_warm_start_bound_push": 1e-09,
+    "ipopt_warm_start_mult_bound_push": 1e-09,
+    "ipopt_warm_start_slack_bound_push": 1e-09,
+    "ipopt_warm_start_bound_frac": 1e-09,
+    "ipopt_warm_start_slack_bound_frac": 1e-09
+  },
+  "selection": "Minimum original objective among seeds that converged, passed original SIP, physical collision, ordered-once gate and endpoint checks. Collisions and rejected candidates preserved.",
+  "freeze": "After this protocol is frozen, no per-course parameter/initializer changes. Failures stay failures.",
+  "scene_file_reuse": "Original input scene bytes at every call",
+  "adaptation_during_solving": false,
+  "initialization_cost": "shared target time seed parallel wall included in both method elapsed wall, then actual own candidates/check elapsed wall; no sum of candidate CPU times",
+  "scope": "planning only"
+}

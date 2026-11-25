@@ -1,0 +1,17 @@
+{
+  "accepted": false,
+  "classification": "not_found",
+  "optimizer_calls": [
+    {
+      "finite_violation": 1474.0884089696187,
+      "iterations": 51,
+      "round": 0,
+      "solver_s": 154.240526438,
+      "status": "Restoration_Failed"
+    }
+  ],
+  "sip_exit_code": 0,
+  "sip_found": false,
+  "termination_reason": "finite_constraint_violation",
+  "wall_s": 159.252179039
+}

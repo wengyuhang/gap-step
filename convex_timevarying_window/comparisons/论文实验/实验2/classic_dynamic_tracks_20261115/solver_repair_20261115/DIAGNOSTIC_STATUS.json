@@ -1,0 +1,145 @@
+{
+  "completed": [
+    {
+      "job": "arrival_speed1_center_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "arrival_speed1_ours_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "arrival_speed6p5_center_7",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "arrival_speed6p5_ours_7",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "continuation_weight1_ours_0",
+      "found": false,
+      "time": null,
+      "status": "Error_In_Step_Computation"
+    },
+    {
+      "job": "exact_speed1_center_0",
+      "found": false,
+      "time": null,
+      "status": "Restoration_Failed"
+    },
+    {
+      "job": "forward_center_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "forward_ours_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "observed_limited_center_0",
+      "found": false,
+      "time": null,
+      "status": "Search_Direction_Becomes_Too_Small"
+    },
+    {
+      "job": "observed_limited_ours_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "reduced_limited_center_0",
+      "found": false,
+      "time": null,
+      "status": "Search_Direction_Becomes_Too_Small"
+    },
+    {
+      "job": "reduced_limited_ours_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "reduced_v2_speed1_center_0",
+      "found": false,
+      "time": null,
+      "status": "Error_In_Step_Computation"
+    },
+    {
+      "job": "reduced_v2_speed1_ours_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "reduced_v2_speed6p5_center_7",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "reduced_v2_speed6p5_ours_7",
+      "found": false,
+      "time": null,
+      "status": "Error_In_Step_Computation"
+    },
+    {
+      "job": "speed6p5_seed_v2_center_7",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "speed6p5_seed_v2_ours_7",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "sqp_native_center_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "sqp_native_ours_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "unscaled_objective_center_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    },
+    {
+      "job": "unscaled_objective_ours_0",
+      "found": false,
+      "time": null,
+      "status": "Maximum_Iterations_Exceeded"
+    }
+  ],
+  "actual_processes": [
+    "1137853 1137626    1532 99.9 1826420 /tmp/classic_repair_build_20261115/repair_reduced_sip /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_reduced_speed1_v1/inputs/airsim_high_center /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/continuation_weight1_center_0 0 --soft-mincopv /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_reduced_speed1_v1/assets/airsim_high/scene.json 1",
+    "1139647 1139420    1203 99.9 2034912 /tmp/classic_repair_build_20261115/repair_symbolic_sip /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_symbolic_v1/inputs/airsim_high_ours /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/symbolic_ours_0 0 --soft-mincopv /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_symbolic_v1/assets/airsim_high/scene.json 1000",
+    "1139875 1139648    1203 99.9 1859572 /tmp/classic_repair_build_20261115/repair_symbolic_sip /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_symbolic_v1/inputs/airsim_high_center /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/symbolic_center_0 0 --soft-mincopv /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_symbolic_v1/assets/airsim_high/scene.json 1000",
+    "1146712 1146485      57  100 251064 /tmp/classic_course_build_20261115/sip_planner /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_lifted_time_seed0_v1/inputs/airsim_high_ours /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/lifted_time_ours_0 0 --soft-mincopv /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_high/scene.json 1000",
+    "1146940 1146713      57  100 241536 /tmp/classic_course_build_20261115/sip_planner /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_lifted_time_seed0_v1/inputs/airsim_high_center /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/lifted_time_center_0 0 --soft-mincopv /home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/results/inputs_v1_20261115/assets/airsim_high/scene.json 1000"
+  ],
+  "official_old_results_unchanged": true,
+  "target": "airsim_high original geometry; dynamics weight1000; safety sphere0.30"
+}

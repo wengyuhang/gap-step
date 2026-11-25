@@ -1,0 +1,31 @@
+{
+  "16": {
+    "author_gradient_relative_error": 0.0,
+    "author_penalty_integral": 0.0,
+    "gradient_checked_nodes": 0,
+    "max_point_cost_difference": 0.0,
+    "max_speed": 28.563895984039277,
+    "ours_penalty_integral": 0.0,
+    "samples": 374
+  },
+  "256": {
+    "author_gradient_relative_error": 2.5504132472597973e-08,
+    "author_penalty_integral": 6.995119159774311,
+    "gradient_checked_nodes": 22,
+    "max_point_cost_difference": 1.7756462966644904e-11,
+    "max_speed": 28.568326894943823,
+    "ours_penalty_integral": 6.995119159774365,
+    "samples": 5654
+  },
+  "32": {
+    "author_gradient_relative_error": 0.0,
+    "author_penalty_integral": 5.716510638152322,
+    "gradient_checked_nodes": 0,
+    "max_point_cost_difference": 1.06439301816863e-11,
+    "max_speed": 28.563895984039277,
+    "ours_penalty_integral": 5.71651063815251,
+    "samples": 726
+  },
+  "gradient_inf_norm": 1.7218599323835302,
+  "reported_objective": 23.00946246915428
+}

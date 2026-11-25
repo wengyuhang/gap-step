@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-14",
+  "source_manifest_role": "historical provenance unchanged",
+  "files": {
+    "src/sip_planner.cpp": {
+      "current_sha256": "f1c157a328937f5890909b1e7b9e85ecde7239608030acb2b3eecd7479c5a54f",
+      "before_sha256": "6b955dad2b8156dee1ad82727bf00128162f1b29fbb25d5fed34e14d31c94dfa"
+    },
+    "src/restored_inputs.cpp": {
+      "current_sha256": "fdb8a5ca6cc55801da784be9474ddc8da7416703bac36fe91cfcabdb83e7b23d"
+    },
+    "include/sip_exchange_policy.hpp": {
+      "current_sha256": "a71460b08024400673d1176c8c96f20f4371afa3ec83b4fd50d299596256182b"
+    },
+    "tests/sip_outer_unit.cpp": {
+      "current_sha256": "11a46f2cb5f5a4875f696198a26a4356eda1c9226b35d9f98a084a06872a98d0"
+    },
+    "tests/sip_result_unit.cpp": {
+      "current_sha256": "7cb60000ab3ff0b72f30eb64a33fb1bb11ef68ff38e03d2d34ad0eb636b68f3f"
+    },
+    "config/x500_togt.json": {
+      "current_sha256": "af766fa7b01a737c8ec228b87420b8be4d37ed3b7606423e75396a4ae57e81b3"
+    },
+    "CMakeLists.txt": {
+      "current_sha256": "183cfbc0618d947ca2812cf52675082b2f4985989289c3de3a974d1c0fb12afd"
+    },
+    "README.md": {
+      "current_sha256": "a46c64175e6649a77f39402792abc0c96bf128a7885cc3322da36a850ecd5a99"
+    }
+  }
+}

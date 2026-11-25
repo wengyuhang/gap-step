@@ -1,0 +1,53 @@
+{
+  "change": "Explicit physical plane xy, aperture hard constraints, finite-ready gate before exchange, no rollback by objective across growing constraint sets",
+  "files": [
+    {
+      "file": "include/native_minco_pvaj.hpp",
+      "previous_sha256": "fddccb62477b5507befdd9d373e363c80a41884081042a64574fef6368ba5402",
+      "sha256": "3e733a2d98b519c0e5680add955c12cd82aa97f5260af3e6b0c4f0fdb60c886d"
+    },
+    {
+      "file": "include/planar_points.hpp",
+      "previous_sha256": null,
+      "sha256": "b491f2ced41c8b6bfaae1181f75542885b84f8be4726b21df6ea1155f2723afb"
+    },
+    {
+      "file": "include/sip_exchange_policy.hpp",
+      "previous_sha256": "1766a1add003bb0e1859bb1f9a58175269e361b85892e78e80b1581281572225",
+      "sha256": "713884066c1e7e27ac3c9413f23022becedad42e586cc18b12d631026aa14b8a"
+    },
+    {
+      "file": "src/sip_planner.cpp",
+      "previous_sha256": "6e02267eae05ffebb1d5f88fca56cab2ca4076123d1dba6ce662e3512a1ba277",
+      "sha256": "1ab1e2dd9e8b9fdab32dddf0ab7ffe8d40ed518921ad9023d56aad6ada2cbd0b"
+    },
+    {
+      "file": "src/main_course_inputs.cpp",
+      "previous_sha256": null,
+      "sha256": "5b39172ea3bcb38d699201844704256c2659bfc3c1bb5534446406d92238d18a"
+    },
+    {
+      "file": "src/matrix.cpp",
+      "previous_sha256": "ad918f436d8a5f2bcb5d3a492c508d96b4d6049f4a910f96d8f3bd12005dc894",
+      "sha256": "ee86ac6c6c4396992a7b8613de096e977e34ff4843676a8ccfd01e08e7dc69a3"
+    },
+    {
+      "file": "tests/planar_points_unit.cpp",
+      "previous_sha256": null,
+      "sha256": "d5e45554181f4838b5618a31a1d06c2a8e9d140970bfd824aa5dcb73e20ebf5e"
+    },
+    {
+      "file": "tests/sip_outer_unit.cpp",
+      "previous_sha256": "978ae6e2d8c2502f5a2d02a9271893bc034f9368028617c4e36d2de363192337",
+      "sha256": "f2bc855ff0eae063087a0c5cafc23353f99441a82151cc087274c29cfd8c6fa9"
+    },
+    {
+      "file": "tests/sip_result_unit.cpp",
+      "previous_sha256": "9ff2010a873ad29b07bf39b9d10bd00f9eb5f9340cfda964824899b89d5014eb",
+      "sha256": "4df62ab49298bb80a4fff9c9ab921008224055a9ee4f2b81d5a4a4f1d300c4cd"
+    }
+  ],
+  "historical_assets_preserved": true,
+  "main_protocol": "MAIN_EXPERIMENT.md",
+  "regression_report": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/cpp_runtime/results/main_xy_regression_v1_20261114/REPORT.md"
+}

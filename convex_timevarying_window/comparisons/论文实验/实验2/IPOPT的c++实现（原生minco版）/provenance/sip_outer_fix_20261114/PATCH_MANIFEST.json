@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-14",
+  "source_manifest_role": "historical provenance unchanged",
+  "files": {
+    "src/sip_planner.cpp": {
+      "current_sha256": "6e02267eae05ffebb1d5f88fca56cab2ca4076123d1dba6ce662e3512a1ba277",
+      "before_sha256": "6b955dad2b8156dee1ad82727bf00128162f1b29fbb25d5fed34e14d31c94dfa"
+    },
+    "src/restored_inputs.cpp": {
+      "current_sha256": "fdb8a5ca6cc55801da784be9474ddc8da7416703bac36fe91cfcabdb83e7b23d"
+    },
+    "include/sip_exchange_policy.hpp": {
+      "current_sha256": "1766a1add003bb0e1859bb1f9a58175269e361b85892e78e80b1581281572225"
+    },
+    "tests/sip_outer_unit.cpp": {
+      "current_sha256": "978ae6e2d8c2502f5a2d02a9271893bc034f9368028617c4e36d2de363192337"
+    },
+    "tests/sip_result_unit.cpp": {
+      "current_sha256": "9ff2010a873ad29b07bf39b9d10bd00f9eb5f9340cfda964824899b89d5014eb"
+    },
+    "config/x500_togt.json": {
+      "current_sha256": "af766fa7b01a737c8ec228b87420b8be4d37ed3b7606423e75396a4ae57e81b3"
+    },
+    "CMakeLists.txt": {
+      "current_sha256": "183cfbc0618d947ca2812cf52675082b2f4985989289c3de3a974d1c0fb12afd"
+    },
+    "README.md": {
+      "current_sha256": "064a527b96d5063924df53429ea60a834e6b9a2d9f4262d555ad6aad6eccb18b"
+    }
+  },
+  "followup": "Actual previous solve status gates dual warm start, including incumbent rollback."
+}

@@ -1,0 +1,125 @@
+{
+  "reason": "Keep only the adopted C++ implementation at top level; preserve all unsuccessful diagnostic sources without deletion.",
+  "entries": [
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/audit.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/audit.cpp",
+      "sha256": "72f37fae6dfea15c7290e0cfbc53d9b0c9c564b37502012fec3758369a4f4c5c",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/exact_pvaj.hpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/exact_pvaj.hpp",
+      "sha256": "39887f695e8449d30f5b7cc402e274036edaf01544b78c89cee1988cf6d0cc39",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/hessian_unit.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/hessian_unit.cpp",
+      "sha256": "681d15794f0646e7447bcd2c3a6e814c6e5167df83661dadffbe1ea78a42982a",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/homotopy_prepare.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/homotopy_prepare.cpp",
+      "sha256": "0d39c4c0036ac1a7e3abc6560165a22d208d3734a734c5d0519ad18cdbb86022",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/iteration_snapshot.hpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/iteration_snapshot.hpp",
+      "sha256": "a8145cc92d89bd4f2964aa220709f53bddea12243e8c08c47743cba3c6d5d517",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/prepare.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/prepare.cpp",
+      "sha256": "0ec103ed4967e5bf1a571f6f644aea826b905d1e13806df9406f02039f0f5b83",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_clock.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_clock.cpp",
+      "sha256": "ce1a551b9ec19271e7ec54603f960b360eff3f1654192025a3686f2fafde3300",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_clock_damped.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_clock_damped.cpp",
+      "sha256": "6bb7f160d3aaf244c1d8217662784b86709e439b718f6d448f1ee076b7220484",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_clock_mx_frame_snapshot.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_clock_mx_frame_snapshot.cpp",
+      "sha256": "0832781ec4886ebc91b02b5ebe911071bc3fc8dd3e6d7311d8bc001fbc40427c",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_clock_reduced.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_clock_reduced.cpp",
+      "sha256": "5c83b8d4ca61e1af9c76b0b246d68ee1c8ec60c8c84d69d075379e14689df600",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_continuation.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_continuation.cpp",
+      "sha256": "9823a57e72ce5679be8af77188971b717aab2fcab4c8cd97e580eb35bdedf864",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_exact.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_exact.cpp",
+      "sha256": "1c77bc536280465e8ad2b7f313aa3afd0b8ba4cb5a95637bd3d3f69479ee1dc4",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_natural.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_natural.cpp",
+      "sha256": "c3d98cfd61163b83abbad55aaf95c987946c08e49bdedc4d5ceaefa1419c0015",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_observed.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_observed.cpp",
+      "sha256": "7d6693ee210f3e51553826ad82bc0799200f9781a073a2e9a6ec6badb3cd34d7",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_preconditioned.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_preconditioned.cpp",
+      "sha256": "de27ff95adbf28e7a0825217a5952b63662f891c430ab35394fc4fe048894381",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_reduced.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_reduced.cpp",
+      "sha256": "e3de6cd8ed2c906f37e10d999fdabd0f6b91920d74df19e5e741ac6b103ca1a1",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_sqp.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_sqp.cpp",
+      "sha256": "e5a3ed216de9817c0ab31feabc8c674f3f802075ad1e09b619164bfed09d2778",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_symbolic.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_symbolic.cpp",
+      "sha256": "e0059186fba5b817023150c11fa52017704b4456e55348cdd12a960696440608",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/sip_trust.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/sip_trust.cpp",
+      "sha256": "730cc294166e31377386bc5ca1c5624166ea0043bd7f1cb12d15c39386fb4d04",
+      "preserved": true
+    },
+    {
+      "original": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/state.cpp",
+      "archive": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/diagnostic_source_snapshot_20261116/state.cpp",
+      "sha256": "7360d7e7b507bf030607312bc9d4250c646aed1af8247cfe4c2c0a21349ece69",
+      "preserved": true
+    }
+  ]
+}

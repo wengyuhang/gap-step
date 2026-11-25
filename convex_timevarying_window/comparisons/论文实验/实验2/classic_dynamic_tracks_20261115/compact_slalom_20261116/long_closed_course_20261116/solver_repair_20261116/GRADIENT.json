@@ -1,0 +1,98 @@
+[
+  {
+    "analytic": 0.6332073755327201,
+    "column": 0,
+    "finite_difference": 0.6332075208323376,
+    "key": "base_2220",
+    "max_relative_error": 8.89658023218405e-08,
+    "worst_row": 2270
+  },
+  {
+    "analytic": 0.42422344245642307,
+    "column": 1,
+    "finite_difference": 0.42422348787872877,
+    "key": "base_2220",
+    "max_relative_error": 3.189268122669423e-08,
+    "worst_row": 2270
+  },
+  {
+    "analytic": 0.48165932278857326,
+    "column": 2,
+    "finite_difference": 0.48165938810451076,
+    "key": "base_2220",
+    "max_relative_error": 4.408296401744968e-08,
+    "worst_row": 2270
+  },
+  {
+    "analytic": 0.5271425469715041,
+    "column": 3,
+    "finite_difference": 0.5271426314674176,
+    "key": "base_2220",
+    "max_relative_error": 5.532941831835046e-08,
+    "worst_row": 2270
+  },
+  {
+    "analytic": 0.740205447576268,
+    "column": 4,
+    "finite_difference": 0.7402054765370293,
+    "key": "base_911",
+    "max_relative_error": 1.6642150380557215e-08,
+    "worst_row": 961
+  },
+  {
+    "analytic": 0.16121576917318992,
+    "column": 5,
+    "finite_difference": 0.16121606434410518,
+    "key": "base_1122",
+    "max_relative_error": 2.54191208965192e-07,
+    "worst_row": 1172
+  },
+  {
+    "analytic": 2.2150793864858422,
+    "column": 6,
+    "finite_difference": 2.2150794769415505,
+    "key": "base_1331",
+    "max_relative_error": 2.8134828051934305e-08,
+    "worst_row": 1381
+  },
+  {
+    "analytic": 0.47368825536887016,
+    "column": 7,
+    "finite_difference": 0.47368831827962876,
+    "key": "base_2220",
+    "max_relative_error": 4.2689324345043824e-08,
+    "worst_row": 2270
+  },
+  {
+    "analytic": 0.5192836849356581,
+    "column": 8,
+    "finite_difference": 0.5192837658743278,
+    "key": "base_2220",
+    "max_relative_error": 5.327422794440112e-08,
+    "worst_row": 2270
+  },
+  {
+    "analytic": -0.07548583397505482,
+    "column": 9,
+    "finite_difference": -0.07548586337134663,
+    "key": "base_2003",
+    "max_relative_error": 2.7333034137026493e-08,
+    "worst_row": 2053
+  },
+  {
+    "analytic": 1.333592357405112,
+    "column": 10,
+    "finite_difference": 1.3335918018303472,
+    "key": "base_2094",
+    "max_relative_error": 2.3807709832724303e-07,
+    "worst_row": 2144
+  },
+  {
+    "analytic": -1.0948736871786966,
+    "column": 11,
+    "finite_difference": -1.0948735620519567,
+    "key": "base_2327",
+    "max_relative_error": 5.97299723119105e-08,
+    "worst_row": 2377
+  }
+]

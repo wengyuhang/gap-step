@@ -19,7 +19,7 @@ from convex_timevarying_window.single_gate_stop_racing import px4_model
 class Config(ParentConfig):
     solver_type: str = 'L-BFGS-B'
     control_weight: float = 1.
-    max_solve_ms: float = 60.
+    max_solve_ms: float | None = 60.
     max_iterations: int = 30
 
 
@@ -82,7 +82,7 @@ class MPC(Parent):
         best=controls.copy();best_cost=np.inf;calls=0
         def objective(vector):
             nonlocal best,best_cost,calls
-            if calls and 1000*(time.perf_counter()-began)>=cfg.max_solve_ms:raise BudgetExpired()
+            if calls and cfg.max_solve_ms is not None and 1000*(time.perf_counter()-began)>=cfg.max_solve_ms:raise BudgetExpired()
             trial=vector.reshape(n,4)*self.uscale
             value,gradient=self.objective(trial.T,x,parameters);value=float(value);calls+=1
             if np.isfinite(value) and value<best_cost:best_cost=value;best=trial.copy()

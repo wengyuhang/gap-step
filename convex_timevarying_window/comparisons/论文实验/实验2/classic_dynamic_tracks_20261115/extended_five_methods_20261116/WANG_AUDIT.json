@@ -1,0 +1,90 @@
+{
+  "graphs": 156,
+  "passed": true,
+  "rows": [
+    {
+      "coefficient_relative_error_against_author_minco": 1.37280335517388e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 4.687862091275437e-06,
+      "level": "splits_moderate",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.286480345673628e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 3.6750655479286728e-06,
+      "level": "splits_high",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.7037729061631988e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 5.417294751183021e-06,
+      "level": "splits_freq3",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.3739187479346953e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 6.603575299178331e-06,
+      "level": "splits_freq4",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.674982455141838e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 1.175588379336376e-06,
+      "level": "alphapilot_moderate",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 3.0626684032881276e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 1.7854834446292732e-06,
+      "level": "alphapilot_high",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.51914234679674e-13,
+      "dynamic_center_error_m": 8.881784197001252e-16,
+      "gradient_relative_error": 5.799228286256584e-07,
+      "level": "alphapilot_freq3",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 2.8032284235417915e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 5.651879037054069e-07,
+      "level": "alphapilot_freq4",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.563126345248732e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 4.704932892346509e-06,
+      "level": "airsim_moderate",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.4253354842725592e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 1.5762731060105673e-06,
+      "level": "airsim_high",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.9857746799821195e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 4.155951780528613e-06,
+      "level": "airsim_freq3",
+      "passed": true
+    },
+    {
+      "coefficient_relative_error_against_author_minco": 1.3958536642201459e-13,
+      "dynamic_center_error_m": 0.0,
+      "gradient_relative_error": 1.22941647695717e-06,
+      "level": "airsim_freq4",
+      "passed": true
+    }
+  ]
+}

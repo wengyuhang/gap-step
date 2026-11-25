@@ -1,0 +1,242 @@
+[
+  {
+    "level": "splits_moderate",
+    "old": {
+      "level": "splits_moderate",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 6.127160809157347,
+      "compute_s": 59.897089414999996,
+      "successful_starts": 6
+    },
+    "new": {
+      "level": "splits_moderate",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 6.0642911581309935,
+      "compute_s": 56.887348965,
+      "successful_starts": 4
+    },
+    "shortening_percent": 1.0260812958000376
+  },
+  {
+    "level": "splits_high",
+    "old": {
+      "level": "splits_high",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 6.140226452245518,
+      "compute_s": 71.291369485,
+      "successful_starts": 8
+    },
+    "new": {
+      "level": "splits_high",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 6.066320142145403,
+      "compute_s": 76.169947278,
+      "successful_starts": 2
+    },
+    "shortening_percent": 1.2036414401798898
+  },
+  {
+    "level": "splits_freq3",
+    "old": {
+      "level": "splits_freq3",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 6.081275152419965,
+      "compute_s": 47.277598574,
+      "successful_starts": 8
+    },
+    "new": {
+      "level": "splits_freq3",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 6.037582582901399,
+      "compute_s": 52.898806795,
+      "successful_starts": 8
+    },
+    "shortening_percent": 0.7184771026382468
+  },
+  {
+    "level": "splits_freq4",
+    "old": {
+      "level": "splits_freq4",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 6.103804922835123,
+      "compute_s": 141.383761913,
+      "successful_starts": 8
+    },
+    "new": {
+      "level": "splits_freq4",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 6.017881485005751,
+      "compute_s": 69.985343748,
+      "successful_starts": 8
+    },
+    "shortening_percent": 1.407702882310694
+  },
+  {
+    "level": "alphapilot_moderate",
+    "old": {
+      "level": "alphapilot_moderate",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 10.625577725374637,
+      "compute_s": 66.090929179,
+      "successful_starts": 8
+    },
+    "new": {
+      "level": "alphapilot_moderate",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 10.558371609176247,
+      "compute_s": 64.035950383,
+      "successful_starts": 8
+    },
+    "shortening_percent": 0.6324937611429553
+  },
+  {
+    "level": "alphapilot_high",
+    "old": {
+      "level": "alphapilot_high",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 10.542364901029623,
+      "compute_s": 87.710752614,
+      "successful_starts": 8
+    },
+    "new": {
+      "level": "alphapilot_high",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 10.486063102394848,
+      "compute_s": 60.667322212,
+      "successful_starts": 8
+    },
+    "shortening_percent": 0.5340528350453592
+  },
+  {
+    "level": "alphapilot_freq3",
+    "old": {
+      "level": "alphapilot_freq3",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 10.583601005417181,
+      "compute_s": 86.31558359200001,
+      "successful_starts": 8
+    },
+    "new": {
+      "level": "alphapilot_freq3",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 10.509173322796789,
+      "compute_s": 99.98582336499999,
+      "successful_starts": 8
+    },
+    "shortening_percent": 0.7032359079135416
+  },
+  {
+    "level": "alphapilot_freq4",
+    "old": {
+      "level": "alphapilot_freq4",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 10.718945677000772,
+      "compute_s": 83.83593191899999,
+      "successful_starts": 8
+    },
+    "new": {
+      "level": "alphapilot_freq4",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 10.705541863254394,
+      "compute_s": 90.63527931399999,
+      "successful_starts": 8
+    },
+    "shortening_percent": 0.12504787457909475
+  },
+  {
+    "level": "airsim_moderate",
+    "old": {
+      "level": "airsim_moderate",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 14.206293476333238,
+      "compute_s": 533.296532439,
+      "successful_starts": 7
+    },
+    "new": {
+      "level": "airsim_moderate",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 14.055175860215249,
+      "compute_s": 656.459230347,
+      "successful_starts": 7
+    },
+    "shortening_percent": 1.0637371132008628
+  },
+  {
+    "level": "airsim_high",
+    "old": {
+      "level": "airsim_high",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 14.292664407691484,
+      "compute_s": 1073.087670202,
+      "successful_starts": 1
+    },
+    "new": {
+      "level": "airsim_high",
+      "method": "ours",
+      "outcome": "通过",
+      "time_s": 14.089544002324077,
+      "compute_s": 646.664608677,
+      "successful_starts": 3
+    },
+    "shortening_percent": 1.4211514352642307
+  },
+  {
+    "level": "airsim_freq3",
+    "old": {
+      "level": "airsim_freq3",
+      "method": "ours",
+      "outcome": "未找到",
+      "time_s": null,
+      "compute_s": 814.421103708,
+      "successful_starts": 0
+    },
+    "new": {
+      "level": "airsim_freq3",
+      "method": "ours",
+      "outcome": "未找到",
+      "time_s": null,
+      "compute_s": 838.186485503,
+      "successful_starts": 0
+    },
+    "shortening_percent": null
+  },
+  {
+    "level": "airsim_freq4",
+    "old": {
+      "level": "airsim_freq4",
+      "method": "ours",
+      "outcome": "未找到",
+      "time_s": null,
+      "compute_s": 754.450715739,
+      "successful_starts": 0
+    },
+    "new": {
+      "level": "airsim_freq4",
+      "method": "ours",
+      "outcome": "未找到",
+      "time_s": null,
+      "compute_s": 925.162007496,
+      "successful_starts": 0
+    },
+    "shortening_percent": null
+  }
+]

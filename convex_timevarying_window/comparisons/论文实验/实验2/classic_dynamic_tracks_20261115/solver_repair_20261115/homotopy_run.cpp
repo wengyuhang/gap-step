@@ -1,0 +1,14 @@
+#include "trajectory.hpp"
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <chrono>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <fcntl.h>
+namespace fs=std::filesystem;using Clock=std::chrono::steady_clock;
+Json read(const fs::path&p){Json d;std::ifstream f(p);if(!f)throw std::runtime_error("Missing "+p.string());f>>d;return d;}
+int run(std::vector<std::string>args,const fs::path&log){pid_t pid=fork();if(pid<0)throw std::runtime_error("fork failed");if(pid==0){int fd=open(log.c_str(),O_WRONLY|O_CREAT|O_EXCL,0644);if(fd<0)_exit(125);dup2(fd,1);dup2(fd,2);close(fd);setenv("OPENBLAS_NUM_THREADS","1",1);setenv("OMP_NUM_THREADS","1",1);setenv("MKL_NUM_THREADS","1",1);setenv("SIP_DUMP_INPUT","1",1);std::vector<char*>raw;for(auto&s:args)raw.push_back(s.data());raw.push_back(nullptr);execv(raw[0],raw.data());_exit(126);}int status;while(waitpid(pid,&status,0)<0 && errno==EINTR){}return WIFEXITED(status)?WEXITSTATUS(status):128+WTERMSIG(status);}
+int main(int argc,char**argv){try{if(argc!=8)throw std::runtime_error("Usage: SOLVER PREP BASE SCENE PREVIOUS OUTPUT FIRST_STAGE_1_TO_10");const fs::path out=fs::absolute(argv[6]);if(fs::exists(out))throw std::runtime_error("Output exists");fs::create_directories(out);fs::path previous=fs::absolute(argv[5]);Json stages=Json::array();const auto began=Clock::now();bool found=false;
+ for(int k=std::stoi(argv[7]);k<=10;++k){const auto stage=out/("stage_"+std::to_string(k));fs::create_directory(stage);const auto started=Clock::now();const int prep=run({argv[2],argv[3],argv[4],previous.string(),std::to_string(k/10.),(stage/"input").string(),"--multipliers"},stage/"prepare.log");if(prep)throw std::runtime_error("Initial preparation failed at "+std::to_string(k));const int code=run({argv[1],(stage/"input").string(),(stage/"solve").string(),"0","--soft-mincopv",(stage/"input/scene.json").string(),"1000"},stage/"solve.log");const auto path=stage/"solve/result.json";Json item{{"stage",k},{"motion_fraction",k/10.},{"exit_code",code},{"stage_wall_s",std::chrono::duration<double>(Clock::now()-started).count()}};if(fs::exists(path)){auto result=read(path);found=result.value("found",false);item["found"]=found;item["nominal_time_s"]=result.value("nominal_time_s",Json(nullptr));item["calls"]=Json::array();for(const auto&c:result["optimizer_calls"])item["calls"].push_back({{"status",c["status"]},{"iterations",c["iterations"]},{"solver_s",c["solver_s"]},{"finite_violation",c["constraint_violation_inf"]}});}else item["found"]=false;stages.push_back(item);std::ofstream(out/"STAGES.json")<<Json{{"stages",stages},{"wall_s",std::chrono::duration<double>(Clock::now()-began).count()},{"target_found",found&&k==10}}.dump(2)<<'\n';std::cout<<item.dump()<<std::endl;if(code || !found)return 2;previous=path; }
+ return found?0:2;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

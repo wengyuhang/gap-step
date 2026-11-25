@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-16",
+  "state": "complete",
+  "task": "repair continuous verifier cutoffs and genuine-witness exchange; rerun original scene",
+  "methods": {
+    "center": {
+      "all_preparation_wall_s": 1.4384864019999999,
+      "elapsed_to_final_selection_s": 126.43306396,
+      "found": false,
+      "parallel_candidate_wait_wall_s": 124.813264821,
+      "shared_target_initialization_wall_s": 0.181312737,
+      "successful_candidates": 0
+    },
+    "ours": {
+      "all_preparation_wall_s": 1.4384864019999999,
+      "elapsed_to_final_selection_s": 131.412664586,
+      "found": true,
+      "nominal_time_s": 4.051446919267996,
+      "objective": 4.051447127135882,
+      "parallel_candidate_wait_wall_s": 129.792865447,
+      "result_directory": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/verifier_repair_20261116/results/paired_v1/compact_slalom/candidates/ours_7",
+      "selected": "ours_7",
+      "shared_target_initialization_wall_s": 0.181312737,
+      "successful_candidates": 7
+    }
+  },
+  "tests_passed": true,
+  "audit_passed": true,
+  "gazebo_runs": 0,
+  "active_processes": []
+}

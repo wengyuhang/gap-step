@@ -1,0 +1,77 @@
+[
+  {
+    "status": "diagnostic_interrupted",
+    "pid": 1119443,
+    "command": [
+      "/tmp/classic_course_build_20261115/sip_planner",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_speed6p5_v1/inputs/airsim_high_ours",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/speed6p5_seed_v2_ours_0",
+      "0",
+      "--soft-mincopv",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_speed6p5_v1/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "reason": "Unproductive diagnostic branch stopped; not counted as formal solver failure or infeasibility",
+    "time_unix": 1794798330.087215
+  },
+  {
+    "status": "diagnostic_interrupted",
+    "pid": 1119672,
+    "command": [
+      "/tmp/classic_course_build_20261115/sip_planner",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_speed6p5_v1/inputs/airsim_high_center",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/speed6p5_seed_v2_center_0",
+      "0",
+      "--soft-mincopv",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_speed6p5_v1/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "reason": "Unproductive diagnostic branch stopped; not counted as formal solver failure or infeasibility",
+    "time_unix": 1794798330.0873802
+  },
+  {
+    "status": "diagnostic_interrupted",
+    "pid": 1127250,
+    "command": [
+      "/tmp/classic_repair_build_20261115/repair_exact_sip",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_exact_speed1_v1/inputs/airsim_high_ours",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/exact_speed1_ours_0",
+      "0",
+      "--soft-mincopv",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_exact_speed1_v1/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "reason": "Unproductive diagnostic branch stopped; not counted as formal solver failure or infeasibility",
+    "time_unix": 1794798330.087497
+  },
+  {
+    "status": "diagnostic_interrupted",
+    "pid": 1127309,
+    "command": [
+      "/tmp/classic_repair_build_20261115/repair_exact_sip",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_exact_speed6p5_v1/inputs/airsim_high_ours",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/exact_speed6p5_ours_7",
+      "7",
+      "--soft-mincopv",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_exact_speed6p5_v1/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "reason": "Unproductive diagnostic branch stopped; not counted as formal solver failure or infeasibility",
+    "time_unix": 1794798330.0876424
+  },
+  {
+    "status": "diagnostic_interrupted",
+    "pid": 1127765,
+    "command": [
+      "/tmp/classic_repair_build_20261115/repair_exact_sip",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_exact_speed6p5_v1/inputs/airsim_high_center",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/results/exact_speed6p5_center_7",
+      "7",
+      "--soft-mincopv",
+      "/home/jack/wyh/\u65f6\u53d8\u7a97\u53e3/convex_timevarying_window/comparisons/\u8bba\u6587\u5b9e\u9a8c/\u5b9e\u9a8c2/classic_dynamic_tracks_20261115/solver_repair_20261115/inputs_exact_speed6p5_v1/assets/airsim_high/scene.json",
+      "1000"
+    ],
+    "reason": "Unproductive diagnostic branch stopped; not counted as formal solver failure or infeasibility",
+    "time_unix": 1794798330.087712
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "coefficient_error": 1.1723559961930371e-12,
+    "finite_error": 4.073856340495005e-14,
+    "gradient_error": 5.816798524620289e-14,
+    "hessian_vector_fd": [
+      {
+        "error": 4.443905921168556e-09,
+        "step": 0.001
+      },
+      {
+        "error": 7.16662221967801e-10,
+        "step": 0.0001
+      },
+      {
+        "error": 1.2370457250401406e-08,
+        "step": 1e-05
+      },
+      {
+        "error": 1.3562731924108325e-07,
+        "step": 1e-06
+      }
+    ],
+    "method": "ours",
+    "passed": true
+  },
+  {
+    "coefficient_error": 1.1723559961930371e-12,
+    "finite_error": 4.073856340495005e-14,
+    "gradient_error": 3.244901309022634e-14,
+    "hessian_vector_fd": [
+      {
+        "error": 4.445507405641455e-09,
+        "step": 0.001
+      },
+      {
+        "error": 4.445549964441313e-10,
+        "step": 0.0001
+      },
+      {
+        "error": 5.865450646560471e-09,
+        "step": 1e-05
+      },
+      {
+        "error": 5.9088227081158127e-08,
+        "step": 1e-06
+      }
+    ],
+    "method": "center",
+    "passed": true
+  }
+]

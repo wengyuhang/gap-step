@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "level": "splits_moderate",
+      "maximum_symbolic_frame_error": 3.907985046680551e-14,
+      "maximum_velocity_relative_error": 2.24247679518914e-10,
+      "passed": true
+    },
+    {
+      "level": "splits_high",
+      "maximum_symbolic_frame_error": 3.913536161803677e-14,
+      "maximum_velocity_relative_error": 2.527303522257319e-10,
+      "passed": true
+    },
+    {
+      "level": "splits_freq3",
+      "maximum_symbolic_frame_error": 3.9190872769268026e-14,
+      "maximum_velocity_relative_error": 3.1027868833515115e-10,
+      "passed": true
+    },
+    {
+      "level": "splits_freq4",
+      "maximum_symbolic_frame_error": 3.907985046680551e-14,
+      "maximum_velocity_relative_error": 2.891269553272058e-10,
+      "passed": true
+    },
+    {
+      "level": "alphapilot_moderate",
+      "maximum_symbolic_frame_error": 4.113376306236205e-14,
+      "maximum_velocity_relative_error": 2.2357863916956012e-10,
+      "passed": true
+    },
+    {
+      "level": "alphapilot_high",
+      "maximum_symbolic_frame_error": 3.907985046680551e-14,
+      "maximum_velocity_relative_error": 5.177099353872492e-10,
+      "passed": true
+    },
+    {
+      "level": "alphapilot_freq3",
+      "maximum_symbolic_frame_error": 4.068967385251199e-14,
+      "maximum_velocity_relative_error": 3.5279167346381227e-10,
+      "passed": true
+    },
+    {
+      "level": "alphapilot_freq4",
+      "maximum_symbolic_frame_error": 4.141131881851834e-14,
+      "maximum_velocity_relative_error": 3.1130722957747697e-10,
+      "passed": true
+    },
+    {
+      "level": "airsim_moderate",
+      "maximum_symbolic_frame_error": 4.424238753131249e-14,
+      "maximum_velocity_relative_error": 2.0376081432654877e-10,
+      "passed": true
+    },
+    {
+      "level": "airsim_high",
+      "maximum_symbolic_frame_error": 4.2799097599299785e-14,
+      "maximum_velocity_relative_error": 4.102542778626914e-10,
+      "passed": true
+    },
+    {
+      "level": "airsim_freq3",
+      "maximum_symbolic_frame_error": 4.2743586448068527e-14,
+      "maximum_velocity_relative_error": 5.498781026552494e-10,
+      "passed": true
+    },
+    {
+      "level": "airsim_freq4",
+      "maximum_symbolic_frame_error": 4.5352610555937645e-14,
+      "maximum_velocity_relative_error": 4.336389618061411e-10,
+      "passed": true
+    }
+  ],
+  "windows_checked": 156
+}

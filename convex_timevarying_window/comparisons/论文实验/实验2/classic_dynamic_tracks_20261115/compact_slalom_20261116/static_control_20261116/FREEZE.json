@@ -1,0 +1,27 @@
+{
+  "frozen_at": "2026-11-16T09:24:20.054099+00:00",
+  "before_planning": true,
+  "files": {
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/config/protocol.json": "616d9adef046f3096e7cf9b328b62257ad6f58e6f88d8dc7f4d49d4ad1c556f9",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/config/time_seed/init/cpc_planning.yaml": "ed5bfa9ad8c9244d5f06c4a213b8f1350e841888cd0908754ddea014e2b2b63d",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/config/time_seed/init/cpc_lbfgs.yaml": "c1bae1165e77e937c58f436e54165eed02301e700f5e9df9cdf063a1f9f42b00",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/STATIC_PARITY.json": "fbe89e861dcab1c27a1e2007cf8c4801c44857e8b504e683f687304646f4a39e",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/vehicle.json": "81b627ccb06e6f887c7d512d8078ef7a7c4b88302e832175f32318ac370677f5",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/inputs/compact_slalom_static_ours/exchange_dynamics.json": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/inputs/compact_slalom_static_ours/manifest.json": "4f5affc9fca570f0153060ca3c41eced9c90871fb4426494abca32b5fedca126",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/inputs/compact_slalom_static_ours/exchange_dynamic_node.casadi": "58270031104b316d0234a1e302b004cd6a2aa17b49b4eb1547005c3cb5a0f398",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/inputs/compact_slalom_static_center/exchange_dynamics.json": "38f89fcaaba42891a4e6993b75523519f70a46dccd971cf14ee2ab4dd76c64bb",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/inputs/compact_slalom_static_center/manifest.json": "ac1abc800012ba0e4771f336a7f4c3d32a0afea0aada1069d1104057c41d4e23",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/inputs/compact_slalom_static_center/exchange_dynamic_node.casadi": "58270031104b316d0234a1e302b004cd6a2aa17b49b4eb1547005c3cb5a0f398",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/results/inputs_v1/assets/compact_slalom_static/scene.json": "a0df7e4cbe73a1a5f7952125342c71a04eb5187d1f2a7337584d9b4f0df8d918",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/generate.cpp": "d0f7078fbc5b50ba75df66aa39422ecbc4f3a18da4743346ebdb56b8b1d09d5f",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/CMakeLists.txt": "2651960822d440a911713f087b756e7e651516c9b994db657082bd5a4d447396",
+    "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/compact_slalom_20261116/static_control_20261116/PROTOCOL.md": "899c61f26d5823eaa89f2e05a5f0e40f0859738efc2ec893cc150f3d071eff19",
+    "/tmp/slalom_static_control_build_20261116/static_control_inputs": "a8cbf767f0ea5c86a1f2a2254880aa429ce14dec121b298219b2a633fef4d326",
+    "/tmp/passage_repair_build_20261116/sip_planner": "3fa21f78dcbefb094b2dbb66e0c085dad33eae1f79729138e42404f185eab934",
+    "/tmp/classic_course_build_20261115/dynamic_togt_planner": "bcada5d95608be7dc7fa54fdb0c5fbec153e2feb10ef0d35edad5156dc6302cb",
+    "/tmp/fixed_target_build_20261116/fixed_seed": "8896648e8ae71173afe91a6711905626496420a9444522fc89e6b29b1df27a95",
+    "/tmp/fixed_target_build_20261116/fixed_target_run": "ffb069314f0963f53e673565b9954074e1b9fbf9d1a40fb75dce1ed6e6a91fe2",
+    "/tmp/fixed_target_build_20261116/runtime/mesh_check": "ea2e50337123bfba30a2b443104076b5ef6d3f83ce7a6023db1b505b87210da9"
+  }
+}

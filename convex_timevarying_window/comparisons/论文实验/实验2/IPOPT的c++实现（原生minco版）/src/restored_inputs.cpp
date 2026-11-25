@@ -1,4 +1,5 @@
 #include "geometry.hpp"
+#include "sip_exchange_policy.hpp"
 #include "drolib/solver/minco_snap.hpp"
 #include <filesystem>
 #include <chrono>
@@ -40,6 +41,16 @@ int main(int argc,char** argv) {
             Json meta,scene;
             std::ifstream(archive/(level+"_"+method)/"manifest.json")>>meta;
             std::ifstream(assets/level/"scene.json")>>scene;
+            double finite_radius=sip_exchange::default_finite_radius;
+#ifdef SIP_X500_CONFIG
+            Json configuration;std::ifstream configuration_file(SIP_X500_CONFIG);
+            if(!configuration_file)throw std::runtime_error("Cannot read SIP x500 configuration");
+            configuration_file>>configuration;finite_radius=configuration.at("finite_safety_radius_m");
+#endif
+            if(!std::isfinite(finite_radius) || finite_radius<=meta["verification_radius"].get<double>())
+                throw std::runtime_error("Finite safety radius must exceed verification radius");
+            meta["finite_radius"]=finite_radius;
+            meta["config"]["witness_slack"]=finite_radius-meta["verification_radius"].get<double>();
             const int n=meta["n"],m=meta["m"],vs=meta["velocity_start"];
             const bool free=meta["free_points"];
             const int nv=vs+3*m*derivative_order;

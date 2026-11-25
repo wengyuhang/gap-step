@@ -1,0 +1,5 @@
+{
+  "casadi_numeric_max_error": 8.881784197001252e-16,
+  "passed": true,
+  "unit_quaternion_max_error": 8.153275832256668e-10
+}

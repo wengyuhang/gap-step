@@ -1,0 +1,446 @@
+[
+  {
+    "level": "splits_moderate",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 6.127160809157347,
+    "compute_s": 59.897089414999996,
+    "successful_starts": 6
+  },
+  {
+    "level": "splits_moderate",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 6.3906015647013295,
+    "compute_s": 18.846000404,
+    "successful_starts": 8
+  },
+  {
+    "level": "splits_moderate",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 8.23513539740142,
+    "compute_s": 0.138739775
+  },
+  {
+    "level": "splits_moderate",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 8.254874569787676,
+    "compute_s": 0.134573687
+  },
+  {
+    "level": "splits_moderate",
+    "method": "wang2023",
+    "outcome": "通过",
+    "time_s": 15.643621186850782,
+    "compute_s": 2.798868179
+  },
+  {
+    "level": "splits_high",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 6.140226452245518,
+    "compute_s": 71.291369485,
+    "successful_starts": 8
+  },
+  {
+    "level": "splits_high",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 6.380685713322478,
+    "compute_s": 18.080600214,
+    "successful_starts": 8
+  },
+  {
+    "level": "splits_high",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 7.489780112073927,
+    "compute_s": 0.212802815
+  },
+  {
+    "level": "splits_high",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 8.26797540364814,
+    "compute_s": 0.169382994
+  },
+  {
+    "level": "splits_high",
+    "method": "wang2023",
+    "outcome": "通过",
+    "time_s": 15.276734446263166,
+    "compute_s": 3.4154110479999997
+  },
+  {
+    "level": "splits_freq3",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 6.081275152419965,
+    "compute_s": 47.277598574,
+    "successful_starts": 8
+  },
+  {
+    "level": "splits_freq3",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 6.371809230446524,
+    "compute_s": 13.918812044,
+    "successful_starts": 8
+  },
+  {
+    "level": "splits_freq3",
+    "method": "dynamic_togt",
+    "outcome": "碰撞",
+    "time_s": 8.97136200867801,
+    "compute_s": 0.15253049600000002
+  },
+  {
+    "level": "splits_freq3",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 8.714048131349093,
+    "compute_s": 0.17029225199999998
+  },
+  {
+    "level": "splits_freq3",
+    "method": "wang2023",
+    "outcome": "通过",
+    "time_s": 15.764182796815678,
+    "compute_s": 4.2752702849999995
+  },
+  {
+    "level": "splits_freq4",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 6.103804922835123,
+    "compute_s": 141.383761913,
+    "successful_starts": 8
+  },
+  {
+    "level": "splits_freq4",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 6.389226788656639,
+    "compute_s": 35.469479873999994,
+    "successful_starts": 8
+  },
+  {
+    "level": "splits_freq4",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 7.270723269302231,
+    "compute_s": 0.166791938
+  },
+  {
+    "level": "splits_freq4",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 8.407718618930366,
+    "compute_s": 0.158066873
+  },
+  {
+    "level": "splits_freq4",
+    "method": "wang2023",
+    "outcome": "碰撞",
+    "time_s": 16.10126644093291,
+    "compute_s": 3.252996862
+  },
+  {
+    "level": "alphapilot_moderate",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 10.625577725374637,
+    "compute_s": 66.090929179,
+    "successful_starts": 8
+  },
+  {
+    "level": "alphapilot_moderate",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 10.955612056638085,
+    "compute_s": 27.654586192,
+    "successful_starts": 8
+  },
+  {
+    "level": "alphapilot_moderate",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 12.28841379390824,
+    "compute_s": 0.27642431199999995
+  },
+  {
+    "level": "alphapilot_moderate",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 12.270562786123651,
+    "compute_s": 0.275893901
+  },
+  {
+    "level": "alphapilot_moderate",
+    "method": "wang2023",
+    "outcome": "碰撞",
+    "time_s": 26.05753176993449,
+    "compute_s": 4.415930477
+  },
+  {
+    "level": "alphapilot_high",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 10.542364901029623,
+    "compute_s": 87.710752614,
+    "successful_starts": 8
+  },
+  {
+    "level": "alphapilot_high",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 10.957860976762758,
+    "compute_s": 52.561870967999994,
+    "successful_starts": 8
+  },
+  {
+    "level": "alphapilot_high",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 12.600070200134265,
+    "compute_s": 0.27925354199999997
+  },
+  {
+    "level": "alphapilot_high",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 12.45877413582068,
+    "compute_s": 0.278352044
+  },
+  {
+    "level": "alphapilot_high",
+    "method": "wang2023",
+    "outcome": "碰撞",
+    "time_s": 27.863894316867512,
+    "compute_s": 4.865207664
+  },
+  {
+    "level": "alphapilot_freq3",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 10.583601005417181,
+    "compute_s": 86.31558359200001,
+    "successful_starts": 8
+  },
+  {
+    "level": "alphapilot_freq3",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 10.961779763235473,
+    "compute_s": 62.104186164999994,
+    "successful_starts": 8
+  },
+  {
+    "level": "alphapilot_freq3",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 12.582253667762375,
+    "compute_s": 0.301762595
+  },
+  {
+    "level": "alphapilot_freq3",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 12.774703683533495,
+    "compute_s": 0.253458836
+  },
+  {
+    "level": "alphapilot_freq3",
+    "method": "wang2023",
+    "outcome": "未找到完整规划",
+    "time_s": null,
+    "compute_s": 3.3276196409999996
+  },
+  {
+    "level": "alphapilot_freq4",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 10.718945677000772,
+    "compute_s": 83.83593191899999,
+    "successful_starts": 8
+  },
+  {
+    "level": "alphapilot_freq4",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 11.03421674023682,
+    "compute_s": 64.967117696,
+    "successful_starts": 8
+  },
+  {
+    "level": "alphapilot_freq4",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 13.141097429314204,
+    "compute_s": 0.26680788699999997
+  },
+  {
+    "level": "alphapilot_freq4",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 13.115848383228382,
+    "compute_s": 0.280370495
+  },
+  {
+    "level": "alphapilot_freq4",
+    "method": "wang2023",
+    "outcome": "未找到完整规划",
+    "time_s": null,
+    "compute_s": 2.950133026
+  },
+  {
+    "level": "airsim_moderate",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 14.206293476333238,
+    "compute_s": 533.296532439,
+    "successful_starts": 7
+  },
+  {
+    "level": "airsim_moderate",
+    "method": "center",
+    "outcome": "通过",
+    "time_s": 15.058043216863028,
+    "compute_s": 309.82630684000003,
+    "successful_starts": 8
+  },
+  {
+    "level": "airsim_moderate",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 19.457856833998285,
+    "compute_s": 0.640010637
+  },
+  {
+    "level": "airsim_moderate",
+    "method": "dynamic_togt_center",
+    "outcome": "未完成",
+    "time_s": 23.518982908568354,
+    "compute_s": 0.488397478
+  },
+  {
+    "level": "airsim_moderate",
+    "method": "wang2023",
+    "outcome": "未完成",
+    "time_s": 45.28528749859467,
+    "compute_s": 7.563378619
+  },
+  {
+    "level": "airsim_high",
+    "method": "ours",
+    "outcome": "通过",
+    "time_s": 14.292664407691484,
+    "compute_s": 1073.087670202,
+    "successful_starts": 1
+  },
+  {
+    "level": "airsim_high",
+    "method": "center",
+    "outcome": "未找到",
+    "time_s": null,
+    "compute_s": 627.278598652,
+    "successful_starts": 0
+  },
+  {
+    "level": "airsim_high",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 26.264584187518928,
+    "compute_s": 0.514210828
+  },
+  {
+    "level": "airsim_high",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 26.478530206657585,
+    "compute_s": 0.486858025
+  },
+  {
+    "level": "airsim_high",
+    "method": "wang2023",
+    "outcome": "碰撞",
+    "time_s": 50.33742099690169,
+    "compute_s": 8.690689533
+  },
+  {
+    "level": "airsim_freq3",
+    "method": "ours",
+    "outcome": "未找到",
+    "time_s": null,
+    "compute_s": 814.421103708,
+    "successful_starts": 0
+  },
+  {
+    "level": "airsim_freq3",
+    "method": "center",
+    "outcome": "未找到",
+    "time_s": null,
+    "compute_s": 799.3586350720001,
+    "successful_starts": 0
+  },
+  {
+    "level": "airsim_freq3",
+    "method": "dynamic_togt",
+    "outcome": "通过",
+    "time_s": 28.21976737063893,
+    "compute_s": 0.46902201899999996
+  },
+  {
+    "level": "airsim_freq3",
+    "method": "dynamic_togt_center",
+    "outcome": "通过",
+    "time_s": 32.43659015587147,
+    "compute_s": 0.466608109
+  },
+  {
+    "level": "airsim_freq3",
+    "method": "wang2023",
+    "outcome": "碰撞",
+    "time_s": 50.854655234687115,
+    "compute_s": 10.846897993999999
+  },
+  {
+    "level": "airsim_freq4",
+    "method": "ours",
+    "outcome": "未找到",
+    "time_s": null,
+    "compute_s": 754.450715739,
+    "successful_starts": 0
+  },
+  {
+    "level": "airsim_freq4",
+    "method": "center",
+    "outcome": "未找到",
+    "time_s": null,
+    "compute_s": 740.372186594,
+    "successful_starts": 0
+  },
+  {
+    "level": "airsim_freq4",
+    "method": "dynamic_togt",
+    "outcome": "碰撞",
+    "time_s": 34.28630099962596,
+    "compute_s": 0.941345923
+  },
+  {
+    "level": "airsim_freq4",
+    "method": "dynamic_togt_center",
+    "outcome": "碰撞",
+    "time_s": 34.5341736987406,
+    "compute_s": 0.48014846899999997
+  },
+  {
+    "level": "airsim_freq4",
+    "method": "wang2023",
+    "outcome": "碰撞",
+    "time_s": 54.23254972405993,
+    "compute_s": 10.056933470999999
+  }
+]

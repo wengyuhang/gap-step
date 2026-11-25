@@ -1,0 +1,434 @@
+{
+  "status": "complete_target_verified",
+  "center": [
+    {
+      "motion_fraction": 0.1,
+      "found": true,
+      "nominal_time_s": 15.080455565834074
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 322,
+          "solver_s": 19.598819836,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.2,
+      "nominal_time_s": 15.080878984602318,
+      "stage": 2,
+      "stage_wall_s": 21.512317832
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 539,
+          "solver_s": 33.42995177,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.3,
+      "nominal_time_s": 15.081644549502032,
+      "stage": 3,
+      "stage_wall_s": 35.379070997
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 455,
+          "solver_s": 27.79127589,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.4,
+      "nominal_time_s": 15.081697293918419,
+      "stage": 4,
+      "stage_wall_s": 29.75975914
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 801,
+          "solver_s": 48.633123857,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.5,
+      "nominal_time_s": 15.077270818400587,
+      "stage": 5,
+      "stage_wall_s": 50.582403457
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 1250,
+          "solver_s": 76.00397292,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.6,
+      "nominal_time_s": 15.064639922062897,
+      "stage": 6,
+      "stage_wall_s": 77.961828264
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 873,
+          "solver_s": 53.91547936,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.7,
+      "nominal_time_s": 15.051210372010905,
+      "stage": 7,
+      "stage_wall_s": 55.862738558
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 779,
+          "solver_s": 47.061546919,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.8,
+      "nominal_time_s": 15.036512952365776,
+      "stage": 8,
+      "stage_wall_s": 49.022795715
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 983,
+          "solver_s": 59.960472982,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.9,
+      "nominal_time_s": 15.02318395530144,
+      "stage": 9,
+      "stage_wall_s": 61.929227088
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 409,
+          "solver_s": 24.85179805,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 1.0,
+      "nominal_time_s": 15.011931253335785,
+      "stage": 10,
+      "stage_wall_s": 26.851377107
+    }
+  ],
+  "ours_attempts": [
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 948,
+          "solver_s": 64.180907485,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 103,
+          "solver_s": 7.205484527,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.1,
+      "nominal_time_s": 14.241920943548662,
+      "stage": 1,
+      "stage_wall_s": 74.352310089
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 604,
+          "solver_s": 41.456781252,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 201,
+          "solver_s": 14.593476176,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.2,
+      "nominal_time_s": 14.241512278258003,
+      "stage": 2,
+      "stage_wall_s": 59.029632576
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 705,
+          "solver_s": 49.104502317,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 143,
+          "solver_s": 10.366310768,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.3,
+      "nominal_time_s": 14.241881634811865,
+      "stage": 3,
+      "stage_wall_s": 62.499690498
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 586,
+          "solver_s": 40.730754808,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 127,
+          "solver_s": 8.901869884,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.4,
+      "nominal_time_s": 14.2430602287077,
+      "stage": 4,
+      "stage_wall_s": 52.632772961
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 711,
+          "solver_s": 48.559512789,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 242,
+          "solver_s": 17.610251332,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.5,
+      "nominal_time_s": 14.24563078068667,
+      "stage": 5,
+      "stage_wall_s": 69.133732236
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 686,
+          "solver_s": 48.238473674,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 156,
+          "solver_s": 12.264175235,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.6,
+      "nominal_time_s": 14.25022733802333,
+      "stage": 6,
+      "stage_wall_s": 63.533159573
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 853,
+          "solver_s": 60.124153354,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 294,
+          "solver_s": 20.891526231,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.7,
+      "nominal_time_s": 14.257065090023422,
+      "stage": 7,
+      "stage_wall_s": 84.06789337
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 967,
+          "solver_s": 68.579546116,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 453,
+          "solver_s": 31.709328639,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 132,
+          "solver_s": 9.37697604,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.8,
+      "nominal_time_s": 14.26650741228744,
+      "stage": 8,
+      "stage_wall_s": 113.733499521
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 599,
+          "solver_s": 42.198781479,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 290,
+          "solver_s": 20.755653887,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.9,
+      "nominal_time_s": 14.278690342063284,
+      "stage": 9,
+      "stage_wall_s": 65.949732228
+    },
+    {
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 808,
+          "solver_s": 56.909562441,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 47,
+          "solver_s": 3.408112993,
+          "status": "Infeasible_Problem_Detected"
+        }
+      ],
+      "exit_code": 0,
+      "found": false,
+      "motion_fraction": 1.0,
+      "nominal_time_s": null,
+      "stage": 10,
+      "stage_wall_s": 63.324036017
+    },
+    {
+      "attempt": 0,
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 512,
+          "solver_s": 35.585103667,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 215,
+          "solver_s": 14.853759868,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 0.95,
+      "nominal_time_s": 14.285544562711069,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/homotopy_initialization/continuation_cached_ours/stage_9/solve/result.json",
+      "source_successful_fraction": 0.9,
+      "stage_wall_s": 53.463315124,
+      "step_per1000": 50
+    },
+    {
+      "attempt": 1,
+      "calls": [
+        {
+          "finite_violation": 0.0,
+          "iterations": 901,
+          "solver_s": 63.546167435,
+          "status": "Solve_Succeeded"
+        },
+        {
+          "finite_violation": 0.0,
+          "iterations": 145,
+          "solver_s": 10.862687438,
+          "status": "Solve_Succeeded"
+        }
+      ],
+      "exit_code": 0,
+      "found": true,
+      "motion_fraction": 1.0,
+      "nominal_time_s": 14.292677889566866,
+      "source": "/home/jack/wyh/时变窗口/convex_timevarying_window/comparisons/论文实验/实验2/classic_dynamic_tracks_20261115/solver_repair_20261115/homotopy_initialization/adaptive_tail_ours/attempt_0_t950/solve/result.json",
+      "source_successful_fraction": 0.95,
+      "stage_wall_s": 77.410454743,
+      "step_per1000": 100
+    }
+  ],
+  "summary": "REPAIR_SUMMARY.json",
+  "remaining_active_processes": 0
+}

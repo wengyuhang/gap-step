@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-16",
+  "state": "complete",
+  "conditions": 12,
+  "method_cells": 60,
+  "gazebo_runs": 0,
+  "outcomes": {
+    "ours": {
+      "通过": 10,
+      "未找到": 2
+    },
+    "center": {
+      "通过": 9,
+      "未找到": 3
+    },
+    "dynamic_togt": {
+      "通过": 10,
+      "碰撞": 2
+    },
+    "dynamic_togt_center": {
+      "通过": 10,
+      "未完成": 1,
+      "碰撞": 1
+    },
+    "wang2023": {
+      "通过": 3,
+      "碰撞": 6,
+      "未找到完整规划": 2,
+      "未完成": 1
+    }
+  },
+  "audit_passed": true
+}

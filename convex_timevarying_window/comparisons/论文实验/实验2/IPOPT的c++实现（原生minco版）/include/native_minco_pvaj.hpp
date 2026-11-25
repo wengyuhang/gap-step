@@ -1,6 +1,7 @@
 #pragma once
 #include <casadi/casadi.hpp>
 #include "geometry.hpp"
+#include "planar_points.hpp"
 #include "minco_pv.hpp"
 #include <memory>
 
@@ -177,6 +178,7 @@ inline void remove_domain_bounds(Json& metadata) {
         bounds.erase(bounds.begin(),bounds.begin()+workspace);
     }
     metadata["workspace_rows"]=0;
+    metadata["restore_historical_domain"]=false;
     metadata["domain_bounds_removed"]=true;
     metadata["config"]["workspace_lower"]=nullptr;
     metadata["config"]["workspace_upper"]=nullptr;
@@ -267,6 +269,8 @@ public:
             throw std::runtime_error("Dynamics weight must be finite and nonnegative");
         const bool soft=!dynamics.is_null();
         const bool direct=metadata.value("point_coordinates",std::string())=="direct_polar_polygon";
+        const bool xy=metadata.value("point_coordinates",std::string())=="scaled_xy";
+        if(xy)planar_points::validate(metadata);
         const int slack_count=soft ? n*33*6 : 0;
         const MX z=MX::sym("native_actual_pvaj_variables",nv+slack_count);
         const MX parameters=MX::sym("normalization_parameters",1+2*n);
@@ -281,7 +285,13 @@ public:
             if(metadata["free_points"].get<bool>()) {
                 const auto& slice=metadata["slices"][gate];
                 const MX d=z(casadi::Slice(slice["begin"].get<int>(),slice["end"].get<int>()));
-                if(direct) {
+                if(xy) {
+                    const auto box=planar_points::domain(w,planar_points::erosion_radius(metadata));
+                    q=vector2(box.scale)*d;
+                    if(w.circle)point_domain.push_back((box.safe_radius*box.safe_radius-MX::sumsqr(q))/(w.opening_radius*w.opening_radius));
+                    else for(size_t edge=0;edge<box.normals.size();++edge)
+                        point_domain.push_back((box.limits[edge]-MX::dot(vector2(box.normals[edge]),q))/box.scale.maxCoeff());
+                } else if(direct) {
                     q=w.circle ? MX::vertcat({d(0)*MX::cos(d(1)),d(0)*MX::sin(d(1))}) : d;
                     if(!w.circle)for(size_t edge=0;edge<w.frame.size();++edge) {
                         const Eigen::Vector2d delta=w.frame[(edge+1)%w.frame.size()]-w.frame[edge];
@@ -329,7 +339,10 @@ public:
         if(historical_domain)rows.push_back(times);
         if(!gauges.empty())rows.push_back(MX::vertcat(gauges));
         if(!point_domain.empty())rows.push_back(MX::vertcat(point_domain));
-        const MX physical=MX::vertcat({MX::log(times),z(casadi::Slice(n,vs)),states});
+        std::vector<MX> physical_points;
+        for(const auto& point:local_points)if(xy && metadata["free_points"].get<bool>())physical_points.push_back(point);
+        const MX physical=MX::vertcat({MX::log(times),
+            xy && !physical_points.empty()?MX::vertcat(physical_points):z(casadi::Slice(n,vs)),states});
         const MX total=MX::sum1(times);
         MX objective=total,actual_penalty=MX(0.);
         if(soft) {

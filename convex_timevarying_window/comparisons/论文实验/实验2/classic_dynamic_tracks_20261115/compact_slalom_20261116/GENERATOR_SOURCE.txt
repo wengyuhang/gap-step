@@ -1,0 +1,1 @@
+Input construction reused from classic_dynamic_tracks_20261115/generate.cpp, through the end of input(). New code defines only the new scene and its geometry preflight.

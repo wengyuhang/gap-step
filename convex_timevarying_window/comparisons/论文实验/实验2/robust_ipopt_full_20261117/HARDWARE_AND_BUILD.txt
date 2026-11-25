@@ -1,0 +1,12 @@
+Architecture:                         x86_64
+CPU(s):                               24
+Model name:                           12th Gen Intel(R) Core(TM) i9-12900KF
+Thread(s) per core:                   2
+Core(s) per socket:                   16
+Socket(s):                            1
+NUMA node0 CPU(s):                    0-23
+               total        used        free      shared  buff/cache   available
+Mem:            62Gi        21Gi        17Gi       273Mi        24Gi        40Gi
+c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0
+CMAKE_BUILD_TYPE:STRING=
+CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG

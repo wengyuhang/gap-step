@@ -1,0 +1,124 @@
+{
+  "single_vs_eight_threads_identical": true,
+  "derivative_test": {
+    "dimensions": 71,
+    "endpoint_max_error": 7.549516567451064e-14,
+    "independent_derivatives_tested": 63,
+    "passed": true
+  },
+  "frozen_backend_parity": [
+    {
+      "method": "ours",
+      "seed": 0,
+      "coefficient_error": 9.805489753489383e-12,
+      "residual_maximum_error": 0.0,
+      "passed": true
+    },
+    {
+      "method": "ours",
+      "seed": 1,
+      "coefficient_error": 7.58859641791787e-12,
+      "residual_maximum_error": 4.440892098500626e-16,
+      "passed": true
+    },
+    {
+      "method": "ours",
+      "seed": 2,
+      "coefficient_error": 4.334310688136611e-12,
+      "residual_maximum_error": 2.6068036618198676e-13,
+      "passed": true
+    },
+    {
+      "method": "ours",
+      "seed": 3,
+      "coefficient_error": 5.5706550483591855e-12,
+      "residual_maximum_error": 1.0158540675320182e-14,
+      "passed": true
+    },
+    {
+      "method": "ours",
+      "seed": 4,
+      "coefficient_error": 1.3130829756846651e-11,
+      "residual_maximum_error": 1.3639089857520048e-13,
+      "passed": true
+    },
+    {
+      "method": "ours",
+      "seed": 5,
+      "coefficient_error": 7.901235221652314e-12,
+      "residual_maximum_error": 5.46229728115577e-14,
+      "passed": true
+    },
+    {
+      "method": "ours",
+      "seed": 6,
+      "coefficient_error": 2.710294211283326e-10,
+      "residual_maximum_error": 6.394884621840902e-14,
+      "passed": true
+    },
+    {
+      "method": "ours",
+      "seed": 7,
+      "coefficient_error": 9.595169103704393e-11,
+      "residual_maximum_error": 8.348877145181177e-13,
+      "passed": true
+    },
+    {
+      "method": "center",
+      "seed": 0,
+      "coefficient_error": 9.805489753489383e-12,
+      "residual_maximum_error": 0.0,
+      "passed": true
+    },
+    {
+      "method": "center",
+      "seed": 1,
+      "coefficient_error": 7.58859641791787e-12,
+      "residual_maximum_error": 4.440892098500626e-16,
+      "passed": true
+    },
+    {
+      "method": "center",
+      "seed": 2,
+      "coefficient_error": 4.334310688136611e-12,
+      "residual_maximum_error": 2.6068036618198676e-13,
+      "passed": true
+    },
+    {
+      "method": "center",
+      "seed": 3,
+      "coefficient_error": 5.5706550483591855e-12,
+      "residual_maximum_error": 1.0158540675320182e-14,
+      "passed": true
+    },
+    {
+      "method": "center",
+      "seed": 4,
+      "coefficient_error": 1.3130829756846651e-11,
+      "residual_maximum_error": 1.3639089857520048e-13,
+      "passed": true
+    },
+    {
+      "method": "center",
+      "seed": 5,
+      "coefficient_error": 7.901235221652314e-12,
+      "residual_maximum_error": 5.46229728115577e-14,
+      "passed": true
+    },
+    {
+      "method": "center",
+      "seed": 6,
+      "coefficient_error": 2.710294211283326e-10,
+      "residual_maximum_error": 6.394884621840902e-14,
+      "passed": true
+    },
+    {
+      "method": "center",
+      "seed": 7,
+      "coefficient_error": 9.595169103704393e-11,
+      "residual_maximum_error": 8.348877145181177e-13,
+      "passed": true
+    }
+  ],
+  "scope": "two-generation smoke test only; not optimization performance experiment"
+}
